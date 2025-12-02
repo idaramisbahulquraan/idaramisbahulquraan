@@ -1,0 +1,29 @@
+# School Management Firebase App Guidelines
+
+## Tech Stack
+- React (Vite)
+- Firebase (Auth, Firestore, Storage)
+- Tailwind CSS
+- React Router
+
+## User Roles
+- Admin
+- Teacher
+- Student
+- Parent
+
+## Features Planned
+1. Authentication (Login/Logout with Role-based access)
+2. Dashboard (Overview based on role)
+3. Student Management (Add, Edit, View, Delete)
+4. Teacher Management
+5. Attendance System
+6. Grading/Marks System
+7. Fee Management (for Parents/Admins)
+8. Notices/Announcements
+
+## Current Status
+- Project initialized
+- Dependencies installed
+- Basic structure created (Login, Dashboard)
+- Firebase configured
