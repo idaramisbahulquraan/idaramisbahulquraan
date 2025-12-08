@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Collection - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-add {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-add:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .table-container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-paid {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>Fees Management</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">User</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">U</div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('fees')">Fee Records</button>
+                    <button class="tab-btn" onclick="switchTab('heads')">Fee Heads</button>
+                </div>
+
+                <!-- Fees Tab -->
+                <div id="fees-tab" class="tab-content active">
+                    <div class="page-header">
+                        <h2 style="font-size: 1.25rem; font-weight: 600;">Fee Records</h2>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button onclick="downloadFeesPDF()" class="btn-add" style="background-color: #4b5563;">
+                                <span>↓</span> PDF
+                            </button>
+                            <button onclick="openModal('feeModal')" class="btn-add">
+                                <span>+</span> Add Fee Record
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="feesTable">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Roll No</th>
+                                    <th>Month/Year</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="feesList">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 2rem;">Loading fees...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Fee Heads Tab -->
+                <div id="heads-tab" class="tab-content">
+                    <div class="page-header">
+                        <h2 style="font-size: 1.25rem; font-weight: 600;">Fee Heads</h2>
+                        <button onclick="openModal('headModal')" class="btn-add">
+                            <span>+</span> Add Fee Head
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="headsTable">
+                            <thead>
+                                <tr>
+                                    <th>Head Name</th>
+                                    <th>Default Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="headsList">
+                                <tr>
+                                    <td colspan="3" style="text-align: center; padding: 2rem;">Loading heads...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Fee Modal -->
+    <div id="feeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="feeModalTitle">Add Fee Record</h3>
+                <button class="close-btn" onclick="closeModal('feeModal')">&times;</button>
+            </div>
+            <form id="addFeeForm" onsubmit="handleAddFee(event)">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label>Student Roll Number</label>
+                    <input type="text" name="rollNumber" id="rollNumberInput" required placeholder="Enter Student Roll No">
+                    <small id="studentNameDisplay" style="color: var(--primary-color); font-weight: 500; display: block; margin-top: 0.25rem;"></small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Fee Type</label>
+                    <select name="feeType" id="feeTypeSelect" required onchange="updateAmountFromHead()">
+                        <option value="">Select Fee Type</option>
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Month</label>
+                    <select name="month" required>
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October">October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Year</label>
+                    <input type="number" name="year" required value="2025">
+                </div>
+
+                <div class="form-group">
+                    <label>Amount (PKR)</label>
+                    <input type="number" name="amount" id="amountInput" required min="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" required>
+                        <option value="Pending">Pending</option>
+                        <option value="Paid">Paid</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-add" style="width: 100%; justify-content: center;">Save Record</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Head Modal -->
+    <div id="headModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Fee Head</h3>
+                <button class="close-btn" onclick="closeModal('headModal')">&times;</button>
+            </div>
+            <form onsubmit="handleAddHead(event)">
+                <div class="form-group">
+                    <label>Head Name</label>
+                    <input type="text" name="name" required placeholder="e.g. Monthly Fee, Exam Fee">
+                </div>
+                
+                <div class="form-group">
+                    <label>Default Amount (Optional)</label>
+                    <input type="number" name="amount" placeholder="e.g. 5000">
+                </div>
+
+                <button type="submit" class="btn-add" style="width: 100%; justify-content: center;">Save Head</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/script.js"></script>
+
+    <script>
+        const rollInput = document.getElementById('rollNumberInput');
+        const nameDisplay = document.getElementById('studentNameDisplay');
+        
+        let foundStudent = null;
+        let feeHeadsCache = [];
+
+        // Tab Switching
+        function switchTab(tab) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(div => div.classList.remove('active'));
+            if(tab === 'fees') {
+                document.getElementById('fees-tab').classList.add('active');
+                loadFees();
+            } else {
+                document.getElementById('heads-tab').classList.add('active');
+                loadFeeHeads();
+            }
+        }
+
+        // Debounce student lookup
+        let timeout = null;
+        rollInput.addEventListener('input', (e) => {
+            clearTimeout(timeout);
+            nameDisplay.textContent = 'Searching...';
+            foundStudent = null;
+            
+            timeout = setTimeout(async () => {
+                const roll = e.target.value.trim();
+                if (!roll) {
+                    nameDisplay.textContent = '';
+                    return;
+                }
+
+                try {
+                    const snapshot = await db.collection('students').where('rollNumber', '==', roll).limit(1).get();
+                    if (!snapshot.empty) {
+                        foundStudent = snapshot.docs[0].data();
+                        foundStudent.id = snapshot.docs[0].id; // Add doc ID
+                        nameDisplay.textContent = `Found: ${foundStudent.firstName} ${foundStudent.lastName} (${foundStudent.className})`;
+                        nameDisplay.style.color = 'var(--primary-color)';
+                    } else {
+                        nameDisplay.textContent = 'Student not found';
+                        nameDisplay.style.color = 'red';
+                    }
+                } catch (error) {
+                    console.error(error);
+                    nameDisplay.textContent = 'Error searching student';
+                }
+            }, 500);
+        });
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            if(id === 'feeModal') {
+                document.querySelector('#feeModal input[name="year"]').value = new Date().getFullYear();
+                populateFeeTypes();
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            // Reset forms
+            if(id === 'feeModal') {
+                document.getElementById('addFeeForm').reset();
+                document.querySelector('input[name="docId"]').value = '';
+                document.getElementById('feeModalTitle').textContent = 'Add Fee Record';
+                nameDisplay.textContent = '';
+                foundStudent = null;
+            } else if (id === 'headModal') {
+                document.querySelector('#headModal form').reset();
+            }
+        }
+
+        // --- Fees Logic ---
+
+        async function populateFeeTypes() {
+            const select = document.getElementById('feeTypeSelect');
+            if(feeHeadsCache.length === 0) {
+                 const snapshot = await db.collection('fee_heads').orderBy('name').get();
+                 feeHeadsCache = [];
+                 snapshot.forEach(doc => {
+                     feeHeadsCache.push(doc.data());
+                 });
+            }
+
+            select.innerHTML = '<option value="">Select Fee Type</option>';
+            
+            // Default options
+            const defaults = ['Monthly Fee', 'Admission Fee', 'Exam Fee', 'Other'];
+            defaults.forEach(t => {
+                // Only add if not in custom heads to avoid duplicates if user added them
+                if(!feeHeadsCache.find(h => h.name === t)) {
+                    const opt = document.createElement('option');
+                    opt.value = t;
+                    opt.innerText = t;
+                    select.appendChild(opt);
+                }
+            });
+
+            // Custom heads
+            feeHeadsCache.forEach(head => {
+                const opt = document.createElement('option');
+                opt.value = head.name;
+                opt.innerText = head.name;
+                opt.dataset.amount = head.amount || '';
+                select.appendChild(opt);
+            });
+        }
+
+        function updateAmountFromHead() {
+            const select = document.getElementById('feeTypeSelect');
+            const amountInput = document.getElementById('amountInput');
+            const selectedOpt = select.options[select.selectedIndex];
+            
+            if(selectedOpt.dataset.amount) {
+                amountInput.value = selectedOpt.dataset.amount;
+            }
+        }
+
+        async function handleAddFee(e) {
+            e.preventDefault();
+            
+            // If editing, foundStudent might be set from editFee
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            const docId = data.docId;
+
+            if (!foundStudent && !docId) {
+                alert('Please enter a valid student roll number first.');
+                return;
+            }
+
+            try {
+                const feeData = {
+                    feeType: data.feeType,
+                    month: data.month,
+                    year: parseInt(data.year),
+                    amount: parseFloat(data.amount),
+                    status: data.status,
+                };
+                
+                // If adding new or student changed (foundStudent is updated)
+                if (foundStudent) {
+                    feeData.studentId = foundStudent.id;
+                    feeData.studentName = `${foundStudent.firstName} ${foundStudent.lastName}`;
+                    feeData.rollNumber = foundStudent.rollNumber;
+                    feeData.className = foundStudent.className;
+                    feeData.department = foundStudent.department;
+                }
+
+                if (docId) {
+                     if (data.status === 'Paid') {
+                        feeData.paidAt = firebase.firestore.FieldValue.serverTimestamp();
+                    }
+                    await db.collection('fees').doc(docId).update(feeData);
+                    alert('Fee record updated successfully!');
+                } else {
+                    feeData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    feeData.paidAt = data.status === 'Paid' ? firebase.firestore.FieldValue.serverTimestamp() : null;
+                    await db.collection('fees').add(feeData);
+                    alert('Fee record added successfully!');
+                }
+
+                closeModal('feeModal');
+                loadFees();
+
+            } catch (error) {
+                console.error("Error saving fee:", error);
+                alert("Error: " + error.message);
+            }
+        }
+        
+        async function editFee(id) {
+            try {
+                const doc = await db.collection('fees').doc(id).get();
+                if(!doc.exists) return;
+                
+                const fee = doc.data();
+                
+                // Pre-fill form
+                const form = document.getElementById('addFeeForm');
+                form.querySelector('input[name="docId"]').value = id;
+                form.querySelector('input[name="rollNumber"]').value = fee.rollNumber;
+                
+                // Manually trigger student display (mock foundStudent)
+                foundStudent = {
+                    id: fee.studentId,
+                    firstName: fee.studentName.split(' ')[0], 
+                    lastName: fee.studentName.split(' ').slice(1).join(' '), 
+                    rollNumber: fee.rollNumber,
+                    className: fee.className,
+                    department: fee.department
+                };
+                document.getElementById('studentNameDisplay').textContent = `Selected: ${fee.studentName} (${fee.className})`;
+                
+                // Fee Type - wait for populate if needed
+                const feeTypeSelect = form.querySelector('select[name="feeType"]');
+                if(feeTypeSelect.options.length <= 1) await populateFeeTypes();
+                feeTypeSelect.value = fee.feeType;
+                
+                form.querySelector('select[name="month"]').value = fee.month;
+                form.querySelector('input[name="year"]').value = fee.year;
+                form.querySelector('input[name="amount"]').value = fee.amount;
+                form.querySelector('select[name="status"]').value = fee.status;
+                
+                document.getElementById('feeModalTitle').textContent = 'Edit Fee Record';
+                openModal('feeModal');
+                
+            } catch(e) {
+                console.error(e);
+                alert('Error loading fee details');
+            }
+        }
+        
+        function downloadFeesPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFontSize(18);
+            doc.text("Fee Records Report", 14, 20);
+            doc.setFontSize(10);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 28);
+            
+            const table = document.getElementById('feesTable');
+            const headers = [['Student', 'Class', 'Roll No', 'Month/Year', 'Amount', 'Status', 'Date']];
+            const rows = [];
+            
+            const trs = table.querySelectorAll('tbody tr');
+            trs.forEach(tr => {
+                const tds = tr.querySelectorAll('td');
+                if(tds.length < 5) return; 
+                
+                const studentText = tds[0].innerText.split('\n');
+                const name = studentText[0];
+                const cls = studentText[1] || '';
+                
+                const roll = tds[1].innerText;
+                const monthYear = tds[2].innerText.replace('\n', ' ');
+                const amount = tds[3].innerText;
+                const status = tds[4].innerText;
+                const date = tds[5].innerText;
+                
+                rows.push([name, cls, roll, monthYear, amount, status, date]);
+            });
+            
+            doc.autoTable({
+                head: headers,
+                body: rows,
+                startY: 35,
+            });
+            
+            doc.save('fees_report.pdf');
+        }
+
+        async function loadFees() {
+            const tbody = document.getElementById('feesList');
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Loading...</td></tr>';
+
+            try {
+                const snapshot = await db.collection('fees').orderBy('createdAt', 'desc').limit(50).get();
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-light);">
+                                No fee records found. Click "Add Fee Record" to start.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const fee = doc.data();
+                    const statusClass = fee.status === 'Paid' ? 'status-paid' : 'status-pending';
+                    const date = fee.createdAt ? new Date(fee.createdAt.seconds * 1000).toLocaleDateString() : 'N/A';
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <div style="font-weight: 500;">${fee.studentName}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-light);">${fee.className}</div>
+                        </td>
+                        <td>${fee.rollNumber}</td>
+                        <td>${fee.month} ${fee.year} <br><span style="font-size: 0.75rem; color: var(--text-light);">${fee.feeType}</span></td>
+                        <td style="font-weight: 600;">Rs. ${fee.amount}</td>
+                        <td><span class="status-badge ${statusClass}">${fee.status}</span></td>
+                        <td>${date}</td>
+                        <td>
+                            <button style="color: var(--primary-color); background: none; border: none; cursor: pointer; margin-right: 0.5rem;" onclick="editFee('${doc.id}')">Edit</button>
+                            ${fee.status === 'Pending' ? 
+                                `<button class="btn-add" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="markPaid('${doc.id}')">Mark Paid</button>` 
+                                : '<span style="color: var(--primary-color);">✓ Paid</span>'}
+                            <button style="margin-left: 0.5rem; color: red; background: none; border: none; cursor: pointer;" onclick="deleteFee('${doc.id}')">Delete</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error("Error loading fees:", error);
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: red;">Error loading data.</td></tr>';
+            }
+        }
+
+        async function markPaid(id) {
+            if(!confirm('Mark this fee as Paid?')) return;
+            
+            try {
+                await db.collection('fees').doc(id).update({
+                    status: 'Paid',
+                    paidAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                loadFees();
+            } catch (error) {
+                console.error(error);
+                alert('Error updating status');
+            }
+        }
+
+        async function deleteFee(id) {
+            if(!confirm('Delete this record?')) return;
+            
+            try {
+                await db.collection('fees').doc(id).delete();
+                loadFees();
+            } catch (error) {
+                console.error(error);
+                alert('Error deleting record');
+            }
+        }
+
+        // --- Fee Heads Logic ---
+
+        async function handleAddHead(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.disabled = true;
+            btn.innerText = 'Saving...';
+            
+            const formData = new FormData(e.target);
+            const name = formData.get('name');
+            const amount = formData.get('amount') ? parseFloat(formData.get('amount')) : null;
+
+            try {
+                await db.collection('fee_heads').add({
+                    name: name,
+                    amount: amount,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                feeHeadsCache = []; // Clear cache
+                closeModal('headModal');
+                loadFeeHeads();
+                alert('Fee Head added!');
+            } catch (error) {
+                console.error(error);
+                alert('Error adding fee head');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Save Head';
+            }
+        }
+
+        async function loadFeeHeads() {
+            const tbody = document.getElementById('headsList');
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">Loading...</td></tr>';
+            
+            try {
+                const snapshot = await db.collection('fee_heads').orderBy('createdAt', 'desc').get();
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No fee heads found.</td></tr>';
+                    return;
+                }
+
+                let html = '';
+                snapshot.forEach(doc => {
+                    const h = doc.data();
+                    html += `
+                        <tr>
+                            <td style="font-weight: 500;">${h.name}</td>
+                            <td>${h.amount ? 'Rs. ' + h.amount : '-'}</td>
+                            <td>
+                                <button onclick="deleteHead('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            } catch (error) {
+                console.error(error);
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: red;">Error loading data.</td></tr>';
+            }
+        }
+
+        async function deleteHead(id) {
+             if(!confirm('Delete this fee head?')) return;
+             try {
+                 await db.collection('fee_heads').doc(id).delete();
+                 feeHeadsCache = [];
+                 loadFeeHeads();
+             } catch (error) {
+                 console.error(error);
+                 alert('Error deleting fee head');
+             }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFees();
+            // Preload heads for dropdown
+            populateFeeTypes();
+        });
+    </script>
+</body>
+</html>

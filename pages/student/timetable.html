@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Timetable - School Management System</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .table-container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .day-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>SMS Student</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 id="pageTitle">My Timetable</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">User</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">U</div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                <div class="stat-card">
+                    <h3 id="classInfo" style="margin-bottom: 1.5rem;">Loading Class Info...</h3>
+                    
+                    <div class="table-container">
+                        <table id="timetableTable">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Time</th>
+                                    <th>Subject</th>
+                                    <th>Teacher</th>
+                                </tr>
+                            </thead>
+                            <tbody id="timetableList">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; padding: 2rem;">Loading timetable...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/script.js"></script>
+
+    <script>
+        const dayOrder = { "Monday": 1, "Tuesday": 2, "Wednesday": 3, "Thursday": 4, "Friday": 5, "Saturday": 6, "Sunday": 7 };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Wait for auth to be ready (handled by script.js but we need the user object)
+            // We can listen to auth state change or just wait a bit if script.js runs first.
+            // Better: use onAuthStateChanged here too or check if user is already in localStorage from script.js logic.
+            
+            // script.js initializes the dashboard and sidebar. We need to fetch specific data.
+            
+            firebase.auth().onAuthStateChanged(async (user) => {
+                if (user) {
+                    await loadStudentTimetable(user.uid);
+                }
+            });
+        });
+
+        async function loadStudentTimetable(uid) {
+            const tbody = document.getElementById('timetableList');
+            const classInfoEl = document.getElementById('classInfo');
+
+            try {
+                // 1. Get Student Profile
+                const studentDoc = await db.collection("students").doc(uid).get();
+                
+                if (!studentDoc.exists) {
+                    classInfoEl.innerText = "Student profile not found.";
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Profile error. Please contact admin.</td></tr>';
+                    return;
+                }
+
+                const studentData = studentDoc.data();
+                const department = studentData.department;
+                const className = studentData.className;
+
+                classInfoEl.innerText = `${department} - ${className}`;
+
+                // 2. Fetch Timetable
+                const snapshot = await db.collection("timetable")
+                    .where("department", "==", department)
+                    .where("className", "==", className)
+                    .get();
+
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">No timetable found for this class.</td></tr>';
+                    return;
+                }
+
+                let periods = [];
+                snapshot.forEach(doc => {
+                    periods.push({ id: doc.id, ...doc.data() });
+                });
+
+                // 3. Sort
+                periods.sort((a, b) => {
+                    const dayDiff = dayOrder[a.day] - dayOrder[b.day];
+                    if (dayDiff !== 0) return dayDiff;
+                    return a.startTime.localeCompare(b.startTime);
+                });
+
+                // 4. Render
+                tbody.innerHTML = '';
+                periods.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${p.day}</td>
+                        <td>${formatTime(p.startTime)} - ${formatTime(p.endTime)}</td>
+                        <td>${p.subject}</td>
+                        <td>${p.teacherName || '-'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error("Error loading timetable:", error);
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Error loading data.</td></tr>';
+            }
+        }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return '';
+            const [hours, minutes] = timeStr.split(':');
+            const h = parseInt(hours);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12 = h % 12 || 12;
+            return `${h12}:${minutes} ${ampm}`;
+        }
+    </script>
+</body>
+
+</html>

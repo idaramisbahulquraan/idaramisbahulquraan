@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teachers - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-add {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-add:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .table-container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .avatar-sm {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .teacher-cell {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>Teachers Management</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">User</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">U</div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                <div class="page-header">
+                    <h2 style="font-size: 1.25rem; font-weight: 600;">All Teachers</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn-add" onclick="downloadTeachersPDF()" style="background-color: var(--secondary-color); border: none; cursor: pointer;">
+                            ↓ PDF
+                        </button>
+                        <button onclick="openModal('teacherModal')" class="btn-add" style="border: none; cursor: pointer;">
+                            <span>+</span> Add New Teacher
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="teachersTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Subject</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Joined Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teachersList">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 2rem;">Loading teachers...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Teacher Modal -->
+    <div id="teacherModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="teacherModalTitle">Add New Teacher</h3>
+                <button class="close-btn" onclick="closeModal('teacherModal')">&times;</button>
+            </div>
+            <form id="addTeacherForm" onsubmit="handleAddTeacher(event)">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" name="firstName" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" name="lastName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email (Login ID)</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div class="form-group" id="passwordGroup">
+                    <label>Password</label>
+                    <input type="password" name="password" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" name="subject" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" name="phone" required>
+                </div>
+                <div style="margin-top: 1.5rem; text-align: right;">
+                    <button type="button" class="btn-add" onclick="closeModal('teacherModal')" style="background-color: var(--secondary-color); margin-right: 0.5rem; border:none; cursor:pointer;">Cancel</button>
+                    <button type="submit" class="btn-add" style="border:none; cursor:pointer;">Save Teacher</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/script.js"></script>
+
+    <script>
+        // Initialize Secondary App for creating users without logging out
+        let secondaryApp;
+        let secondaryAuth;
+
+        try {
+            secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
+            secondaryAuth = secondaryApp.auth();
+        } catch(e) {
+            const apps = firebase.apps;
+            secondaryApp = apps.find(app => app.name === "Secondary");
+            secondaryAuth = secondaryApp.auth();
+        }
+
+        // Modal Logic
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            const form = document.getElementById('addTeacherForm');
+            form.reset();
+            form.querySelector('input[name="docId"]').value = '';
+            document.getElementById('teacherModalTitle').textContent = 'Add New Teacher';
+            
+            // Reset fields
+            document.getElementById('passwordGroup').style.display = 'block';
+            document.querySelector('input[name="password"]').setAttribute('required', 'true');
+            document.querySelector('input[name="email"]').removeAttribute('readonly');
+        }
+
+        // Fetch and Display Teachers
+        async function loadTeachers() {
+            const tableBody = document.getElementById('teachersList');
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading teachers...</td></tr>';
+
+            try {
+                const snapshot = await db.collection('teachers').orderBy('createdAt', 'desc').get();
+                
+                if (snapshot.empty) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-light);">
+                                No teachers found. Click "Add New Teacher" to start.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                snapshot.forEach(doc => {
+                    const teacher = doc.data();
+                    const firstName = teacher.firstName || '';
+                    const lastName = teacher.lastName || '';
+                    const initials = ((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || 'T';
+                    const date = teacher.createdAt ? new Date(teacher.createdAt.seconds * 1000).toLocaleDateString() : 'N/A';
+                    
+                    html += `
+                        <tr>
+                            <td>
+                                <div class="teacher-cell">
+                                    <div class="avatar-sm">${initials}</div>
+                                    <div>
+                                        <div style="font-weight: 500;">${firstName} ${lastName}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${teacher.subject}</td>
+                            <td>${teacher.email}</td>
+                            <td>${teacher.phone}</td>
+                            <td>${date}</td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button onclick="editTeacher('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer;">Edit</button>
+                                    <button onclick="deleteTeacher('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableBody.innerHTML = html;
+
+            } catch (error) {
+                console.error("Error fetching teachers:", error);
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--danger);">
+                            Error loading data: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        async function handleAddTeacher(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Saving...';
+            btn.disabled = true;
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            const docId = data.docId;
+
+            try {
+                if (docId) {
+                    // Update
+                    await db.collection("teachers").doc(docId).update({
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        subject: data.subject,
+                        phone: data.phone
+                    });
+                    // Also update users collection if needed
+                     await db.collection("users").doc(docId).update({
+                        email: data.email
+                    });
+                    alert('Teacher updated successfully!');
+                } else {
+                    // Create
+                    const userCredential = await secondaryAuth.createUserWithEmailAndPassword(data.email, data.password);
+                    const uid = userCredential.user.uid;
+
+                    await db.collection("users").doc(uid).set({
+                        email: data.email,
+                        role: 'teacher',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    await db.collection("teachers").doc(uid).set({
+                        uid: uid,
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        email: data.email,
+                        subject: data.subject,
+                        phone: data.phone,
+                        role: 'teacher',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    alert('Teacher added successfully!');
+                }
+
+                closeModal('teacherModal');
+                loadTeachers();
+
+            } catch (error) {
+                console.error("Error saving teacher:", error);
+                alert("Error: " + error.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+                if(!docId) secondaryAuth.signOut();
+            }
+        }
+
+        async function editTeacher(uid) {
+            try {
+                const doc = await db.collection('teachers').doc(uid).get();
+                if(!doc.exists) return;
+                const t = doc.data();
+
+                const form = document.getElementById('addTeacherForm');
+                form.querySelector('input[name="docId"]').value = uid;
+                form.querySelector('input[name="firstName"]').value = t.firstName;
+                form.querySelector('input[name="lastName"]').value = t.lastName;
+                
+                const emailInput = form.querySelector('input[name="email"]');
+                emailInput.value = t.email;
+                emailInput.setAttribute('readonly', 'true');
+
+                document.getElementById('passwordGroup').style.display = 'none';
+                document.querySelector('input[name="password"]').removeAttribute('required');
+
+                form.querySelector('input[name="subject"]').value = t.subject;
+                form.querySelector('input[name="phone"]').value = t.phone;
+
+                document.getElementById('teacherModalTitle').textContent = 'Edit Teacher';
+                openModal('teacherModal');
+
+            } catch (error) {
+                console.error(error);
+                alert('Error loading teacher data');
+            }
+        }
+
+        async function deleteTeacher(uid) {
+            if(!confirm('Are you sure you want to delete this teacher? This cannot be undone.')) return;
+            
+            try {
+                // Ideally we should delete from Auth too, but client SDK can't delete other users easily.
+                // We'll just delete the data records.
+                await db.collection('teachers').doc(uid).delete();
+                await db.collection('users').doc(uid).delete();
+                loadTeachers();
+                alert('Teacher deleted.');
+            } catch (error) {
+                console.error(error);
+                alert('Error deleting teacher: ' + error.message);
+            }
+        }
+
+        function downloadTeachersPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.text("Teachers List", 14, 20);
+            doc.setFontSize(10);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 26);
+
+            const rows = [];
+            document.querySelectorAll('#teachersList tr').forEach(tr => {
+                const tds = tr.querySelectorAll('td');
+                if (tds.length > 1) { // Skip loading/empty rows
+                     const name = tds[0].innerText.trim(); // Avatar + Name text
+                     const subject = tds[1].innerText;
+                     const email = tds[2].innerText;
+                     const phone = tds[3].innerText;
+                     const joined = tds[4].innerText;
+                     rows.push([name, subject, email, phone, joined]);
+                }
+            });
+
+            doc.autoTable({
+                head: [['Name', 'Subject', 'Email', 'Phone', 'Joined']],
+                body: rows,
+                startY: 30,
+            });
+
+            doc.save('teachers.pdf');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadTeachers);
+    </script>
+</body>
+
+</html>

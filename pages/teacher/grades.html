@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Grades - School Management System</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+
+        .table-container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .grade-input {
+            width: 80px;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>SMS Teacher</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 id="pageTitle">Manage Grades</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">User</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">U</div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                <div class="stat-card">
+                    <h3 style="margin-bottom: 1.5rem;">Select Exam</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Department</label>
+                            <select id="department" onchange="updateClasses()" required>
+                                <option value="">Select Department</option>
+                                <option value="Dars-e-Nizami">Dars-e-Nizami</option>
+                                <option value="Hifz">Hifz</option>
+                                <option value="Tajweed">Tajweed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Class</label>
+                            <select id="className" onchange="loadExams()" required>
+                                <option value="">Select Class</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Exam & Subject</label>
+                            <select id="examSelect" onchange="loadGradingSheet()" required>
+                                <option value="">Select Class First</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card" id="gradingCard" style="display: none; margin-top: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 id="gradingTitle">Grading Sheet</h3>
+                        <button class="btn-primary" onclick="saveGrades()" style="width: auto;">Save Grades</button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Roll No</th>
+                                    <th>Student Name</th>
+                                    <th>Obtained Marks</th>
+                                    <th>Total Marks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gradingList">
+                                <tr><td colspan="4" style="text-align: center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/script.js"></script>
+
+    <script>
+        // Data for dropdowns
+        const DARS_CLASSES = ['Mutwasta','Aama Arzbic (A)','Aama Arabic (B)','Aama English','Khasa - I','Khasa - II','Matric','Intermediate (IX)','Aalia - I (X)','Aalia - II (XI)','Aalamia - I (XII)','Almia - II (XI)'];
+        const HIFZ_CLASSES = ['Amer Bin Khatab','Abdullah Bin Masood','Zaid Bin Sabit','Musab Bin Omair','Abdullah Bin Abbas','Osman Ghani','Abee Bin Kaab','Abu Bakar Siddique','Ali-ul-Murtazi','Naseerah Murseed'];
+        const TAJWEED_CLASSES = ['Class 1st year','Class IInd year'];
+
+        function updateClasses() {
+            const dept = document.getElementById('department').value;
+            const classSelect = document.getElementById('className');
+            classSelect.innerHTML = '<option value="">Select Class</option>';
+            
+            let classes = [];
+            if(dept === 'Dars-e-Nizami') classes = DARS_CLASSES;
+            else if(dept === 'Hifz') classes = HIFZ_CLASSES;
+            else if(dept === 'Tajweed') classes = TAJWEED_CLASSES;
+
+            classes.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.innerText = c;
+                classSelect.appendChild(opt);
+            });
+            
+            // Reset Exam Select
+            document.getElementById('examSelect').innerHTML = '<option value="">Select Class First</option>';
+            document.getElementById('gradingCard').style.display = 'none';
+        }
+
+        async function loadExams() {
+            const dept = document.getElementById('department').value;
+            const className = document.getElementById('className').value;
+            const examSelect = document.getElementById('examSelect');
+
+            if(!dept || !className) return;
+
+            examSelect.innerHTML = '<option value="">Loading...</option>';
+
+            try {
+                // Client-side filter to avoid composite index
+                const snapshot = await db.collection('exams')
+                    .where('department', '==', dept)
+                    .where('className', '==', className)
+                    .get();
+
+                if(snapshot.empty) {
+                    examSelect.innerHTML = '<option value="">No exams found</option>';
+                    return;
+                }
+
+                examSelect.innerHTML = '<option value="">Select Exam</option>';
+                snapshot.forEach(doc => {
+                    const exam = doc.data();
+                    const opt = document.createElement('option');
+                    opt.value = doc.id;
+                    opt.innerText = `${exam.examName} - ${exam.subject} (${new Date(exam.date).toLocaleDateString()})`;
+                    // Store full exam object in dataset if needed, but we'll fetch it again or just use basic info
+                    examSelect.appendChild(opt);
+                });
+
+            } catch (error) {
+                console.error("Error loading exams:", error);
+                examSelect.innerHTML = '<option value="">Error loading exams</option>';
+            }
+        }
+
+        async function loadGradingSheet() {
+            const examId = document.getElementById('examSelect').value;
+            if(!examId) {
+                document.getElementById('gradingCard').style.display = 'none';
+                return;
+            }
+
+            const dept = document.getElementById('department').value;
+            const className = document.getElementById('className').value;
+            
+            document.getElementById('gradingCard').style.display = 'block';
+            const tbody = document.getElementById('gradingList');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading students and existing grades...</td></tr>';
+
+            try {
+                // 1. Fetch Exam Details (to get subject, etc.)
+                const examDoc = await db.collection('exams').doc(examId).get();
+                const examData = examDoc.data();
+                document.getElementById('gradingTitle').innerText = `Grading: ${examData.examName} - ${examData.subject}`;
+
+                // 2. Fetch Students
+                const studentsSnapshot = await db.collection('students')
+                    .where('department', '==', dept)
+                    .where('className', '==', className)
+                    .orderBy('rollNumber')
+                    .get();
+
+                if(studentsSnapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No students found in this class.</td></tr>';
+                    return;
+                }
+
+                // 3. Fetch Existing Grades
+                let existingGrades = {};
+                const gradesDoc = await db.collection('grades').doc(examId).get();
+                if(gradesDoc.exists) {
+                    gradesDoc.data().records.forEach(r => {
+                        existingGrades[r.uid] = r;
+                    });
+                }
+
+                // 4. Render
+                tbody.innerHTML = '';
+                studentsSnapshot.forEach(doc => {
+                    const s = doc.data();
+                    const existing = existingGrades[s.uid] || {};
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${s.rollNumber}</td>
+                        <td>${s.firstName} ${s.lastName}</td>
+                        <td>
+                            <input type="number" class="grade-input obtained" data-uid="${s.uid}" data-name="${s.firstName} ${s.lastName}" data-roll="${s.rollNumber}" value="${existing.obtained || ''}" placeholder="0">
+                        </td>
+                        <td>
+                            <input type="number" class="grade-input total" value="${existing.total || 100}" placeholder="100">
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error("Error:", error);
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Error loading data. Note: If "Missing or insufficient permissions" or "Index" error, check console.</td></tr>';
+            }
+        }
+
+        async function saveGrades() {
+            const examId = document.getElementById('examSelect').value;
+            const dept = document.getElementById('department').value;
+            const className = document.getElementById('className').value;
+            
+            if(!examId) return;
+
+            const btn = document.querySelector('button[onclick="saveGrades()"]');
+            btn.innerText = 'Saving...';
+            btn.disabled = true;
+
+            try {
+                // Get Exam Info again to be safe/consistent
+                const examDoc = await db.collection('exams').doc(examId).get();
+                const examData = examDoc.data();
+
+                const rows = document.querySelectorAll('#gradingList tr');
+                const records = [];
+
+                rows.forEach(tr => {
+                    const obtainedInput = tr.querySelector('.obtained');
+                    const totalInput = tr.querySelector('.total');
+                    
+                    if(obtainedInput) {
+                        records.push({
+                            uid: obtainedInput.dataset.uid,
+                            name: obtainedInput.dataset.name,
+                            rollNo: obtainedInput.dataset.roll,
+                            obtained: Number(obtainedInput.value),
+                            total: Number(totalInput.value)
+                        });
+                    }
+                });
+
+                await db.collection('grades').doc(examId).set({
+                    examId: examId,
+                    examName: examData.examName,
+                    subject: examData.subject,
+                    date: examData.date,
+                    department: dept,
+                    className: className,
+                    records: records,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert('Grades saved successfully!');
+
+            } catch (error) {
+                console.error("Error saving grades:", error);
+                alert("Error: " + error.message);
+            } finally {
+                btn.innerText = 'Save Grades';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seed Database</title>
+    <style>
+        body { font-family: sans-serif; padding: 2rem; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+        .log { background: #f4f4f4; padding: 1rem; border-radius: 8px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; margin-top: 1rem; border: 1px solid #ddd; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; margin-right: 10px; margin-bottom: 10px; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        .info { color: #666; }
+    </style>
+</head>
+<body>
+    <h1>Database Seeder</h1>
+    <p>Use these tools to populate the database.</p>
+    
+    <div>
+        <button id="seedDeptBtn" onclick="runSeedDepartments()">Seed Departments & Classes</button>
+        <button id="seedStudentsBtn" onclick="runSeedStudents()">Seed Students</button>
+        <button id="seedHifzBtn" onclick="runSeedHifzStudents()">Seed Hifz Students</button>
+        <button id="seedTeachersBtn" onclick="runSeedTeachers()">Seed Teachers</button>
+        <button id="seedSubjectsBtn" onclick="runSeedSubjects()">Seed Subjects</button>
+        <button id="deleteUrduTeachersBtn" onclick="deleteUrduTeachers()" style="background-color: #dc3545;">Delete Urdu Teachers</button>
+    </div>
+    
+    <div id="log" class="log">Ready...</div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Configuration -->
+    <script src="js/firebase-config.js"></script>
+
+    <script>
+        // Secondary App for User Creation (prevents logging out the admin)
+        let secondaryApp;
+        let secondaryAuth;
+
+        try {
+            secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
+            secondaryAuth = secondaryApp.auth();
+        } catch (e) {
+            console.error("Secondary app init error:", e);
+        }
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        // --- Department & Class Seeding Data ---
+        const deptDataList = [
+            {
+                department: "Dars-e-Nizami Department",
+                classes: [
+                    "Mutwasta",
+                    "Aama Arzbic (A)",
+                    "Aama Arabic (B)",
+                    "Aama English",
+                    "Khasa - I",
+                    "Khasa - II",
+                    "Matric",
+                    "Intermediate (IX)",
+                    "Aalia - I (X)",
+                    "Aalia - II (XI)",
+                    "Aalamia - I (XII)",
+                    "Almia - II (XI)"
+                ]
+            },
+            {
+                department: "Hifz Department",
+                classes: [
+                    "Amer Bin Khatab",
+                    "Abdullah Bin Masood",
+                    "Zaid Bin Sabit",
+                    "Musab Bin Omair",
+                    "Abdullah Bin Abbas",
+                    "Osman Ghani",
+                    "Abee Bin Kaab",
+                    "Abu Bakar Siddique",
+                    "Ali-ul-Murtazi",
+                    "Naseerah Murseed"
+                ]
+            },
+            {
+                department: "Tajweed Department",
+                classes: [
+                    "Class 1st year",
+                    "Class IInd year"
+                ]
+            }
+        ];
+
+        async function runSeedDepartments() {
+            const btn = document.getElementById('seedDeptBtn');
+            btn.disabled = true;
+            btn.textContent = 'Seeding Departments...';
+            log('Starting Department seed process...', 'info');
+
+            try {
+                for (const deptData of deptDataList) {
+                    let deptId = null;
+                    const deptQuery = await db.collection('departments').where('name', '==', deptData.department).get();
+                    
+                    if (!deptQuery.empty) {
+                        deptId = deptQuery.docs[0].id;
+                        log(`Department "${deptData.department}" already exists.`, 'info');
+                    } else {
+                        const docRef = await db.collection('departments').add({
+                            name: deptData.department,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        deptId = docRef.id;
+                        log(`Created Department: "${deptData.department}"`, 'success');
+                    }
+
+                    for (const className of deptData.classes) {
+                        const classQuery = await db.collection('classes')
+                            .where('name', '==', className)
+                            .where('department', '==', deptData.department)
+                            .get();
+
+                        if (!classQuery.empty) {
+                            log(`  Class "${className}" already exists in ${deptData.department}.`, 'info');
+                        } else {
+                            await db.collection('classes').add({
+                                name: className,
+                                department: deptData.department,
+                                departmentId: deptId,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                            log(`  Created Class: "${className}"`, 'success');
+                        }
+                    }
+                }
+                log('Department seed process completed successfully!', 'success');
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Seed Departments & Classes';
+            }
+        }
+
+        // --- Student Seeding Data ---
+        // Raw data from file
+        const rawStudentData = `Students Name	Class
+Ghulam Muhammad	Mutwasta
+Muhammad Sohaib	Mutwasta
+Muhammad Aaqib	Mutwasta
+Umar Hayat	Mutwasta
+Muhammad Dilshad	Mutwasta
+Allah Diwaya	Mutwasta
+Muhammad Shoaib Akhtar	Mutwasta
+Muhammad Masood ul Hasan	Mutwasta
+Muhammad Asad	Mutwasta
+Muhammad Ahmed	Mutwasta
+Muhammad Salman	Mutwasta
+Muhammad Faizan	Mutwasta
+Muhammad Moazzam	Mutwasta
+Muhammad Areeb	Mutwasta
+Muhammad Mudassir	Mutwasta
+Muhammad Faraz	Aama Arzbic (A)
+Muhammad Asim	Aama Arzbic (A)
+Muhammad Mohsin Zafar	Aama Arzbic (A)
+Muhammad Rayan	Aama Arzbic (A)
+Muhammad Naveed Hussain Shah	Aama Arzbic (A)
+Muzammil Mushir	Aama Arzbic (A)
+Muhammad Arsalan	Aama Arzbic (A)
+Ahmed Raza	Aama Arzbic (A)
+Muhammad Ramzan	Aama Arzbic (A)
+Ahmed Bakhsh	Aama Arzbic (A)
+Abdul Samad	Aama Arzbic (A)
+Muhammad Mairaj	Aama Arzbic (A)
+Aziz Shabbir	Aama Arzbic (A)
+Munis	Aama Arzbic (A)
+Hamza Tahir	Aama Arzbic (A)
+Muhammad Shamshad	Aama Arzbic (A)
+Muhammad Imran	Aama Arzbic (A)
+Muhammad Shahzaib	Aama Arzbic (A)
+Muhammad Junaid	Aama Arzbic (A)
+Abdul Rafi Wasim	Aama Arzbic (A)
+Muhammad Rehan	Aama Arzbic (A)
+Muhammad Shakir	Aama Arzbic (A)
+Nadeem Zafar	Aama Arzbic (A)
+Abdullah Sheikh	Aama Arabic (B)
+Muhammad Owais	Aama Arabic (B)
+Suwaid Raza	Aama Arabic (B)
+Muhammad Aftab	Aama Arabic (B)
+Muhammad Muzammil	Aama Arabic (B)
+Dawood	Aama Arabic (B)
+Zeeshan Ahmed	Aama Arabic (B)
+Muhammad Hasnain	Aama Arabic (B)
+Abu Bakar	Aama Arabic (B)
+Owais Raza	Aama Arabic (B)
+Muhammad Babar	Aama Arabic (B)
+Muhammad Adnan	Aama Arabic (B)
+Muhammad Uzair	Aama Arabic (B)
+Bismillah	Aama Arabic (B)
+Ali Hasan	Aama Arabic (B)
+Muhammad Ahmed	Aama Arabic (B)
+Muhammad Salman	Aama Arabic (B)
+Muhammad Ahmed Faiz	Aama Arabic (B)
+Muhammad Qurban	Aama Arabic (B)
+Muhammad Tahir Jilani	Aama English
+Syed Abdul Rehman	Aama English
+Habib Fareed	Aama English
+Muhammad Atif	Aama English
+Abdullah Riaz	Aama English
+Syed Ali Hasan	Aama English
+Shehzad Ali	Aama English
+Muneeb Riaz	Aama English
+Ahmer Ramzan	Aama English
+Haider Ali	Aama English
+Muhammad Daniyal	Aama English
+Shehbaz Gilani	Aama English
+Muhammad Mujahid	Aama English
+Muhammad Kashif	Aama English
+Zain Ali	Aama English
+Shehzad Rafiq	Aama English
+Sarfaraz Nazir	Aama English
+Muhammad Usman	Aama English
+Mahmood Hanif	Aama English
+Muhammad Shah Zaman	Aama English
+Muhammad Zahid Bilal	Matric
+Muhammad Hamza	Matric
+Muhammad Zubair	Matric
+Muhammad Aqil	Matric
+Sher Ali	Matric
+Abdul Waris	Matric
+Muhammad Ali Misbahi	Matric
+Muhammad Raza	Matric
+Nadeem Raza	Matric
+Ali Raza	Matric
+Abdul Rehman	Matric
+Mohsin Rasheed	Matric
+Ahmed Raza	Matric
+Muhammad Ahmed	Matric
+Muneeb ur Rehman	Matric
+Muhammad Nazir	Matric
+Muhammad Aamir Sohail	Matric
+Muzammil Aslam	Matric
+Muhammad Tauseef	Matric
+Muhammad Ali Saeed	Matric
+Muhammad Mohsin Bilal	Matric
+Muhammad Umar Rasheed	Matric
+Muhammad Kashif	Matric
+Muhammad Saleem	Matric
+Muhammad Tahir	Matric
+Huzaifa Hashmi	Intermediate (IX)
+Mumshad Ali	Intermediate (IX)
+Muhammad Nasir	Intermediate (IX)
+Mudassir Hussain	Intermediate (IX)
+Fida Hussain	Intermediate (IX)
+Mazhar Hussain	Intermediate (IX)
+Muhammad Ismail	Intermediate (IX)
+Muhammad Kashan	Intermediate (IX)
+Saifullah	Aalia - I (X)
+Hasnain Majeed	Aalia - I (X)
+Muhammad Waqar Younis	Aalia - I (X)
+Muhammad Zulqarnain	Aalia - I (X)
+Muhammad Adeel Shah	Aalia - I (X)
+Muhammad Anees ur Rehman	Aalia - I (X)
+Muhammad Ahsan Mairaj	Aalia - I (X)
+Muhammad Khalid	Aalia - I (X)
+Muhammad Usman	Aalia - I (X)
+Muhammad Arabi	Aalia - I (X)
+Muhammad Hamid Hanif	Aalia - I (X)
+Muhammad Amjad	Aalia - I (X)
+Muhammad Iqbal	Aalia - I (X)
+Muhammad Sajjad	Aalia - I (X)
+Hasan Zafar	Aalia - I (X)
+Muhammad Tanveer Akram	Aalia - I (X)
+Ghulam Farid	Aalia - II (XI)
+Muhammad Owais	Aalia - II (XI)
+Muhammad Mujahid	Aalia - II (XI)
+Muhammad Usman	Aalia - II (XI)
+Mohsin Mumtaz	Aalia - II (XI)
+Muhammad Rashid	Aalia - II (XI)
+Abdul Basit	Aalia - II (XI)
+Muhammad Shiraz	Aalia - II (XI)
+Muhammad Waqas	Aalia - II (XI)
+Muhammad Irfan Rafiq	Aalamia - I (XII)
+Muhammad Rafiq	Aalamia - I (XII)
+Muhammad Mubashir Shah	Aalamia - I (XII)
+Rana Shehbaz Ahmed	Aalamia - I (XII)
+Ahmed Raza	Aalamia - I (XII)
+Ghulam Farid	Almia - II (XI)
+Muhammad Owais	Almia - II (XI)
+Muhammad Mujahid	Almia - II (XI)
+Muhammad Usman	Almia - II (XI)
+Mohsin Mumtaz	Almia - II (XI)
+Muhammad Rashid	Almia - II (XI)
+Abdul Basit	Almia - II (XI)
+Muhammad Shiraz	Almia - II (XI)
+Muhammad Waqas	Almia - II (XI)
+Muhammad Saad	Tajweed Class 1st year
+Muhammad Umar	Tajweed Class 1st year
+Muhammad Adnan	Tajweed Class 1st year
+Asad Mustafa	Tajweed Class 1st year
+Asjad ur Rehman	Tajweed Class 1st year
+Muhammad Sohail	Tajweed Class 1st year
+Muhammad Ijaz	Tajweed Class 1st year
+Muhammad Imran Sindhi	Tajweed Class 1st year
+Muhammad Zohaib	Tajweed Class 1st year
+Muhammad Waqas	Tajweed Class 1st year
+Syed Asad Ali	Tajweed Class 1st year
+Muhammad Ahmed Hafeez	Tajweed Class 1st year
+Muhammad Khubaib	Tajweed Class 1st year
+Muhammad Waseem	Tajweed Class 1st year
+Muhammad Naeem	Tajweed Class 1st year
+Abdul Wahab	Tajweed Class 1st year
+Muhammad Ilahi Bakhsh	Tajweed Class 1st year
+Ali Haider Khan	Tajweed Class 1st year
+Muhammad Ali Murad	Tajweed Class 1st year
+Muhammad Naveed Abbas	Tajweed Class 1st year
+Abdul Qayyum	Tajweed Class 1st year
+Muhammad Adnan Riaz	Tajweed Class 1st year
+Muhammad Qurban	Tajweed Class 1st year
+Muhammad Madni	Tajweed Class 1st year
+Ahmed Shahzaib	Tajweed Class 1st year
+Mubashir Hussain	Tajweed Class 1st year
+Ahmed Hasan Raza	Tajweed Class 1st year
+Muhammad Asim Mushir	Tajweed Class 1st year`;
+
+        function parseStudentData() {
+            const lines = rawStudentData.trim().split('\n');
+            // Skip header
+            return lines.slice(1).map(line => {
+                const parts = line.split('\t');
+                if (parts.length >= 2) {
+                    return {
+                        name: parts[0].trim(),
+                        className: parts[1].trim()
+                    };
+                }
+                return null;
+            }).filter(item => item !== null);
+        }
+
+        function generateEmail(name, existingEmails, phone = '') {
+            let base = '';
+            
+            // 1. Try phone number (digits only)
+            if (phone) {
+                base = phone.replace(/[^0-9]/g, '');
+            }
+
+            // 2. If no phone, try name (Latin characters only)
+            if (!base && name) {
+                base = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+            }
+
+            // 3. Fallback if base is still empty (e.g. Urdu name, no phone)
+            if (!base) {
+                base = 'teacher'; 
+            }
+
+            let email = `${base}@miq.com`;
+            let counter = 1;
+            
+            while (existingEmails.has(email)) {
+                email = `${base}${counter}@miq.com`;
+                counter++;
+            }
+            existingEmails.add(email);
+            return email;
+        }
+
+        // Map class names from file to DB class names if different
+        const classMapping = {
+            "Tajweed Class 1st year": "Class 1st year"
+        };
+
+        async function runSeedStudents() {
+            const btn = document.getElementById('seedStudentsBtn');
+            btn.disabled = true;
+            btn.textContent = 'Seeding Students...';
+            log('Starting Student seed process...', 'info');
+
+            const students = parseStudentData();
+            const existingEmails = new Set();
+            const existingStudentsSet = new Set();
+            
+            try {
+                // Fetch existing emails
+                log('Fetching existing users...', 'info');
+                const usersSnap = await db.collection('users').get();
+                usersSnap.forEach(doc => {
+                    existingEmails.add(doc.data().email);
+                });
+
+                // Fetch existing students for idempotency
+                log('Fetching existing students...', 'info');
+                const studentsSnap = await db.collection('students').get();
+                studentsSnap.forEach(doc => {
+                    const s = doc.data();
+                    // Key: Name + Class
+                    const key = `${(s.firstName || '').trim().toLowerCase()}|${(s.className || '').trim().toLowerCase()}`;
+                    existingStudentsSet.add(key);
+                });
+                log(`Found ${existingStudentsSet.size} existing student records.`, 'info');
+
+                // Pre-fetch all classes to map to departments
+                const classesSnapshot = await db.collection('classes').get();
+                const classMap = {}; // Name -> { dept, id }
+                classesSnapshot.forEach(doc => {
+                    const d = doc.data();
+                    classMap[d.name] = { department: d.department, id: doc.id };
+                });
+
+                let successCount = 0;
+                let skipCount = 0;
+
+                for (const student of students) {
+                    const targetClass = classMapping[student.className] || student.className;
+                    const classInfo = classMap[targetClass];
+
+                    if (!classInfo) {
+                        log(`Skipping ${student.name}: Class "${targetClass}" not found in DB.`, 'warning');
+                        continue;
+                    }
+
+                    // Check duplicate
+                    const studentKey = `${student.name.trim().toLowerCase()}|${targetClass.trim().toLowerCase()}`;
+                    if (existingStudentsSet.has(studentKey)) {
+                         log(`Skipping ${student.name}: Already exists in ${targetClass}.`, 'warning');
+                         skipCount++;
+                         continue;
+                    }
+
+                    // Generate Email
+                    const email = generateEmail(student.name, existingEmails);
+
+                    try {
+                        // Create Auth User via Secondary App
+                        const userCredential = await secondaryAuth.createUserWithEmailAndPassword(email, 'student123');
+                        const user = userCredential.user;
+                        
+                        // Update Profile
+                        await user.updateProfile({
+                            displayName: student.name
+                        });
+
+                        // Create User Doc
+                        await db.collection("users").doc(user.uid).set({
+                            email: email,
+                            role: 'student',
+                            name: student.name,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+
+                        // Create Student Doc
+                        await db.collection("students").add({
+                            userId: user.uid,
+                            firstName: student.name,
+                            lastName: '', // Single name field in source
+                            email: email,
+                            rollNumber: '', // Not provided
+                            department: classInfo.department,
+                            className: targetClass,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+
+                        log(`Created Student: ${student.name} (${email}) in ${targetClass}`, 'success');
+                        successCount++;
+                        existingStudentsSet.add(studentKey);
+
+                    } catch (error) {
+                        if (error.code === 'auth/email-already-in-use') {
+                            log(`Skipping ${student.name} (${email}): Email already exists.`, 'warning');
+                            skipCount++;
+                        } else {
+                            log(`Error creating ${student.name}: ${error.message}`, 'error');
+                        }
+                    }
+                }
+
+                log(`Student seed process completed! Created: ${successCount}, Skipped: ${skipCount}`, 'success');
+                alert(`Students seeded successfully!\nCreated: ${successCount}\nSkipped: ${skipCount}`);
+
+            } catch (error) {
+                log(`Fatal Error: ${error.message}`, 'error');
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Seed Students';
+            }
+        }
+
+        // --- Hifz Student Seeding ---
+        const rawHifzStudentData = `Students Name	"Gender
+M/F"	Roll No	Family No	"Reg No./
+Adm No"	"Date of Birth
+MM-DD-YYYY"	"Admission Date
+MM-DD-YYYY"	Father Name	Father Mobile	Class
+Muhammad Ahmad Raza	M						Huzoor Bakhsh		Abee Bin Kaab
+Muhammad Umair Iqbal	M						Muhammad Iqbal		Abee Bin Kaab
+Muhammad Bilal	M						Muhammad Tariq		Abee Bin Kaab
+Dai Mahmood	M						Zahid Mahmood		Abee Bin Kaab
+Muhammad Usman	M						Abdul Wahid		Abee Bin Kaab
+Muhammad Ali Haider	M						Kifayat Hussain		Abee Bin Kaab
+Abdul Saboor	M						Atiq-ur-Rehman		Abee Bin Kaab
+Muhammad Shah Hassan	M						Muhammad Munawar Hussain		Abee Bin Kaab
+Muhammad Shah Mir	M						Muhammad Tanveer		Abee Bin Kaab
+Uzair Ahmad	M						Muhammad Ahmad		Abee Bin Kaab
+Muhammad Furqan	M						Muhammad Afzal		Abee Bin Kaab
+Muhammad Ayan Akram	M						Muhammad Akram		Abee Bin Kaab
+Muhammad Adil	M						Muhammad Shakir		Abee Bin Kaab
+Muhammad Bukhari	M						Mazhar Hussain		Abee Bin Kaab
+Muhammad Ismail Shah Bukhari	M						Ishrat Jahaniyan		Abee Bin Kaab
+Muhammad Rayyan Mustafa	M						Ishrat Jahaniyan		Abee Bin Kaab
+Muhammad Haseeb	M						Muhammad Farooq		Zaid Bin Sabit
+Muhammad Nazim	M						Muhammad Qasim		Zaid Bin Sabit
+Muhammad Ahsan	M						Ameer Bakhsh		Zaid Bin Sabit
+Muhammad Ghulam Haider	M						Muhammad Saeed		Zaid Bin Sabit
+Muhammad Usman Haider	M						Muhammad Saeed		Zaid Bin Sabit
+Muhammad Hanzala	M						Muhammad Arif		Zaid Bin Sabit
+Muhammad Ayan	M						Muhammad Khurshid		Zaid Bin Sabit
+Muhammad Sameer	M						Muhammad Qayyum		Zaid Bin Sabit
+Muhammad Abu Bakar	M						Muhammad Zafar		Zaid Bin Sabit
+Muhammad Junaid	M						Muhammad Javed		Zaid Bin Sabit
+Ahmad Raza	M						Muhammad Sharif		Zaid Bin Sabit
+Muhammad Owais	M						Muhammad Anas		Zaid Bin Sabit
+Muhammad Muneeb	M						Muhammad Ishaq		Zaid Bin Sabit
+Muhammad Hassan	M						Muhammad Shahzad		Zaid Bin Sabit
+Muhammad Ahmad	M						Muhammad Irshad		Zaid Bin Sabit
+Muhammad Adil	M						Muhammad Asghar		Zaid Bin Sabit
+Muhammad Ahsan	M						Abdul Majeed		Zaid Bin Sabit
+Muhammad Hussain	M						Zahid Mahmood		Zaid Bin Sabit
+Muhammad Abdul Waris	M						Abdul Rashid		Zaid Bin Sabit
+Muhammad Abdul Qadir	M						Muhammad Zahid Irshad		Zaid Bin Sabit
+Muhammad Kaif Nawaz	M						Muhammad Nawaz		Abdullah Bin Abbas
+Muhammad Saad	M						Muhammad Javed		Abdullah Bin Abbas
+Abdul Wasi	M						Imran Khalid		Abdullah Bin Abbas
+Muhammad Ahmad Hassan	M						Muhammad Sadiq		Abdullah Bin Abbas
+Muhammad Arham Jamal	M						Muhammad Farrukh Jamal		Abdullah Bin Abbas
+Abdullah	M						Muhammad Shafiq		Abdullah Bin Abbas
+Muhammad Shahbaz	M						Gulzar Hussain		Abdullah Bin Abbas
+Muhammad Moiz	M						Muhammad Usman		Abdullah Bin Abbas
+Muhammad Mujeeb-ur-Rehman	M						Muhammad Riaz		Abdullah Bin Abbas
+Muhammad Yusuf	M						Muhammad Ashfaq		Abdullah Bin Abbas
+Muhammad Mahboob	M						Allah Ditta		Abdullah Bin Abbas
+Muhammad Musab	M						Muhammad Sajjad		Abdullah Bin Abbas
+Muhammad Mamoon	M						Muhammad Zubair		Abdullah Bin Abbas
+Muhammad Haroon	M						Muhammad Zubair		Abdullah Bin Abbas
+Muhammad Hassan	M						Muhammad Jameel		Abdullah Bin Abbas
+Muhammad Faizan	M						Muhammad Shamshad		Abdullah Bin Abbas
+Muhammad Taseen	M						Azhar Munir		Abdullah Bin Abbas
+Muhammad Mawaddat	M								Abdullah Bin Abbas
+Muhammad Hamza	M								Abdullah Bin Abbas
+Muhammad Zoraiz	M								Abdullah Bin Abbas
+Muhammad Ibad	M								Abdullah Bin Abbas
+Muhammad Ahsan	M						Allah Ditta		Abdullah Bin Abbas
+Gul Zaman	M						Muhammad Saghir Ahmad		Abdullah Bin Masood
+Muhammad Owais	M						Muhammad Afzal		Abdullah Bin Masood
+Muhammad Daniyal	M						Muhammad Rafiq		Abdullah Bin Masood
+Muhammad Bilawal	M						Muhammad Ameer Bakhsh		Abdullah Bin Masood
+Muhammad Huzaifa	M						Muhammad Ijaz		Abdullah Bin Masood
+Muhammad Tayyab	M						Muhammad Rashid		Abdullah Bin Masood
+Muhammad Saad	M						Abdul Latif		Abdullah Bin Masood
+Muhammad Abdullah	M						Muhammad Imran		Abdullah Bin Masood
+Muhammad Mujeeb	M						Muhammad Farooq		Abdullah Bin Masood
+Muhammad Khurram	M						Muhammad Shahzad		Abdullah Bin Masood
+Abdul Hadi	M						Muhammad Ramzan		Abdullah Bin Masood
+Muhammad Ubaid	M						Abdul Qayyum		Abdullah Bin Masood
+Muhammad Talha	M						Muhammad Asif		Abdullah Bin Masood
+Muhammad Ali	M						Niaz Ahmad		Abdullah Bin Masood
+Muhammad Mahmood Akhtar	M						Muhammad Akhtar		Abdullah Bin Masood
+Muhammad Haziq	M						Muhammad Irfan		Abdullah Bin Masood
+Muhammad Rauf	M						Muhammad Ashfaq		Abdullah Bin Masood
+Muhammad Abdul Rehman	M						Nazir Ahmad		Abdullah Bin Masood
+Ahmad Hassan Raza	M						Atta-ul-Mustafa		Osman Ghani
+Ali Haider	M						Umar Hayat		Osman Ghani
+Abdullah	M						Pervez Ahmed		Osman Ghani
+Muhammad Ayan	M						Majid Mahmood		Osman Ghani
+Abdul Rafay	M						Muhammad Ramzan		Osman Ghani
+Abdul Mateen	M						Muhammad Shahid		Osman Ghani
+Muhammad Fahad	M						Muhammad Kashif Azam		Osman Ghani
+Rehmat Ali	M						Muhammad Kashif		Osman Ghani
+Muhammad Akmal	M						Muhammad Ajmal		Osman Ghani
+Muhammad Jawad	M						Muhammad Mukhtiar		Osman Ghani
+Muhammad Ahmad	M						Muhammad Irfan		Osman Ghani
+Hamza Ali	M						Muhammad Ali Raja		Osman Ghani
+Muhammad Muzammil	M						Muhammad Asad		Osman Ghani
+Muhammad Anas	M						Muhammad Asif		Osman Ghani
+Muhammad Shayan	M						Muhammad Kashif		Musab Bin Omair
+Muhammad Fahad	M						Muhammad Siddique		Musab Bin Omair
+Muhammad Raheel	M						Muhammad Akhtar		Musab Bin Omair
+Muhammad Abdul Rehman	M						Ameer Bakhsh		Musab Bin Omair
+Muhammad Noman	M						Muhammad Asghar		Musab Bin Omair
+Muhammad Usman	M						Muhammad Umar		Musab Bin Omair
+Muhammad Hussain	M						Muhammad Ayaz		Musab Bin Omair
+Muhammad Hamid	M						Muhammad Irfan		Musab Bin Omair
+Muhammad Mubeen	M						Khadim Hussain		Musab Bin Omair
+Muhammad Usman	M						Muhammad Iqbal		Musab Bin Omair
+Muhammad Farhan	M						Huzoor Bakhsh		Musab Bin Omair
+Muhammad Saim	M						Muhammad Nadeem		Musab Bin Omair
+Muhammad Subhan	M						Haq Nawaz		Musab Bin Omair
+Muhammad Adnan	M						Abdul Rashid		Musab Bin Omair
+Muhammad Ayaz	M						Muhammad Bilal		Musab Bin Omair
+Muhammad Rafiq	M						Muhammad Nazik		Musab Bin Omair
+Abdul Ahad	M						Malik Rabnawaz		Musab Bin Omair
+Muhammad Umar	M						Imad-ud-Din		Musab Bin Omair
+Muhammad Ahsan	M						Muhammad Kamran		Musab Bin Omair
+Muhammad Hasnain	M						Munir Ahmed		Musab Bin Omair
+Muhammad Asadullah	M						Abdul Ghaffar		Abu Bakar Siddique
+Muhammad Sanaullah	M						Zulfiqar Ahmed		Abu Bakar Siddique
+Muhammad Faisal	M						Muhammad Amjad		Abu Bakar Siddique
+Muhammad Ahmad Husam	M						Haji Khuda Bakhsh		Abu Bakar Siddique
+Muhammad Aqrash	M						Muhammad Shahid		Abu Bakar Siddique
+Muhammad Adeel Hashim	M						Tahir Shah		Abu Bakar Siddique
+Muhammad Abdullah	M						Ahmad Nawaz		Abu Bakar Siddique
+Muhammad Luqman	M						Ghulam Abbas		Abu Bakar Siddique
+Muhammad Zain	M						Muhammad Madni		Abu Bakar Siddique
+Saeed Raza	M						Muhammad Zahid Shah		Abu Bakar Siddique
+Muhammad Ahmad	M						Shamsheer Ahmed		Abu Bakar Siddique
+Muhammad Uzair	M						Munir Ahmed		Abu Bakar Siddique
+Muhammad Subhan	M						Muhammad Altaf		Abu Bakar Siddique
+Muhammad Umar	M						Muhammad Farooq Ahmed		Abu Bakar Siddique
+Muhammad Shayan	M						Muhammad Rafiq		Abu Bakar Siddique
+Muhammad Shawal	M						Muhammad Azhar Munir Malik		Abu Bakar Siddique
+Muhammad	M						Muhammad Safdar Munir Malik		Abu Bakar Siddique
+Habibullah	M						Muhammad Shahzad		Abu Bakar Siddique
+Samiullah	M						Muhammad Shahzad		Abu Bakar Siddique
+Muhammad Shiraz	M								Abu Bakar Siddique
+Abdul Hadi	M						Muhammad Zubair Ansari		Amer Bin Khatab
+Muhammad Abdullah Ramzan	M						Muhammad Ramzan		Amer Bin Khatab
+Muhammad Usman	M						Muhammad Ramzan		Amer Bin Khatab
+Muhammad Saad	M						Mudassir Ahmed		Amer Bin Khatab
+Muhammad Awsaf	M						Mudassir Ahmed		Amer Bin Khatab
+Muhammad Ayan Saqib	M						Muhammad Saqib		Amer Bin Khatab
+Muhammad Muhib Azan	M						Rana Muhammad Tariq Mahmood		Amer Bin Khatab
+Muhammad Zain-ul-Abideen	M						Qari Muhammad Zubair		Amer Bin Khatab
+Amar Ali	M						Munir Ali		Amer Bin Khatab
+Tehseen Ahmad	M						Dr. Muhammad Ahmad		Amer Bin Khatab
+Abdul Mueed	M						Muhammad Zubair Ansari		Amer Bin Khatab
+Muhammad Ayan Naeem	M						Muhammad Naeem		Amer Bin Khatab
+Muhammad Muzammil	M						Mazhar Alam		Amer Bin Khatab
+Muhammad Muneeb Faiz	M						Abdul Waheed		Amer Bin Khatab
+Hussain Jamshed	M						Muhammad Jamshed		Amer Bin Khatab
+Abdul Hadi Niazi	M						Niaz Ahmed		Amer Bin Khatab
+Muhammad Kashif	M						Abdul Ghaffar		Amer Bin Khatab
+Muhammad Makki	M						Muhammad Irshad		Amer Bin Khatab
+Muhammad Aftab	M						Muhammad Altaf		Amer Bin Khatab
+Muhammad Ayan	M						Muhammad Qasim		Amer Bin Khatab
+Muhammad Abdullah Nadeem	M						Muhammad Nadeem		Amer Bin Khatab
+Muhammad Ibrahim	M						Muhammad Ahmad		Amer Bin Khatab
+Saim Tanveer	M						Muhammad Tanveer		Amer Bin Khatab
+Muhammad Aman	M						Muhammad Akram		Naseerah Murseed
+Muhammad Adeel	M						Muhammad Shaukat		Naseerah Murseed
+Muhammad Ayan	M						Zahoor Ahmed		Naseerah Murseed
+Abdul Wahab	M						Muhammad Sajid		Naseerah Murseed
+Muhammad Abu Bakar	M						Muhammad Qasim		Naseerah Murseed
+Muhammad Zubair	M						Muhammad Ijaz		Naseerah Murseed
+Muhammad Qurban	M						Muhammad Saleem		Naseerah Murseed
+Muhammad Salman	M						Muhammad Asghar		Naseerah Murseed
+Muhammad Uzair	M						Muhammad Ijaz		Naseerah Murseed
+Muhammad Ahmad	M						Muhammad Niaz		Naseerah Murseed
+Muhammad Hamid	M						Khalil Ahmed		Naseerah Murseed
+Muhammad Jazil	M						Muhammad Asif		Naseerah Murseed
+Muhammad Rashid	M						Muhammad Akram		Naseerah Murseed
+Muhammad Arslan	M						Mazhar Hussain		Naseerah Murseed
+Muhammad Muzammil	M						Muhammad Niaz		Naseerah Murseed
+Muhammad Ayan	M						Muhammad Amir		Naseerah Murseed
+Muhammad Ayan	M						Muhammad Habib		Naseerah Murseed
+Muhammad Muneeb	M						Muhammad Habib		Naseerah Murseed
+Muhammad Fasih Umar	M						Shabbir Ahmed		Naseerah Murseed`;
+
+        function parseHifzStudentData() {
+            const lines = rawHifzStudentData.trim().split('\n');
+            const students = [];
+            
+            // Skip first 5 header lines, start at index 5
+            for (let i = 5; i < lines.length; i++) {
+                const line = lines[i];
+                if (!line.trim()) continue;
+                
+                // Split by tab or multiple spaces
+                const parts = line.split(/\t| {2,}/);
+                
+                // We expect Name at index 0, Father Name at index 7, Class at index 9
+                // Depending on splitting, empty fields might be empty strings
+                // If using regex | {2,}, we might lose empty columns if they are just single spaces?
+                // But the file seems to have large gaps.
+                // Let's rely on tabs primarily if possible, but fallback is tricky.
+                // The provided data had tabs. Let's assume tabs are preserved.
+                // If parts length is small, maybe try just split('\t')
+                
+                let cols = line.split('\t');
+                if (cols.length < 5) {
+                    // Maybe tabs were converted to spaces?
+                     cols = line.split(/ {2,}/);
+                }
+
+                if (cols.length >= 2) {
+                    // Try to map columns dynamically based on content?
+                    // No, let's stick to indices.
+                    // Name is 0.
+                    // Father Name is around 7?
+                    // Class is last or near last.
+                    
+                    const name = cols[0].trim();
+                    // If splitting by tabs, indices are fixed: 0=Name, 7=Father, 9=Class
+                    // If splitting by spaces, empty columns are gone!
+                    
+                    let fatherName = '';
+                    let className = '';
+
+                    if (line.includes('\t')) {
+                         // Tab separated
+                         fatherName = cols[7] ? cols[7].trim() : '';
+                         className = cols[9] ? cols[9].trim() : '';
+                    } else {
+                        // Space separated (lost empty cols)
+                        // Name is cols[0]
+                        // Class is last column?
+                        // Father Name is ... tricky.
+                        // Let's hope tabs are preserved.
+                        // Based on visual check of "Read" output, there are large gaps.
+                        
+                        // If we lose structure, we can't reliably parse.
+                        // But let's assume the user copies the code correctly.
+                        
+                        // Fallback logic for space-separated (imperfect):
+                        // Last column is Class.
+                        // Second last might be Father Mobile (empty) or Father Name?
+                        // This is risky.
+                        
+                        // Let's trust tab splitting.
+                         fatherName = cols[7] ? cols[7].trim() : '';
+                         className = cols[9] ? cols[9].trim() : '';
+                    }
+
+                    if (name && className) {
+                        students.push({ name, fatherName, className });
+                    }
+                }
+            }
+            return students;
+        }
+
+        async function runSeedHifzStudents() {
+            const btn = document.getElementById('seedHifzBtn');
+            btn.disabled = true;
+            btn.textContent = 'Seeding Hifz Students...';
+            log('Starting Hifz Student seed process...', 'info');
+
+            const students = parseHifzStudentData();
+            log(`Parsed ${students.length} students from data.`, 'info');
+            
+            const existingEmails = new Set();
+            const existingStudentsSet = new Set();
+
+            try {
+                // 1. Fetch existing emails
+                log('Fetching existing users...', 'info');
+                const usersSnap = await db.collection('users').get();
+                usersSnap.forEach(doc => {
+                    existingEmails.add(doc.data().email);
+                });
+                log(`Found ${existingEmails.size} existing users.`, 'info');
+
+                // 2. Fetch existing students to prevent duplicates
+                log('Fetching existing students to prevent duplicates...', 'info');
+                const studentsSnap = await db.collection('students').get();
+                studentsSnap.forEach(doc => {
+                    const s = doc.data();
+                    // Create a unique key: Name + FatherName + Class (normalized)
+                    // Note: In Hifz seed, we use firstName as full name.
+                    const key = `${(s.firstName || '').trim().toLowerCase()}|${(s.fatherName || '').trim().toLowerCase()}|${(s.className || '').trim().toLowerCase()}`;
+                    existingStudentsSet.add(key);
+                });
+                log(`Found ${existingStudentsSet.size} existing student records.`, 'info');
+
+                // 3. Fetch Classes
+                const classesSnapshot = await db.collection('classes').get();
+                const classMap = {}; 
+                classesSnapshot.forEach(doc => {
+                    const d = doc.data();
+                    classMap[d.name] = { department: d.department, id: doc.id };
+                });
+
+                let successCount = 0;
+                let skipCount = 0;
+
+                for (const student of students) {
+                    // Hifz classes should match exactly
+                    const targetClass = classMapping[student.className] || student.className;
+                    const classInfo = classMap[targetClass];
+
+                    if (!classInfo) {
+                        log(`Skipping ${student.name}: Class "${targetClass}" not found in DB.`, 'warning');
+                        continue;
+                    }
+
+                    // Check for Duplicate Student
+                    const studentKey = `${student.name.trim().toLowerCase()}|${student.fatherName.trim().toLowerCase()}|${targetClass.trim().toLowerCase()}`;
+                    if (existingStudentsSet.has(studentKey)) {
+                        log(`Skipping ${student.name} (Father: ${student.fatherName}): Already exists in ${targetClass}.`, 'warning');
+                        skipCount++;
+                        continue;
+                    }
+
+                    const email = generateEmail(student.name, existingEmails);
+
+                    try {
+                        // Create Auth User
+                        const userCredential = await secondaryAuth.createUserWithEmailAndPassword(email, 'student123');
+                        const user = userCredential.user;
+                        
+                        await user.updateProfile({ displayName: student.name });
+
+                        // Create User Doc
+                        await db.collection("users").doc(user.uid).set({
+                            email: email,
+                            role: 'student',
+                            name: student.name,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+
+                        // Create Student Doc (with Father Name)
+                        await db.collection("students").add({
+                            userId: user.uid,
+                            firstName: student.name,
+                            lastName: '', 
+                            fatherName: student.fatherName,
+                            email: email,
+                            rollNumber: '',
+                            department: classInfo.department,
+                            className: targetClass,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+
+                        log(`Created: ${student.name} (Father: ${student.fatherName}) in ${targetClass}`, 'success');
+                        successCount++;
+                        // Add to set to prevent duplicate within the same run if duplicate lines exist
+                        existingStudentsSet.add(studentKey);
+
+                    } catch (error) {
+                         if (error.code === 'auth/email-already-in-use') {
+                            log(`Skipping ${student.name}: Email collision.`, 'warning');
+                            skipCount++;
+                        } else {
+                            log(`Error creating ${student.name}: ${error.message}`, 'error');
+                        }
+                    }
+                }
+
+                log(`Hifz seeding completed! Created: ${successCount}, Skipped: ${skipCount}`, 'success');
+                alert(`Hifz Students seeded successfully!\nCreated: ${successCount}\nSkipped: ${skipCount}`);
+
+            } catch (error) {
+                log(`Fatal Error: ${error.message}`, 'error');
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Seed Hifz Students';
+            }
+        }
+    </script>
+    <script>
+        // --- Teacher Seeding Data ---
+        const rawTeacherData = `
+تفصیل اساتذہ کرام ادارہ مصباح القرآن نیومسلم ٹاؤن بہاولپور(2025-2026)
+شعبہ علوم اسلامیہ  (درس نظامی )
+نمبرشما ر 	نام اُستاد   بمع ولدیت	شناختی کارڈ نمبر	موبائل نمبر	مدت ملازمت  سال	ماہانہ تنخواہ 	مستقل پتہ
+1.		محمدحاکم علی شاہ بن غلام قاسم علی شاہ	31202-5700370-1	0300-6719133	01-11-2008	21500/	موضع کو ٹ دادو گھلو ڈاکخانہ  سمہ سٹہ تحصیل وضلع بہاولپور
+2.		محمدعامرسہیل بن عبدالحق	31203-0655282-7	0301-2705335	01-04-2022	29000/	محلہ کو ٹ ریاستی ،لڈن ،ڈاکخانہ جمال پور تحصیل حاصل پور ضلع بہاولپور 
+3.		محمدآصف سعیدی بن غلام فرید	31201-7220690-5	0307-2009676	01-06-2015	20000/	بستی مہر ہزار خان ،ڈاکخانہ اوچ شریف،تحصیل احمدپور  ضلع بہاولپور
+4.		محمدظفراقبال بن نوراحمد	36203-1111648-7	0303-7206676	01-08-2016	21500/	چاہ انور والہ ،موضع بندعلی پو ر تحصیل و ضلع لودھراں 
+5.		محمدمحسن بن حافظ محمدبلال	36202-1725110-9	0302-6875746	01-07-2020	19000/	بستی حاصل والہ ،پئی وگھا  ،ڈاکخانہ جھانبی  وامن تحصیل کہروڑ  پکا ،ضلع لودھراں
+6.		غلام یٰسین بن حاجی محمدیعقوب	31202-2728860-1	0305-6692692	20-07-2021	18500/	چک نمبر07 بی سی حاصل پور  روڈ بہاولپور
+7.		میر محمداحمدملک بن پروفیسر غلام نازک	31202-6133314-5	0304-7320072	01-05-2023	37000/	سٹیٹ گارڈن نز د مون اکیڈمی بہاولپور 
+8.		محمدعظیم بن محمدطارق	301202-0393012-1	0302-7707412	01-04-2021	18500/	چک نمبر 09 بی سی نزد صدیق اکبر مسجد بغداد روڈ بہاولپور
+9.		محمدعمران بن الہٰی بخش 	36203-8334779-1	0309-0200847	15-04-2025	15000/	ڈاکخانہ آدم واہن ، تحصیل و ضلع لودھراں
+10.		محمدصابربن غلام یٰسین 	31201-4198562-9	0308-6851282	10-04-2025	15000/	اوچ شریف  ،پتی کھیارہ  تحصیل احمد پور ایسٹ ، ضلع بہاولپور
+11.		محمد علی حسن  بن عبدالخالق سعیدی	31201-3745595-9	0307-7387468	01-01-2025	15000/	اوچ شریف  ،کوٹلہ رحمت شاہ ، تحصیل احمد پور ایسٹ ، ضلع بہاولپور
+12.		عبدالحنان  بن محمدافضل 	36203-3036786-3	0319-3769344	10-04-2025	10000/	بستی دین آباد ، ڈاک خانہ خاص ، جاگیر ہوڑہ تحصیل و ضلع لودھراں
+13.		محمدصادق بن عطا محمدخان	31202-5209960-3	0300-6859419	20-10-2023	32000/	احسان کالونی ،ساجد اعوان ٹاون بہاولپور
+14.		شبیر شاہ (باورچی )بن پیر عاشق حسین	36301-9512710-5	0308-8172853	01-10-2020	27500/	بستی سید والہ،بہلی ،ڈاکخانہ  غازی پور ،تحصیل جلالپور پیروالہ ضلع ملتان
+15.		معلمہ مسز قاری غلام مرتضیٰ 			01-09-2022	20000/	زکریا ٹاؤن بہاولپور 
+ 
+تفصیل اساتذہ کرام ادارہ مصباح القرآن نیومسلم ٹاؤن بہاولپور(2025-2026)
+شعبہ تجویدو قرأت   
+نمبرشما ر 	نام اُستاد   بمع ولدیت	شناختی کارڈ نمبر	موبائل نمبر	مدت ملازمت  سال	ماہانہ تنخواہ 	مستقل پتہ
+1.		قاری محمدسعد بن محمدسعید	31202-0942017-3	0306-8508038	15-04-2024	25500/	دھوبیاں والی امام شاہ ،مکان نمبر III-B446تحصیل و ضلع بہاولپور
+شعبہ تحفیظ القرآن  
+نمبرشما ر 	نام اُستاد   بمع ولدیت	شناختی کارڈ نمبر	موبائل نمبر	مدت ملازمت  سال	ماہانہ تنخواہ 	مستقل پتہ
+1.		محمدمسعود احمدبن حاجی عطا محمد	31204-2796219-1	0301-7396006	22-07-2024	23000	ڈاکخانہ خاص، سردار پور،تحصیل خیر پور ٹامیوالی  ضلع بہاولپور
+2.		قاری غلام مرتضیٰ بن حاجی طالب حسین 	36202-8553737-7	0305-8872976	01-06-2015	19500/	چک غریب آباد ،ڈاکخانہ کہروڑ پکا،اسماعیل پور تحصیل کہروڑ پکا ضلع لودھراں
+3.		قاری نذرحسین سعیدی بن احمدبخش 	31302-6018153-5	0306-8156786	12-07-2021	19500/	ترنڈہ محمدپناہ ،ڈاکخانہ خاص، تحصیل لیاقت پور ضلع بہاولپور
+4.		قاری محمدعامر ولد ملازم حسین	36301-3806338-7	0324-3448436	01-03-2024	16000/	چک نمبر 73ایم ،تحصیل جلالپور پیروالا، ضلع ملتان
+5.		قاری محمدنصیر احمدبن اللہ وسایا	36203-6802286-5	0304-9068261	01-05-2021	18500/	موضع مراد پور تحصیل و ضلع لودھراں
+6.		قاری محمدشاکر زمان بن محمدرفیق 	36301-6760576-5	0307-1301451	01-04-2023	18500/	موضع واہی سندیلہ ڈاکخانہ جگووالہ ،تحصیل جلالپور پیروالہ ضلع ملتان
+7.		قاری محمدشفیق بن محمدنواز	31304-4607362-5	0305-9215712	01-04-2023	18000/	بستی شیخ  داکھوہ  ،محمدعلی ارائیں ،ڈاکخانہ سنجر  پور ،تحصیل صادق آباد ،ضلع رحیم یارخان 
+8.		قاری محمدیوسف سعیدی بن مظہر حسین	36301-7424911-5	0320-7688740	01-01-2023	23000/	موضع موچی پنوہاں  تحصیل جلالپور پیروالا ضلع ملتان
+9.		محمدوسیم بن دوست محمد	36202-2380505-3	0304-1717925	10-10-2024	15000/	جھوک امیر،ڈاکخانہ کہروڑ پکا ،بہاولگڑھ،تحصیل کہروڑ پکا ،ضلع لودھراں
+10.		محمدرمضان بن محمداسماعیل 	36202-7345942-9	0302-6414652	15-01-2024	15000/	بستی ملک والہ ،ڈاک خانہ خا ص ،بہاو لگڑھ ،تحصیل کہروڑ پکا  ،ضلع لودھراں
+11.		قاری محمدارسلان 					
+12.		قاری عبدالصمد					
+`;
+
+        const englishTeachers = [
+            // Dars-e-Nizami Department
+            { name: "Muhammad Hakim Ali Shah", fatherName: "Ghulam Qasim Ali Shah", department: "Dars-e-Nizami Department", cnic: "31202-5700370-1", mobile: "0300-6719133", joiningDate: "01-11-2008", salary: "21500", address: "Mouza Kot Dadu Ghallu, Post Office Samasatta, Tehsil & District Bahawalpur" },
+            { name: "Muhammad Amir Sohail", fatherName: "Abdul Haq", department: "Dars-e-Nizami Department", cnic: "31203-0655282-7", mobile: "0301-2705335", joiningDate: "01-04-2022", salary: "29000", address: "Mohallah Kot Riyasti, Luddan, Post Office Jamalpur, Tehsil Hasilpur, District Bahawalpur" },
+            { name: "Muhammad Asif Saeedi", fatherName: "Ghulam Farid", department: "Dars-e-Nizami Department", cnic: "31201-7220690-5", mobile: "0307-2009676", joiningDate: "01-06-2015", salary: "20000", address: "Basti Mehr Hazar Khan, Post Office Uch Sharif, Tehsil Ahmedpur, District Bahawalpur" },
+            { name: "Muhammad Zafar Iqbal", fatherName: "Noor Ahmed", department: "Dars-e-Nizami Department", cnic: "36203-1111648-7", mobile: "0303-7206676", joiningDate: "01-08-2016", salary: "21500", address: "Chah Anwar Wala, Mouza Band Ali Pur, Tehsil & District Lodhran" },
+            { name: "Muhammad Mohsin", fatherName: "Hafiz Muhammad Bilal", department: "Dars-e-Nizami Department", cnic: "36202-1725110-9", mobile: "0302-6875746", joiningDate: "01-07-2020", salary: "19000", address: "Basti Hasil Wala, Pai Wagha, Post Office Jhanbi Waman, Tehsil Kahror Pacca, District Lodhran" },
+            { name: "Ghulam Yasin", fatherName: "Haji Muhammad Yaqoob", department: "Dars-e-Nizami Department", cnic: "31202-2728860-1", mobile: "0305-6692692", joiningDate: "20-07-2021", salary: "18500", address: "Chak No. 07 BC, Hasilpur Road, Bahawalpur" },
+            { name: "Mir Muhammad Ahmed Malik", fatherName: "Professor Ghulam Nazik", department: "Dars-e-Nizami Department", cnic: "31202-6133314-5", mobile: "0304-7320072", joiningDate: "01-05-2023", salary: "37000", address: "State Garden near Moon Academy, Bahawalpur" },
+            { name: "Muhammad Azeem", fatherName: "Muhammad Tariq", department: "Dars-e-Nizami Department", cnic: "301202-0393012-1", mobile: "0302-7707412", joiningDate: "01-04-2021", salary: "18500", address: "Chak No. 09 BC, near Siddiq Akbar Mosque, Baghdad Road, Bahawalpur" },
+            { name: "Muhammad Imran", fatherName: "Ilahi Bakhsh", department: "Dars-e-Nizami Department", cnic: "36203-8334779-1", mobile: "0309-0200847", joiningDate: "15-04-2025", salary: "15000", address: "Post Office Adam Wahan, Tehsil & District Lodhran" },
+            { name: "Muhammad Sabir", fatherName: "Ghulam Yasin", department: "Dars-e-Nizami Department", cnic: "31201-4198562-9", mobile: "0308-6851282", joiningDate: "10-04-2025", salary: "15000", address: "Uch Sharif, Patti Khiara, Tehsil Ahmedpur East, District Bahawalpur" },
+            { name: "Muhammad Ali Hassan", fatherName: "Abdul Khaliq Saeedi", department: "Dars-e-Nizami Department", cnic: "31201-3745595-9", mobile: "0307-7387468", joiningDate: "01-01-2025", salary: "15000", address: "Uch Sharif, Kotla Rahmat Shah, Tehsil Ahmedpur East, District Bahawalpur" },
+            { name: "Abdul Hannan", fatherName: "Muhammad Afzal", department: "Dars-e-Nizami Department", cnic: "36203-3036786-3", mobile: "0319-3769344", joiningDate: "10-04-2025", salary: "10000", address: "Basti Deenabad, Post Office Khas, Jagir Hoora, Tehsil & District Lodhran" },
+            { name: "Muhammad Sadiq", fatherName: "Atta Muhammad Khan", department: "Dars-e-Nizami Department", cnic: "31202-5209960-3", mobile: "0300-6859419", joiningDate: "20-10-2023", salary: "32000", address: "Ehsan Colony, Sajid Awan Town, Bahawalpur" },
+            { name: "Shabbir Shah", fatherName: "Peer Ashiq Hussain", department: "Dars-e-Nizami Department", cnic: "36301-9512710-5", mobile: "0308-8172853", joiningDate: "01-10-2020", salary: "27500", address: "Basti Syed Wala, Bahli, Post Office Ghazi Pur, Tehsil Jalalpur Pirwala, District Multan" },
+            { name: "Mrs. Qari Ghulam Murtaza", fatherName: "", department: "Dars-e-Nizami Department", cnic: "", mobile: "", joiningDate: "01-09-2022", salary: "20000", address: "Zakariya Town, Bahawalpur" },
+
+            // Tajweed Department
+            { name: "Qari Muhammad Saad", fatherName: "Muhammad Saeed", department: "Tajweed Department", cnic: "31202-0942017-3", mobile: "0306-8508038", joiningDate: "15-04-2024", salary: "25500", address: "Dhobian Wali Imam Shah, House No. III-B446, Tehsil & District Bahawalpur" },
+
+            // Hifz Department
+            { name: "Muhammad Masood Ahmed", fatherName: "Haji Atta Muhammad", department: "Hifz Department", cnic: "31204-2796219-1", mobile: "0301-7396006", joiningDate: "22-07-2024", salary: "23000", address: "Post Office Khas, Sardar Pur, Tehsil Khairpur Tamewali, District Bahawalpur" },
+            { name: "Qari Ghulam Murtaza", fatherName: "Haji Talib Hussain", department: "Hifz Department", cnic: "36202-8553737-7", mobile: "0305-8872976", joiningDate: "01-06-2015", salary: "19500", address: "Chak Gharib Abad, Post Office Kahror Pacca, Ismail Pur, Tehsil Kahror Pacca, District Lodhran" },
+            { name: "Qari Nazar Hussain Saeedi", fatherName: "Ahmed Bakhsh", department: "Hifz Department", cnic: "31302-6018153-5", mobile: "0306-8156786", joiningDate: "12-07-2021", salary: "19500", address: "Taranda Muhammad Panah, Post Office Khas, Tehsil Liaquat Pur, District Bahawalpur" },
+            { name: "Qari Muhammad Amir", fatherName: "Mulazim Hussain", department: "Hifz Department", cnic: "36301-3806338-7", mobile: "0324-3448436", joiningDate: "01-03-2024", salary: "16000", address: "Chak No. 73M, Tehsil Jalalpur Pirwala, District Multan" },
+            { name: "Qari Muhammad Naseer Ahmed", fatherName: "Allah Wasaya", department: "Hifz Department", cnic: "36203-6802286-5", mobile: "0304-9068261", joiningDate: "01-05-2021", salary: "18500", address: "Mouza Murad Pur, Tehsil & District Lodhran" },
+            { name: "Qari Muhammad Shakir Zaman", fatherName: "Muhammad Rafiq", department: "Hifz Department", cnic: "36301-6760576-5", mobile: "0307-1301451", joiningDate: "01-04-2023", salary: "18500", address: "Mouza Wahi Sandila, Post Office Jaggu Wala, Tehsil Jalalpur Pirwala, District Multan" },
+            { name: "Qari Muhammad Shafiq", fatherName: "Muhammad Nawaz", department: "Hifz Department", cnic: "31304-4607362-5", mobile: "0305-9215712", joiningDate: "01-04-2023", salary: "18000", address: "Basti Sheikh Da Khu, Muhammad Ali Arain, Post Office Sanjar Pur, Tehsil Sadiqabad, District Rahim Yar Khan" },
+            { name: "Qari Muhammad Yusuf Saeedi", fatherName: "Mazhar Hussain", department: "Hifz Department", cnic: "36301-7424911-5", mobile: "0320-7688740", joiningDate: "01-01-2023", salary: "23000", address: "Mouza Mochi Panohan, Tehsil Jalalpur Pirwala, District Multan" },
+            { name: "Muhammad Waseem", fatherName: "Dost Muhammad", department: "Hifz Department", cnic: "36202-2380505-3", mobile: "0304-1717925", joiningDate: "10-10-2024", salary: "15000", address: "Jhoke Amir, Post Office Kahror Pacca, Bahawalgarh, Tehsil Kahror Pacca, District Lodhran" },
+            { name: "Muhammad Ramzan", fatherName: "Muhammad Ismail", department: "Hifz Department", cnic: "36202-7345942-9", mobile: "0302-6414652", joiningDate: "15-01-2024", salary: "15000", address: "Basti Malik Wala, Post Office Khas, Bahawalgarh, Tehsil Kahror Pacca, District Lodhran" },
+            { name: "Qari Muhammad Arsalan", fatherName: "", department: "Hifz Department", cnic: "", mobile: "", joiningDate: "", salary: "", address: "" },
+            { name: "Qari Abdul Samad", fatherName: "", department: "Hifz Department", cnic: "", mobile: "", joiningDate: "", salary: "", address: "" }
+        ];
+
+        async function deleteUrduTeachers() {
+            const btn = document.getElementById('deleteUrduTeachersBtn');
+            if (!confirm('Are you sure you want to delete all teachers with Urdu names? This cannot be undone.')) return;
+            
+            btn.disabled = true;
+            btn.innerText = 'Deleting...';
+            log('Starting deletion of Urdu teachers...', 'info');
+
+            try {
+                // Regex for Urdu characters (Basic Range)
+                const urduRegex = /[\u0600-\u06FF]/;
+                
+                const teachersSnap = await db.collection('teachers').get();
+                let deleteCount = 0;
+
+                const batch = db.batch();
+                let batchCount = 0;
+                
+                // We can't delete users in batch easily because users is a different collection and we need to check auth logic, 
+                // but for now let's just delete the docs.
+                
+                // Firestore limit is 500 per batch.
+                
+                for (const doc of teachersSnap.docs) {
+                    const t = doc.data();
+                    const name = t.firstName || '';
+                    
+                    if (urduRegex.test(name)) {
+                        log(`Found Urdu teacher: ${name} (ID: ${doc.id})`, 'warning');
+                        
+                        // Delete Teacher Doc
+                        await db.collection('teachers').doc(doc.id).delete();
+                        
+                        // Delete User Doc if userId exists
+                        if (t.userId) {
+                            await db.collection('users').doc(t.userId).delete();
+                            log(`  Deleted User record for ${name}`, 'info');
+                        }
+                        
+                        deleteCount++;
+                    }
+                }
+
+                log(`Deletion complete. Removed ${deleteCount} teachers.`, 'success');
+                alert(`Deletion complete.\nRemoved: ${deleteCount} teachers.`);
+
+            } catch (error) {
+                log(`Error deleting teachers: ${error.message}`, 'error');
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Delete Urdu Teachers';
+            }
+        }
+
+        // --- Subject Seeding ---
+        const rawSubjectData = `عالمیہ دوم
+مفتی محبوب احمد صاحب 
+صحیح البخاری
+پرنسپل صاحب
+جامع الترمذی
+مفتی محبوب احمد صاحب 
+صحیح البخاری
+مفتی محبوب احمد صاحب 
+مسلم شریف
+مفتی محبوب احمد صاحب 
+التربیہ للمسائل شرعیہ 
+محمدحاکم علی شاہ
+سنن ابی داؤد
+محمدعامر سہیل
+سنن ابن ماجہ+ سنن النسائی
+عالمیہ اول
+محمد عامر سہیل
+علم الکلام
+مفتی محبوب صاحب 
+شرح نخبۃ الفکر
+محمدحاکم علی شاہ
+توضیح تلویح
+محمدحاکم علی شاہ
+مؤطین
+محمدعامر سہیل
+ھدایہ
+مفتی محبوب احمد صاحب 
+شرح معانی الآثار
+غلام یٰسین
+آئین پاکستان و تحریک پاکستان
+محمدعامر سہیل
+سراجی
+عالیہ دوم
+پرنسپل صاحب
+ادب عربی
+محمدعامر سہیل
+مطول
+محمدعامر سہیل
+مختصر المعانی
+محمد عمران
+تفسیر و اصول تفسیر
+محمدمحسن 
+فقہ
+عبد الحنان
+حدیث
+مفتی محبوب احمد صاحب 
+اصول حدیث
+محمدحاکم علی شاہ
+ فلسفہ و مناظرہ
+عالیہ اول
+غلام یٰسین
+مقامات  حریری+اصول الارشاد
+اُردو 
+محمدمحسن
+فقہ+ترجمۃ القرآن 
+علی حسن
+انگلش
+محمدعامر سہیل
+تلخیص المفتاح
+محمد حاکم علی شاہ
+اصول فقہ+ اسلامیات لازمی
+محمدصابر
+تفسیر و اصول تفسیر
+محمدصابر 
+اصول میراث
+ مفتی محبوب احمد صاحب 
+حدیث و اصول حدیث
+فرسٹ ائیر و سیکنڈ ائیر
+محمد عمران
+اُردو
+محمدآصف سعیدی 
+فارسی
+غلام یٰسین
+اسلامیات اختیاری+ لازمی
+ محمدآصف سعیدی 
+فارسی
+محمدصادق
+انگلش11th
+محمدصادق 
+انگلش 
+محمد عمران
+ترجمۃ القرآن و اُردو
+محمد عمران
+ ایجوکیشن  
+مطالعہ پاکستان+
+نہم و دہم
+محمدحاکم علی شاہ
+ریاضی نہم
+محمدحاکم علی شاہ
+ریاضی دہم
+محمدصادق
+انگلش9th 
+ محمدصادق
+انگلش
+محمد عمران
+ایجوکیشن+
+مطالعہ پاکستان
+علی حسن
+اسلامیات لازمی+ترجمۃالقرآن
+محمدحاکم علی شاہ
+جنرل سائنس 
+غلام یٰسین
+اُردو+اسلامیات اختیاری    
+عامہ انگلش
+محمدصادق
+فاؤنڈیشن انگلش
+محمدصادق
+Grammar +Lingo act+ +Writing
+محمدمحسن
+صرف
+ہر ماہ ایک شخصیت کی طلباء  سے ملاقات
+محمدمحسن
+صرف+مطالعۃ العربیہ
+محمدشعیب صابری
+Conversation+ Verb
+القاموس المصور
+محمدعامر سہیل 
+تعلیم المنطق +نورالایضاح
+عبدالحنان 
+نحو
+علی حسن
+ترجمۃ القرآن+ سائنس+ریاضی 
++ریاضی تنظیم المدارس
+Bعامہ عریبک
+محمدمحسن
+العربیہ للناشئین
+محمدصابر
+صرف
+محمد عظیم 
+الحوارات المفیدہ
++النبی الاطہر
+علی حسن
+ریاضی و انگلش
+جنرل سائنس+مطالعہ پاکستان
+محمدصابر
+مصادر  +مفردات القاموس المصور + قصص النبین
+محمد عظیم
+قرآنی عربی+ترجمہ
+محمدمحسن
+دروس اللغۃ العربیہ
+محمد آصف سعیدی
+قانون شریعت+الخطب  العربیہ 
+حفظ الحدیث + تحسین الخط
+Aعامہ عریبک
+محمد آصف سعیدی
+الخطب  العربیہ 
+حفظ الحدیث + تحسین الخط
+محمدعظیم
+الحوارات المفیدہ
+محمد آصف سعیدی
+قانون شریعت+مفردات القاموس المصور + قصص النبین
+محمد عظیم
+قرآنی عربی+ترجمہ
+علی حسن
+ریاضی و انگلش
+جنرل سائنس+مطالعہ پاکستان
+		محمدمحسن
+صرف
+محمد عظیم
+دروس اللغۃ العربیہ
++النبی الاطہر
+محمدمحسن
+العربیہ للناشئین
+پری عریبک
+محمداحمد 
+کمپیوٹر
+علی حسن
+انگلش
+عربی ششم
+محمد عمران 
+عربی ششم
+غلام یٰسین
+سائنس
+غلام یٰسین
+مدنی قاعدہ وہمارا اسلام
+غلام یٰسین
+ریاضی
+محمدآصف سعیدی
+اُردو
+عبدالحنان 
+فارسی قاعدہ
+تجوید و قرأت
+علی حسن
+انگلش لنگوئچ
+غلام یٰسین
+ریاضی
+قاری محمد سعد سعید
+مشق
+قاری محمد سعد سعید
+مشق
+قاری محمد سعد سعید
+مشق
+محمدشعیب صابری
+اُردو
+محمدشعیب صابری
+Whispering pages 
+Navigate Reading`;
+
+        const subjectTranslation = {
+            "صحیح البخاری": "Sahih Al-Bukhari",
+            "جامع الترمذی": "Jami At-Tirmidhi",
+            "مسلم شریف": "Muslim Sharif",
+            "التربیہ للمسائل شرعیہ": "At-Tarbiya Lil-Masail Shar'iyya",
+            "سنن ابی داؤد": "Sunan Abi Dawood",
+            "سنن ابن ماجہ+ سنن النسائی": "Sunan Ibn Majah + Sunan An-Nasa'i",
+            "علم الکلام": "Ilm-ul-Kalam",
+            "شرح نخبۃ الفکر": "Sharh Nukhbat al-Fikr",
+            "توضیح تلویح": "Tawdih Talwih",
+            "مؤطین": "Muwatta Imam Malik",
+            "ھدایہ": "Hidaya",
+            "شرح معانی الآثار": "Sharh Ma'ani al-Athar",
+            "آئین پاکستان و تحریک پاکستان": "Constitution of Pakistan & Pakistan Movement",
+            "سراجی": "Siraji",
+            "ادب عربی": "Adab Arabi",
+            "مطول": "Mutawwal",
+            "مختصر المعانی": "Mukhtasar al-Ma'ani",
+            "تفسیر و اصول تفسیر": "Tafseer & Usool-e-Tafseer",
+            "فقہ": "Fiqh",
+            "حدیث": "Hadith",
+            "اصول حدیث": "Usool-e-Hadith",
+            "فلسفہ و مناظرہ": "Philosophy & Munazara",
+            "مقامات  حریری+اصول الارشاد": "Maqamat Hariri + Usool al-Irshad",
+            "اُردو": "Urdu",
+            "فقہ+ترجمۃ القرآن": "Fiqh + Tarjuma Quran",
+            "انگلش": "English",
+            "تلخیص المفتاح": "Talkhis al-Miftah",
+            "اصول فقہ+ اسلامیات لازمی": "Usool-e-Fiqh + Islamiyat (Compulsory)",
+            "اصول میراث": "Usool-e-Meeras",
+            "حدیث و اصول حدیث": "Hadith & Usool-e-Hadith",
+            "فارسی": "Persian",
+            "اسلامیات اختیاری+ لازمی": "Islamiyat (Elective + Compulsory)",
+            "انگلش11th": "English 11th",
+            "ترجمۃ القرآن و اُردو": "Tarjuma Quran & Urdu",
+            "ایجوکیشن": "Education",
+            "مطالعہ پاکستان+": "Pakistan Studies",
+            "ریاضی نہم": "Math 9th",
+            "ریاضی دہم": "Math 10th",
+            "انگلش9th": "English 9th",
+            "اسلامیات لازمی+ترجمۃالقرآن": "Islamiyat (Compulsory) + Tarjuma Quran",
+            "جنرل سائنس": "General Science",
+            "اُردو+اسلامیات اختیاری": "Urdu + Islamiyat (Elective)",
+            "فاؤنڈیشن انگلش": "Foundation English",
+            "صرف": "Sarf",
+            "ہر ماہ ایک شخصیت کی طلباء  سے ملاقات": "Meeting with a Personality (Monthly)",
+            "صرف+مطالعۃ العربیہ": "Sarf + Mutala-e-Arabiya",
+            "القاموس المصور": "Al-Qamoos Al-Musawwar",
+            "تعلیم المنطق +نورالایضاح": "Ta'leem al-Mantiq + Noor al-Idah",
+            "نحو": "Nahw",
+            "ترجمۃ القرآن+ سائنس+ریاضی": "Tarjuma Quran + Science + Math",
+            "+ریاضی تنظیم المدارس": "Math (Tanzeem-ul-Madaris)",
+            "العربیہ للناشئین": "Al-Arabiya Lin-Nashieen",
+            "الحوارات المفیدہ": "Al-Hiwarat Al-Mufidah",
+            "+النبی الاطہر": "An-Nabi Al-Athar",
+            "ریاضی و انگلش": "Math & English",
+            "جنرل سائنس+مطالعہ پاکستان": "General Science + Pakistan Studies",
+            "مصادر  +مفردات القاموس المصور + قصص النبین": "Masadir + Mufradat Al-Qamoos + Qasas-un-Nabiyyeen",
+            "قرآنی عربی+ترجمہ": "Quranic Arabic + Translation",
+            "دروس اللغۃ العربیہ": "Duroos Al-Lugat Al-Arabiya",
+            "قانون شریعت+الخطب  العربیہ": "Qanoon Shariat + Al-Khutab Al-Arabiya",
+            "حفظ الحدیث + تحسین الخط": "Hifz al-Hadith + Tahseen al-Khat",
+            "الخطب  العربیہ": "Al-Khutab Al-Arabiya",
+            "قانون شریعت+مفردات القاموس المصور + قصص النبین": "Qanoon Shariat + Mufradat Al-Qamoos + Qasas-un-Nabiyyeen",
+            "کمپیوٹر": "Computer",
+            "عربی ششم": "Arabic 6th",
+            "سائنس": "Science",
+            "مدنی قاعدہ وہمارا اسلام": "Madani Qaida & Hamara Islam",
+            "فارسی قاعدہ": "Persian Qaida",
+            "انگلش لنگوئچ": "English Language",
+            "مشق": "Exercise (Mashq)",
+            "تجوید و قرأت": "Tajweed & Qirat"
+        };
+
+        const teacherMapping = {
+            "محمدحاکم علی شاہ": "Muhammad Hakim Ali Shah",
+            "محمد عامر سہیل": "Muhammad Amir Sohail",
+            "محمدعامر سہیل": "Muhammad Amir Sohail",
+            "محمدعامرسہیل": "Muhammad Amir Sohail",
+            "محمدآصف سعیدی": "Muhammad Asif Saeedi",
+            "محمد آصف سعیدی": "Muhammad Asif Saeedi",
+            "محمدظفراقبال": "Muhammad Zafar Iqbal",
+            "محمدمحسن": "Muhammad Mohsin",
+            "غلام یٰسین": "Ghulam Yasin",
+            "میر محمداحمدملک": "Mir Muhammad Ahmed Malik",
+            "محمداحمد": "Mir Muhammad Ahmed Malik", // Assumption
+            "محمدعظیم": "Muhammad Azeem",
+            "محمد عظیم": "Muhammad Azeem",
+            "محمد عمران": "Muhammad Imran",
+            "محمدصابر": "Muhammad Sabir",
+            "علی حسن": "Muhammad Ali Hassan",
+            "محمد علی حسن": "Muhammad Ali Hassan",
+            "عبدالحنان": "Abdul Hannan",
+            "عبد الحنان": "Abdul Hannan",
+            "محمدصادق": "Muhammad Sadiq",
+            "شبیر شاہ": "Shabbir Shah",
+            "قاری محمد سعد سعید": "Qari Muhammad Saad",
+            "قاری محمدسعد": "Qari Muhammad Saad",
+            "پرنسپل صاحب": "Principal Sahib",
+            "مفتی محبوب احمد صاحب": "Mufti Mahboob Ahmed Sahib",
+            "مفتی محبوب صاحب": "Mufti Mahboob Ahmed Sahib",
+            "محمدشعیب صابری": "Muhammad Shoaib Sabri"
+        };
+
+        const classMappingUrdu = {
+            "عالمیہ دوم": "Almia - II (XI)",
+            "عالمیہ اول": "Aalamia - I (XII)",
+            "عالیہ دوم": "Aalia - II (XI)",
+            "عالیہ اول": "Aalia - I (X)",
+            "فرسٹ ائیر و سیکنڈ ائیر": "Intermediate (IX)", // Mapped to Intermediate
+            "نہم و دہم": "Matric",
+            "عامہ انگلش": "Aama English",
+            "Bعامہ عریبک": "Aama Arabic (B)",
+            "Aعامہ عریبک": "Aama Arzbic (A)", // Note the typo in DB
+            "پری عریبک": "Mutwasta", // Assumption
+            "عربی ششم": "Mutwasta", // Assumption
+            "تجوید و قرأت": "Tajweed Class 1st year" // Assumption
+        };
+
+        async function runSeedSubjects() {
+            const btn = document.getElementById('seedSubjectsBtn');
+            btn.disabled = true;
+            btn.textContent = 'Seeding Subjects...';
+            log('Starting Subject seed process...', 'info');
+
+            try {
+                // 1. Fetch existing teachers to map IDs
+                const teachersSnap = await db.collection('teachers').get();
+                const teacherMap = {}; // Name -> ID
+                teachersSnap.forEach(doc => {
+                    const t = doc.data();
+                    const name = t.firstName + (t.lastName ? ' ' + t.lastName : '');
+                    teacherMap[name] = doc.id;
+                    teacherMap[t.firstName] = doc.id; // Also map first name only just in case
+                });
+
+                // 2. Fetch existing departments to map
+                const departmentsSnap = await db.collection('departments').get();
+                const deptMap = {}; // ClassName -> DepartmentName
+                
+                // We need to know which class belongs to which department
+                const classesSnap = await db.collection('classes').get();
+                const classToDept = {};
+                classesSnap.forEach(doc => {
+                    const c = doc.data();
+                    classToDept[c.name] = c.department;
+                });
+
+                const lines = rawSubjectData.trim().split('\n');
+                let currentClass = null;
+                let currentTeacher = null;
+                let successCount = 0;
+                
+                // Data format is tricky: 
+                // Header (Class)
+                // Teacher
+                // Subject
+                // Teacher
+                // Subject
+                // ...
+                // But sometimes Teacher is missing? No, looks like pairs.
+                
+                // Let's iterate. If a line matches a class name, switch class.
+                // Else if it matches a teacher name, set teacher.
+                // Else it's a subject.
+
+                for (let i = 0; i < lines.length; i++) {
+                    let line = lines[i].trim();
+                    if (!line) continue;
+
+                    // Check if it's a class header
+                    if (classMappingUrdu[line]) {
+                        currentClass = classMappingUrdu[line];
+                        currentTeacher = null;
+                        log(`Processing Class: ${currentClass}`, 'info');
+                        continue;
+                    }
+
+                    // Check if it's a teacher (heuristic: name exists in mapping)
+                    // Note: Some lines might be ambiguous, but usually teacher names are distinct
+                    if (teacherMapping[line] || line.includes("صاحب") || line.includes("شاہ") || line.includes("سعیدی")) {
+                        // It's likely a teacher
+                        let mappedName = teacherMapping[line];
+                        if (!mappedName) {
+                            // Try to guess or fallback
+                            if (line.includes("مفتی محبوب")) mappedName = "Mufti Mahboob Ahmed Sahib";
+                            else if (line.includes("پرنسپل")) mappedName = "Principal Sahib";
+                            else mappedName = line; // Use Urdu name if no map
+                        }
+                        currentTeacher = mappedName;
+                        continue;
+                    }
+
+                    // If we are here, it should be a subject
+                    if (currentClass && currentTeacher) {
+                        const urduSubject = line;
+                        const englishSubject = subjectTranslation[urduSubject] || urduSubject; // Fallback to Urdu if no translation
+                        
+                        // Check if subject already exists
+                        const existingSubj = await db.collection('subjects')
+                            .where('name', '==', englishSubject)
+                            .where('className', '==', currentClass)
+                            .where('teacherName', '==', currentTeacher)
+                            .get();
+                            
+                        if (!existingSubj.empty) {
+                            log(`Skipping ${englishSubject}: Already exists for ${currentTeacher} in ${currentClass}`, 'warning');
+                            continue;
+                        }
+
+                        const deptName = classToDept[currentClass] || "Dars-e-Nizami Department"; // Default
+                        const teacherId = teacherMap[currentTeacher] || null;
+
+                        await db.collection('subjects').add({
+                            name: englishSubject,
+                            originalName: urduSubject,
+                            className: currentClass,
+                            department: deptName,
+                            teacherName: currentTeacher,
+                            teacherId: teacherId,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        log(`Added Subject: ${englishSubject} (${currentClass}) - ${currentTeacher}`, 'success');
+                        successCount++;
+                    } else {
+                        log(`Skipping line: ${line} (No Class/Teacher context)`, 'warning');
+                    }
+                }
+
+                log(`Subject seeding complete. Added ${successCount} subjects.`, 'success');
+                alert(`Subject seeding complete. Added ${successCount} subjects.`);
+
+            } catch (error) {
+                log(`Error seeding subjects: ${error.message}`, 'error');
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Seed Subjects';
+            }
+        }
+
+        function parseTeacherData() {
+            return englishTeachers;
+        }
+
+        async function runSeedTeachers() {
+            const btn = document.getElementById('seedTeachersBtn');
+            btn.disabled = true;
+            btn.textContent = 'Seeding Teachers...';
+            log('Starting Teacher seed process...', 'info');
+
+            const teachers = parseTeacherData();
+            log(`Parsed ${teachers.length} teachers.`, 'info');
+            
+            const existingEmails = new Set();
+            const existingTeachersSet = new Set(); // Key: Name + Department
+
+            try {
+                // 1. Fetch existing emails
+                log('Fetching existing users...', 'info');
+                const usersSnap = await db.collection('users').get();
+                usersSnap.forEach(doc => {
+                    existingEmails.add(doc.data().email);
+                });
+
+                // 2. Fetch existing teachers
+                log('Fetching existing teachers...', 'info');
+                const teachersSnap = await db.collection('teachers').get();
+                teachersSnap.forEach(doc => {
+                    const t = doc.data();
+                    const key = `${(t.firstName || '').trim().toLowerCase()}|${(t.department || '').trim().toLowerCase()}`;
+                    existingTeachersSet.add(key);
+                });
+                
+                let successCount = 0;
+                let skipCount = 0;
+
+                for (const teacher of teachers) {
+                    if (!teacher.department) {
+                        log(`Skipping ${teacher.name}: No department assigned.`, 'warning');
+                        continue;
+                    }
+
+                    const teacherKey = `${teacher.name.trim().toLowerCase()}|${teacher.department.trim().toLowerCase()}`;
+                    if (existingTeachersSet.has(teacherKey)) {
+                        log(`Skipping ${teacher.name}: Already exists in ${teacher.department}.`, 'warning');
+                        skipCount++;
+                        continue;
+                    }
+
+                    const email = generateEmail(teacher.name, existingEmails, teacher.mobile);
+                    const password = 'teacher123';
+
+                    let user;
+                    try {
+                        // Rate limiting mitigation: wait 2 seconds before each creation
+                        await new Promise(r => setTimeout(r, 2000));
+
+                        // Try to Create Auth User
+                        try {
+                            const userCredential = await secondaryAuth.createUserWithEmailAndPassword(email, password);
+                            user = userCredential.user;
+                        } catch (createError) {
+                            if (createError.code === 'auth/email-already-in-use') {
+                                log(`  Email collision for ${email}. Attempting to link to existing Auth user...`, 'warning');
+                                // Try to sign in instead
+                                const userCredential = await secondaryAuth.signInWithEmailAndPassword(email, password);
+                                user = userCredential.user;
+                                log(`  Successfully linked to existing Auth user.`, 'success');
+                            } else {
+                                throw createError;
+                            }
+                        }
+                        
+                        await user.updateProfile({ displayName: teacher.name });
+
+                        // Create User Doc
+                        await db.collection("users").doc(user.uid).set({
+                            email: email,
+                            role: 'teacher',
+                            name: teacher.name,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+
+                        // Create Teacher Doc
+                        await db.collection("teachers").add({
+                            userId: user.uid,
+                            firstName: teacher.name,
+                            lastName: '', // Single name field
+                            department: teacher.department,
+                            cnic: teacher.cnic,
+                            phone: teacher.mobile,
+                            joiningDate: teacher.joiningDate,
+                            salary: teacher.salary,
+                            address: teacher.address,
+                            email: email,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+
+                        log(`Created/Updated Teacher: ${teacher.name} (${teacher.department})`, 'success');
+                        successCount++;
+                        existingTeachersSet.add(teacherKey);
+
+                    } catch (error) {
+                        log(`Error processing ${teacher.name}: ${error.message}`, 'error');
+                        // skipCount++; // Don't increment skipCount if it's an error we caught but couldn't handle? 
+                        // Actually, if we are here, we failed to get a user or write to DB.
+                    }
+                }
+
+                log(`Teacher seeding completed! Created: ${successCount}, Skipped: ${skipCount}`, 'success');
+                alert(`Teachers seeded successfully!\nCreated: ${successCount}\nSkipped: ${skipCount}`);
+
+            } catch (error) {
+                log(`Fatal Error: ${error.message}`, 'error');
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Seed Teachers';
+            }
+        }
+    </script>

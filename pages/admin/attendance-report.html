@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Report - School Management System</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .report-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>SMS Admin</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 id="pageTitle">Attendance Report</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">User</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">U</div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                <div class="stat-card" style="margin-bottom: 2rem;">
+                    <h3 style="margin-bottom: 1rem;">Select Criteria</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Department</label>
+                            <select id="department" onchange="updateClasses()" required>
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Class</label>
+                            <select id="className" onchange="updateSubjects()" required>
+                                <option value="">Select Class</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <select id="subject" required>
+                                <option value="">Select Subject</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Month</label>
+                            <input type="month" id="reportMonth" class="form-control" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end;">
+                            <button class="btn-primary" onclick="loadReport()">View Report</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card" id="reportCard" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3>Monthly Report</h3>
+                        <button class="btn-primary" onclick="downloadReportPDF()" style="background-color: #ef4444;">Download PDF</button>
+                    </div>
+                    <div class="table-container" id="reportContainer" style="overflow-x: auto;">
+                        <table class="data-table" id="reportTable">
+                            <!-- Dynamic Report -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/script.js"></script>
+    <script>
+        // Data for dropdowns - DYNAMIC
+        
+        async function loadDepartments() {
+            const select = document.getElementById('department');
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">Select Department</option>';
+
+            try {
+                const snapshot = await db.collection('departments').orderBy('name').get();
+                snapshot.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc.data().name;
+                    opt.innerText = doc.data().name;
+                    select.appendChild(opt);
+                });
+                if(currentVal) select.value = currentVal;
+            } catch (error) {
+                console.error("Error loading departments:", error);
+            }
+        }
+
+        // Set today's date
+        document.getElementById('reportMonth').value = new Date().toISOString().slice(0, 7); // YYYY-MM
+        loadDepartments();
+
+        async function updateClasses() {
+            const dept = document.getElementById('department').value;
+            const classSelect = document.getElementById('className');
+            classSelect.innerHTML = '<option value="">Select Class</option>';
+            document.getElementById('subject').innerHTML = '<option value="">Select Subject</option>';
+            
+            if(!dept) return;
+
+            try {
+                const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                snapshot.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc.data().name;
+                    opt.innerText = doc.data().name;
+                    classSelect.appendChild(opt);
+                });
+            } catch (error) {
+                console.error("Error loading classes:", error);
+            }
+        }
+
+        async function updateSubjects() {
+            const dept = document.getElementById('department').value;
+            const className = document.getElementById('className').value;
+            const subjectSelect = document.getElementById('subject');
+            subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+
+            if(!dept || !className) return;
+
+            try {
+                const snapshot = await db.collection('subjects')
+                    .where('department', '==', dept)
+                    .where('className', '==', className)
+                    .get();
+
+                const subjects = [];
+                snapshot.forEach(doc => subjects.push(doc.data().name));
+                subjects.sort(); // Sort alphabetically
+
+                subjects.forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.innerText = name;
+                    subjectSelect.appendChild(opt);
+                });
+            } catch (error) {
+                console.error("Error loading subjects:", error);
+            }
+        }
+
+        async function loadReport() {
+            const dept = document.getElementById('department').value;
+            const className = document.getElementById('className').value;
+            const subject = document.getElementById('subject').value;
+            const monthVal = document.getElementById('reportMonth').value; // YYYY-MM
+
+            if(!dept || !className || !subject || !monthVal) {
+                alert("Please select Department, Class, Subject and Month.");
+                return;
+            }
+
+            const card = document.getElementById('reportCard');
+            const table = document.getElementById('reportTable');
+            card.style.display = 'block';
+            table.innerHTML = '<tr><td style="text-align: center;">Loading Report...</td></tr>';
+
+            try {
+                const snapshot = await db.collection('attendance')
+                    .where('department', '==', dept)
+                    .where('className', '==', className)
+                    .where('subject', '==', subject)
+                    .get();
+
+                const monthRecords = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if(data.date.startsWith(monthVal)) {
+                        monthRecords.push(data);
+                    }
+                });
+
+                monthRecords.sort((a,b) => a.date.localeCompare(b.date));
+
+                if(monthRecords.length === 0) {
+                    table.innerHTML = '<tr><td style="text-align: center;">No attendance records found for this month.</td></tr>';
+                    return;
+                }
+
+                const studentMap = new Map();
+                monthRecords.forEach(rec => {
+                    rec.records.forEach(r => {
+                        if(!studentMap.has(r.uid)) {
+                            studentMap.set(r.uid, r.name);
+                        }
+                    });
+                });
+
+                const students = Array.from(studentMap.entries()).map(([uid, name]) => ({uid, name}));
+                students.sort((a,b) => a.name.localeCompare(b.name));
+
+                let thead = '<thead><tr><th>Student Name</th>';
+                monthRecords.forEach(rec => {
+                    const day = rec.date.split('-')[2];
+                    thead += `<th>${day}</th>`;
+                });
+                thead += '<th>Total (P/A/L)</th></tr></thead>';
+
+                let tbody = '<tbody>';
+                students.forEach(s => {
+                    let row = `<tr><td>${s.name}</td>`;
+                    let p=0, a=0, l=0;
+                    
+                    monthRecords.forEach(rec => {
+                        const record = rec.records.find(r => r.uid === s.uid);
+                        let status = record ? record.status : '-';
+                        let color = 'black';
+                        if(status === 'Present') { status = 'P'; color = 'green'; p++; }
+                        else if(status === 'Absent') { status = 'A'; color = 'red'; a++; }
+                        else if(status === 'Leave') { status = 'L'; color = 'orange'; l++; }
+                        
+                        row += `<td style="color: ${color}; font-weight: bold;">${status}</td>`;
+                    });
+                    
+                    row += `<td><span style="color:green">${p}</span> / <span style="color:red">${a}</span> / <span style="color:orange">${l}</span></td></tr>`;
+                    tbody += row;
+                });
+                tbody += '</tbody>';
+
+                table.innerHTML = thead + tbody;
+
+            } catch (error) {
+                console.error("Error loading report:", error);
+                table.innerHTML = '<tr><td style="text-align: center; color: red;">Error loading report.</td></tr>';
+            }
+        }
+
+        function downloadReportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l');
+
+            const dept = document.getElementById('department').value;
+            const className = document.getElementById('className').value;
+            const subject = document.getElementById('subject').value;
+            const monthVal = document.getElementById('reportMonth').value;
+
+            doc.text(`Attendance Report: ${monthVal}`, 14, 15);
+            doc.text(`Class: ${className} | Subject: ${subject}`, 14, 25);
+
+            doc.autoTable({
+                html: '#reportTable',
+                startY: 30,
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [66, 66, 66] },
+            });
+
+            doc.save(`Attendance_${className}_${subject}_${monthVal}.pdf`);
+        }
+    </script>
+</body>
+</html>

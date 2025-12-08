@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Results - School Management System</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .table-container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .grade-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .grade-pass {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .grade-fail {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>SMS Student</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 id="pageTitle">My Results</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">User</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">U</div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                <div class="stat-card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Exam Name</th>
+                                    <th>Subject</th>
+                                    <th>Marks</th>
+                                    <th>Percentage</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsList">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 2rem;">Loading results...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/script.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            firebase.auth().onAuthStateChanged(async user => {
+                if (user) {
+                    try {
+                        const doc = await db.collection('students').doc(user.uid).get();
+                        if (doc.exists) {
+                            const student = doc.data();
+                            loadResults(student.department, student.className, student.uid);
+                        } else {
+                            document.getElementById('resultsList').innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Student profile not found.</td></tr>';
+                        }
+                    } catch (error) {
+                        console.error("Error fetching profile:", error);
+                    }
+                }
+            });
+        });
+
+        async function loadResults(department, className, uid) {
+            const tbody = document.getElementById('resultsList');
+            
+            try {
+                // Fetch grades for the student's class
+                // Client-side sorting/filtering
+                const snapshot = await db.collection('grades')
+                    .where('department', '==', department)
+                    .where('className', '==', className)
+                    .get();
+
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No results found.</td></tr>';
+                    return;
+                }
+
+                let results = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const record = data.records.find(r => r.uid === uid);
+                    
+                    if (record) {
+                        results.push({
+                            date: data.date,
+                            examName: data.examName,
+                            subject: data.subject,
+                            obtained: record.obtained,
+                            total: record.total
+                        });
+                    }
+                });
+
+                // Sort by date desc
+                results.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                if (results.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No results found for you.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                results.forEach(r => {
+                    const percentage = Math.round((r.obtained / r.total) * 100);
+                    const isPass = percentage >= 40; // Assuming 40% passing marks
+                    const statusClass = isPass ? 'grade-pass' : 'grade-fail';
+                    const statusText = isPass ? 'PASS' : 'FAIL';
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${new Date(r.date).toLocaleDateString()}</td>
+                        <td>${r.examName}</td>
+                        <td>${r.subject}</td>
+                        <td>${r.obtained} / ${r.total}</td>
+                        <td>${percentage}%</td>
+                        <td><span class="grade-badge ${statusClass}">${statusText}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error("Error loading results:", error);
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error loading data.</td></tr>';
+            }
+        }
+    </script>
+</body>
+
+</html>

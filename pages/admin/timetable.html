@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-add {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-add:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filters select {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+        }
+
+        .table-container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>Timetable Management</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">User</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">U</div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                <div class="page-header">
+                    <h2 style="font-size: 1.25rem; font-weight: 600;">Class Schedules</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="downloadTimetablePDF()" class="btn-add" style="background-color: #ef4444;">
+                            <span>↓</span> PDF
+                        </button>
+                        <button onclick="openModal()" class="btn-add">
+                            <span>+</span> Add Period
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <select id="filterDepartment" onchange="updateFilterClasses()">
+                        <option value="">Select Department</option>
+                    </select>
+                    <select id="filterClass" onchange="loadTimetable()">
+                        <option value="">Select Class</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table id="timetableTable">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Time</th>
+                                <th>Subject</th>
+                                <th>Teacher</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="timetableList">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 2rem;">Select Department and Class to view timetable.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Period Modal -->
+    <div id="addPeriodModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Class Period</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="addPeriodForm">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label>Department</label>
+                    <select name="department" id="department" onchange="updateClasses()" required>
+                        <option value="">Select Department</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Class</label>
+                    <select name="className" id="className" required>
+                        <option value="">Select Class</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Day</label>
+                    <select name="day" required>
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                        <option value="Saturday">Saturday</option>
+                        <option value="Sunday">Sunday</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" name="subject" required>
+                </div>
+                <div class="form-group">
+                    <label>Teacher</label>
+                    <select name="teacherId" id="teacherSelect" required>
+                        <option value="">Select Teacher</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display: flex; gap: 1rem;">
+                    <div style="flex: 1;">
+                        <label>Start Time</label>
+                        <input type="time" name="startTime" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label>End Time</label>
+                        <input type="time" name="endTime" required>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1.5rem; text-align: right;">
+                    <button type="button" class="btn-secondary" onclick="closeModal()" style="margin-right: 0.5rem; padding: 0.75rem 1.5rem; border:none; border-radius: 0.5rem; background: #e2e8f0; cursor: pointer;">Cancel</button>
+                    <button type="submit" class="btn-add" style="border:none;">Save Period</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/script.js"></script>
+
+    <script>
+        // Data for dropdowns - DYNAMIC
+        
+        async function loadDepartments() {
+            // Populate Modal Department Select
+            const modalSelect = document.getElementById('department');
+            // Populate Filter Department Select
+            const filterSelect = document.getElementById('filterDepartment');
+            
+            modalSelect.innerHTML = '<option value="">Select Department</option>';
+            filterSelect.innerHTML = '<option value="">Select Department</option>';
+
+            try {
+                const snapshot = await db.collection('departments').orderBy('name').get();
+                snapshot.forEach(doc => {
+                    const deptName = doc.data().name;
+                    
+                    // Modal Option
+                    const opt1 = document.createElement('option');
+                    opt1.value = deptName;
+                    opt1.innerText = deptName;
+                    modalSelect.appendChild(opt1);
+
+                    // Filter Option
+                    const opt2 = document.createElement('option');
+                    opt2.value = deptName;
+                    opt2.innerText = deptName;
+                    filterSelect.appendChild(opt2);
+                });
+            } catch (error) {
+                console.error("Error loading departments:", error);
+            }
+        }
+
+        async function updateClasses() {
+            const dept = document.getElementById('department').value;
+            const classSelect = document.getElementById('className');
+            classSelect.innerHTML = '<option value="">Select Class</option>';
+            
+            if(!dept) return;
+
+            try {
+                const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                snapshot.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc.data().name;
+                    opt.innerText = doc.data().name;
+                    classSelect.appendChild(opt);
+                });
+            } catch (error) {
+                console.error("Error loading classes:", error);
+            }
+        }
+
+        async function updateFilterClasses() {
+            const dept = document.getElementById('filterDepartment').value;
+            const classSelect = document.getElementById('filterClass');
+            classSelect.innerHTML = '<option value="">Select Class</option>';
+            
+            if(!dept) {
+                loadTimetable();
+                return;
+            }
+
+            try {
+                const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                snapshot.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc.data().name;
+                    opt.innerText = doc.data().name;
+                    classSelect.appendChild(opt);
+                });
+            } catch (error) {
+                console.error("Error loading filter classes:", error);
+            }
+            loadTimetable(); // Clear or reload
+        }
+
+        // Modal Logic
+        const modal = document.getElementById('addPeriodModal');
+        
+        async function openModal() {
+            // Ensure departments are loaded (idempotent check inside or just reload)
+             if(document.getElementById('department').options.length <= 1) {
+                await loadDepartments();
+             }
+            await loadTeachers();
+            modal.classList.add('active');
+        }
+
+        // Initial Load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDepartments();
+        });
+
+        function closeModal() {
+            modal.classList.remove('active');
+            const form = document.getElementById('addPeriodForm');
+            form.reset();
+            form.querySelector('input[name="docId"]').value = '';
+            document.getElementById('modalTitle').textContent = 'Add Class Period';
+        }
+
+        // Fetch Teachers for Dropdown
+        async function loadTeachers() {
+            const teacherSelect = document.getElementById('teacherSelect');
+            if(teacherSelect.options.length > 1) return; // Already loaded
+
+            try {
+                const snapshot = await db.collection('teachers').orderBy('firstName').get();
+                snapshot.forEach(doc => {
+                    const t = doc.data();
+                    const opt = document.createElement('option');
+                    opt.value = doc.id;
+                    opt.innerText = `${t.firstName} ${t.lastName}`;
+                    teacherSelect.appendChild(opt);
+                });
+            } catch (error) {
+                console.error("Error loading teachers:", error);
+            }
+        }
+
+        // Load Timetable
+        async function loadTimetable() {
+            const filterClass = document.getElementById('filterClass').value;
+            const tbody = document.getElementById('timetableList');
+
+            if (!filterClass) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Select Department and Class to view timetable.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Loading...</td></tr>';
+
+            try {
+                const snapshot = await db.collection('timetable')
+                    .where('className', '==', filterClass)
+                    .get();
+
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-light);">No periods scheduled for this class.</td></tr>';
+                    return;
+                }
+
+                let periods = [];
+                snapshot.forEach(doc => {
+                    periods.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Client-side Sort: Day then Start Time
+                const days = { 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7 };
+                periods.sort((a, b) => {
+                    if (days[a.day] !== days[b.day]) return days[a.day] - days[b.day];
+                    return a.startTime.localeCompare(b.startTime);
+                });
+
+                let html = '';
+                periods.forEach(p => {
+                    html += `
+                        <tr>
+                            <td style="font-weight: 500;">${p.day}</td>
+                            <td>${p.startTime} - ${p.endTime}</td>
+                            <td>${p.subject}</td>
+                            <td>${p.teacherName || 'Unknown'}</td>
+                            <td>
+                                <button onclick="editPeriod('${p.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;">Edit</button>
+                                <button onclick="deletePeriod('${p.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+
+            } catch (error) {
+                console.error("Error loading timetable:", error);
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Error loading data.</td></tr>';
+            }
+        }
+
+        // Add/Edit Period
+        document.getElementById('addPeriodForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Saving...';
+            btn.disabled = true;
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            const docId = data.docId;
+            delete data.docId;
+            
+            // Get teacher name for display
+            const teacherSelect = document.getElementById('teacherSelect');
+            const teacherOption = teacherSelect.options[teacherSelect.selectedIndex];
+            const teacherName = teacherOption.text;
+
+            const periodData = {
+                department: data.department,
+                className: data.className,
+                day: data.day,
+                startTime: data.startTime,
+                endTime: data.endTime,
+                subject: data.subject,
+                teacherId: data.teacherId,
+                teacherName: teacherName,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if (!docId) {
+                periodData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            }
+
+            try {
+                if (docId) {
+                    await db.collection('timetable').doc(docId).update(periodData);
+                    alert('Period updated successfully!');
+                } else {
+                    await db.collection('timetable').add(periodData);
+                    alert('Period added successfully!');
+                }
+                
+                closeModal();
+                
+                // If filter matches, reload
+                const filterClass = document.getElementById('filterClass').value;
+                if (filterClass === data.className) {
+                    loadTimetable();
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert("Error: " + error.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        async function editPeriod(id) {
+            try {
+                const doc = await db.collection('timetable').doc(id).get();
+                if(!doc.exists) return;
+                const p = doc.data();
+
+                // Load departments first (should be loaded)
+                document.getElementById('department').value = p.department;
+                
+                // Trigger class load and wait
+                await updateClasses();
+                document.getElementById('className').value = p.className;
+                
+                document.querySelector('select[name="day"]').value = p.day;
+                document.querySelector('input[name="subject"]').value = p.subject;
+                
+                await loadTeachers();
+                document.getElementById('teacherSelect').value = p.teacherId;
+                
+                document.querySelector('input[name="startTime"]').value = p.startTime;
+                document.querySelector('input[name="endTime"]').value = p.endTime;
+                
+                const form = document.getElementById('addPeriodForm');
+                form.querySelector('input[name="docId"]').value = id;
+                document.getElementById('modalTitle').textContent = 'Edit Period';
+                
+                modal.classList.add('active');
+            } catch (error) {
+                console.error(error);
+                alert('Error loading period details');
+            }
+        }
+
+        function downloadTimetablePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const dept = document.getElementById('filterDepartment').value || 'All';
+            const cls = document.getElementById('filterClass').value || 'All';
+
+            doc.text(`Timetable Report - ${dept} / ${cls}`, 14, 20);
+            doc.setFontSize(10);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 26);
+
+            const rows = [];
+            document.querySelectorAll('#timetableList tr').forEach(tr => {
+                 const tds = tr.querySelectorAll('td');
+                 if(tds.length >= 5 && !tds[0].innerText.includes('Select') && !tds[0].innerText.includes('Loading') && !tds[0].innerText.includes('No periods')) {
+                     rows.push([tds[0].innerText, tds[1].innerText, tds[2].innerText, tds[3].innerText]);
+                 }
+            });
+
+            doc.autoTable({
+                head: [['Day', 'Time', 'Subject', 'Teacher']],
+                body: rows,
+                startY: 30,
+                theme: 'striped'
+            });
+
+            doc.save('timetable.pdf');
+        }
+
+        // Delete Period
+        async function deletePeriod(id) {
+            if(!confirm('Delete this period?')) return;
+            try {
+                await db.collection('timetable').doc(id).delete();
+                loadTimetable();
+            } catch (error) {
+                console.error(error);
+                alert('Error deleting period');
+            }
+        }
+    </script>
+</body>
+</html>

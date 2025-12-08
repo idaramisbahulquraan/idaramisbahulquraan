@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Attendance - School Management System</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        .table-container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-present {
+            color: #166534;
+            background-color: #dcfce7;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-absent {
+            color: #991b1b;
+            background-color: #fee2e2;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>SMS Student</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>My Attendance</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">User</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">U</div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalDays">0</div>
+                        <div class="stat-label">Total Days</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="presentDays" style="color: #166534;">0</div>
+                        <div class="stat-label">Present</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="absentDays" style="color: #991b1b;">0</div>
+                        <div class="stat-label">Absent</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="attendancePercentage">0%</div>
+                        <div class="stat-label">Percentage</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceList">
+                            <tr>
+                                <td colspan="3" style="text-align: center; padding: 2rem;">Loading attendance...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/script.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            firebase.auth().onAuthStateChanged(async user => {
+                if (user) {
+                    try {
+                        const doc = await db.collection('students').doc(user.uid).get();
+                        if (doc.exists) {
+                            const student = doc.data();
+                            loadAttendance(student.department, student.className, student.uid);
+                        } else {
+                            document.getElementById('attendanceList').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">Student profile not found.</td></tr>';
+                        }
+                    } catch (error) {
+                        console.error("Error fetching profile:", error);
+                    }
+                }
+            });
+        });
+
+        async function loadAttendance(department, className, uid) {
+            const tbody = document.getElementById('attendanceList');
+            
+            try {
+                // Fetch attendance records for the student's class
+                // Note: Client-side sorting to avoid composite index requirement
+                const snapshot = await db.collection('attendance')
+                    .where('department', '==', department)
+                    .where('className', '==', className)
+                    .get();
+
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No attendance records found.</td></tr>';
+                    updateStats(0, 0);
+                    return;
+                }
+
+                let records = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const record = data.records.find(r => r.uid === uid);
+                    if (record) {
+                        records.push({
+                            date: data.date,
+                            status: record.status,
+                            remarks: record.remarks
+                        });
+                    }
+                });
+
+                // Sort by date desc
+                records.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                let html = '';
+                let total = records.length;
+                let present = 0;
+
+                records.forEach(r => {
+                    if (r.status === 'Present') present++;
+                    
+                    const statusClass = r.status === 'Present' ? 'status-present' : 'status-absent';
+                    
+                    html += `
+                        <tr>
+                            <td>${new Date(r.date).toLocaleDateString()}</td>
+                            <td><span class="${statusClass}">${r.status}</span></td>
+                            <td>${r.remarks || '-'}</td>
+                        </tr>
+                    `;
+                });
+
+                if (total === 0) {
+                    html = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No attendance records found for you.</td></tr>';
+                }
+
+                tbody.innerHTML = html;
+                updateStats(total, present);
+
+            } catch (error) {
+                console.error("Error loading attendance:", error);
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: red;">Error loading data.</td></tr>';
+            }
+        }
+
+        function updateStats(total, present) {
+            document.getElementById('totalDays').innerText = total;
+            document.getElementById('presentDays').innerText = present;
+            document.getElementById('absentDays').innerText = total - present;
+            
+            const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
+            document.getElementById('attendancePercentage').innerText = `${percentage}%`;
+        }
+    </script>
+</body>
+</html>

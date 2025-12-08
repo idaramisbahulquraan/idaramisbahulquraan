@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance - School Management System</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .status-present { color: var(--success); }
+        .status-absent { color: var(--danger); }
+        .status-leave { color: #f59e0b; }
+        
+        .report-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>SMS Teacher</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 id="pageTitle">Attendance</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">User</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">U</div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                <div class="stat-card" style="margin-bottom: 2rem;">
+                    <h3 style="margin-bottom: 1rem;">Select Class</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Department</label>
+                            <select id="department" onchange="updateClasses()" required>
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Class</label>
+                            <select id="className" onchange="updateSubjects()" required>
+                                <option value="">Select Class</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <select id="subject" required>
+                                <option value="">Select Subject</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end;">
+                            <button class="btn-primary" onclick="loadStudents()">Fetch Students</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card" id="studentListCard" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3>Mark Attendance</h3>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn-primary" onclick="saveAttendance()" style="width: auto; background-color: var(--primary-color);">Save Attendance</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Roll No</th>
+                                    <th>Name</th>
+                                    <th>
+                                        Status
+                                        <div style="font-size: 0.8rem; font-weight: normal; margin-top: 5px; display: flex; gap: 10px;">
+                                            <label style="cursor: pointer; color: var(--success);"><input type="radio" name="bulk_status" onclick="markAll('Present')"> All Present</label>
+                                            <label style="cursor: pointer; color: var(--danger);"><input type="radio" name="bulk_status" onclick="markAll('Absent')"> All Absent</label>
+                                            <label style="cursor: pointer; color: #f59e0b;"><input type="radio" name="bulk_status" onclick="markAll('Leave')"> All Leave</label>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceTableBody">
+                                <!-- Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/script.js"></script>
+    <script>
+        // Data for dropdowns - DYNAMIC
+        
+        async function loadDepartments() {
+            const select = document.getElementById('department');
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">Select Department</option>';
+
+            try {
+                const snapshot = await db.collection('departments').orderBy('name').get();
+                snapshot.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc.data().name;
+                    opt.innerText = doc.data().name;
+                    select.appendChild(opt);
+                });
+                if(currentVal) select.value = currentVal;
+            } catch (error) {
+                console.error("Error loading departments:", error);
+            }
+        }
+
+        // Set today's date
+        document.getElementById('date').valueAsDate = new Date();
+        loadDepartments();
+
+        async function updateClasses() {
+            const dept = document.getElementById('department').value;
+            const classSelect = document.getElementById('className');
+            classSelect.innerHTML = '<option value="">Select Class</option>';
+            document.getElementById('subject').innerHTML = '<option value="">Select Subject</option>';
+            
+            if(!dept) return;
+
+            try {
+                const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                snapshot.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc.data().name;
+                    opt.innerText = doc.data().name;
+                    classSelect.appendChild(opt);
+                });
+            } catch (error) {
+                console.error("Error loading classes:", error);
+            }
+        }
+
+        async function updateSubjects() {
+            const dept = document.getElementById('department').value;
+            const className = document.getElementById('className').value;
+            const subjectSelect = document.getElementById('subject');
+            subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+
+            if(!dept || !className) return;
+
+            try {
+                const snapshot = await db.collection('subjects')
+                    .where('department', '==', dept)
+                    .where('className', '==', className)
+                    .get();
+
+                const subjects = [];
+                snapshot.forEach(doc => subjects.push(doc.data().name));
+                subjects.sort(); // Sort alphabetically
+
+                subjects.forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.innerText = name;
+                    subjectSelect.appendChild(opt);
+                });
+            } catch (error) {
+                console.error("Error loading subjects:", error);
+            }
+        }
+
+        async function loadStudents() {
+            const dept = document.getElementById('department').value;
+            const className = document.getElementById('className').value;
+            const subject = document.getElementById('subject').value;
+            const date = document.getElementById('date').value;
+
+            if(!dept || !className || !subject || !date) {
+                alert("Please select Department, Class, Subject and Date.");
+                return;
+            }
+
+            const listCard = document.getElementById('studentListCard');
+            const tbody = document.getElementById('attendanceTableBody');
+            
+            listCard.style.display = 'block';
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">Loading...</td></tr>';
+
+            try {
+                // Check if attendance already exists
+                const attId = `${date}_${dept}_${className}_${subject}`.replace(/[^a-zA-Z0-9]/g, '_');
+                const attDoc = await db.collection("attendance").doc(attId).get();
+                let existingData = null;
+                
+                if(attDoc.exists) {
+                    existingData = attDoc.data().records;
+                }
+
+                // Fetch Students
+                const snapshot = await db.collection("students")
+                    .where("department", "==", dept)
+                    .where("className", "==", className)
+                    .orderBy("rollNumber")
+                    .get()
+                    .catch(async (e) => {
+                        return await db.collection("students")
+                            .where("department", "==", dept)
+                            .where("className", "==", className)
+                            .get();
+                    });
+
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No students found in this class.</td></tr>';
+                    return;
+                }
+
+                const students = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.uid = doc.id; // Use doc.id as uid
+                    students.push(data);
+                });
+                students.sort((a,b) => (a.rollNumber || '').localeCompare(b.rollNumber || ''));
+
+                tbody.innerHTML = '';
+                students.forEach(s => {
+                    let status = 'Present'; // Default
+                    
+                    if(existingData) {
+                        const record = existingData.find(r => r.uid === s.uid);
+                        if(record) status = record.status;
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${s.rollNumber}</td>
+                        <td>${s.firstName} ${s.lastName}</td>
+                        <td>
+                            <div class="radio-group">
+                                <label class="radio-option status-present">
+                                    <input type="radio" name="status_${s.uid}" value="Present" ${status==='Present'?'checked':''}> Present
+                                </label>
+                                <label class="radio-option status-absent">
+                                    <input type="radio" name="status_${s.uid}" value="Absent" ${status==='Absent'?'checked':''}> Absent
+                                </label>
+                                <label class="radio-option status-leave">
+                                    <input type="radio" name="status_${s.uid}" value="Leave" ${status==='Leave'?'checked':''}> Leave
+                                </label>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // Reset bulk action radios
+                document.querySelectorAll('input[name="bulk_status"]').forEach(r => r.checked = false);
+
+            } catch (error) {
+                console.error("Error:", error);
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: red;">Error loading data.</td></tr>';
+            }
+        }
+
+        function markAll(status) {
+            const radios = document.querySelectorAll(`input[value="${status}"]`);
+            radios.forEach(r => r.checked = true);
+        }
+
+        async function saveAttendance() {
+            const dept = document.getElementById('department').value;
+            const className = document.getElementById('className').value;
+            const subject = document.getElementById('subject').value;
+            const date = document.getElementById('date').value;
+            
+            // Get all students rendered
+            const rows = document.querySelectorAll('#attendanceTableBody tr');
+            const records = [];
+
+            rows.forEach(tr => {
+                const inputs = tr.querySelectorAll('input[type="radio"]');
+                if(inputs.length > 0) {
+                    const uid = inputs[0].name.replace('status_', '');
+                    const name = tr.children[1].innerText;
+                    let status = 'Absent'; // Fallback
+                    
+                    inputs.forEach(input => {
+                        if(input.checked) status = input.value;
+                    });
+                    
+                    records.push({ uid, name, status });
+                }
+            });
+
+            const attId = `${date}_${dept}_${className}_${subject}`.replace(/[^a-zA-Z0-9]/g, '_');
+            
+            const btn = document.querySelector('button[onclick="saveAttendance()"]');
+            btn.innerText = 'Saving...';
+            btn.disabled = true;
+
+            try {
+                await db.collection("attendance").doc(attId).set({
+                    date: date,
+                    department: dept,
+                    className: className,
+                    subject: subject,
+                    records: records,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    markedBy: firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'unknown'
+                });
+                alert("Attendance saved successfully!");
+            } catch (error) {
+                console.error("Error saving:", error);
+                alert("Error: " + error.message);
+            } finally {
+                btn.innerText = 'Save Attendance';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

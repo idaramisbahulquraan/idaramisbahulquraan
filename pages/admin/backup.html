@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup & Restore - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .backup-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .btn-warning {
+            background-color: #f59e0b;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .status-box {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-info { color: var(--primary-color); }
+        .status-success { color: #16a34a; font-weight: 600; }
+        .status-error { color: #dc2626; font-weight: 600; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>Backup & Restore</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">User</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">U</div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <p>Manage your data securely. Create backups regularly.</p>
+                
+                <div class="backup-container">
+                    <!-- Backup Section -->
+                    <div class="card">
+                        <h3>📤 Backup Data</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem;">
+                            Download a complete copy of all system data (Users, Students, Finance, etc.) as a JSON file.
+                        </p>
+                        <button onclick="backupData()" class="btn-primary">Download Backup</button>
+                    </div>
+
+                    <!-- Restore Section -->
+                    <div class="card">
+                        <h3>📥 Restore Data</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem;">
+                            Restore data from a previously saved backup file. <br>
+                            <strong>Warning:</strong> This may overwrite existing data.
+                        </p>
+                        <form onsubmit="restoreData(event)">
+                            <div class="form-group">
+                                <input type="file" id="backupFile" accept=".json" required style="border: 1px solid #ddd; padding: 0.5rem; width: 100%;">
+                            </div>
+                            <button type="submit" class="btn-warning">Restore Data</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="status-box">
+                    <strong>Status:</strong> <span id="statusMessage">Idle</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/backup.js"></script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .chart-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            height: 350px;
+            position: relative;
+        }
+        .stat-card {
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>Dashboard Overview</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">User</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">U</div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👨‍🎓</div>
+                        <p class="stat-title">Total Students</p>
+                        <p class="stat-value" id="countStudents">-</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👨‍🏫</div>
+                        <p class="stat-title">Total Teachers</p>
+                        <p class="stat-value" id="countTeachers">-</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏫</div>
+                        <p class="stat-title">Total Classes</p>
+                        <p class="stat-value" id="countClasses">24</p>
+                    </div>
+                    <div class="stat-card" style="border-left-color: var(--success);">
+                        <div class="stat-icon" style="color: var(--success);">💰</div>
+                        <p class="stat-title">Monthly Income</p>
+                        <p class="stat-value" style="color: var(--success);">$0</p>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Income vs Expense (This Year)</h3>
+                        <canvas id="financeChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Student Distribution</h3>
+                        <canvas id="studentChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="stat-card" style="min-height: auto;">
+                    <h3 style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;">Recent Activity</h3>
+                    <div id="recentActivityList">
+                        <p style="color: var(--text-light);">Loading activity...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        async function loadStats() {
+            try {
+                // 1. Counts
+                const studentsSnap = await db.collection('students').get();
+                const teachersSnap = await db.collection('teachers').get();
+                const classesSnap = await db.collection('classes').get();
+                
+                document.getElementById('countStudents').innerText = studentsSnap.size;
+                document.getElementById('countTeachers').innerText = teachersSnap.size;
+                document.getElementById('countClasses').innerText = classesSnap.size;
+
+                // 2. Monthly Income
+                const date = new Date();
+                const currentMonth = date.toLocaleString('default', { month: 'long' }); // "January"
+                const currentYear = date.getFullYear(); // 2025
+                const currentMonthStr = (date.getMonth() + 1).toString().padStart(2, '0'); // "01"
+                const currentYearStr = date.getFullYear().toString(); // "2025"
+                const currentMonthPrefix = `${currentYearStr}-${currentMonthStr}`; // "2025-01"
+
+                let totalIncome = 0;
+
+                // Fees (Paid + Current Month)
+                // Note: fees collection stores month as "January" and year as 2025 (number)
+                const feesSnap = await db.collection('fees')
+                    .where('month', '==', currentMonth)
+                    .where('year', '==', currentYear)
+                    .where('status', '==', 'Paid')
+                    .get();
+                
+                feesSnap.forEach(doc => {
+                    totalIncome += (parseFloat(doc.data().amount) || 0);
+                });
+
+                // Incomes (Date starts with "YYYY-MM")
+                // Using client-side filtering for flexibility or range query if indexed
+                // Range query: date >= "2025-01-01" and date <= "2025-01-31"
+                const startOfMonth = `${currentYearStr}-${currentMonthStr}-01`;
+                const endOfMonth = `${currentYearStr}-${currentMonthStr}-31`;
+                
+                const incomeSnap = await db.collection('incomes')
+                    .where('date', '>=', startOfMonth)
+                    .where('date', '<=', endOfMonth)
+                    .get();
+
+                incomeSnap.forEach(doc => {
+                    totalIncome += (parseFloat(doc.data().amount) || 0);
+                });
+
+                document.querySelector('.stat-card:nth-child(4) .stat-value').innerText = `Rs. ${totalIncome.toLocaleString()}`;
+
+
+                // 3. Recent Activity (Last 5 combined from students and fees)
+                const recentContainer = document.getElementById('recentActivityList');
+                // Fetch recent students
+                const recentStudents = await db.collection('students')
+                    .orderBy('createdAt', 'desc')
+                    .limit(5)
+                    .get();
+                
+                // Fetch recent fees
+                const recentFees = await db.collection('fees')
+                    .orderBy('createdAt', 'desc')
+                    .limit(5)
+                    .get();
+
+                let activities = [];
+
+                recentStudents.forEach(doc => {
+                    const d = doc.data();
+                    activities.push({
+                        type: 'student',
+                        text: `New student enrolled: <span style="font-weight: 600; color: var(--text-dark);">${d.firstName} ${d.lastName}</span>`,
+                        time: d.createdAt ? d.createdAt.seconds : 0
+                    });
+                });
+
+                recentFees.forEach(doc => {
+                    const d = doc.data();
+                    activities.push({
+                        type: 'fee',
+                        text: `Fee collected from <span style="font-weight: 600; color: var(--text-dark);">${d.studentName}</span> (${d.month})`,
+                        time: d.createdAt ? d.createdAt.seconds : 0
+                    });
+                });
+
+                // Sort and take top 5
+                activities.sort((a, b) => b.time - a.time);
+                activities = activities.slice(0, 5);
+
+                if (activities.length > 0) {
+                    let html = '<ul style="list-style: none; padding: 0;">';
+                    activities.forEach(act => {
+                        const dateStr = new Date(act.time * 1000).toLocaleDateString();
+                        const icon = act.type === 'student' ? '🎓' : '💰';
+                        const bgColor = act.type === 'student' ? 'bg-blue-50' : 'bg-green-50'; // Need to define these or use inline
+                        html += `
+                            <li style="padding: 1rem 0; border-bottom: 1px solid #f1f5f9; display: flex; align-items: flex-start; gap: 1rem;">
+                                <span style="font-size: 1.25rem; background: #f8fafc; padding: 0.5rem; border-radius: 0.5rem;">${icon}</span>
+                                <div>
+                                    <div style="font-size: 0.95rem; color: var(--text-dark); margin-bottom: 0.25rem;">${act.text}</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-light);">${dateStr}</div>
+                                </div>
+                            </li>
+                        `;
+                    });
+                    html += '</ul>';
+                    recentContainer.innerHTML = html;
+                } else {
+                    recentContainer.innerHTML = '<p style="color: var(--text-light);">No recent activity.</p>';
+                }
+
+                // 4. Load Charts
+                loadCharts();
+
+            } catch (error) {
+                console.error("Error loading stats:", error);
+            }
+        }
+
+        async function loadCharts() {
+            // Finance Chart (Mock data for months, replace with real if aggregation available)
+            // Real implementation would require complex aggregation which Firestore doesn't support natively well without counters
+            // We'll approximate for demo or use simple arrays if possible.
+            // For now, let's show a static trend or simple one based on current data if feasible.
+            // To make it "modern" and "real", we will fetch last 6 months fees/expenses.
+            
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']; 
+            // In a real app, calculate these dynamically. For this prototype, we'll randomize or fetch simple totals.
+            
+            const ctx1 = document.getElementById('financeChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Income',
+                        data: [12000, 19000, 3000, 5000, 2000, 3000], // Placeholder
+                        backgroundColor: '#10b981',
+                        borderRadius: 4
+                    }, {
+                        label: 'Expenses',
+                        data: [5000, 10000, 2000, 1000, 1000, 500], // Placeholder
+                        backgroundColor: '#ef4444',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Student Distribution (Classes)
+            const classesSnap = await db.collection('students').get();
+            const classCounts = {};
+            classesSnap.forEach(doc => {
+                const c = doc.data().className || 'Unknown';
+                classCounts[c] = (classCounts[c] || 0) + 1;
+            });
+
+            const ctx2 = document.getElementById('studentChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(classCounts),
+                    datasets: [{
+                        data: Object.values(classCounts),
+                        backgroundColor: ['#4f46e5', '#818cf8', '#c7d2fe', '#312e81', '#a5b4fc'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadStats);
+    </script>
+</body>
+
+</html>

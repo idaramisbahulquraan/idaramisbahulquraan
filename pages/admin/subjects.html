@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subjects - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-add {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-add:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .table-container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filters select {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+            background: var(--white);
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>Subjects Management</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">User</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">U</div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                
+                <div class="page-header">
+                    <h2 style="font-size: 1.25rem; font-weight: 600;">Subjects & Teacher Allocation</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn-add" onclick="downloadSubjectsPDF()" style="background-color: var(--secondary-color); border: none; cursor: pointer;">
+                            ↓ PDF
+                        </button>
+                        <button onclick="openModal('subjectModal')" class="btn-add">
+                            <span>+</span> Add Subject
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <select id="subjectFilterDept" onchange="updateSubjectFilterClasses()">
+                        <option value="">All Departments</option>
+                    </select>
+                    <select id="subjectFilterClass" onchange="loadSubjects()">
+                        <option value="">All Classes</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject Name</th>
+                                <th>Class</th>
+                                <th>Department</th>
+                                <th>Assigned Teacher</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subjectsList">
+                            <tr><td colspan="5" style="text-align:center; padding: 2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Add Subject Modal -->
+    <div id="subjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="subjectModalTitle">Add Subject & Allocate Teacher</h3>
+                <button class="close-btn" onclick="closeModal('subjectModal')">&times;</button>
+            </div>
+            <form id="addSubjectForm">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label>Department</label>
+                    <select name="departmentId" id="subjectDepartmentSelect" onchange="updateSubjectModalClasses()" required>
+                        <option value="">Select Department</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Class</label>
+                    <select name="className" id="subjectClassSelect" required>
+                        <option value="">Select Class</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject Name</label>
+                    <input type="text" name="name" required placeholder="e.g. Fiqh">
+                </div>
+                <div class="form-group">
+                    <label>Assign Teacher (Optional)</label>
+                    <select name="teacherId" id="subjectTeacherSelect">
+                        <option value="">Select Teacher</option>
+                    </select>
+                </div>
+                <div style="text-align: right; margin-top: 1.5rem;">
+                    <button type="submit" class="btn-add" style="border:none;">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/script.js"></script>
+
+    <script>
+        // Modal Logic
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            if(id === 'subjectModal') {
+                loadDepartmentsForSelect('subjectDepartmentSelect');
+                loadTeachersForSelect();
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            const form = document.getElementById(id).querySelector('form');
+            if(form) {
+                form.reset();
+                if(form.querySelector('input[name="docId"]')) {
+                    form.querySelector('input[name="docId"]').value = '';
+                }
+            }
+            if(id === 'subjectModal') {
+                document.getElementById('subjectModalTitle').textContent = 'Add Subject & Allocate Teacher';
+            }
+        }
+
+        // --- Subjects ---
+        async function loadSubjects() {
+            const tbody = document.getElementById('subjectsList');
+            const filterDept = document.getElementById('subjectFilterDept').value;
+            const filterClass = document.getElementById('subjectFilterClass').value;
+            
+            try {
+                // Ideally use .where() for filtering, but client-side is fine for small datasets
+                const snapshot = await db.collection('subjects').orderBy('name').get();
+
+                let html = '';
+                let count = 0;
+                
+                snapshot.forEach(doc => {
+                    const s = doc.data();
+                    if(filterDept && s.department !== filterDept) return;
+                    if(filterClass && s.className !== filterClass) return;
+                    
+                    count++;
+                    html += `
+                        <tr>
+                            <td style="font-weight: 500;">${s.name}</td>
+                            <td>${s.className}</td>
+                            <td>${s.department}</td>
+                            <td>${s.teacherName || '<span style="color:var(--text-light); font-style:italic;">Unassigned</span>'}</td>
+                            <td>
+                                <button onclick="editSubject('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;">Edit</button>
+                                <button onclick="deleteSubject('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                if (count === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;">No subjects found.</td></tr>';
+                } else {
+                    tbody.innerHTML = html;
+                }
+
+            } catch (error) {
+                console.error("Error loading subjects:", error);
+            }
+        }
+
+        document.getElementById('addSubjectForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerText = 'Saving...';
+            
+            const formData = new FormData(e.target);
+            const name = formData.get('name');
+            const department = formData.get('departmentId');
+            const className = formData.get('className');
+            const teacherId = formData.get('teacherId');
+            const docId = formData.get('docId');
+            
+            let teacherName = '';
+            if(teacherId) {
+                const select = document.getElementById('subjectTeacherSelect');
+                teacherName = select.options[select.selectedIndex].text;
+            }
+
+            try {
+                if (docId) {
+                    await db.collection('subjects').doc(docId).update({
+                        name: name,
+                        department: department,
+                        className: className,
+                        teacherId: teacherId,
+                        teacherName: teacherName
+                    });
+                    alert('Subject updated successfully');
+                } else {
+                    await db.collection('subjects').add({
+                        name: name,
+                        department: department,
+                        className: className,
+                        teacherId: teacherId,
+                        teacherName: teacherName,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    alert('Subject added successfully');
+                }
+                closeModal('subjectModal');
+                loadSubjects();
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Save';
+            }
+        });
+        
+        async function editSubject(id) {
+            try {
+                const doc = await db.collection('subjects').doc(id).get();
+                if(!doc.exists) return;
+                const s = doc.data();
+                
+                const form = document.getElementById('addSubjectForm');
+                form.querySelector('input[name="docId"]').value = id;
+                
+                // Populate fields
+                // We need to wait for departments to load if empty, but usually they are loaded when opening modal? 
+                // Wait, openModal loads them. Here we need to load them manually or call openModal first then populate.
+                // Let's call openModal first to init selects
+                openModal('subjectModal');
+                
+                // Set values after a small delay to ensure options are populated (if async)
+                // Actually loadDepartmentsForSelect is async. We should await it.
+                await loadDepartmentsForSelect('subjectDepartmentSelect');
+                form.querySelector('select[name="departmentId"]').value = s.department;
+                
+                await updateSubjectModalClasses();
+                form.querySelector('select[name="className"]').value = s.className;
+                
+                form.querySelector('input[name="name"]').value = s.name;
+                
+                await loadTeachersForSelect();
+                form.querySelector('select[name="teacherId"]').value = s.teacherId || '';
+                
+                document.getElementById('subjectModalTitle').textContent = 'Edit Subject';
+                
+            } catch (error) {
+                console.error(error);
+                alert('Error loading subject');
+            }
+        }
+
+        async function deleteSubject(id) {
+             if(!confirm('Delete this subject?')) return;
+            try {
+                await db.collection('subjects').doc(id).delete();
+                loadSubjects();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function downloadSubjectsPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.text("Subjects Report", 14, 20);
+            doc.setFontSize(10);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 26);
+            
+            const rows = [];
+            document.querySelectorAll('#subjectsList tr').forEach(tr => {
+                 const tds = tr.querySelectorAll('td');
+                 if(tds.length >= 4 && !tds[0].innerText.includes('Loading')) {
+                     rows.push([tds[0].innerText, tds[1].innerText, tds[2].innerText, tds[3].innerText]);
+                 }
+            });
+            
+            doc.autoTable({
+                head: [['Subject', 'Class', 'Department', 'Teacher']],
+                body: rows,
+                startY: 30
+            });
+            
+            doc.save('subjects.pdf');
+        }
+
+        // --- Helpers ---
+        async function loadDepartmentsForSelect(selectId) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '<option value="">Select Department</option>';
+            
+            const snapshot = await db.collection('departments').orderBy('name').get();
+            snapshot.forEach(doc => {
+                const opt = document.createElement('option');
+                opt.value = doc.data().name;
+                opt.innerText = doc.data().name;
+                select.appendChild(opt);
+            });
+        }
+        
+        // Also load departments for filter on page load
+        async function loadDepartmentsForFilter() {
+             const select = document.getElementById('subjectFilterDept');
+             const current = select.value;
+             select.innerHTML = '<option value="">All Departments</option>';
+             
+             const snapshot = await db.collection('departments').orderBy('name').get();
+             snapshot.forEach(doc => {
+                 const opt = document.createElement('option');
+                 opt.value = doc.data().name;
+                 opt.innerText = doc.data().name;
+                 select.appendChild(opt);
+             });
+             select.value = current;
+        }
+
+        async function updateSubjectFilterClasses() {
+            const dept = document.getElementById('subjectFilterDept').value;
+            const select = document.getElementById('subjectFilterClass');
+            select.innerHTML = '<option value="">All Classes</option>';
+            
+            if(!dept) {
+                loadSubjects();
+                return;
+            }
+
+            const snapshot = await db.collection('classes').where('department', '==', dept).get();
+            snapshot.forEach(doc => {
+                const opt = document.createElement('option');
+                opt.value = doc.data().name;
+                opt.innerText = doc.data().name;
+                select.appendChild(opt);
+            });
+            loadSubjects();
+        }
+
+        async function updateSubjectModalClasses() {
+             const dept = document.getElementById('subjectDepartmentSelect').value;
+            const select = document.getElementById('subjectClassSelect');
+            select.innerHTML = '<option value="">Select Class</option>';
+            
+            if(!dept) return;
+
+            const snapshot = await db.collection('classes').where('department', '==', dept).get();
+            snapshot.forEach(doc => {
+                const opt = document.createElement('option');
+                opt.value = doc.data().name;
+                opt.innerText = doc.data().name;
+                select.appendChild(opt);
+            });
+        }
+
+        async function loadTeachersForSelect() {
+            const select = document.getElementById('subjectTeacherSelect');
+            if(select.options.length > 1) return;
+
+            const snapshot = await db.collection('teachers').orderBy('firstName').get();
+            snapshot.forEach(doc => {
+                const t = doc.data();
+                const opt = document.createElement('option');
+                opt.value = doc.id;
+                opt.innerText = `${t.firstName} ${t.lastName}`;
+                select.appendChild(opt);
+            });
+        }
+
+        // Initial Load
+        document.addEventListener('DOMContentLoaded', () => {
+             loadDepartmentsForFilter();
+             loadSubjects();
+        });
+
+    </script>
+</body>
+</html>

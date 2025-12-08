@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exams - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-add {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-add:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .table-container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>Exams Management</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">User</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">U</div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                <div class="page-header">
+                    <h2 style="font-size: 1.25rem; font-weight: 600;">Exam Schedule</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn-add" onclick="downloadExamsPDF()" style="background-color: var(--secondary-color); border: none; cursor: pointer;">
+                            ↓ PDF
+                        </button>
+                        <button onclick="openModal()" class="btn-add">
+                            <span>+</span> Add New Exam
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="examsTable">
+                        <thead>
+                            <tr>
+                                <th>Exam Name</th>
+                                <th>Class</th>
+                                <th>Subject</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="examsList">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 2rem;">Loading exams...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Exam Modal -->
+    <div id="examModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="examModalTitle">Schedule New Exam</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="addExamForm">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label>Exam Name</label>
+                    <input type="text" id="examName" required placeholder="e.g. Mid Term, Final Term">
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <select id="department" onchange="updateClasses()" required>
+                        <option value="">Select Department</option>
+                        <option value="Dars-e-Nizami">Dars-e-Nizami</option>
+                        <option value="Hifz">Hifz</option>
+                        <option value="Tajweed">Tajweed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Class</label>
+                    <select id="className" required>
+                        <option value="">Select Class</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" id="subject" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="examDate" required>
+                </div>
+                
+                <div style="margin-top: 1.5rem; text-align: right;">
+                    <button type="button" class="btn-secondary" onclick="closeModal()" style="margin-right: 0.5rem; padding: 0.75rem 1.5rem; border:none; border-radius: 0.5rem; background: #e2e8f0; cursor: pointer;">Cancel</button>
+                    <button type="submit" class="btn-add" style="border:none;">Save Schedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/script.js"></script>
+
+    <script>
+        // Data for dropdowns - DYNAMIC
+        
+        async function loadDepartments() {
+            const select = document.getElementById('department');
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">Select Department</option>';
+
+            try {
+                const snapshot = await db.collection('departments').orderBy('name').get();
+                snapshot.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc.data().name;
+                    opt.innerText = doc.data().name;
+                    select.appendChild(opt);
+                });
+                if(currentVal) select.value = currentVal;
+            } catch (error) {
+                console.error("Error loading departments:", error);
+            }
+        }
+
+        async function updateClasses() {
+            const dept = document.getElementById('department').value;
+            const classSelect = document.getElementById('className');
+            classSelect.innerHTML = '<option value="">Select Class</option>';
+            
+            if(!dept) return;
+
+            try {
+                const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                snapshot.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc.data().name;
+                    opt.innerText = doc.data().name;
+                    classSelect.appendChild(opt);
+                });
+            } catch (error) {
+                console.error("Error loading classes:", error);
+            }
+        }
+
+        // Modal Logic
+        const modal = document.getElementById('examModal');
+        
+        async function openModal() {
+            await loadDepartments();
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            const form = document.getElementById('addExamForm');
+            form.reset();
+            form.querySelector('input[name="docId"]').value = '';
+            document.getElementById('examModalTitle').textContent = 'Schedule New Exam';
+        }
+
+        // Fetch and Display Exams
+        async function loadExams() {
+            const tableBody = document.getElementById('examsList');
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Loading exams...</td></tr>';
+
+            try {
+                const snapshot = await db.collection('exams').orderBy('date', 'asc').get();
+                
+                if (snapshot.empty) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-light);">
+                                No exams scheduled. Click "Add New Exam" to start.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                snapshot.forEach(doc => {
+                    const exam = doc.data();
+                    const date = exam.date ? new Date(exam.date).toLocaleDateString() : 'N/A';
+                    
+                    html += `
+                        <tr>
+                            <td>
+                                <div style="font-weight: 500;">${exam.examName}</div>
+                            </td>
+                            <td>${exam.className}</td>
+                            <td>${exam.subject}</td>
+                            <td>${date}</td>
+                            <td>
+                                <button onclick="editExam('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;">Edit</button>
+                                <button onclick="deleteExam('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableBody.innerHTML = html;
+
+            } catch (error) {
+                console.error("Error loading exams:", error);
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Error: ${error.message}</td></tr>`;
+            }
+        }
+
+        // Add/Edit Exam
+        document.getElementById('addExamForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Saving...';
+            btn.disabled = true;
+
+            const docId = e.target.querySelector('input[name="docId"]').value;
+            const examName = document.getElementById('examName').value;
+            const className = document.getElementById('className').value;
+            const subject = document.getElementById('subject').value;
+            const examDate = document.getElementById('examDate').value;
+            const department = document.getElementById('department').value;
+
+            const examData = {
+                examName,
+                className,
+                department,
+                subject,
+                date: examDate
+            };
+
+            try {
+                if (docId) {
+                    await db.collection('exams').doc(docId).update(examData);
+                    alert('Exam updated successfully!');
+                } else {
+                    examData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('exams').add(examData);
+                    alert('Exam scheduled successfully!');
+                }
+                
+                closeModal();
+                loadExams();
+
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        async function editExam(id) {
+            try {
+                const doc = await db.collection('exams').doc(id).get();
+                if(!doc.exists) return;
+                const e = doc.data();
+                
+                await loadDepartments();
+                
+                document.getElementById('department').value = e.department || '';
+                await updateClasses();
+                
+                document.getElementById('className').value = e.className;
+                document.getElementById('examName').value = e.examName;
+                document.getElementById('subject').value = e.subject;
+                document.getElementById('examDate').value = e.date;
+                
+                const form = document.getElementById('addExamForm');
+                form.querySelector('input[name="docId"]').value = id;
+                document.getElementById('examModalTitle').textContent = 'Edit Exam';
+                
+                modal.classList.add('active');
+            } catch (error) {
+                console.error(error);
+                alert('Error loading exam details');
+            }
+        }
+
+        // Delete Exam
+        async function deleteExam(id) {
+            if(!confirm('Are you sure you want to delete this exam?')) return;
+            try {
+                await db.collection('exams').doc(id).delete();
+                loadExams();
+            } catch (error) {
+                console.error(error);
+                alert('Error deleting record');
+            }
+        }
+
+        function downloadExamsPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.text("Exam Schedule", 14, 20);
+            doc.setFontSize(10);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 26);
+            
+            const rows = [];
+            document.querySelectorAll('#examsList tr').forEach(tr => {
+                 const tds = tr.querySelectorAll('td');
+                 if(tds.length >= 4 && !tds[0].innerText.includes('Loading')) {
+                     rows.push([tds[0].innerText.trim(), tds[1].innerText, tds[2].innerText, tds[3].innerText]);
+                 }
+            });
+            
+            doc.autoTable({
+                head: [['Exam Name', 'Class', 'Subject', 'Date']],
+                body: rows,
+                startY: 30
+            });
+            
+            doc.save('exams.pdf');
+        }
+
+        // Initial Load
+        document.addEventListener('DOMContentLoaded', loadExams);
+    </script>
+</body>
+
+</html>

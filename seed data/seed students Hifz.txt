@@ -1,0 +1,255 @@
+Students Name	"Gender
+M/F"	Roll No	Family No	"Reg No./
+Adm No"	"Date of Birth
+MM-DD-YYYY"	"Admission Date
+MM-DD-YYYY"	Father Name	Father Mobile	Class
+Muhammad Ahmad Raza	M						Huzoor Bakhsh		Abee Bin Kaab
+Muhammad Umair Iqbal	M						Muhammad Iqbal		Abee Bin Kaab
+Muhammad Bilal	M						Muhammad Tariq		Abee Bin Kaab
+Dai Mahmood	M						Zahid Mahmood		Abee Bin Kaab
+Muhammad Usman	M						Abdul Wahid		Abee Bin Kaab
+Muhammad Ali Haider	M						Kifayat Hussain		Abee Bin Kaab
+Abdul Saboor	M						Atiq-ur-Rehman		Abee Bin Kaab
+Muhammad Shah Hassan	M						Muhammad Munawar Hussain		Abee Bin Kaab
+Muhammad Shah Mir	M						Muhammad Tanveer		Abee Bin Kaab
+Uzair Ahmad	M						Muhammad Ahmad		Abee Bin Kaab
+Muhammad Furqan	M						Muhammad Afzal		Abee Bin Kaab
+Muhammad Ayan Akram	M						Muhammad Akram		Abee Bin Kaab
+Muhammad Adil	M						Muhammad Shakir		Abee Bin Kaab
+Muhammad Bukhari	M						Mazhar Hussain		Abee Bin Kaab
+Muhammad Ismail Shah Bukhari	M						Ishrat Jahaniyan		Abee Bin Kaab
+Muhammad Rayyan Mustafa	M						Ishrat Jahaniyan		Abee Bin Kaab
+Muhammad Haseeb	M						Muhammad Farooq		Zaid Bin Sabit
+Muhammad Nazim	M						Muhammad Qasim		Zaid Bin Sabit
+Muhammad Ahsan	M						Ameer Bakhsh		Zaid Bin Sabit
+Muhammad Ghulam Haider	M						Muhammad Saeed		Zaid Bin Sabit
+Muhammad Usman Haider	M						Muhammad Saeed		Zaid Bin Sabit
+Muhammad Hanzala	M						Muhammad Arif		Zaid Bin Sabit
+Muhammad Ayan	M						Muhammad Khurshid		Zaid Bin Sabit
+Muhammad Sameer	M						Muhammad Qayyum		Zaid Bin Sabit
+Muhammad Abu Bakar	M						Muhammad Zafar		Zaid Bin Sabit
+Muhammad Junaid	M						Muhammad Javed		Zaid Bin Sabit
+Ahmad Raza	M						Muhammad Sharif		Zaid Bin Sabit
+Muhammad Owais	M						Muhammad Anas		Zaid Bin Sabit
+Muhammad Muneeb	M						Muhammad Ishaq		Zaid Bin Sabit
+Muhammad Hassan	M						Muhammad Shahzad		Zaid Bin Sabit
+Muhammad Ahmad	M						Muhammad Irshad		Zaid Bin Sabit
+Muhammad Adil	M						Muhammad Asghar		Zaid Bin Sabit
+Muhammad Ahsan	M						Abdul Majeed		Zaid Bin Sabit
+Muhammad Hussain	M						Zahid Mahmood		Zaid Bin Sabit
+Muhammad Abdul Waris	M						Abdul Rashid		Zaid Bin Sabit
+Muhammad Abdul Qadir	M						Muhammad Zahid Irshad		Zaid Bin Sabit
+Muhammad Kaif Nawaz	M						Muhammad Nawaz		Abdullah Bin Abbas
+Muhammad Saad	M						Muhammad Javed		Abdullah Bin Abbas
+Abdul Wasi	M						Imran Khalid		Abdullah Bin Abbas
+Muhammad Ahmad Hassan	M						Muhammad Sadiq		Abdullah Bin Abbas
+Muhammad Arham Jamal	M						Muhammad Farrukh Jamal		Abdullah Bin Abbas
+Abdullah	M						Muhammad Shafiq		Abdullah Bin Abbas
+Muhammad Shahbaz	M						Gulzar Hussain		Abdullah Bin Abbas
+Muhammad Moiz	M						Muhammad Usman		Abdullah Bin Abbas
+Muhammad Mujeeb-ur-Rehman	M						Muhammad Riaz		Abdullah Bin Abbas
+Muhammad Yusuf	M						Muhammad Ashfaq		Abdullah Bin Abbas
+Muhammad Mahboob	M						Allah Ditta		Abdullah Bin Abbas
+Muhammad Musab	M						Muhammad Sajjad		Abdullah Bin Abbas
+Muhammad Mamoon	M						Muhammad Zubair		Abdullah Bin Abbas
+Muhammad Haroon	M						Muhammad Zubair		Abdullah Bin Abbas
+Muhammad Hassan	M						Muhammad Jameel		Abdullah Bin Abbas
+Muhammad Faizan	M						Muhammad Shamshad		Abdullah Bin Abbas
+Muhammad Taseen	M						Azhar Munir		Abdullah Bin Abbas
+Muhammad Mawaddat	M								Abdullah Bin Abbas
+Muhammad Hamza	M								Abdullah Bin Abbas
+Muhammad Zoraiz	M								Abdullah Bin Abbas
+Muhammad Ibad	M								Abdullah Bin Abbas
+Muhammad Ahsan	M						Allah Ditta		Abdullah Bin Abbas
+Gul Zaman	M						Muhammad Saghir Ahmad		Abdullah Bin Masood
+Muhammad Owais	M						Muhammad Afzal		Abdullah Bin Masood
+Muhammad Daniyal	M						Muhammad Rafiq		Abdullah Bin Masood
+Muhammad Bilawal	M						Muhammad Ameer Bakhsh		Abdullah Bin Masood
+Muhammad Huzaifa	M						Muhammad Ijaz		Abdullah Bin Masood
+Muhammad Tayyab	M						Muhammad Rashid		Abdullah Bin Masood
+Muhammad Saad	M						Abdul Latif		Abdullah Bin Masood
+Muhammad Abdullah	M						Muhammad Imran		Abdullah Bin Masood
+Muhammad Mujeeb	M						Muhammad Farooq		Abdullah Bin Masood
+Muhammad Khurram	M						Muhammad Shahzad		Abdullah Bin Masood
+Abdul Hadi	M						Muhammad Ramzan		Abdullah Bin Masood
+Muhammad Ubaid	M						Abdul Qayyum		Abdullah Bin Masood
+Muhammad Talha	M						Muhammad Asif		Abdullah Bin Masood
+Muhammad Ali	M						Niaz Ahmad		Abdullah Bin Masood
+Muhammad Mahmood Akhtar	M						Muhammad Akhtar		Abdullah Bin Masood
+Muhammad Haziq	M						Muhammad Irfan		Abdullah Bin Masood
+Muhammad Rauf	M						Muhammad Ashfaq		Abdullah Bin Masood
+Muhammad Abdul Rehman	M						Nazir Ahmad		Abdullah Bin Masood
+Ahmad Hassan Raza	M						Atta-ul-Mustafa		Osman Ghani
+Ali Haider	M						Umar Hayat		Osman Ghani
+Abdullah	M						Pervez Ahmed		Osman Ghani
+Muhammad Ayan	M						Majid Mahmood		Osman Ghani
+Abdul Rafay	M						Muhammad Ramzan		Osman Ghani
+Abdul Mateen	M						Muhammad Shahid		Osman Ghani
+Muhammad Fahad	M						Muhammad Kashif Azam		Osman Ghani
+Rehmat Ali	M						Muhammad Kashif		Osman Ghani
+Muhammad Akmal	M						Muhammad Ajmal		Osman Ghani
+Muhammad Jawad	M						Muhammad Mukhtiar		Osman Ghani
+Muhammad Ahmad	M						Muhammad Irfan		Osman Ghani
+Hamza Ali	M						Muhammad Ali Raja		Osman Ghani
+Muhammad Muzammil	M						Muhammad Asad		Osman Ghani
+Muhammad Anas	M						Muhammad Asif		Osman Ghani
+Muhammad Shayan	M						Muhammad Kashif		Musab Bin Omair
+Muhammad Fahad	M						Muhammad Siddique		Musab Bin Omair
+Muhammad Raheel	M						Muhammad Akhtar		Musab Bin Omair
+Muhammad Abdul Rehman	M						Ameer Bakhsh		Musab Bin Omair
+Muhammad Noman	M						Muhammad Asghar		Musab Bin Omair
+Muhammad Usman	M						Muhammad Umar		Musab Bin Omair
+Muhammad Hussain	M						Muhammad Ayaz		Musab Bin Omair
+Muhammad Hamid	M						Muhammad Irfan		Musab Bin Omair
+Muhammad Mubeen	M						Khadim Hussain		Musab Bin Omair
+Muhammad Usman	M						Muhammad Iqbal		Musab Bin Omair
+Muhammad Farhan	M						Huzoor Bakhsh		Musab Bin Omair
+Muhammad Saim	M						Muhammad Nadeem		Musab Bin Omair
+Muhammad Subhan	M						Haq Nawaz		Musab Bin Omair
+Muhammad Adnan	M						Abdul Rashid		Musab Bin Omair
+Muhammad Ayaz	M						Muhammad Bilal		Musab Bin Omair
+Muhammad Rafiq	M						Muhammad Nazik		Musab Bin Omair
+Abdul Ahad	M						Malik Rabnawaz		Musab Bin Omair
+Muhammad Umar	M						Imad-ud-Din		Musab Bin Omair
+Muhammad Ahsan	M						Muhammad Kamran		Musab Bin Omair
+Muhammad Hasnain	M						Munir Ahmed		Musab Bin Omair
+Muhammad Asadullah	M						Abdul Ghaffar		Abu Bakar Siddique
+Muhammad Sanaullah	M						Zulfiqar Ahmed		Abu Bakar Siddique
+Muhammad Faisal	M						Muhammad Amjad		Abu Bakar Siddique
+Muhammad Ahmad Husam	M						Haji Khuda Bakhsh		Abu Bakar Siddique
+Muhammad Aqrash	M						Muhammad Shahid		Abu Bakar Siddique
+Muhammad Adeel Hashim	M						Tahir Shah		Abu Bakar Siddique
+Muhammad Abdullah	M						Ahmad Nawaz		Abu Bakar Siddique
+Muhammad Luqman	M						Ghulam Abbas		Abu Bakar Siddique
+Muhammad Zain	M						Muhammad Madni		Abu Bakar Siddique
+Saeed Raza	M						Muhammad Zahid Shah		Abu Bakar Siddique
+Muhammad Ahmad	M						Shamsheer Ahmed		Abu Bakar Siddique
+Muhammad Uzair	M						Munir Ahmed		Abu Bakar Siddique
+Muhammad Subhan	M						Muhammad Altaf		Abu Bakar Siddique
+Muhammad Umar	M						Muhammad Farooq Ahmed		Abu Bakar Siddique
+Muhammad Shayan	M						Muhammad Rafiq		Abu Bakar Siddique
+Muhammad Shawal	M						Muhammad Azhar Munir Malik		Abu Bakar Siddique
+Muhammad	M						Muhammad Safdar Munir Malik		Abu Bakar Siddique
+Habibullah	M						Muhammad Shahzad		Abu Bakar Siddique
+Samiullah	M						Muhammad Shahzad		Abu Bakar Siddique
+Muhammad Shiraz	M								Abu Bakar Siddique
+Abdul Hadi	M						Muhammad Zubair Ansari		Amer Bin Khatab
+Muhammad Abdullah Ramzan	M						Muhammad Ramzan		Amer Bin Khatab
+Muhammad Usman	M						Muhammad Ramzan		Amer Bin Khatab
+Muhammad Saad	M						Mudassir Ahmed		Amer Bin Khatab
+Muhammad Awsaf	M						Mudassir Ahmed		Amer Bin Khatab
+Muhammad Ayan Saqib	M						Muhammad Saqib		Amer Bin Khatab
+Muhammad Muhib Azan	M						Rana Muhammad Tariq Mahmood		Amer Bin Khatab
+Muhammad Zain-ul-Abideen	M						Qari Muhammad Zubair		Amer Bin Khatab
+Amar Ali	M						Munir Ali		Amer Bin Khatab
+Tehseen Ahmad	M						Dr. Muhammad Ahmad		Amer Bin Khatab
+Abdul Mueed	M						Muhammad Zubair Ansari		Amer Bin Khatab
+Muhammad Ayan Naeem	M						Muhammad Naeem		Amer Bin Khatab
+Muhammad Muzammil	M						Mazhar Alam		Amer Bin Khatab
+Muhammad Muneeb Faiz	M						Abdul Waheed		Amer Bin Khatab
+Hussain Jamshed	M						Muhammad Jamshed		Amer Bin Khatab
+Abdul Hadi Niazi	M						Niaz Ahmed		Amer Bin Khatab
+Muhammad Kashif	M						Abdul Ghaffar		Amer Bin Khatab
+Muhammad Makki	M						Muhammad Irshad		Amer Bin Khatab
+Muhammad Aftab	M						Muhammad Altaf		Amer Bin Khatab
+Muhammad Ayan	M						Muhammad Qasim		Amer Bin Khatab
+Muhammad Abdullah Nadeem	M						Muhammad Nadeem		Amer Bin Khatab
+Muhammad Ibrahim	M						Muhammad Ahmad		Amer Bin Khatab
+Saim Tanveer	M						Muhammad Tanveer		Amer Bin Khatab
+Muhammad Aman	M						Muhammad Akram		Naseerah Murseed
+Muhammad Adeel	M						Muhammad Shaukat		Naseerah Murseed
+Muhammad Ayan	M						Zahoor Ahmed		Naseerah Murseed
+Abdul Wahab	M						Muhammad Sajid		Naseerah Murseed
+Muhammad Abu Bakar	M						Muhammad Qasim		Naseerah Murseed
+Muhammad Zubair	M						Muhammad Ijaz		Naseerah Murseed
+Muhammad Qurban	M						Muhammad Saleem		Naseerah Murseed
+Muhammad Salman	M						Muhammad Asghar		Naseerah Murseed
+Muhammad Uzair	M						Muhammad Ijaz		Naseerah Murseed
+Muhammad Ahmad	M						Muhammad Niaz		Naseerah Murseed
+Muhammad Hamid	M						Khalil Ahmed		Naseerah Murseed
+Muhammad Jazil	M						Muhammad Asif		Naseerah Murseed
+Muhammad Rashid	M						Muhammad Akram		Naseerah Murseed
+Muhammad Arslan	M						Mazhar Hussain		Naseerah Murseed
+Muhammad Muzammil	M						Muhammad Niaz		Naseerah Murseed
+Muhammad Ayan	M						Muhammad Amir		Naseerah Murseed
+Muhammad Ayan	M						Muhammad Habib		Naseerah Murseed
+Muhammad Muneeb	M						Muhammad Habib		Naseerah Murseed
+Muhammad Fasih Umar	M						Shabbir Ahmed		Naseerah Murseed
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
