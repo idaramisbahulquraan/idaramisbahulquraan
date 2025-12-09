@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificates - School Management System</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .cert-preview {
+            border: 10px double #4a4a4a;
+            padding: 2rem;
+            margin-top: 2rem;
+            text-align: center;
+            background: #fff;
+            display: none;
+        }
+        .cert-title {
+            font-size: 2.5rem;
+            font-family: 'Times New Roman', serif;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+        .cert-body {
+            font-size: 1.2rem;
+            line-height: 2;
+            margin: 2rem 0;
+            font-family: 'Times New Roman', serif;
+        }
+        .cert-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4rem;
+            padding: 0 2rem;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            width: 200px;
+            text-align: center;
+            padding-top: 0.5rem;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>SMS Admin</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 id="pageTitle">Certificates Module</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">Admin</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">ADMIN</p>
+                    </div>
+                    <div class="avatar">A</div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                
+                <!-- Issue Certificate Form -->
+                <div class="stat-card">
+                    <h3 style="margin-bottom: 1rem;">Issue New Certificate</h3>
+                    
+                    <div class="form-grid">
+                        <!-- Recipient Type -->
+                        <div class="form-group">
+                            <label>Recipient Role</label>
+                            <select id="recipientRole" onchange="handleRoleChange()">
+                                <option value="student">Student</option>
+                                <option value="teacher">Teacher</option>
+                                <option value="staff">Staff / Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Certificate Type -->
+                        <div class="form-group">
+                            <label>Certificate Type</label>
+                            <select id="certType" onchange="updateCertTemplate()">
+                                <option value="Character Certificate">Character Certificate</option>
+                                <option value="School Leaving Certificate">School Leaving Certificate</option>
+                                <option value="Experience Certificate">Experience Certificate</option>
+                                <option value="Merit Certificate">Merit Certificate</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Issue Date</label>
+                            <input type="date" id="issueDate">
+                        </div>
+                    </div>
+
+                    <!-- Student Specific Filters -->
+                    <div id="studentFilters" class="form-grid" style="margin-top: 1rem;">
+                        <div class="form-group">
+                            <label>Department</label>
+                            <select id="department" onchange="updateClasses()">
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Class</label>
+                            <select id="className" onchange="loadStudents()">
+                                <option value="">Select Class</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Student</label>
+                            <select id="studentSelect" onchange="populateRecipient('student')">
+                                <option value="">Select Student</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Teacher Specific Filters -->
+                    <div id="teacherFilters" class="form-grid" style="margin-top: 1rem; display: none;">
+                        <div class="form-group">
+                            <label>Select Teacher</label>
+                            <select id="teacherSelect" onchange="populateRecipient('teacher')">
+                                <option value="">Select Teacher</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid #eee;">
+
+                    <!-- Recipient Details (Auto-populated or Manual) -->
+                    <h4 style="margin-bottom: 0.5rem;">Recipient Details</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="recipientName" placeholder="Enter Full Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Father's Name / ID</label>
+                            <input type="text" id="recipientDetails" placeholder="Father Name or ID">
+                        </div>
+                    </div>
+
+                    <!-- Certificate Content -->
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label>Certificate Content / Remarks</label>
+                        <textarea id="certContent" rows="4" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">This is to certify that the above mentioned person has shown excellent conduct during their tenure.</textarea>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                        <button class="btn-primary" onclick="generatePreview()">Preview Certificate</button>
+                        <button class="btn-primary" style="background-color: var(--success);" onclick="saveAndDownload()">Save & Download PDF</button>
+                    </div>
+                </div>
+
+                <!-- Preview Section -->
+                <div id="certPreview" class="cert-preview">
+                    <div class="cert-title" id="previewTitle">CERTIFICATE</div>
+                    <div class="cert-body" id="previewBody">
+                        Preview will appear here...
+                    </div>
+                    <div class="cert-footer">
+                        <div class="signature-line">Date</div>
+                        <div class="signature-line">Principal Signature</div>
+                    </div>
+                </div>
+
+                <!-- History Table -->
+                <div class="stat-card" style="margin-top: 2rem;">
+                    <h3>Issued Certificates History</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Recipient</th>
+                                    <th>Role</th>
+                                    <th>Type</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <!-- Loaded via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/script.js"></script>
+    <script>
+        // Init
+        document.getElementById('issueDate').valueAsDate = new Date();
+        loadDepartments();
+        loadTeachers();
+        loadHistory();
+
+        // --- Role Handling ---
+        function handleRoleChange() {
+            const role = document.getElementById('recipientRole').value;
+            document.getElementById('studentFilters').style.display = role === 'student' ? 'grid' : 'none';
+            document.getElementById('teacherFilters').style.display = role === 'teacher' ? 'grid' : 'none';
+            
+            // Clear fields
+            document.getElementById('recipientName').value = '';
+            document.getElementById('recipientDetails').value = '';
+        }
+
+        // --- Data Loading ---
+        async function loadDepartments() {
+            const select = document.getElementById('department');
+            select.innerHTML = '<option value="">Select Department</option>';
+            try {
+                const snapshot = await db.collection('departments').orderBy('name').get();
+                snapshot.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc.data().name;
+                    opt.innerText = doc.data().name;
+                    select.appendChild(opt);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function updateClasses() {
+            const dept = document.getElementById('department').value;
+            const select = document.getElementById('className');
+            select.innerHTML = '<option value="">Select Class</option>';
+            if(!dept) return;
+            
+            try {
+                const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                snapshot.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc.data().name;
+                    opt.innerText = doc.data().name;
+                    select.appendChild(opt);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadStudents() {
+            const dept = document.getElementById('department').value;
+            const className = document.getElementById('className').value;
+            const select = document.getElementById('studentSelect');
+            select.innerHTML = '<option value="">Select Student</option>';
+            if(!dept || !className) return;
+
+            try {
+                const snapshot = await db.collection('students')
+                    .where('department', '==', dept)
+                    .where('className', '==', className)
+                    .get();
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const opt = document.createElement('option');
+                    opt.value = JSON.stringify({ name: data.firstName + ' ' + (data.lastName||''), detail: data.fatherName || '' });
+                    opt.innerText = data.firstName + ' ' + (data.lastName||'');
+                    select.appendChild(opt);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadTeachers() {
+            const select = document.getElementById('teacherSelect');
+            // Assuming 'teachers' collection exists based on seed logic, or we use 'users' with role='teacher'
+            // Let's try 'teachers' collection first
+            try {
+                let snapshot = await db.collection('teachers').get();
+                if(snapshot.empty) {
+                     // Fallback to users role=teacher
+                     snapshot = await db.collection('users').where('role', '==', 'teacher').get();
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const name = data.name || data.firstName || 'Unknown';
+                    const opt = document.createElement('option');
+                    opt.value = JSON.stringify({ name: name, detail: data.mobile || data.email || '' });
+                    opt.innerText = name;
+                    select.appendChild(opt);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        function populateRecipient(type) {
+            let data;
+            if(type === 'student') {
+                const val = document.getElementById('studentSelect').value;
+                if(val) data = JSON.parse(val);
+            } else if(type === 'teacher') {
+                const val = document.getElementById('teacherSelect').value;
+                if(val) data = JSON.parse(val);
+            }
+
+            if(data) {
+                document.getElementById('recipientName').value = data.name;
+                document.getElementById('recipientDetails').value = data.detail;
+            }
+        }
+
+        function updateCertTemplate() {
+            const type = document.getElementById('certType').value;
+            const contentBox = document.getElementById('certContent');
+            
+            if(type === 'Character Certificate') {
+                contentBox.value = "This is to certify that [Name] s/o [Father Name] has been a student of this institution. During his stay, his character and conduct has been excellent.";
+            } else if (type === 'School Leaving Certificate') {
+                contentBox.value = "This is to certify that [Name] was a student of Class [Class] in this institution. He is leaving the school on his own request. We wish him success in future endeavors.";
+            } else if (type === 'Experience Certificate') {
+                contentBox.value = "This is to certify that [Name] has worked as a Teacher in our institution from [Start Date] to [End Date]. He is hardworking and dedicated.";
+            } else {
+                contentBox.value = "";
+            }
+        }
+
+        // --- Generation & Saving ---
+        function generatePreview() {
+            const name = document.getElementById('recipientName').value;
+            const details = document.getElementById('recipientDetails').value;
+            const type = document.getElementById('certType').value;
+            let content = document.getElementById('certContent').value;
+            const date = document.getElementById('issueDate').value;
+
+            if(!name) { alert("Please enter recipient name"); return; }
+
+            // Replace placeholders
+            content = content.replace('[Name]', `<b>${name}</b>`);
+            content = content.replace('[Father Name]', details);
+            
+            document.getElementById('previewTitle').innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <img src="../../assets/header-image.png" style="width: 100%; height: auto; max-width: 100%;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <img src="../../assets/logo.png" style="width: 80px; height: auto;">
+                </div>
+                <div>${type.toUpperCase()}</div>
+            `;
+            document.getElementById('previewBody').innerHTML = `
+                <p>Date: ${date}</p>
+                <p>${content}</p>
+            `;
+            
+            document.getElementById('certPreview').style.display = 'block';
+            document.getElementById('certPreview').scrollIntoView({behavior: 'smooth'});
+        }
+
+        async function saveAndDownload() {
+            const name = document.getElementById('recipientName').value;
+            const details = document.getElementById('recipientDetails').value;
+            const role = document.getElementById('recipientRole').value;
+            const type = document.getElementById('certType').value;
+            const content = document.getElementById('certContent').value; // Raw content
+            const date = document.getElementById('issueDate').value;
+
+            if(!name) { alert("Please enter recipient name"); return; }
+
+            const btn = document.querySelector('button[onclick="saveAndDownload()"]');
+            btn.disabled = true;
+            btn.innerText = 'Processing...';
+
+            try {
+                // Load images first
+                const logoImg = new Image();
+                logoImg.src = "../../assets/logo.png";
+                const headerImg = new Image();
+                headerImg.src = "../../assets/header-image.png";
+
+                await Promise.all([
+                    new Promise((resolve) => {
+                        if (logoImg.complete) resolve();
+                        else { logoImg.onload = resolve; logoImg.onerror = resolve; }
+                    }),
+                    new Promise((resolve) => {
+                        if (headerImg.complete) resolve();
+                        else { headerImg.onload = resolve; headerImg.onerror = resolve; }
+                    })
+                ]);
+
+                // 1. Generate PDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('l', 'mm', 'a4'); // Landscape
+
+                // Border
+                doc.setLineWidth(1);
+                doc.rect(10, 10, 277, 190);
+                doc.setLineWidth(0.5);
+                doc.rect(15, 15, 267, 180);
+
+                // Header Image
+                try {
+                    doc.addImage(headerImg, 'PNG', 20, 20, 257, 35); // Wide centered header
+                } catch(e) { console.warn("Could not add header image", e); }
+
+                // Logo
+                try {
+                    // Centered below header
+                    doc.addImage(logoImg, 'PNG', 136, 60, 25, 25); 
+                } catch(e) { console.warn("Could not add logo", e); }
+
+                // Text Header (Optional - if header image fails or to supplement)
+                // doc.setFont("times", "bold");
+                // doc.setFontSize(30);
+                // doc.text("IDARA MISBAH UL QURAN", 148.5, 40, { align: "center" });
+
+                doc.setFontSize(14);
+                doc.setFont("helvetica", "normal");
+                // doc.text("Bahawalpur, Pakistan", 148.5, 50, { align: "center" });
+
+                // Title
+                doc.setFont("times", "bold");
+                doc.setFontSize(24);
+                doc.setTextColor(0, 51, 102);
+                doc.text(type.toUpperCase(), 148.5, 95, { align: "center" });
+
+                // Body
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(16);
+                doc.setFont("times", "normal");
+                
+                let finalContent = content.replace('[Name]', name).replace('[Father Name]', details);
+                // Simple word wrap
+                const splitText = doc.splitTextToSize(finalContent, 240);
+                doc.text(splitText, 148.5, 115, { align: "center" });
+
+                // Date
+                doc.text(`Issue Date: ${date}`, 30, 165);
+
+                // Signatures
+                doc.setLineWidth(0.5);
+                doc.line(200, 160, 260, 160);
+                doc.text("Principal Signature", 230, 170, { align: "center" });
+
+                doc.save(`${type}_${name.replace(/\s+/g, '_')}.pdf`);
+
+                // 2. Save to Firestore
+                await db.collection('certificates').add({
+                    recipientName: name,
+                    recipientDetails: details,
+                    role: role,
+                    type: type,
+                    content: content,
+                    issueDate: date,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    issuedBy: firebase.auth().currentUser.uid
+                });
+
+                loadHistory(); // Refresh table
+                alert("Certificate Generated and Saved!");
+
+            } catch (e) {
+                console.error(e);
+                alert("Error: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Save & Download PDF';
+            }
+        }
+
+        async function loadHistory() {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Loading...</td></tr>';
+
+            try {
+                const snapshot = await db.collection('certificates')
+                    .orderBy('createdAt', 'desc')
+                    .limit(20)
+                    .get();
+
+                if(snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">No certificates issued yet.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${data.issueDate}</td>
+                        <td>${data.recipientName}</td>
+                        <td>${data.role.toUpperCase()}</td>
+                        <td>${data.type}</td>
+                        <td>
+                            <button class="btn-primary" style="padding: 2px 8px; font-size: 0.8rem;" onclick="reprintCert('${doc.id}')">Reprint</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) { console.error(e); }
+        }
+        
+        // Simple reprint function (simplified)
+        async function reprintCert(id) {
+             alert("To reprint, please generate a new one with the same details for now.");
+        }
+    </script>
+</body>
+</html>

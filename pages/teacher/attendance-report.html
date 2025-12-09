@@ -266,26 +266,65 @@
             }
         }
 
-        function downloadReportPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('l');
+        async function downloadReportPDF() {
+            const btn = document.querySelector('button[onclick="downloadReportPDF()"]');
+            if(btn) { btn.disabled = true; btn.innerText = "Generating..."; }
 
-            const dept = document.getElementById('department').value;
-            const className = document.getElementById('className').value;
-            const subject = document.getElementById('subject').value;
-            const monthVal = document.getElementById('reportMonth').value;
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('l');
 
-            doc.text(`Attendance Report: ${monthVal}`, 14, 15);
-            doc.text(`Class: ${className} | Subject: ${subject}`, 14, 25);
+                // Load images
+                const logoImg = new Image();
+                logoImg.src = "../../assets/logo.png";
+                const headerImg = new Image();
+                headerImg.src = "../../assets/header-image.png";
 
-            doc.autoTable({
-                html: '#reportTable',
-                startY: 30,
-                styles: { fontSize: 8 },
-                headStyles: { fillColor: [66, 66, 66] },
-            });
+                await Promise.all([
+                    new Promise((resolve) => {
+                        if (logoImg.complete) resolve();
+                        else { logoImg.onload = resolve; logoImg.onerror = resolve; }
+                    }),
+                    new Promise((resolve) => {
+                        if (headerImg.complete) resolve();
+                        else { headerImg.onload = resolve; headerImg.onerror = resolve; }
+                    })
+                ]);
 
-            doc.save(`Attendance_${className}_${subject}_${monthVal}.pdf`);
+                // Header Image (Centered)
+                try {
+                    doc.addImage(headerImg, 'PNG', 40, 5, 217, 30); 
+                } catch(e) { console.warn("Header image error", e); }
+
+                // Logo (Top Left)
+                try {
+                    doc.addImage(logoImg, 'PNG', 10, 5, 25, 25);
+                } catch(e) { console.warn("Logo error", e); }
+
+                const dept = document.getElementById('department').value;
+                const className = document.getElementById('className').value;
+                const subject = document.getElementById('subject').value;
+                const monthVal = document.getElementById('reportMonth').value;
+
+                doc.setFontSize(14);
+                doc.text(`Attendance Report: ${monthVal}`, 14, 45);
+                doc.setFontSize(11);
+                doc.text(`Class: ${className} | Subject: ${subject}`, 14, 52);
+
+                doc.autoTable({
+                    html: '#reportTable',
+                    startY: 60,
+                    styles: { fontSize: 8 },
+                    headStyles: { fillColor: [66, 66, 66] },
+                });
+
+                doc.save(`Attendance_${className}_${subject}_${monthVal}.pdf`);
+            } catch(e) {
+                console.error(e);
+                alert("Error generating PDF: " + e.message);
+            } finally {
+                if(btn) { btn.disabled = false; btn.innerText = "Download PDF"; }
+            }
         }
     </script>
 </body>

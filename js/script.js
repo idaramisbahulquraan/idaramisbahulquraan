@@ -90,6 +90,9 @@ auth.onAuthStateChanged(async (user) => {
 
             // Initialize Dashboard/Sidebar
             initDashboard(currentUser);
+            
+            // Initialize AI Features (Global)
+            initGlobalAI();
         }
     } else {
         if (!isLoginPage) {
@@ -113,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('currentUser'));
     if (user && !loginForm) {
         initDashboard(user);
+        initGlobalAI();
     }
 });
 
@@ -153,6 +157,8 @@ function renderSidebar(role) {
             { name: 'Exams', icon: '📝', href: basePath + 'pages/admin/exams.html' },
             { name: 'Finance', icon: '💵', href: basePath + 'pages/admin/finance.html' },
             { name: 'Reports', icon: '📄', href: basePath + 'pages/admin/reports.html' },
+            { name: 'Certificates', icon: '📜', href: basePath + 'pages/admin/certificates.html' },
+            { name: 'AI Features', icon: '🤖', href: basePath + 'pages/admin/ai-features.html' },
             { name: 'Users', icon: '👥', href: basePath + 'pages/admin/users.html' },
             { name: 'Backup', icon: '💾', href: basePath + 'pages/admin/backup.html' }
         ],
@@ -191,4 +197,290 @@ function renderSidebar(role) {
         handleLogout();
     };
     sidebarNav.appendChild(logoutBtn);
+}
+
+// ==========================================
+// AI & Floating Bot Logic
+// ==========================================
+
+// Configuration
+const DEFAULT_API_KEY = 'AIzaSyAxCy2QhsxS1rLHeXPKe1b6iaMTq3UIRFM';
+
+// Ensure marked.js is loaded
+function ensureMarkedLib() {
+    if (typeof marked === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+        document.head.appendChild(script);
+    }
+}
+
+function initGlobalAI() {
+    ensureMarkedLib();
+    injectFloatingBot();
+}
+
+async function callGemini(prompt) {
+    // Read fresh config from storage each time
+    const apiKey = localStorage.getItem('gemini_api_key') || DEFAULT_API_KEY;
+    const model = localStorage.getItem('gemini_model') || 'gemini-2.5-flash';
+
+    // Ensure clean model ID (remove 'models/' prefix if present)
+    let modelId = model;
+    if (modelId.startsWith('models/')) {
+        modelId = modelId.replace('models/', '');
+    }
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+    
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.candidates[0].content.parts[0].text;
+}
+
+// Floating Bot UI Injection
+function injectFloatingBot() {
+    if (document.getElementById('floating-bot-container')) return;
+
+    // Styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .floating-bot-trigger {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--primary-color, #4f46e5);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
+            z-index: 9999;
+        }
+        .floating-bot-trigger:hover {
+            transform: scale(1.1);
+        }
+        .floating-bot-window {
+            position: fixed;
+            bottom: 6rem;
+            right: 2rem;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            z-index: 9999;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .bot-header {
+            background: var(--primary-color, #4f46e5);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .bot-header h3 { margin: 0; font-size: 1rem; }
+        .close-bot { cursor: pointer; font-size: 1.5rem; }
+        .bot-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+        .bot-input-area {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .bot-input-area input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+        }
+        .bot-input-area button {
+            padding: 0.5rem 1rem;
+            background: var(--primary-color, #4f46e5);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        .bot-message {
+            margin-bottom: 0.8rem;
+            padding: 0.8rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        .bot-message.ai {
+            background: white;
+            border: 1px solid #e2e8f0;
+            margin-right: 1rem;
+        }
+        .bot-message.user {
+            background: var(--primary-color, #4f46e5);
+            color: white;
+            margin-left: 1rem;
+        }
+        .quick-actions {
+            padding: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .action-chip {
+            background: #e0e7ff;
+            color: #4f46e5;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .action-chip:hover { background: #c7d2fe; }
+    `;
+    document.head.appendChild(style);
+
+    // HTML Structure
+    const container = document.createElement('div');
+    container.id = 'floating-bot-container';
+    container.innerHTML = `
+        <div class="floating-bot-trigger" onclick="toggleBot()">
+            🤖
+        </div>
+        <div class="floating-bot-window" id="botWindow">
+            <div class="bot-header">
+                <h3>AI Assistant</h3>
+                <span class="close-bot" onclick="toggleBot()">&times;</span>
+            </div>
+            <div class="quick-actions">
+                <span class="action-chip" onclick="askBot('Draft an email to parents about upcoming exams')">📧 Draft Email</span>
+                <span class="action-chip" onclick="askBot('Write a notice for the school notice board about holiday')">📢 Write Notice</span>
+                <span class="action-chip" onclick="askBot('Summarize the content of this page')">📝 Summarize Page</span>
+                <span class="action-chip" onclick="askBot('How do I add a student?')">❓ Help</span>
+            </div>
+            <div class="bot-messages" id="botMessages">
+                <div class="bot-message ai">
+                    Hello! I'm here to help. I see you are on the <b>${document.title.replace(' - School Management System', '')}</b> page. How can I assist you?
+                </div>
+            </div>
+            <div class="bot-input-area">
+                <input type="text" id="botInput" placeholder="Ask anything..." onkeypress="handleBotKey(event)">
+                <button onclick="sendBotMessage()">Send</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(container);
+}
+
+function toggleBot() {
+    const win = document.getElementById('botWindow');
+    if (win.style.display === 'flex') {
+        win.style.display = 'none';
+    } else {
+        win.style.display = 'flex';
+        // Focus input
+        setTimeout(() => document.getElementById('botInput').focus(), 100);
+    }
+}
+
+function handleBotKey(e) {
+    if (e.key === 'Enter') sendBotMessage();
+}
+
+function askBot(text) {
+    document.getElementById('botInput').value = text;
+    sendBotMessage();
+}
+
+async function sendBotMessage() {
+    const input = document.getElementById('botInput');
+    const messages = document.getElementById('botMessages');
+    const text = input.value.trim();
+    
+    if (!text) return;
+
+    // User Message
+    const userDiv = document.createElement('div');
+    userDiv.className = 'bot-message user';
+    userDiv.textContent = text;
+    messages.appendChild(userDiv);
+    input.value = '';
+    messages.scrollTop = messages.scrollHeight;
+
+    // Loading
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'bot-message ai';
+    loadingDiv.textContent = 'Thinking...';
+    messages.appendChild(loadingDiv);
+    messages.scrollTop = messages.scrollHeight;
+
+    try {
+        // Extract page text (limit to ~3000 chars)
+        const mainContent = document.querySelector('main') || document.body;
+        const pageText = mainContent.innerText.replace(/\s+/g, ' ').substring(0, 3000);
+
+        const pageContext = `
+            Current Page: ${document.title}
+            URL: ${window.location.href}
+            User Role: ${document.getElementById('userRole')?.innerText || 'Unknown'}
+            Page Content Snippet: ${pageText}...
+        `;
+
+        const systemPrompt = `
+            You are a helpful AI assistant embedded in a School Management System.
+            ${pageContext}
+            
+            Answer the user's request concisely.
+            If asked to draft an email or notice, provide a professional template.
+            If asked about the page, explain its function based on the title and content provided.
+            If asked to summarize, use the provided Page Content Snippet.
+        `;
+
+        const response = await callGemini(systemPrompt + "\n\nUser: " + text);
+        
+        // Remove loading
+        messages.removeChild(loadingDiv);
+
+        // AI Message
+        const aiDiv = document.createElement('div');
+        aiDiv.className = 'bot-message ai';
+        
+        if (typeof marked !== 'undefined') {
+            aiDiv.innerHTML = marked.parse(response);
+        } else {
+            aiDiv.textContent = response;
+        }
+        
+        messages.appendChild(aiDiv);
+        messages.scrollTop = messages.scrollHeight;
+
+    } catch (error) {
+        loadingDiv.textContent = 'Error: ' + error.message;
+        loadingDiv.style.color = 'red';
+    }
 }
