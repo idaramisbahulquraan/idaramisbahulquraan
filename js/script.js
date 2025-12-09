@@ -204,7 +204,8 @@ function renderSidebar(role) {
 // ==========================================
 
 // Configuration
-const DEFAULT_API_KEY = 'AIzaSyAxCy2QhsxS1rLHeXPKe1b6iaMTq3UIRFM';
+// Keys are now managed in ai-features.js/localStorage.
+const DEFAULT_GEMINI_KEY = '';
 
 // Ensure marked.js is loaded
 function ensureMarkedLib() {
@@ -215,22 +216,78 @@ function ensureMarkedLib() {
     }
 }
 
+async function ensureAIKeysLoaded() {
+    // Check if we already have keys
+    if (localStorage.getItem('gemini_api_key')) return;
+
+    console.log("Checking for system AI keys...");
+    try {
+        const doc = await db.collection('system_settings').doc('ai_keys').get();
+        if (doc.exists) {
+            const keys = doc.data();
+            if (keys.gemini) localStorage.setItem('gemini_api_key', keys.gemini);
+            if (keys.groq) localStorage.setItem('groq_api_key', keys.groq);
+            if (keys.huggingface) localStorage.setItem('huggingface_api_key', keys.huggingface);
+            if (keys.mistral) localStorage.setItem('mistral_api_key', keys.mistral);
+            if (keys.xai) localStorage.setItem('xai_api_key', keys.xai);
+            console.log("AI Keys loaded from system settings.");
+        }
+    } catch (e) {
+        console.warn("Could not load system AI keys:", e);
+    }
+}
+
 function initGlobalAI() {
     ensureMarkedLib();
+    ensureAIKeysLoaded(); // Fire and forget (or await if critical, but we don't want to block UI)
     injectFloatingBot();
 }
 
+/**
+ * Unified AI Call Function supporting multiple providers
+ * @param {string} prompt - The user prompt (or system + user)
+ */
 async function callGemini(prompt) {
-    // Read fresh config from storage each time
-    const apiKey = localStorage.getItem('gemini_api_key') || DEFAULT_API_KEY;
-    const model = localStorage.getItem('gemini_model') || 'gemini-2.5-flash';
+    // We keep the function name 'callGemini' for backward compatibility 
+    // with existing calls in ai-features.js, but logic now routes based on provider.
+    // In a full refactor, we would rename this to 'callAI'.
 
-    // Ensure clean model ID (remove 'models/' prefix if present)
-    let modelId = model;
-    if (modelId.startsWith('models/')) {
-        modelId = modelId.replace('models/', '');
+    const provider = localStorage.getItem('ai_provider') || 'gemini';
+    const model = localStorage.getItem('ai_model'); // May be null if not set
+
+    try {
+        switch (provider) {
+            case 'gemini':
+                return await callGoogleGemini(prompt, model);
+            case 'groq':
+                return await callOpenAICompatible('https://api.groq.com/openai/v1/chat/completions', prompt, model, localStorage.getItem('groq_api_key'));
+            case 'huggingface':
+                // For HF, we use the Inference API (OpenAI compatible endpoint is safer for chat)
+                // Endpoint: https://api-inference.huggingface.co/models/{model}/v1/chat/completions
+                const hfModel = model || 'meta-llama/Meta-Llama-3-8B-Instruct';
+                return await callOpenAICompatible(`https://api-inference.huggingface.co/models/${hfModel}/v1/chat/completions`, prompt, hfModel, localStorage.getItem('huggingface_api_key'));
+            case 'mistral':
+                return await callOpenAICompatible('https://api.mistral.ai/v1/chat/completions', prompt, model, localStorage.getItem('mistral_api_key'));
+            case 'xai':
+                return await callOpenAICompatible('https://api.x.ai/v1/chat/completions', prompt, model, localStorage.getItem('xai_api_key'));
+            default:
+                return await callGoogleGemini(prompt, model);
+        }
+    } catch (error) {
+        console.error(`AI Error (${provider}):`, error);
+        throw new Error(`${provider.toUpperCase()} Error: ${error.message}`);
+    }
+}
+
+async function callGoogleGemini(prompt, model) {
+    const apiKey = localStorage.getItem('gemini_api_key') || DEFAULT_GEMINI_KEY;
+    
+    if (!apiKey) {
+        throw new Error("Missing API Key. Please go to AI Features > Settings and enter your Gemini API Key.");
     }
 
+    const modelId = (model || 'gemini-2.5-flash').replace('models/', '');
+    
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
     
     const response = await fetch(url, {
@@ -242,11 +299,55 @@ async function callGemini(prompt) {
     });
 
     if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        const errData = await response.json();
+        throw new Error(errData.error?.message || response.statusText);
     }
 
     const data = await response.json();
+    if (!data.candidates || data.candidates.length === 0) {
+        throw new Error("No response generated.");
+    }
     return data.candidates[0].content.parts[0].text;
+}
+
+async function callOpenAICompatible(url, prompt, model, apiKey) {
+    if (!apiKey) throw new Error("API Key missing for selected provider.");
+
+    // Simple heuristic: If prompt looks like a raw string with newlines, treat as single user message.
+    // If we wanted to support system prompts better, we'd need to parse or change signature.
+    // For now, we wrap the whole text.
+    
+    const messages = [
+        { role: "user", content: prompt }
+    ];
+
+    const body = {
+        model: model,
+        messages: messages,
+        temperature: 0.7
+    };
+
+    // Special case adjustments if needed
+    if (url.includes('mistral') && !model) body.model = 'mistral-tiny';
+    if (url.includes('groq') && !model) body.model = 'llama-3.1-8b-instant';
+    if (url.includes('x.ai') && !model) body.model = 'grok-beta';
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+        const err = await response.text();
+        throw new Error(`API Request Failed: ${response.status} - ${err}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
 }
 
 // Floating Bot UI Injection
