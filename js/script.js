@@ -128,6 +128,34 @@ function initDashboard(user) {
     if (roleEl) roleEl.innerText = user.role.toUpperCase();
 
     renderSidebar(user.role);
+    setupMobileSidebar();
+}
+
+function setupMobileSidebar() {
+    // 1. Inject Hamburger Button if not exists
+    const header = document.querySelector('.header');
+    if (header && !document.querySelector('.hamburger-toggle')) {
+        const btn = document.createElement('button');
+        btn.className = 'hamburger-toggle';
+        btn.innerHTML = '☰';
+        btn.onclick = toggleSidebar;
+        header.insertBefore(btn, header.firstChild);
+    }
+
+    // 2. Inject Overlay if not exists
+    if (!document.querySelector('.sidebar-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        overlay.onclick = toggleSidebar;
+        document.body.appendChild(overlay);
+    }
+}
+
+function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+    if (sidebar) sidebar.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('active');
 }
 
 function renderSidebar(role) {
