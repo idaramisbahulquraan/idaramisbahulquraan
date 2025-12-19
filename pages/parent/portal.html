@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Portal - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+        .portal-card {
+            background: var(--white);
+            border-radius: 0.9rem;
+            box-shadow: var(--shadow-sm);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .portal-card h3 { margin: 0; font-size: 1rem; }
+        .portal-card p { margin: 0; color: var(--text-light); font-size: 0.9rem; }
+        .portal-card a, .portal-card button {
+            align-self: flex-start;
+            padding: 0.5rem 0.85rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .dashboard-content { padding: 1rem; }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>Parent Portal</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">Parent</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">P</div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="card-grid">
+                    <div class="portal-card">
+                        <h3>Attendance</h3>
+                        <p>View your child's daily attendance.</p>
+                        <a href="../student/attendance.html">Open</a>
+                    </div>
+                    <div class="portal-card">
+                        <h3>Timetable</h3>
+                        <p>See the weekly schedule and class timings.</p>
+                        <a href="../student/timetable.html">Open</a>
+                    </div>
+                    <div class="portal-card">
+                        <h3>Grades</h3>
+                        <p>Check exam results and report cards.</p>
+                        <a href="../student/results.html">Open</a>
+                    </div>
+                    <div class="portal-card">
+                        <h3>Fees & Payments</h3>
+                        <p>Review fee status and pay online.</p>
+                        <a href="../admin/fees.html">Open</a>
+                    </div>
+                    <div class="portal-card">
+                        <h3>Notices</h3>
+                        <p>Stay updated with announcements.</p>
+                        <a href="../admin/communication.html">Open</a>
+                    </div>
+                    <div class="portal-card">
+                        <h3>Messaging</h3>
+                        <p>Contact teachers or administration.</p>
+                        <a href="../admin/communication.html#messages">Open</a>
+                    </div>
+                    <div class="portal-card">
+                        <h3>Homework (stub)</h3>
+                        <p>Upcoming homework module placeholder.</p>
+                        <button disabled>Coming Soon</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script>
+        // Ensure sidebar + user info render for parent
+        firebase.auth().onAuthStateChanged(user => {
+            if (!user) {
+                window.location.href = '../../index.html';
+                return;
+            }
+            const cached = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            document.getElementById('userName').innerText = cached.name || cached.email || 'Parent';
+            document.getElementById('userRole').innerText = (cached.role || 'parent').toUpperCase();
+            initDashboard(cached);
+        });
+    </script>
+</body>
+</html>

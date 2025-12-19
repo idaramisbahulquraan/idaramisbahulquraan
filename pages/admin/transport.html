@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transport - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .card {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.85rem 1.2rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.75rem 0 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-add {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 0.55rem 0.95rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+            width: auto;
+        }
+
+        .btn-add:hover { background-color: var(--primary-hover); }
+
+        .btn-secondary-sm {
+            padding: 0.55rem 0.95rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            color: var(--text-dark);
+            font-weight: 600;
+            cursor: pointer;
+            width: auto;
+        }
+
+        .btn-secondary-sm:hover { background: var(--background-light); }
+
+        .btn-sm {
+            padding: 0.35rem 0.6rem;
+            font-size: 0.8rem;
+            border-radius: 0.4rem;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            width: auto;
+        }
+
+        .btn-sm.danger { color: var(--danger); border-color: #fee2e2; }
+        .btn-sm.danger:hover { background: #fee2e2; }
+
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 860px; }
+        th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+        th { background-color: #f8fafc; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem; color: var(--text-light); }
+
+        .badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .badge-ok { background: #dcfce7; color: #166534; }
+        .badge-off { background: #fee2e2; color: #991b1b; }
+        .badge-warn { background: #ffedd5; color: #9a3412; }
+        .badge-info { background: #e0f2fe; color: #0369a1; }
+
+        .muted { color: var(--text-light); font-size: 0.85rem; }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            table { min-width: 720px; }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 640px;
+            box-shadow: var(--shadow-lg);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-family: inherit;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .trip-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title"><h1 data-i18n="transport_module">Transport Module</h1></div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="card">
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchTransportTab('routes')" data-i18n="routes">Routes</button>
+                        <button class="tab-btn" onclick="switchTransportTab('vehicles')" data-i18n="vehicles">Vehicles</button>
+                        <button class="tab-btn" onclick="switchTransportTab('drivers')" data-i18n="drivers">Drivers</button>
+                        <button class="tab-btn" onclick="switchTransportTab('assignments')" data-i18n="assignments">Assignments</button>
+                        <button class="tab-btn" onclick="switchTransportTab('trips')" data-i18n="trips">Trips</button>
+                        <button class="tab-btn" onclick="switchTransportTab('tracking')" data-i18n="tracking">Tracking</button>
+                    </div>
+
+                    <!-- ROUTES -->
+                    <div id="routes-tab" class="tab-content active">
+                        <div class="section-header">
+                            <div>
+                                <h3 style="margin:0;" data-i18n="routes">Routes</h3>
+                                <div class="muted" data-i18n="routes_help">Define bus/van routes, stops, and optional default vehicle/driver.</div>
+                            </div>
+                            <button id="addRouteBtn" class="btn-add" onclick="openRouteModal()"><span>+</span> <span data-i18n="add_route">Add Route</span></button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Route</th>
+                                        <th>Stops</th>
+                                        <th>Monthly Fee</th>
+                                        <th>Defaults</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="routesBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- VEHICLES -->
+                    <div id="vehicles-tab" class="tab-content">
+                        <div class="section-header">
+                            <div>
+                                <h3 style="margin:0;" data-i18n="vehicles">Vehicles</h3>
+                                <div class="muted" data-i18n="vehicles_help">Maintain vehicles used for transport.</div>
+                            </div>
+                            <button id="addVehicleBtn" class="btn-add" onclick="openVehicleModal()"><span>+</span> <span data-i18n="add_vehicle">Add Vehicle</span></button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Vehicle</th>
+                                        <th>Type</th>
+                                        <th>Capacity</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vehiclesBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- DRIVERS -->
+                    <div id="drivers-tab" class="tab-content">
+                        <div class="section-header">
+                            <div>
+                                <h3 style="margin:0;" data-i18n="drivers">Drivers</h3>
+                                <div class="muted" data-i18n="drivers_help">Maintain drivers/contacts for transport.</div>
+                            </div>
+                            <button id="addDriverBtn" class="btn-add" onclick="openDriverModal()"><span>+</span> <span data-i18n="add_driver">Add Driver</span></button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Driver</th>
+                                        <th>Phone</th>
+                                        <th>License</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="driversBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ASSIGNMENTS -->
+                    <div id="assignments-tab" class="tab-content">
+                        <div class="section-header">
+                            <div>
+                                <h3 style="margin:0;" data-i18n="student_assignments">Student Assignments</h3>
+                                <div class="muted" data-i18n="assignments_help">Assign students to a route and pickup/drop stops.</div>
+                            </div>
+                            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                                <button id="generateFeesBtn" class="btn-secondary-sm" onclick="openGenerateFeesModal()" data-i18n="generate_fees">Generate Fees</button>
+                                <button id="addAssignmentBtn" class="btn-add" onclick="openAssignmentModal()"><span>+</span> <span data-i18n="assign_student">Assign Student</span></button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Class</th>
+                                        <th>Route</th>
+                                        <th>Pickup</th>
+                                        <th>Drop</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="assignmentsBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TRIPS -->
+                    <div id="trips-tab" class="tab-content">
+                        <div class="section-header">
+                            <div>
+                                <h3 style="margin:0;" data-i18n="trip_attendance">Trip Attendance</h3>
+                                <div class="muted" data-i18n="trips_help">Create a daily trip and record pickup/drop attendance (staff only).</div>
+                            </div>
+                        </div>
+
+                        <div class="grid-3" style="margin-bottom: 1rem;">
+                            <div class="form-group">
+                                <label>Route</label>
+                                <select id="tripRoute"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Date</label>
+                                <input id="tripDate" type="date">
+                            </div>
+                            <div class="form-group">
+                                <label>Session</label>
+                                <select id="tripSession">
+                                    <option value="AM">AM (Pickup)</option>
+                                    <option value="PM">PM (Drop)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="trip-actions" style="margin-bottom: 1rem;">
+                            <button class="btn-add" onclick="loadOrCreateTrip()" data-i18n="load_trip">Load Trip</button>
+                            <button id="startTripBtn" class="btn-secondary-sm" onclick="startTrip()" data-i18n="start">Start</button>
+                            <button id="endTripBtn" class="btn-secondary-sm" onclick="completeTrip()" data-i18n="complete">Complete</button>
+                            <span id="tripStatusBadge" class="badge badge-info" data-i18n="no_trip_loaded">No trip loaded</span>
+                        </div>
+
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Class</th>
+                                        <th>Pickup</th>
+                                        <th>Drop</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tripAttendanceBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TRACKING -->
+                    <div id="tracking-tab" class="tab-content">
+                        <div class="section-header">
+                            <div>
+                                <h3 style="margin:0;" data-i18n="live_tracking">Live Tracking</h3>
+                                <div class="muted" data-i18n="tracking_help">Stores the latest GPS coordinates for a vehicle (no map integration).</div>
+                            </div>
+                        </div>
+
+                        <div class="grid-2" style="margin-bottom: 1rem;">
+                            <div class="form-group">
+                                <label>Vehicle</label>
+                                <select id="trackingVehicle"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Tracking</label>
+                                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                                    <button id="startTrackingBtn" class="btn-add" onclick="startTracking()" data-i18n="start">Start</button>
+                                    <button id="stopTrackingBtn" class="btn-secondary-sm" onclick="stopTracking()" data-i18n="stop">Stop</button>
+                                </div>
+                                <div id="trackingStatus" class="muted" style="margin-top:0.5rem;" data-i18n="not_tracking">Not tracking.</div>
+                            </div>
+                        </div>
+
+                        <div class="card" style="padding:1rem;">
+                            <div style="font-weight:700;margin-bottom:0.25rem;" data-i18n="last_location">Last Location</div>
+                            <div id="locationDisplay" class="muted" data-i18n="select_vehicle_to_view_location">Select a vehicle to view its last location.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Route Modal -->
+    <div id="routeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="routeModalTitle" style="margin:0;">Add Route</h3>
+                <button class="close-btn" onclick="closeModal('routeModal')">&times;</button>
+            </div>
+            <form id="routeForm">
+                <input type="hidden" name="docId">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Route Name</label>
+                        <input type="text" name="name" required placeholder="e.g. North Campus Loop">
+                    </div>
+                    <div class="form-group">
+                        <label>Monthly Fee (PKR)</label>
+                        <input type="number" name="monthlyFee" min="0" placeholder="e.g. 2000">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Stops (one per line or comma-separated)</label>
+                    <textarea name="stops" rows="4" placeholder="Stop A&#10;Stop B&#10;Stop C"></textarea>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Default Vehicle (optional)</label>
+                        <select id="routeDefaultVehicle" name="defaultVehicleId">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Default Driver (optional)</label>
+                        <select id="routeDefaultDriver" name="defaultDriverId">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="display:flex;gap:0.75rem;align-items:center;">
+                    <input id="routeActive" type="checkbox" name="active" checked style="width:auto;">
+                    <label for="routeActive" style="margin:0;">Active</label>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary-sm" onclick="closeModal('routeModal')">Cancel</button>
+                    <button type="submit" class="btn-add">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Vehicle Modal -->
+    <div id="vehicleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="vehicleModalTitle" style="margin:0;">Add Vehicle</h3>
+                <button class="close-btn" onclick="closeModal('vehicleModal')">&times;</button>
+            </div>
+            <form id="vehicleForm">
+                <input type="hidden" name="docId">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Vehicle Number</label>
+                        <input type="text" name="vehicleNumber" required placeholder="e.g. BUS-12">
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select name="type" required>
+                            <option value="Bus">Bus</option>
+                            <option value="Van">Van</option>
+                            <option value="Coaster">Coaster</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Capacity</label>
+                        <input type="number" name="capacity" min="1" value="40" required>
+                    </div>
+                    <div class="form-group" style="display:flex;gap:0.75rem;align-items:center;margin-top:1.9rem;">
+                        <input id="vehicleActive" type="checkbox" name="active" checked style="width:auto;">
+                        <label for="vehicleActive" style="margin:0;">Active</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <input type="text" name="notes" placeholder="e.g. White bus, route signage">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary-sm" onclick="closeModal('vehicleModal')">Cancel</button>
+                    <button type="submit" class="btn-add">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Driver Modal -->
+    <div id="driverModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="driverModalTitle" style="margin:0;">Add Driver</h3>
+                <button class="close-btn" onclick="closeModal('driverModal')">&times;</button>
+            </div>
+            <form id="driverForm">
+                <input type="hidden" name="docId">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Driver Name</label>
+                        <input type="text" name="name" required placeholder="e.g. Muhammad Ali">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" name="phone" placeholder="e.g. 03xx-xxxxxxx">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>License (optional)</label>
+                        <input type="text" name="licenseNumber" placeholder="e.g. ABC-12345">
+                    </div>
+                    <div class="form-group" style="display:flex;gap:0.75rem;align-items:center;margin-top:1.9rem;">
+                        <input id="driverActive" type="checkbox" name="active" checked style="width:auto;">
+                        <label for="driverActive" style="margin:0;">Active</label>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary-sm" onclick="closeModal('driverModal')">Cancel</button>
+                    <button type="submit" class="btn-add">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Assignment Modal -->
+    <div id="assignmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="assignmentModalTitle" style="margin:0;">Assign Student</h3>
+                <button class="close-btn" onclick="closeModal('assignmentModal')">&times;</button>
+            </div>
+            <form id="assignmentForm">
+                <input type="hidden" name="studentId">
+                <div class="grid-3">
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select id="assignDepartment" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Class</label>
+                        <select id="assignClass" required>
+                            <option value="" data-i18n="select_class">Select Class</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Student</label>
+                        <select id="assignStudent" required>
+                            <option value="">Select Student</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Route</label>
+                        <select id="assignRoute" required></select>
+                    </div>
+                    <div class="form-group" style="display:flex;gap:0.75rem;align-items:center;margin-top:1.9rem;">
+                        <input id="assignmentActive" type="checkbox" checked style="width:auto;">
+                        <label for="assignmentActive" style="margin:0;">Active</label>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Pickup Stop</label>
+                        <select id="assignPickupStop" required>
+                            <option value="">Select Route First</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Drop Stop</label>
+                        <select id="assignDropStop">
+                            <option value="">(Optional)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="muted">Tip: leave Drop Stop empty to use the same stop for drop-off.</div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary-sm" onclick="closeModal('assignmentModal')">Cancel</button>
+                    <button type="submit" class="btn-add">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Generate Fees Modal -->
+    <div id="generateFeesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="margin:0;">Generate Transport Fees</h3>
+                <button class="close-btn" onclick="closeModal('generateFeesModal')">&times;</button>
+            </div>
+            <form id="generateFeesForm">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Route</label>
+                        <select id="feesRoute" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Due Date (optional)</label>
+                        <input id="feesDueDate" type="date">
+                    </div>
+                </div>
+                <div class="grid-3">
+                    <div class="form-group">
+                        <label>Month</label>
+                        <select id="feesMonth" required>
+                            <option value="January">January</option>
+                            <option value="February">February</option>
+                            <option value="March">March</option>
+                            <option value="April">April</option>
+                            <option value="May">May</option>
+                            <option value="June">June</option>
+                            <option value="July">July</option>
+                            <option value="August">August</option>
+                            <option value="September">September</option>
+                            <option value="October">October</option>
+                            <option value="November">November</option>
+                            <option value="December">December</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Year</label>
+                        <input id="feesYear" type="number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="feesStatus" required>
+                            <option value="Pending">Pending</option>
+                            <option value="Paid">Paid</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="muted">Creates fee records with feeType <strong>Transport</strong> for all active students on the selected route.</div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary-sm" onclick="closeModal('generateFeesModal')">Cancel</button>
+                    <button type="submit" class="btn-add">Generate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/transport.js"></script>
+</body>
+</html>

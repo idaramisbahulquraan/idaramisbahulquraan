@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.85rem 1.4rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            padding: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .inv-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.45rem 0.9rem;
+            border: none;
+            border-radius: 0.35rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.85rem;
+            width: auto;
+        }
+
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 640px; }
+        th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background-color: #f8fafc; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.8rem; color: var(--text-light); }
+
+        .status-badge { padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.875rem; font-weight: 500; }
+        .status-ok { background-color: #dcfce7; color: #166534; }
+        .status-low { background-color: #fee2e2; color: #991b1b; }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.35rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .btn-icon:hover { background: #eef2ff; }
+
+        .text-danger { color: var(--danger); }
+        .text-center { text-align: center; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 2rem; border-radius: 1rem; width: 100%; max-width: 500px; box-shadow: var(--shadow-lg); }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-family: inherit; }
+
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title"><h1 data-i18n="inventory_management">Inventory Management</h1></div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="card">
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchTab('stock')" data-i18n="stock_list">Stock List</button>
+                        <button class="tab-btn" onclick="switchTab('transactions')" data-i18n="transactions">Transactions</button>
+                        <button class="tab-btn" onclick="switchTab('categories')" data-i18n="categories">Categories</button>
+                        <button class="tab-btn" onclick="switchTab('procurement')" data-i18n="procurement">Procurement</button>
+                        <button class="tab-btn" onclick="switchTab('assets')" data-i18n="assets">Assets</button>
+                        <button class="tab-btn" onclick="switchTab('maintenance')" data-i18n="maintenance">Maintenance</button>
+                    </div>
+
+                    <div id="stock-tab" class="tab-content active">
+                        <div class="card-header">
+                            <h3 data-i18n="current_stock">Current Stock</h3>
+                            <button class="inv-btn" onclick="openModal('itemModal')"><span>+</span> <span data-i18n="add_item">Add Item</span></button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Item Name</th>
+                                        <th>Category</th>
+                                        <th>SKU</th>
+                                        <th>Quantity</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stockList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="transactions-tab" class="tab-content">
+                        <div class="card-header">
+                            <h3 data-i18n="stock_transactions">Stock Transactions</h3>
+                            <button class="inv-btn" onclick="openModal('transactionModal')"><span>+</span> <span data-i18n="new_transaction">New Transaction</span></button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Item</th>
+                                        <th>Quantity</th>
+                                        <th>Performed By</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="categories-tab" class="tab-content">
+                        <div class="card-header">
+                            <h3>Item Categories</h3>
+                            <button class="inv-btn" onclick="openModal('categoryModal')">+ Add Category</button>
+                        </div>
+                        <div class="table-container" style="max-width: 640px;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoryList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="procurement-tab" class="tab-content">
+                        <div class="card-header">
+                            <h3>Procurement</h3>
+                            <button class="inv-btn" onclick="openModal('procurementModal')">+ New Purchase</button>
+                        </div>
+                        <div class="table-container">
+                            <table style="min-width: 860px;">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Vendor</th>
+                                        <th>Invoice/Ref</th>
+                                        <th>Item</th>
+                                        <th>Qty</th>
+                                        <th>Total</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="procurementList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="assets-tab" class="tab-content">
+                        <div class="card-header">
+                            <h3>Assets & Depreciation</h3>
+                            <button class="inv-btn" onclick="openModal('assetModal')">+ Add Asset</button>
+                        </div>
+                        <div class="table-container">
+                            <table style="min-width: 980px;">
+                                <thead>
+                                    <tr>
+                                        <th>Asset</th>
+                                        <th>Category</th>
+                                        <th>Purchase</th>
+                                        <th>Cost</th>
+                                        <th>Life</th>
+                                        <th>Depreciation</th>
+                                        <th>Net Value</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="assetsList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="maintenance-tab" class="tab-content">
+                        <div class="card-header">
+                            <h3>Maintenance</h3>
+                            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                                <button class="inv-btn" onclick="openModal('scheduleModal')">+ Add Schedule</button>
+                                <button class="inv-btn" onclick="openModal('ticketModal')">+ New Ticket</button>
+                            </div>
+                        </div>
+
+                        <div class="table-container" style="margin-bottom: 1.5rem;">
+                            <table style="min-width: 980px;">
+                                <thead>
+                                    <tr>
+                                        <th>Asset</th>
+                                        <th>Next Due</th>
+                                        <th>Frequency</th>
+                                        <th>Notes</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="maintenanceSchedules"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="table-container">
+                            <table style="min-width: 980px;">
+                                <thead>
+                                    <tr>
+                                        <th>Created</th>
+                                        <th>Asset</th>
+                                        <th>Title</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="maintenanceTickets"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <h3>Add New Item</h3>
+            <form id="addItemForm">
+                <div class="form-group">
+                    <label>Item Name</label>
+                    <input type="text" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select name="category" id="itemCategorySelect" required></select>
+                </div>
+                <div class="form-group">
+                    <label>SKU (Optional)</label>
+                    <input type="text" name="sku">
+                </div>
+                <div class="form-group">
+                    <label>Initial Quantity</label>
+                    <input type="number" name="quantity" value="0" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Low Stock Threshold</label>
+                    <input type="number" name="minQuantity" value="5" min="0" required>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeModal('itemModal')" style="padding: 0.45rem 0.9rem; border: 1px solid #ccc; background: white; border-radius: 0.25rem;">Cancel</button>
+                    <button type="submit" class="inv-btn">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <h3>New Transaction</h3>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label>Transaction Type</label>
+                    <select name="type" required>
+                        <option value="PURCHASE">Purchase (Add Stock)</option>
+                        <option value="ISSUE">Issue (Remove Stock)</option>
+                        <option value="CONSUME">Consume (Remove Stock)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Item</label>
+                    <select name="itemId" id="transItemSelect" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number" name="quantity" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Notes / Reference</label>
+                    <input type="text" name="notes" placeholder="e.g. Vendor Invoice or Staff Name">
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeModal('transactionModal')" style="padding: 0.45rem 0.9rem; border: 1px solid #ccc; background: white; border-radius: 0.25rem;">Cancel</button>
+                    <button type="submit" class="inv-btn">Process</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <h3>Add Category</h3>
+            <form id="categoryForm">
+                <div class="form-group">
+                    <label>Category Name</label>
+                    <input type="text" name="name" required>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeModal('categoryModal')" style="padding: 0.45rem 0.9rem; border: 1px solid #ccc; background: white; border-radius: 0.25rem;">Cancel</button>
+                    <button type="submit" class="inv-btn">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Procurement Modal -->
+    <div id="procurementModal" class="modal">
+        <div class="modal-content" style="max-width: 560px;">
+            <h3>New Purchase</h3>
+            <form id="procurementForm">
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label>Vendor</label>
+                    <input type="text" name="vendor" placeholder="e.g. ABC Stationers">
+                </div>
+                <div class="form-group">
+                    <label>Invoice/Reference</label>
+                    <input type="text" name="invoice" placeholder="e.g. INV-1002">
+                </div>
+                <div class="form-group">
+                    <label>Item</label>
+                    <select name="itemId" id="procItemSelect" required></select>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type="number" name="quantity" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Unit Cost</label>
+                        <input type="number" name="unitCost" min="0" step="0.01" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Total</label>
+                        <input type="number" name="totalCost" min="0" step="0.01" placeholder="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <input type="text" name="notes" placeholder="Optional notes">
+                </div>
+                <div style="display:flex;gap:1rem;justify-content:flex-end;">
+                    <button type="button" onclick="closeModal('procurementModal')" style="padding: 0.45rem 0.9rem; border: 1px solid #ccc; background: white; border-radius: 0.25rem;">Cancel</button>
+                    <button type="submit" class="inv-btn">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Asset Modal -->
+    <div id="assetModal" class="modal">
+        <div class="modal-content" style="max-width: 640px;">
+            <h3>Add Asset</h3>
+            <form id="assetForm">
+                <input type="hidden" name="docId">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div class="form-group">
+                        <label>Asset Name</label>
+                        <input type="text" name="name" required placeholder="e.g. Lab Microscope">
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <input type="text" name="category" placeholder="e.g. Lab Equipment">
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div class="form-group">
+                        <label>Tag/Serial</label>
+                        <input type="text" name="tag" placeholder="Optional">
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" name="location" placeholder="e.g. Physics Lab">
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+                    <div class="form-group">
+                        <label>Purchase Date</label>
+                        <input type="date" name="purchaseDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cost (PKR)</label>
+                        <input type="number" name="cost" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Salvage</label>
+                        <input type="number" name="salvageValue" min="0" value="0">
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+                    <div class="form-group">
+                        <label>Life (months)</label>
+                        <input type="number" name="lifeMonths" min="1" value="36" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Method</label>
+                        <select name="method" required>
+                            <option value="straight_line">Straight-line</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" required>
+                            <option value="active">Active</option>
+                            <option value="disposed">Disposed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <input type="text" name="notes" placeholder="Optional notes">
+                </div>
+                <div style="display:flex;gap:1rem;justify-content:flex-end;">
+                    <button type="button" onclick="closeModal('assetModal')" style="padding: 0.45rem 0.9rem; border: 1px solid #ccc; background: white; border-radius: 0.25rem;">Cancel</button>
+                    <button type="submit" class="inv-btn">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Maintenance Schedule Modal -->
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content" style="max-width: 640px;">
+            <h3>Maintenance Schedule</h3>
+            <form id="scheduleForm">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label>Asset</label>
+                    <select name="assetId" id="scheduleAssetSelect" required></select>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div class="form-group">
+                        <label>Next Due</label>
+                        <input type="date" name="nextDueDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Frequency (days)</label>
+                        <input type="number" name="frequencyDays" min="1" value="30" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <input type="text" name="notes" placeholder="e.g. Monthly cleaning / calibration">
+                </div>
+                <div style="display:flex;gap:1rem;justify-content:flex-end;">
+                    <button type="button" onclick="closeModal('scheduleModal')" style="padding: 0.45rem 0.9rem; border: 1px solid #ccc; background: white; border-radius: 0.25rem;">Cancel</button>
+                    <button type="submit" class="inv-btn">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Maintenance Ticket Modal -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content" style="max-width: 640px;">
+            <h3>Maintenance Ticket</h3>
+            <form id="ticketForm">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label>Asset</label>
+                    <select name="assetId" id="ticketAssetSelect" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" required placeholder="e.g. Replace broken handle">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="3" placeholder="Optional details..."></textarea>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select name="priority" required>
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" required>
+                            <option value="open">Open</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display:flex;gap:1rem;justify-content:flex-end;">
+                    <button type="button" onclick="closeModal('ticketModal')" style="padding: 0.45rem 0.9rem; border: 1px solid #ccc; background: white; border-radius: 0.25rem;">Cancel</button>
+                    <button type="submit" class="inv-btn">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/inventory.js"></script>
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Features - School Management System</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .ai-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .ai-sidebar {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .ai-nav-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ai-nav-item:hover,
+        .ai-nav-item.active {
+            background-color: var(--background-light);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .ai-content {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            min-height: 500px;
+        }
+
+        .ai-section {
+            display: none;
+        }
+
+        .ai-section.active {
+            display: block;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+        }
+
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #f8fafc;
+        }
+
+        .chat-message {
+            margin-bottom: 1rem;
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .chat-message.user {
+            background-color: var(--primary-color);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 0;
+        }
+
+        .chat-message.ai {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            margin-right: auto;
+            border-bottom-left-radius: 0;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .response-area {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="page-title">
+                    <h1 id="pageTitle" data-i18n="ai_features">AI Features</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                <div class="ai-container">
+                    <div class="ai-sidebar">
+                        <a class="ai-nav-item active" onclick="showSection('chatbot')" data-i18n="ai_chatbot">🤖 AI
+                            Chatbot</a>
+                        <a class="ai-nav-item" onclick="showSection('reports')" data-i18n="smart_reports">📊 Smart
+                            Reports</a>
+                        <a class="ai-nav-item" onclick="showSection('data-entry')" data-i18n="data_entry_assistant">📝
+                            Data Entry Assistant</a>
+                        <a class="ai-nav-item" onclick="showSection('settings')" data-i18n="settings">⚙️ Settings</a>
+                    </div>
+
+                    <div class="ai-content">
+                        <!-- Chatbot Section -->
+                        <div id="chatbot" class="ai-section active">
+                            <h3 data-i18n="ai_assistant">AI Assistant</h3>
+                            <p class="text-light mb-4" data-i18n="ai_assistant_desc">Ask me anything about using the app
+                                or for help with school management tasks.</p>
+                            <div class="chat-container">
+                                <div class="chat-history" id="chatHistory">
+                                    <div class="chat-message ai" data-i18n="ai_greeting">Hello! I'm your School
+                                        Management Assistant. How can I help you today?</div>
+                                </div>
+
+                                <!-- Chat File Preview -->
+                                <div id="chatFilePreview" class="file-preview-area"></div>
+
+                                <div class="chat-input-area">
+                                    <button class="btn-icon" onclick="document.getElementById('chatFile').click()"
+                                        title="Upload File">
+                                        📎
+                                    </button>
+                                    <input type="file" id="chatFile" multiple style="display: none;"
+                                        onchange="handleChatFiles(event)">
+
+                                    <input type="text" id="chatInput" placeholder="Type a message..."
+                                        data-i18n="type_message" onkeypress="handleChatEnter(event)">
+                                    <button class="btn-primary" onclick="sendMessage()" style="width: auto;"
+                                        data-i18n="send">Send</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reports Section -->
+                        <div id="reports" class="ai-section">
+                            <h3 data-i18n="smart_report_generation">Smart Report Generation</h3>
+                            <p class="text-light mb-4" data-i18n="smart_report_desc">Generate comprehensive reports
+                                using AI analysis of your data.</p>
+
+                            <div class="form-grid" style="grid-template-columns: 1fr; max-width: 600px;">
+                                <div class="form-group">
+                                    <label data-i18n="report_type">Report Type</label>
+                                    <select id="reportType">
+                                        <option value="daily">Daily Summary</option>
+                                        <option value="monthly">Monthly Overview</option>
+                                        <option value="semiannual">Semi-Annual Report</option>
+                                        <option value="annual">Annual Report</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label data-i18n="focus_area">Focus Area</label>
+                                    <select id="reportFocus">
+                                        <option value="general">General Overview</option>
+                                        <option value="attendance">Attendance Analysis</option>
+                                        <option value="finance">Financial Status</option>
+                                        <option value="performance">Academic Performance</option>
+                                    </select>
+                                </div>
+                                <button class="btn-primary" onclick="generateReport()" id="btnGenerateReport"
+                                    data-i18n="generate_report">Generate Report</button>
+                            </div>
+
+                            <div id="reportResult" class="response-area" style="display: none;"></div>
+                        </div>
+
+                        <!-- Data Entry Section (Chat Style) -->
+                        <div id="data-entry" class="ai-section">
+                            <h3 data-i18n="ai_data_entry_assistant">AI Data Entry Assistant</h3>
+                            <p class="text-light mb-4" data-i18n="data_entry_desc">Describe the data you want to add
+                                (e.g., "Add 5 students...") or upload files.</p>
+
+                            <div class="chat-container">
+                                <div class="chat-history" id="dataEntryHistory">
+                                    <div class="chat-message ai">
+                                        👋 I can help you add data quickly! You can:
+                                        <br>• Type details (e.g., "Add a teacher named Ali...")
+                                        <br>• Upload an Excel/CSV file
+                                        <br>• Upload an image of a form
+                                    </div>
+                                </div>
+
+                                <!-- File Preview Area -->
+                                <div id="dataEntryFilePreview" class="file-preview-area"></div>
+
+                                <div class="chat-input-area">
+                                    <button class="btn-icon"
+                                        onclick="document.getElementById('dataEntryChatFile').click()"
+                                        title="Upload File">
+                                        📎
+                                    </button>
+                                    <input type="file" id="dataEntryChatFile" multiple style="display: none;"
+                                        onchange="handleDataEntryChatFiles(event)">
+
+                                    <input type="text" id="dataEntryChatInput"
+                                        placeholder="Type here or describe your data..."
+                                        onkeypress="handleDataEntryEnter(event)">
+
+                                    <button class="btn-primary" onclick="processDataEntryChat()">
+                                        ➤
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Hidden JSON Preview for Confirmation Logic -->
+                            <div id="dataEntryResult" style="display: none;">
+                                <pre id="jsonPreview"></pre>
+                            </div>
+                        </div>
+
+                        <style>
+                            .file-upload-zone {
+                                border: 2px dashed var(--border-color);
+                                border-radius: 0.5rem;
+                                padding: 2rem;
+                                text-align: center;
+                                cursor: pointer;
+                                transition: all 0.2s;
+                                margin-bottom: 1rem;
+                                background: #f8fafc;
+                            }
+
+                            .file-upload-zone:hover {
+                                border-color: var(--primary-color);
+                                background: #eef2ff;
+                            }
+
+                            .file-preview-item {
+                                position: relative;
+                                width: 80px;
+                                height: 80px;
+                                border-radius: 0.5rem;
+                                overflow: hidden;
+                                border: 1px solid #e2e8f0;
+                            }
+
+                            .file-preview-item img {
+                                width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                            }
+
+                            .file-preview-item .remove {
+                                position: absolute;
+                                top: 2px;
+                                right: 2px;
+                                background: rgba(0, 0, 0, 0.6);
+                                color: white;
+                                width: 20px;
+                                height: 20px;
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                cursor: pointer;
+                                font-size: 12px;
+                            }
+
+                            .btn-icon {
+                                background: none;
+                                border: 1px solid var(--border-color);
+                                border-radius: 0.5rem;
+                                width: 42px;
+                                height: 42px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                cursor: pointer;
+                                font-size: 1.2rem;
+                                transition: all 0.2s;
+                            }
+
+                            .btn-icon:hover {
+                                background: #f1f5f9;
+                                border-color: var(--primary-color);
+                            }
+
+                            .file-preview-area {
+                                display: flex;
+                                gap: 0.5rem;
+                                padding: 0.5rem;
+                                flex-wrap: wrap;
+                                min-height: 0;
+                                /* Prevent flex overflow */
+                            }
+                        </style>
+
+                        <!-- Settings Section -->
+                        <div id="settings" class="ai-section">
+                            <h3 data-i18n="ai_configuration">AI Configuration</h3>
+                            <p class="text-light mb-4" data-i18n="ai_config_desc">Configure your AI providers and choose
+                                which one to use.</p>
+
+                            <div class="form-group">
+                                <label data-i18n="active_provider">Active Provider</label>
+                                <select id="providerSelect" onchange="updateModelList()">
+                                    <option value="gemini">Google Gemini</option>
+                                    <option value="groq">Groq Cloud (Fastest)</option>
+                                    <option value="huggingface">Hugging Face</option>
+                                    <option value="mistral">Mistral AI</option>
+                                    <option value="xai">xAI (Grok)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label data-i18n="active_model">Active Model</label>
+                                <select id="modelSelect">
+                                    <!-- Populated by JS -->
+                                </select>
+                            </div>
+
+                            <hr style="margin: 2rem 0; border-color: var(--border-color);">
+
+                            <h4 data-i18n="api_keys">API Keys</h4>
+
+                            <div class="form-group">
+                                <label>Google Gemini API Key</label>
+                                <input type="password" id="geminiKey" placeholder="AIza...">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Groq API Key</label>
+                                <input type="password" id="groqKey" placeholder="gsk_...">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Hugging Face Token</label>
+                                <input type="password" id="hfKey" placeholder="hf_...">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Mistral API Key</label>
+                                <input type="password" id="mistralKey" placeholder="Ajb...">
+                            </div>
+
+                            <div class="form-group">
+                                <label>xAI API Key</label>
+                                <input type="password" id="xaiKey" placeholder="xai-...">
+                            </div>
+
+                            <button class="btn-primary" onclick="saveSettings()" style="width: auto;"
+                                data-i18n="save_settings">Save Settings</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/ai-features.js"></script>
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.ai-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+
+            document.querySelectorAll('.ai-nav-item').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function handleChatEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.85rem 1.2rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .input-sm {
+            padding: 0.6rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            min-width: 220px;
+        }
+
+        .btn-sm {
+            padding: 0.45rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            cursor: pointer;
+            font-weight: 600;
+            width: auto;
+        }
+
+        .btn-sm.primary {
+            background: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-color);
+        }
+
+        .btn-sm.primary:hover { background: var(--primary-hover); }
+        .btn-sm:hover { background: var(--background-light); }
+
+        .badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .badge-ok { background: #dcfce7; color: #166534; }
+        .badge-warn { background: #ffedd5; color: #9a3412; }
+        .badge-off { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #e0f2fe; color: #0369a1; }
+
+        .muted { color: var(--text-light); font-size: 0.85rem; }
+
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        @media (max-width: 900px) {
+            .form-grid-2 { grid-template-columns: 1fr; }
+            .input-sm { min-width: 160px; }
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title"><h1 data-i18n="library">Library</h1></div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="stat-card">
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchLibraryTab('catalog')" data-i18n="catalog">Catalog</button>
+                        <button class="tab-btn" onclick="switchLibraryTab('loans')" data-i18n="loans">Loans</button>
+                        <button class="tab-btn" onclick="switchLibraryTab('reservations')" data-i18n="reservations">Reservations</button>
+                        <button class="tab-btn" onclick="switchLibraryTab('settings')" data-i18n="settings">Settings</button>
+                    </div>
+
+                    <!-- Catalog -->
+                    <div id="catalog-tab" class="tab-content active">
+                        <div class="section-header">
+                            <div>
+                                <div style="font-weight: 700; font-size: 1.05rem;" data-i18n="books">Books</div>
+                                <div class="muted" data-i18n="library_catalog_help">Manage catalog, copies, and metadata. Use ISBN Lookup to autofill details.</div>
+                            </div>
+                            <div class="actions">
+                                <input id="bookSearch" class="input-sm" type="text" placeholder="Search title / author / ISBN" data-i18n="search_title_author_isbn">
+                                <button id="addBookBtn" class="btn-sm primary" onclick="openBookModal()"><span>+</span> <span data-i18n="add_book">Add Book</span></button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th>ISBN</th>
+                                        <th>Copies</th>
+                                        <th>Category</th>
+                                        <th>Shelf</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="booksBody">
+                                    <tr><td colspan="7" class="muted" data-i18n="loading">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Loans -->
+                    <div id="loans-tab" class="tab-content">
+                        <div class="section-header">
+                            <div>
+                                <div style="font-weight: 700; font-size: 1.05rem;">Lending</div>
+                                <div class="muted">Issue and return books. Overdue fines are calculated using settings.</div>
+                            </div>
+                            <div class="actions">
+                                <select id="loanFilter" class="input-sm" style="min-width: 180px;">
+                                    <option value="all">All</option>
+                                    <option value="active">Active</option>
+                                    <option value="overdue">Overdue</option>
+                                    <option value="returned">Returned</option>
+                                </select>
+                                <button id="issueLoanBtn" class="btn-sm primary" onclick="openIssueModal()">+ Issue Book</button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Book</th>
+                                        <th>Borrower</th>
+                                        <th>Issued</th>
+                                        <th>Due</th>
+                                        <th>Status</th>
+                                        <th>Fine</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="loansBody">
+                                    <tr><td colspan="7" class="muted">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Reservations -->
+                    <div id="reservations-tab" class="tab-content">
+                        <div class="section-header">
+                            <div>
+                                <div style="font-weight: 700; font-size: 1.05rem;">Reservations</div>
+                                <div class="muted">Create holds and fulfill when copies are available.</div>
+                            </div>
+                            <div class="actions">
+                                <button id="addReservationBtn" class="btn-sm primary" onclick="openReservationModal()">+ Add Reservation</button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Book</th>
+                                        <th>Borrower</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Expires</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reservationsBody">
+                                    <tr><td colspan="6" class="muted">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Settings -->
+                    <div id="settings-tab" class="tab-content">
+                        <div class="section-header">
+                            <div>
+                                <div style="font-weight: 700; font-size: 1.05rem;">Library Settings</div>
+                                <div class="muted">Fine rate and default due date for new loans.</div>
+                            </div>
+                        </div>
+                        <form id="librarySettingsForm">
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label>Fine Rate (per day)</label>
+                                    <input id="fineRatePerDay" type="number" min="0" step="1" value="10" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Default Loan Days</label>
+                                    <input id="defaultLoanDays" type="number" min="1" step="1" value="14" required>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap: 0.75rem; justify-content:flex-end; margin-top: 0.75rem;">
+                                <button id="saveSettingsBtn" class="btn-secondary" type="button" onclick="reloadLibrarySettings()" style="width:auto;">Reload</button>
+                                <button class="btn-primary" type="submit" style="width:auto;">Save Settings</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Book Modal -->
+    <div id="bookModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="bookModalTitle" style="margin:0;">Add Book</h3>
+                <button class="close-btn" onclick="closeModal('bookModal')">&times;</button>
+            </div>
+            <form id="bookForm">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label>ISBN</label>
+                    <div style="display:flex; gap:0.6rem; align-items:center;">
+                        <input id="bookIsbn" name="isbn" type="text" placeholder="e.g. 978..." style="flex:1;">
+                        <button id="isbnLookupBtn" type="button" class="btn-sm" onclick="lookupIsbn()">Lookup</button>
+                    </div>
+                    <div class="muted" style="margin-top:0.35rem;">Lookup uses Open Library (no key). If it fails, enter details manually.</div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input id="bookTitle" name="title" type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Author</label>
+                        <input id="bookAuthor" name="author" type="text" required>
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Publisher</label>
+                        <input id="bookPublisher" name="publisher" type="text">
+                    </div>
+                    <div class="form-group">
+                        <label>Year</label>
+                        <input id="bookYear" name="year" type="number" min="0" step="1">
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <input id="bookCategory" name="category" type="text" placeholder="e.g. General, Islamic, Science">
+                    </div>
+                    <div class="form-group">
+                        <label>Language</label>
+                        <input id="bookLanguage" name="language" type="text" placeholder="e.g. English, Urdu">
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Shelf</label>
+                        <input id="bookShelf" name="shelf" type="text" placeholder="e.g. A-3">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Copies</label>
+                        <input id="bookTotalCopies" name="totalCopies" type="number" min="0" step="1" value="1" required>
+                    </div>
+                </div>
+                <div class="form-actions" style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('bookModal')" style="width:auto;">Cancel</button>
+                    <button type="submit" class="btn-primary" style="width:auto;">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Issue Modal -->
+    <div id="issueModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="margin:0;">Issue Book</h3>
+                <button class="close-btn" onclick="closeModal('issueModal')">&times;</button>
+            </div>
+            <form id="issueForm">
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Borrower Type</label>
+                        <select id="issueBorrowerType" required>
+                            <option value="student">Student</option>
+                            <option value="teacher">Teacher</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Borrower</label>
+                        <select id="issueBorrower" required></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Book</label>
+                    <select id="issueBook" required></select>
+                    <div class="muted" style="margin-top:0.35rem;">Only books with available copies appear here.</div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Issue Date</label>
+                        <input id="issueDate" type="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Due Date</label>
+                        <input id="dueDate" type="date" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="issueNotes" rows="3" placeholder="Optional notes..."></textarea>
+                </div>
+                <div class="form-actions" style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('issueModal')" style="width:auto;">Cancel</button>
+                    <button type="submit" class="btn-primary" style="width:auto;">Issue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Return Modal -->
+    <div id="returnModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="margin:0;">Return Book</h3>
+                <button class="close-btn" onclick="closeModal('returnModal')">&times;</button>
+            </div>
+            <form id="returnForm">
+                <input type="hidden" id="returnLoanId">
+                <div id="returnSummary" class="muted" style="margin-bottom: 0.75rem;"></div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Return Date</label>
+                        <input id="returnDate" type="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fine Rate (per day)</label>
+                        <input id="returnFineRate" type="number" min="0" step="1" value="10" required>
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Fine Amount</label>
+                        <input id="returnFineAmount" type="number" min="0" step="1" value="0" readonly>
+                    </div>
+                    <div class="form-group" style="display:flex;gap:0.75rem;align-items:center;margin-top:1.9rem;">
+                        <input id="returnFinePaid" type="checkbox" style="width:auto;">
+                        <label for="returnFinePaid" style="margin:0;">Mark fine as paid</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="returnNotes" rows="3" placeholder="Optional notes..."></textarea>
+                </div>
+                <div class="form-actions" style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('returnModal')" style="width:auto;">Cancel</button>
+                    <button type="submit" class="btn-primary" style="width:auto;">Confirm Return</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reservation Modal -->
+    <div id="reservationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="margin:0;">Add Reservation</h3>
+                <button class="close-btn" onclick="closeModal('reservationModal')">&times;</button>
+            </div>
+            <form id="reservationForm">
+                <input type="hidden" name="docId">
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Borrower Type</label>
+                        <select id="reservationBorrowerType" required>
+                            <option value="student">Student</option>
+                            <option value="teacher">Teacher</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Borrower</label>
+                        <select id="reservationBorrower" required></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Book</label>
+                    <select id="reservationBook" required></select>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Expires On</label>
+                        <input id="reservationExpiresOn" type="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="reservationStatus" required>
+                            <option value="active">Active</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="reservationNotes" rows="3" placeholder="Optional notes..."></textarea>
+                </div>
+                <div class="form-actions" style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                    <button type="button" class="btn-secondary" onclick="closeModal('reservationModal')" style="width:auto;">Cancel</button>
+                    <button type="submit" class="btn-primary" style="width:auto;">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/library.js"></script>
+</body>
+</html>

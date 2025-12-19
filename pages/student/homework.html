@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Homework</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Student Portal</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>Homework</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">Student</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">S</div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="stat-card">
+                    <h3>Assigned Homework</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Subject</th>
+                                    <th>Due</th>
+                                    <th>Submit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentHomeworkList">
+                                <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/homework.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            firebase.auth().onAuthStateChanged(async user => {
+                if (!user) {
+                    window.location.href = '../../index.html';
+                    return;
+                }
+                try {
+                    const doc = await db.collection('students').doc(user.uid).get();
+                    if (doc.exists) {
+                        const student = doc.data();
+                        const profile = {
+                            uid: user.uid,
+                            email: user.email,
+                            role: 'student',
+                            name: `${student.firstName || ''} ${student.lastName || ''}`.trim(),
+                            className: student.className || '',
+                            department: student.department || ''
+                        };
+                        localStorage.setItem('currentUser', JSON.stringify(profile));
+                        initDashboard(profile);
+                        loadStudentHomework();
+                    } else {
+                        const profile = { uid: user.uid, email: user.email, role: 'student', name: user.email || 'Student' };
+                        localStorage.setItem('currentUser', JSON.stringify(profile));
+                        initDashboard(profile);
+                        document.getElementById('studentHomeworkList').innerHTML = '<tr><td colspan="4" style="text-align:center;">Student profile not found. Ask admin to complete your record.</td></tr>';
+                    }
+                } catch (err) {
+                    console.error(err);
+                    const profile = { uid: user.uid, email: user.email, role: 'student', name: user.email || 'Student' };
+                    localStorage.setItem('currentUser', JSON.stringify(profile));
+                    initDashboard(profile);
+                    document.getElementById('studentHomeworkList').innerHTML = '<tr><td colspan="4" style="text-align:center;color:red;">Error loading profile.</td></tr>';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

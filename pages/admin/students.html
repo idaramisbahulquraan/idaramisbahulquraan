@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 id="pageTitle" data-i18n="students">Students</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                <div class="stat-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h3 data-i18n="student_list">Student List</h3>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn-secondary" onclick="downloadStudentsPDF()" data-i18n="pdf">↓ PDF</button>
+                            <button class="btn-secondary" onclick="openModal('rollModal')"
+                                data-i18n="auto_assign_roll_no">Auto Assign Roll No</button>
+                            <button class="btn-primary" onclick="openModal('studentModal')" style="width: auto;"
+                                data-i18n="add_student">+ Add
+                                Student</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="name">Name</th>
+                                    <th data-i18n="roll_no">Roll No</th>
+                                    <th data-i18n="class">Class</th>
+                                    <th data-i18n="department">Department</th>
+                                    <th data-i18n="parent">Parent</th>
+                                    <th data-i18n="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center;" data-i18n="loading">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="studentModalTitle" data-i18n="add_new_student">Add New Student</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="addStudentForm" onsubmit="handleAddStudent(event)">
+                <input type="hidden" name="docId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label data-i18n="first_name">First Name</label>
+                        <input type="text" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="last_name">Last Name</label>
+                        <input type="text" name="lastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="email_login_id">Email (Login ID)</label>
+                        <input type="email" name="email" required>
+                    </div>
+                    <div class="form-group" id="passwordGroup">
+                        <label data-i18n="password">Password</label>
+                        <input type="password" name="password" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="department">Department</label>
+                        <select name="department" onchange="updateClasses()" required>
+                            <option value="" data-i18n="select_department">Select Department</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="class">Class</label>
+                        <select name="className" required>
+                            <option value="" data-i18n="select_class">Select Class</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="roll_number">Roll Number</label>
+                        <input type="text" name="rollNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="parent_name">Parent Name</label>
+                        <input type="text" name="parentName">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="parent_phone">Parent Phone</label>
+                        <input type="tel" name="parentPhone">
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem; text-align: right;">
+                    <button type="button" class="btn-secondary" onclick="closeModal()" style="margin-right: 0.5rem;"
+                        data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn-primary" style="width: auto;" data-i18n="save_student">Save
+                        Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Generate Roll Modal -->
+    <div id="rollModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="auto_assign_roll_numbers">Auto Assign Roll Numbers</h3>
+                <button class="close-btn" onclick="closeModal('rollModal')">&times;</button>
+            </div>
+            <p style="margin-bottom: 1rem; color: var(--text-light); font-size: 0.9rem;"
+                data-i18n="auto_assign_roll_desc">
+                This will sort all students in the selected class by name (A-Z) and assign roll numbers starting from
+                01.
+            </p>
+            <form onsubmit="handleGenerateRollNumbers(event)">
+                <div class="form-group">
+                    <label data-i18n="department">Department</label>
+                    <select id="rollDept" onchange="updateRollClasses()" required>
+                        <option value="" data-i18n="select_department">Select Department</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="class">Class</label>
+                    <select id="rollClass" name="className" required>
+                        <option value="" data-i18n="select_class">Select Class</option>
+                    </select>
+                </div>
+                <div style="margin-top: 1.5rem; text-align: right;">
+                    <button type="submit" class="btn-primary" style="width: 100%;"
+                        data-i18n="generate_roll_numbers">Generate Roll Numbers</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script>
+        // Initialize Secondary App for creating users without logging out
+        let secondaryApp;
+        let secondaryAuth;
+
+        try {
+            secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
+            secondaryAuth = secondaryApp.auth();
+        } catch (e) {
+            // If already initialized
+            const apps = firebase.apps;
+            secondaryApp = apps.find(app => app.name === "Secondary");
+            secondaryAuth = secondaryApp.auth();
+        }
+
+        // Data for dropdowns - DYNAMIC NOW
+
+        async function loadDepartments() {
+            const select = document.querySelector('select[name="department"]');
+            const currentVal = select.value;
+            select.innerHTML = `<option value="" data-i18n="select_department">${getTrans('select_department')}</option>`;
+
+            try {
+                const snapshot = await db.collection('departments').orderBy('name').get();
+                snapshot.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc.data().name;
+                    opt.innerText = doc.data().name;
+                    select.appendChild(opt);
+                });
+                if (currentVal) select.value = currentVal;
+            } catch (error) {
+                console.error("Error loading departments:", error);
+            }
+        }
+
+        async function updateClasses() {
+            const dept = document.querySelector('select[name="department"]').value;
+            const classSelect = document.querySelector('select[name="className"]');
+            classSelect.innerHTML = `<option value="" data-i18n="select_class">${getTrans('select_class')}</option>`;
+
+            if (!dept) return;
+
+            try {
+                const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                snapshot.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc.data().name;
+                    opt.innerText = doc.data().name;
+                    classSelect.appendChild(opt);
+                });
+            } catch (error) {
+                console.error("Error loading classes:", error);
+            }
+        }
+
+        // Modal Logic
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            if (id === 'studentModal') {
+                loadDepartments();
+            } else if (id === 'rollModal') {
+                loadRollDepartments();
+            }
+        }
+
+        function closeModal(id) {
+            if (id) {
+                document.getElementById(id).classList.remove('active');
+            } else {
+                // Fallback for old calls if any
+                document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+            }
+            // Reset forms
+            const form = document.getElementById('addStudentForm');
+            form.reset();
+            form.querySelector('input[name="docId"]').value = '';
+            document.getElementById('studentModalTitle').textContent = getTrans('add_new_student');
+            document.getElementById('studentModalTitle').setAttribute('data-i18n', 'add_new_student');
+
+            // Show password field and email field enabled
+            document.getElementById('passwordGroup').style.display = 'block';
+            document.querySelector('input[name="password"]').setAttribute('required', 'true');
+            document.querySelector('input[name="email"]').removeAttribute('readonly');
+
+            if (document.querySelector('#rollModal form')) document.querySelector('#rollModal form').reset();
+        }
+
+        // --- Roll Number Generation Logic ---
+
+        async function loadRollDepartments() {
+            const select = document.getElementById('rollDept');
+            select.innerHTML = `<option value="" data-i18n="select_department">${getTrans('select_department')}</option>`;
+            try {
+                const snapshot = await db.collection('departments').orderBy('name').get();
+                snapshot.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc.data().name;
+                    opt.innerText = doc.data().name;
+                    select.appendChild(opt);
+                });
+            } catch (error) { console.error(error); }
+        }
+
+        async function updateRollClasses() {
+            const dept = document.getElementById('rollDept').value;
+            const select = document.getElementById('rollClass');
+            select.innerHTML = `<option value="" data-i18n="select_class">${getTrans('select_class')}</option>`;
+            if (!dept) return;
+
+            try {
+                const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                snapshot.forEach(doc => {
+                    const opt = document.createElement('option');
+                    opt.value = doc.data().name;
+                    opt.innerText = doc.data().name;
+                    select.appendChild(opt);
+                });
+            } catch (error) { console.error(error); }
+        }
+
+        async function handleGenerateRollNumbers(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = getTrans('processing');
+            btn.disabled = true;
+
+            const className = document.getElementById('rollClass').value;
+            if (!className) return;
+
+            try {
+                // 1. Get all students in class
+                const snapshot = await db.collection('students').where('className', '==', className).get();
+                if (snapshot.empty) {
+                    alert('No students found in this class.');
+                    return;
+                }
+
+                // 2. Sort by Name (First + Last)
+                const students = [];
+                snapshot.forEach(doc => {
+                    students.push({ id: doc.id, ...doc.data() });
+                });
+
+                students.sort((a, b) => {
+                    const nameA = (a.firstName + ' ' + a.lastName).toLowerCase();
+                    const nameB = (b.firstName + ' ' + b.lastName).toLowerCase();
+                    return nameA.localeCompare(nameB);
+                });
+
+                // 3. Update Roll Numbers (Batch)
+                const batch = db.batch();
+                let count = 0;
+
+                students.forEach((student, index) => {
+                    const newRoll = (index + 1).toString().padStart(2, '0');
+                    const ref = db.collection('students').doc(student.id);
+                    batch.update(ref, { rollNumber: newRoll });
+                    count++;
+                });
+
+                await batch.commit();
+
+                alert(`Successfully assigned roll numbers for ${count} students.`);
+                closeModal('rollModal');
+                loadStudents();
+
+            } catch (error) {
+                console.error("Error generating roll numbers:", error);
+                alert("Error: " + error.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Add Student
+        async function handleAddStudent(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = getTrans('saving');
+            btn.disabled = true;
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            const docId = data.docId;
+
+            try {
+                if (docId) {
+                    // Update existing student
+                    await db.collection("students").doc(docId).update({
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        // Email cannot be changed easily in Auth without re-auth, so we just update Firestore data if needed or keep it readonly
+                        department: data.department,
+                        className: data.className,
+                        rollNumber: data.rollNumber,
+                        parentName: data.parentName,
+                        parentPhone: data.parentPhone
+                    });
+                    // Also update users collection if needed (for role/email sync)
+                    await db.collection("users").doc(docId).update({
+                        email: data.email
+                    });
+
+                    alert('Student updated successfully!');
+
+                } else {
+                    // 1. Create Auth User (Secondary App)
+                    const userCredential = await secondaryAuth.createUserWithEmailAndPassword(data.email, data.password);
+                    const uid = userCredential.user.uid;
+
+                    // 2. Create User Doc (Main App)
+                    await db.collection("users").doc(uid).set({
+                        email: data.email,
+                        role: 'student',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // 3. Create Student Doc (Main App)
+                    await db.collection("students").doc(uid).set({
+                        uid: uid,
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        email: data.email,
+                        department: data.department,
+                        className: data.className,
+                        rollNumber: data.rollNumber,
+                        parentName: data.parentName,
+                        parentPhone: data.parentPhone,
+                        role: 'student',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    alert('Student added successfully!');
+                }
+
+                // 4. Cleanup
+                closeModal();
+                loadStudents(); // Refresh list
+
+            } catch (error) {
+                console.error("Error saving student:", error);
+                alert("Error: " + error.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function editStudent(uid) {
+            try {
+                const doc = await db.collection('students').doc(uid).get();
+                if (!doc.exists) return;
+                const s = doc.data();
+
+                const form = document.getElementById('addStudentForm');
+                form.querySelector('input[name="docId"]').value = uid;
+                form.querySelector('input[name="firstName"]').value = s.firstName;
+                form.querySelector('input[name="lastName"]').value = s.lastName;
+
+                const emailInput = form.querySelector('input[name="email"]');
+                emailInput.value = s.email;
+                emailInput.setAttribute('readonly', 'true'); // Prevent email change for now
+
+                // Hide password as we can't edit it directly here easily
+                document.getElementById('passwordGroup').style.display = 'none';
+                document.querySelector('input[name="password"]').removeAttribute('required');
+
+                // Populate departments
+                const deptSelect = form.querySelector('select[name="department"]');
+                if (deptSelect.options.length <= 1) await loadDepartments();
+                deptSelect.value = s.department;
+
+                // Populate classes
+                await updateClasses();
+                form.querySelector('select[name="className"]').value = s.className;
+
+                form.querySelector('input[name="rollNumber"]').value = s.rollNumber;
+                form.querySelector('input[name="parentName"]').value = s.parentName || '';
+                form.querySelector('input[name="parentPhone"]').value = s.parentPhone || '';
+                document.getElementById('studentModalTitle').textContent = getTrans('edit_student');
+                document.getElementById('studentModalTitle').setAttribute('data-i18n', 'edit_student');
+                openModal('studentModal');
+            } catch (error) {
+                console.error("Error deleting:", error);
+                alert("Error: " + error.message);
+            }
+        }
+
+        async function deleteStudent(uid) {
+            if (!confirm(getTransOr('are_you_sure_delete', 'Are you sure you want to delete this student?'))) return;
+            try {
+                await db.collection('students').doc(uid).delete();
+                await db.collection('users').doc(uid).delete();
+                alert(getTransOr('student_deleted', 'Student data deleted.'));
+                loadStudents();
+            } catch (error) {
+                console.error(error);
+                alert("Error: " + error.message);
+            }
+        }
+
+        async function loadStudents() {
+            const tbody = document.getElementById('studentsTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;" data-i18n="loading">${getTrans('loading')}</td></tr>`;
+            if (typeof updatePageLanguage === 'function') updatePageLanguage();
+
+            try {
+                let snapshot;
+                try {
+                    snapshot = await db.collection('students').orderBy('rollNumber').get();
+                } catch (e) {
+                    snapshot = await db.collection('students').get();
+                }
+
+                if (snapshot.empty) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-light);" data-i18n="no_students_found">${getTrans('no_students_found')}</td></tr>`;
+                    return;
+                }
+
+                let html = '';
+                snapshot.forEach(doc => {
+                    const s = doc.data() || {};
+                    const firstName = s.firstName || '';
+                    const lastName = s.lastName || '';
+                    const name = `${firstName} ${lastName}`.trim() || (s.email || doc.id);
+                    const dept = s.department || '';
+                    const cls = s.className || '';
+                    const roll = s.rollNumber || '';
+                    const parent = s.parentName || '';
+
+                    html += `
+                        <tr>
+                            <td>${name}</td>
+                            <td>${roll}</td>
+                            <td>${cls}</td>
+                            <td>${dept}</td>
+                            <td>${parent}</td>
+                            <td>
+                                <div style="display:flex;gap:0.5rem;">
+                                    <button onclick="editStudent('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="edit">Edit</button>
+                                    <button onclick="deleteStudent('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tbody.innerHTML = html;
+                if (typeof updatePageLanguage === 'function') updatePageLanguage();
+            } catch (error) {
+                console.error("Error fetching students:", error);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align:center; color: var(--danger);">Error loading data: ${error.message}</td>
+                    </tr>
+                `;
+            }
+        }
+
+        async function downloadStudentsPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const startY = (typeof applyPdfBranding === 'function')
+                ? await applyPdfBranding(doc, { title: 'Students List' })
+                : 30;
+
+            const rows = [];
+            document.querySelectorAll('#studentsTableBody tr').forEach(tr => {
+                const tds = tr.querySelectorAll('td');
+                if (tds.length > 1) {
+                    const name = tds[0].innerText.trim();
+                    const roll = tds[1].innerText.trim();
+                    const cls = tds[2].innerText.trim();
+                    const dept = tds[3].innerText.trim();
+                    const parent = tds[4].innerText.trim();
+                    rows.push([name, roll, cls, dept, parent]);
+                }
+            });
+
+            doc.autoTable({
+                head: [['Name', 'Roll No', 'Class', 'Department', 'Parent']],
+                body: rows,
+                startY
+            });
+
+            doc.save('students.pdf');
+        }
+
+        // Initial Load
+        document.addEventListener('DOMContentLoaded', loadStudents);
+
+    </script>
+</body>
+
+</html>

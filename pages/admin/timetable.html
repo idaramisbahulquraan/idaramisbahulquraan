@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-add {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-add:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filters select {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+        }
+
+        /* Weekly Grid Styles */
+        .weekly-grid {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+        
+        .day-column {
+            flex: 0 0 250px;
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .day-header {
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            border-radius: 0.75rem 0.75rem 0 0;
+        }
+
+        .day-content {
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            min-height: 200px;
+        }
+
+        .period-card {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--secondary-color);
+            transition: transform 0.2s;
+        }
+
+        .period-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .period-time {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .period-subject {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .period-teacher {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .period-actions {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .period-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.25rem;
+            color: var(--text-light);
+            transition: color 0.2s;
+        }
+
+        .period-actions button:hover {
+            color: var(--primary-color);
+        }
+
+        .period-actions button:last-child:hover {
+            color: var(--danger);
+        }
+
+        .empty-slot {
+            text-align: center;
+            color: var(--text-light);
+            font-style: italic;
+            padding: 1rem;
+        }
+
+        /* Tools Modal */
+        .tools-tabs {
+            display: flex;
+            gap: 1rem;
+            margin: 0.5rem 0 1rem;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+
+        .tools-tab-btn {
+            padding: 0.7rem 1rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+
+        .tools-tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tools-tab { display: none; }
+        .tools-tab.active { display: block; }
+
+        .btn-sm {
+            padding: 0.45rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            cursor: pointer;
+            font-weight: 600;
+            width: auto;
+        }
+
+        .btn-sm.primary {
+            background: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-color);
+        }
+
+        .btn-sm.danger {
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+
+        .btn-sm:hover { background: var(--background-light); }
+        .btn-sm.primary:hover { background: var(--primary-hover); }
+
+        .muted { color: var(--text-light); font-size: 0.85rem; }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 data-i18n="timetable_management">Timetable Management</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                <div class="page-header">
+                    <h2 style="font-size: 1.25rem; font-weight: 600;" data-i18n="class_schedules">Class Schedules</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="openToolsModal()" class="btn-add" style="background-color: #0ea5e9;">
+                            <span>TL</span> <span>Tools</span>
+                        </button>
+                        <button onclick="startAutoOptimize()" class="btn-add" style="background-color: #8b5cf6;">
+                            <span>✨</span> <span data-i18n="optimize">AI Optimize</span>
+                        </button>
+                        <button onclick="downloadTimetablePDF()" class="btn-add" style="background-color: #ef4444;">
+                            <span data-i18n="pdf">↓ PDF</span>
+                        </button>
+                        <button onclick="openModal()" class="btn-add">
+                            <span>+</span> <span data-i18n="add_period">Add Period</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <select id="filterDepartment" onchange="updateFilterClasses()">
+                        <option value="" data-i18n="select_department">Select Department</option>
+                    </select>
+                    <select id="filterClass" onchange="loadTimetable()">
+                        <option value="" data-i18n="select_class">Select Class</option>
+                    </select>
+                </div>
+
+                <div id="timetableContainer" class="table-container" style="background: none; box-shadow: none;">
+                    <!-- Grid will be rendered here -->
+                    <div style="text-align: center; padding: 3rem; background: white; border-radius: 1rem; box-shadow: var(--shadow-sm);">
+                        <p style="color: var(--text-light); font-size: 1.1rem;" data-i18n="select_dept_class_view">
+                            Select Department and Class to view timetable.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Period Modal -->
+    <div id="addPeriodModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle" data-i18n="add_period">Add Class Period</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="addPeriodForm">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label data-i18n="department">Department</label>
+                    <select name="department" id="department" onchange="updateClasses()" required>
+                        <option value="" data-i18n="select_department">Select Department</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="class">Class</label>
+                    <select name="className" id="className" required>
+                        <option value="" data-i18n="select_class">Select Class</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="day">Day</label>
+                    <select name="day" required>
+                        <option value="Monday" data-i18n="monday">Monday</option>
+                        <option value="Tuesday" data-i18n="tuesday">Tuesday</option>
+                        <option value="Wednesday" data-i18n="wednesday">Wednesday</option>
+                        <option value="Thursday" data-i18n="thursday">Thursday</option>
+                        <option value="Friday" data-i18n="friday">Friday</option>
+                        <option value="Saturday" data-i18n="saturday">Saturday</option>
+                        <option value="Sunday" data-i18n="sunday">Sunday</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="subject">Subject</label>
+                    <select name="subject" id="subjectSelect" required>
+                        <option value="" data-i18n="select_subject">Select Subject</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="teacher">Teacher</label>
+                    <select name="teacherId" id="teacherSelect" required>
+                        <option value="" data-i18n="select_teacher">Select Teacher</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Room</label>
+                    <select name="roomId" id="roomSelect">
+                        <option value="">(Optional) Select Room</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display: flex; gap: 1rem;">
+                    <div style="flex: 1;">
+                        <label data-i18n="start_time">Start Time</label>
+                        <input type="time" name="startTime" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label data-i18n="end_time">End Time</label>
+                        <input type="time" name="endTime" required>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem; text-align: right;">
+                    <button type="button" class="btn-secondary" onclick="closeModal()"
+                        style="margin-right: 0.5rem; padding: 0.75rem 1.5rem; border:none; border-radius: 0.5rem; background: #e2e8f0; cursor: pointer;"
+                        data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn-add" style="border:none;" data-i18n="save_period">Save
+                        Period</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Timetable Tools Modal -->
+    <div id="timetableToolsModal" class="modal">
+        <div class="modal-content" style="max-width: 980px;">
+            <div class="modal-header">
+                <h3 style="margin: 0;">Timetable Tools</h3>
+                <button class="close-btn" onclick="closeToolsModal()">&times;</button>
+            </div>
+
+            <div class="tools-tabs">
+                <button class="tools-tab-btn active" onclick="switchToolsTab('generator')">Generator</button>
+                <button class="tools-tab-btn" onclick="switchToolsTab('rooms')">Rooms</button>
+                <button class="tools-tab-btn" onclick="switchToolsTab('conflicts')">Conflicts</button>
+                <button class="tools-tab-btn" onclick="switchToolsTab('coverage')">Coverage</button>
+            </div>
+
+            <!-- Generator -->
+            <div id="tools-generator" class="tools-tab active">
+                <div class="muted" style="margin-bottom: 0.75rem;">Generates a weekly schedule preview for the selected Department/Class, checks conflicts, then applies if you confirm.</div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Days</label>
+                        <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;">
+                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox" id="genDayMon" checked> Mon</label>
+                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox" id="genDayTue" checked> Tue</label>
+                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox" id="genDayWed" checked> Wed</label>
+                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox" id="genDayThu" checked> Thu</label>
+                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox" id="genDayFri" checked> Fri</label>
+                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox" id="genDaySat"> Sat</label>
+                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox" id="genDaySun"> Sun</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Replace Existing</label>
+                        <div style="display:flex;gap:0.75rem;align-items:center;">
+                            <input type="checkbox" id="genReplaceExisting" checked style="width:auto;">
+                            <span class="muted">Deletes existing periods for this class before applying.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Day Start</label>
+                        <input type="time" id="genStartTime" value="08:00">
+                    </div>
+                    <div class="form-group">
+                        <label>Day End</label>
+                        <input type="time" id="genEndTime" value="13:30">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Period Minutes</label>
+                        <input type="number" id="genPeriodMinutes" min="10" step="5" value="45">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Periods/Day (optional)</label>
+                        <input type="number" id="genMaxPeriods" min="1" step="1" placeholder="Auto">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Break Start (optional)</label>
+                        <input type="time" id="genBreakStart" value="11:00">
+                    </div>
+                    <div class="form-group">
+                        <label>Break End (optional)</label>
+                        <input type="time" id="genBreakEnd" value="11:30">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Assign Rooms</label>
+                        <div style="display:flex;gap:0.75rem;align-items:center;">
+                            <input type="checkbox" id="genAssignRooms" checked style="width:auto;">
+                            <span class="muted">Picks the first available room per slot.</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Use Subject Teachers</label>
+                        <div style="display:flex;gap:0.75rem;align-items:center;">
+                            <input type="checkbox" id="genUseSubjectTeachers" checked style="width:auto;">
+                            <span class="muted">Uses `subjects.teacherId` when set.</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:0.75rem;justify-content:flex-end;align-items:center;margin-top:0.75rem;">
+                    <button class="btn-sm" type="button" onclick="previewGenerateTimetable()">Preview</button>
+                    <button class="btn-sm primary" type="button" onclick="applyGeneratedTimetable()">Apply</button>
+                </div>
+
+                <div id="generatorPreview" style="margin-top:1rem;"></div>
+            </div>
+
+            <!-- Rooms -->
+            <div id="tools-rooms" class="tools-tab">
+                <div class="muted" style="margin-bottom: 0.75rem;">Rooms are used for conflict checks and auto-assignment.</div>
+                <form id="roomForm" style="margin-bottom: 1rem;">
+                    <input type="hidden" name="roomId">
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Room Name</label>
+                            <input type="text" name="name" required placeholder="e.g. Room A, Lab 1">
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select name="type">
+                                <option value="Classroom">Classroom</option>
+                                <option value="Lab">Lab</option>
+                                <option value="Hall">Hall</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Capacity (optional)</label>
+                            <input type="number" name="capacity" min="0" step="1" placeholder="e.g. 30">
+                        </div>
+                        <div class="form-group">
+                            <label>Active</label>
+                            <div style="display:flex;gap:0.75rem;align-items:center;margin-top:0.5rem;">
+                                <input type="checkbox" name="active" checked style="width:auto;">
+                                <span class="muted">Hide inactive rooms from selects.</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes (optional)</label>
+                        <input type="text" name="notes" placeholder="Optional notes">
+                    </div>
+                    <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                        <button class="btn-sm" type="button" onclick="resetRoomForm()">Clear</button>
+                        <button class="btn-sm primary" type="submit">Save Room</button>
+                    </div>
+                </form>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Capacity</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="roomsBody">
+                            <tr><td colspan="5" class="muted">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Conflicts -->
+            <div id="tools-conflicts" class="tools-tab">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Scope</label>
+                        <select id="conflictScope">
+                            <option value="class">Selected Class</option>
+                            <option value="department">Selected Department</option>
+                            <option value="all">All Timetables</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Scan</label>
+                        <div style="display:flex;gap:0.75rem;align-items:center;margin-top:0.25rem;">
+                            <button class="btn-sm" type="button" onclick="scanTimetableConflicts()">Run Conflict Scan</button>
+                            <span class="muted">Checks teacher/room/class overlaps.</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="conflictResults" style="margin-top: 1rem;"></div>
+            </div>
+
+            <!-- Coverage -->
+            <div id="tools-coverage" class="tools-tab">
+                <div class="muted" style="margin-bottom: 0.75rem;">Uses approved leaves to detect absent teachers and lets you assign substitutes for a specific date.</div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="coverageDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Actions</label>
+                        <div style="display:flex;gap:0.75rem;align-items:center;margin-top:0.25rem;">
+                            <button class="btn-sm" type="button" onclick="loadCoverage()">Load</button>
+                            <button class="btn-sm primary" type="button" onclick="saveCoverageOverrides()">Save Overrides</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Subject</th>
+                                <th>Teacher</th>
+                                <th>Status</th>
+                                <th>Substitute</th>
+                                <th>Clear</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coverageBody">
+                            <tr><td colspan="6" class="muted">Select a date and click Load.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/timetable.js"></script>
+</body>
+
+</html>

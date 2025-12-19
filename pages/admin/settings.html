@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .settings-container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-section {
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-family: inherit;
+        }
+
+        .btn-save {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .preview-image {
+            max-width: 200px;
+            max-height: 100px;
+            margin-top: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 data-i18n="settings">Settings</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="settings-container">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="general" onclick="switchTab('general')" data-i18n="general_settings">General Settings</button>
+                        <button class="tab-btn" data-tab="branding" onclick="switchTab('branding')" data-i18n="branding">Branding</button>
+                        <button class="tab-btn" data-tab="system" onclick="switchTab('system')" data-i18n="system_config">System Configuration</button>
+                        <button class="tab-btn" data-tab="danger" onclick="switchTab('danger')" data-i18n="danger_zone" style="color: var(--danger);">Danger Zone</button>
+                    </div>
+
+                    <!-- General Settings -->
+                    <div id="general-tab" class="tab-content active">
+                        <div class="form-section">
+                            <h3 style="margin-bottom: 1.5rem;" data-i18n="school_profile">School Profile</h3>
+                            <form id="generalSettingsForm" onsubmit="handleSaveSettings(event)">
+                                <div class="form-group">
+                                    <label data-i18n="school_name">School Name</label>
+                                    <input type="text" name="schoolName" id="schoolName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label data-i18n="school_address">School Address</label>
+                                    <textarea name="schoolAddress" id="schoolAddress" rows="3"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label data-i18n="school_phone">School Phone</label>
+                                    <input type="text" name="schoolPhone" id="schoolPhone">
+                                </div>
+                                <div class="form-group">
+                                    <label data-i18n="school_email">School Email</label>
+                                    <input type="email" name="schoolEmail" id="schoolEmail">
+                                </div>
+                                <div class="form-group">
+                                    <label data-i18n="upload_logo">Upload Logo</label>
+                                    <input type="file" accept="image/*" onchange="previewFile('logoPreview', this)">
+                                    <img id="logoPreview" class="preview-image" alt="Logo Preview">
+                                    <input type="hidden" name="logoBase64" id="logoBase64">
+                                </div>
+                                <div class="form-group">
+                                    <label data-i18n="upload_banner">Upload Banner</label>
+                                    <input type="file" accept="image/*" onchange="previewFile('bannerPreview', this)">
+                                    <img id="bannerPreview" class="preview-image" alt="Banner Preview">
+                                    <input type="hidden" name="bannerBase64" id="bannerBase64">
+                                </div>
+                                <button type="submit" class="btn-save" data-i18n="save_settings">Save Settings</button>
+                            </form>
+
+                            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                                <h3 style="margin-bottom: 0.75rem;">Sign-in Providers</h3>
+                                <p style="color: var(--text-light); margin-bottom: 1rem;">
+                                    If Google sign-in closes immediately, link Google to this account once (then you can log in with Google next time).
+                                </p>
+                                <div class="form-group">
+                                    <label style="margin-bottom: 0.5rem;">Linked providers</label>
+                                    <div id="linkedProviders" style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; background: #f8fafc;">Loading...</div>
+                                </div>
+                                <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                                    <button type="button" class="btn-save" style="background:#0ea5e9;" onclick="linkGoogleForCurrentUser()">Link Google</button>
+                                    <button type="button" class="btn-save" style="background:#111827;" onclick="linkMicrosoftForCurrentUser()">Link Microsoft</button>
+                                    <button type="button" class="btn-save" style="background:#64748b;" onclick="renderLinkedProviders()">Refresh</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Branding -->
+                    <div id="branding-tab" class="tab-content">
+                        <div class="form-section">
+                            <h3 style="margin-bottom: 1.5rem;" data-i18n="branding">Branding</h3>
+                            <form id="brandingSettingsForm" onsubmit="handleSaveBranding(event)">
+                                <div class="form-group">
+                                    <label data-i18n="primary_color">Primary Color</label>
+                                    <input type="color" name="primaryColor" id="primaryColor" value="#4f46e5">
+                                </div>
+                                <div class="form-group">
+                                    <label data-i18n="custom_domain">Custom Domain (optional)</label>
+                                    <input type="text" name="customDomain" id="customDomain" placeholder="sms.yourschool.com">
+                                </div>
+                                <div class="form-group">
+                                    <label data-i18n="pdf_footer_text">PDF Footer Text (optional)</label>
+                                    <input type="text" name="pdfFooterText" id="pdfFooterText" placeholder="Confidential">
+                                </div>
+                                <button type="submit" class="btn-save" data-i18n="save_settings">Save Settings</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- System Config -->
+                    <div id="system-tab" class="tab-content">
+                        <div class="form-section">
+                            <h3 style="margin-bottom: 1.5rem;" data-i18n="system_config">System Configuration</h3>
+                            <form id="systemSettingsForm" onsubmit="handleSaveSystem(event)">
+                                <div class="form-group">
+                                    <label data-i18n="currency_symbol">Currency Symbol</label>
+                                    <input type="text" name="currencySymbol" id="currencySymbol" value="Rs." placeholder="e.g. $, ₹, Rs.">
+                                </div>
+                                <div class="form-group">
+                                    <label data-i18n="date_format">Date Format</label>
+                                    <select name="dateFormat" id="dateFormat">
+                                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn-save" data-i18n="save_settings">Save Settings</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div id="danger-tab" class="tab-content">
+                        <div class="form-section" style="border: 1px solid var(--danger); padding: 1.5rem; border-radius: 0.5rem; background-color: #fef2f2;">
+                            <h3 style="color: var(--danger); margin-bottom: 1rem;" data-i18n="reset_data">Reset Data</h3>
+                            <p style="margin-bottom: 1.5rem; color: #991b1b;" data-i18n="reset_data_desc">This action will delete ALL data (Students, Teachers, Classes, Fees, etc.) except Users. This cannot be undone.</p>
+                            
+                            <div class="form-group">
+                                <label data-i18n="confirm_reset" style="color: var(--danger);">Type 'DELETE' to confirm reset</label>
+                                <input type="text" id="deleteConfirm" style="border-color: var(--danger);">
+                            </div>
+
+                            <button onclick="handleResetData()" class="btn-danger" data-i18n="reset_data_btn">Reset All Data</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/settings.js"></script>
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+            if (btn) btn.classList.add('active');
+
+            document.getElementById(`${tab}-tab`).classList.add('active');
+        }
+    </script>
+</body>
+</html>

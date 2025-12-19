@@ -1,0 +1,178 @@
+Students Name	Class
+Ghulam Muhammad	Mutwasta
+Muhammad Sohaib	Mutwasta
+Muhammad Aaqib	Mutwasta
+Umar Hayat	Mutwasta
+Muhammad Dilshad	Mutwasta
+Allah Diwaya	Mutwasta
+Muhammad Shoaib Akhtar	Mutwasta
+Muhammad Masood ul Hasan	Mutwasta
+Muhammad Asad	Mutwasta
+Muhammad Ahmed	Mutwasta
+Muhammad Salman	Mutwasta
+Muhammad Faizan	Mutwasta
+Muhammad Moazzam	Mutwasta
+Muhammad Areeb	Mutwasta
+Muhammad Mudassir	Mutwasta
+Muhammad Faraz	Aama Arzbic (A)
+Muhammad Asim	Aama Arzbic (A)
+Muhammad Mohsin Zafar	Aama Arzbic (A)
+Muhammad Rayan	Aama Arzbic (A)
+Muhammad Naveed Hussain Shah	Aama Arzbic (A)
+Muzammil Mushir	Aama Arzbic (A)
+Muhammad Arsalan	Aama Arzbic (A)
+Ahmed Raza	Aama Arzbic (A)
+Muhammad Ramzan	Aama Arzbic (A)
+Ahmed Bakhsh	Aama Arzbic (A)
+Abdul Samad	Aama Arzbic (A)
+Muhammad Mairaj	Aama Arzbic (A)
+Aziz Shabbir	Aama Arzbic (A)
+Munis	Aama Arzbic (A)
+Hamza Tahir	Aama Arzbic (A)
+Muhammad Shamshad	Aama Arzbic (A)
+Muhammad Imran	Aama Arzbic (A)
+Muhammad Shahzaib	Aama Arzbic (A)
+Muhammad Junaid	Aama Arzbic (A)
+Abdul Rafi Wasim	Aama Arzbic (A)
+Muhammad Rehan	Aama Arzbic (A)
+Muhammad Shakir	Aama Arzbic (A)
+Nadeem Zafar	Aama Arzbic (A)
+Abdullah Sheikh	Aama Arabic (B)
+Muhammad Owais	Aama Arabic (B)
+Suwaid Raza	Aama Arabic (B)
+Muhammad Aftab	Aama Arabic (B)
+Muhammad Muzammil	Aama Arabic (B)
+Dawood	Aama Arabic (B)
+Zeeshan Ahmed	Aama Arabic (B)
+Muhammad Hasnain	Aama Arabic (B)
+Abu Bakar	Aama Arabic (B)
+Owais Raza	Aama Arabic (B)
+Muhammad Babar	Aama Arabic (B)
+Muhammad Adnan	Aama Arabic (B)
+Muhammad Uzair	Aama Arabic (B)
+Bismillah	Aama Arabic (B)
+Ali Hasan	Aama Arabic (B)
+Muhammad Ahmed	Aama Arabic (B)
+Muhammad Salman	Aama Arabic (B)
+Muhammad Ahmed Faiz	Aama Arabic (B)
+Muhammad Qurban	Aama Arabic (B)
+Muhammad Tahir Jilani	Aama English
+Syed Abdul Rehman	Aama English
+Habib Fareed	Aama English
+Muhammad Atif	Aama English
+Abdullah Riaz	Aama English
+Syed Ali Hasan	Aama English
+Shehzad Ali	Aama English
+Muneeb Riaz	Aama English
+Ahmer Ramzan	Aama English
+Haider Ali	Aama English
+Muhammad Daniyal	Aama English
+Shehbaz Gilani	Aama English
+Muhammad Mujahid	Aama English
+Muhammad Kashif	Aama English
+Zain Ali	Aama English
+Shehzad Rafiq	Aama English
+Sarfaraz Nazir	Aama English
+Muhammad Usman	Aama English
+Mahmood Hanif	Aama English
+Muhammad Shah Zaman	Aama English
+Muhammad Zahid Bilal	Matric
+Muhammad Hamza	Matric
+Muhammad Zubair	Matric
+Muhammad Aqil	Matric
+Sher Ali	Matric
+Abdul Waris	Matric
+Muhammad Ali Misbahi	Matric
+Muhammad Raza	Matric
+Nadeem Raza	Matric
+Ali Raza	Matric
+Abdul Rehman	Matric
+Mohsin Rasheed	Matric
+Ahmed Raza	Matric
+Muhammad Ahmed	Matric
+Muneeb ur Rehman	Matric
+Muhammad Nazir	Matric
+Muhammad Aamir Sohail	Matric
+Muzammil Aslam	Matric
+Muhammad Tauseef	Matric
+Muhammad Ali Saeed	Matric
+Muhammad Mohsin Bilal	Matric
+Muhammad Umar Rasheed	Matric
+Muhammad Kashif	Matric
+Muhammad Saleem	Matric
+Muhammad Tahir	Matric
+Huzaifa Hashmi	Intermediate (IX)
+Mumshad Ali	Intermediate (IX)
+Muhammad Nasir	Intermediate (IX)
+Mudassir Hussain	Intermediate (IX)
+Fida Hussain	Intermediate (IX)
+Mazhar Hussain	Intermediate (IX)
+Muhammad Ismail	Intermediate (IX)
+Muhammad Kashan	Intermediate (IX)
+Saifullah	Aalia - I (X)
+Hasnain Majeed	Aalia - I (X)
+Muhammad Waqar Younis	Aalia - I (X)
+Muhammad Zulqarnain	Aalia - I (X)
+Muhammad Adeel Shah	Aalia - I (X)
+Muhammad Anees ur Rehman	Aalia - I (X)
+Muhammad Ahsan Mairaj	Aalia - I (X)
+Muhammad Khalid	Aalia - I (X)
+Muhammad Usman	Aalia - I (X)
+Muhammad Arabi	Aalia - I (X)
+Muhammad Hamid Hanif	Aalia - I (X)
+Muhammad Amjad	Aalia - I (X)
+Muhammad Iqbal	Aalia - I (X)
+Muhammad Sajjad	Aalia - I (X)
+Hasan Zafar	Aalia - I (X)
+Muhammad Tanveer Akram	Aalia - I (X)
+Ghulam Farid	Aalia - II (XI)
+Muhammad Owais	Aalia - II (XI)
+Muhammad Mujahid	Aalia - II (XI)
+Muhammad Usman	Aalia - II (XI)
+Mohsin Mumtaz	Aalia - II (XI)
+Muhammad Rashid	Aalia - II (XI)
+Abdul Basit	Aalia - II (XI)
+Muhammad Shiraz	Aalia - II (XI)
+Muhammad Waqas	Aalia - II (XI)
+Muhammad Irfan Rafiq	Aalamia - I (XII)
+Muhammad Rafiq	Aalamia - I (XII)
+Muhammad Mubashir Shah	Aalamia - I (XII)
+Rana Shehbaz Ahmed	Aalamia - I (XII)
+Ahmed Raza	Aalamia - I (XII)
+Ghulam Farid	Almia - II (XI)
+Muhammad Owais	Almia - II (XI)
+Muhammad Mujahid	Almia - II (XI)
+Muhammad Usman	Almia - II (XI)
+Mohsin Mumtaz	Almia - II (XI)
+Muhammad Rashid	Almia - II (XI)
+Abdul Basit	Almia - II (XI)
+Muhammad Shiraz	Almia - II (XI)
+Muhammad Waqas	Almia - II (XI)
+Muhammad Saad	Tajweed Class 1st year
+Muhammad Umar	Tajweed Class 1st year
+Muhammad Adnan	Tajweed Class 1st year
+Asad Mustafa	Tajweed Class 1st year
+Asjad ur Rehman	Tajweed Class 1st year
+Muhammad Sohail	Tajweed Class 1st year
+Muhammad Ijaz	Tajweed Class 1st year
+Muhammad Imran Sindhi	Tajweed Class 1st year
+Muhammad Zohaib	Tajweed Class 1st year
+Muhammad Waqas	Tajweed Class 1st year
+Syed Asad Ali	Tajweed Class 1st year
+Muhammad Ahmed Hafeez	Tajweed Class 1st year
+Muhammad Khubaib	Tajweed Class 1st year
+Muhammad Waseem	Tajweed Class 1st year
+Muhammad Naeem	Tajweed Class 1st year
+Abdul Wahab	Tajweed Class 1st year
+Muhammad Ilahi Bakhsh	Tajweed Class 1st year
+Ali Haider Khan	Tajweed Class 1st year
+Muhammad Ali Murad	Tajweed Class 1st year
+Muhammad Naveed Abbas	Tajweed Class 1st year
+Abdul Qayyum	Tajweed Class 1st year
+Muhammad Adnan Riaz	Tajweed Class 1st year
+Muhammad Qurban	Tajweed Class 1st year
+Muhammad Madni	Tajweed Class 1st year
+Ahmed Shahzaib	Tajweed Class 1st year
+Mubashir Hussain	Tajweed Class 1st year
+Ahmed Hasan Raza	Tajweed Class 1st year
+Muhammad Asim Mushir	Tajweed Class 1st year

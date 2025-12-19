@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Portal - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+
+        .portal-card {
+            background: var(--white);
+            border-radius: 0.9rem;
+            box-shadow: var(--shadow-sm);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .portal-card h3 {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .portal-card p {
+            margin: 0;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .portal-card a {
+            align-self: flex-start;
+            padding: 0.5rem 0.85rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>Teacher Portal</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <p id="userName" style="font-weight: 600;">Teacher</p>
+                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                    </div>
+                    <div class="avatar">T</div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="card-grid">
+                    <div class="portal-card">
+                        <h3>Attendance</h3>
+                        <p>Mark daily attendance for your classes.</p>
+                        <a href="attendance.html">Open</a>
+                    </div>
+                    <div class="portal-card">
+                        <h3>Grades</h3>
+                        <p>Enter marks and manage gradebook.</p>
+                        <a href="grades.html">Open</a>
+                    </div>
+                    <div class="portal-card">
+                        <h3>Homework</h3>
+                        <p>Create assignments and track due dates.</p>
+                        <a href="homework.html">Open</a>
+                    </div>
+                    <div class="portal-card">
+                        <h3>Attendance Report</h3>
+                        <p>View attendance summaries and exports.</p>
+                        <a href="attendance-report.html">Open</a>
+                    </div>
+                    <div class="portal-card">
+                        <h3>Timetable</h3>
+                        <p>See your weekly teaching schedule.</p>
+                        <a href="timetable.html">Open</a>
+                    </div>
+                    <div class="portal-card">
+                        <h3>Messaging</h3>
+                        <p>Message parents, students, and staff.</p>
+                        <a href="../admin/communication.html#messages">Open</a>
+                    </div>
+                    <div class="portal-card">
+                        <h3>Notices</h3>
+                        <p>Read school announcements.</p>
+                        <a href="../admin/communication.html">Open</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+</body>
+
+</html>
+

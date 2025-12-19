@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrations - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.25rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .btn-primary-sm {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-secondary-sm {
+            background-color: white;
+            color: var(--text-dark);
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .status-box {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+        }
+
+        .status-success {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .status-error {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            min-width: 900px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .data-table th {
+            background-color: var(--background-light);
+            font-weight: 600;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 data-i18n="integrations">Integrations</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                    <div class="container">
+                        <div class="tabs">
+                        <button class="tab-btn active" data-tab="sso" onclick="switchIntegrationTab('sso')" data-i18n="sso">SSO</button>
+                        <button class="tab-btn" data-tab="calendar" onclick="switchIntegrationTab('calendar')" data-i18n="calendar">Calendar</button>
+                        <button class="tab-btn" data-tab="push" onclick="switchIntegrationTab('push')" data-i18n="push">Push</button>
+                        <button class="tab-btn" data-tab="webhooks" onclick="switchIntegrationTab('webhooks')" data-i18n="webhooks">Webhooks</button>
+                        </div>
+
+                    <div id="integrationStatus" class="status-box"></div>
+
+                    <!-- SSO -->
+                    <div id="sso-tab" class="tab-content active">
+                        <h3 style="margin-bottom: 1rem;" data-i18n="single_sign_on">Single Sign-On (SSO)</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1rem;" data-i18n="sso_setup_note">
+                            Enable Google/Microsoft providers in Firebase Console first. These settings control allowed domains and whether SSO is accepted after sign-in.
+                        </p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label data-i18n="allowed_domains">Allowed Email Domains (comma separated)</label>
+                                <input type="text" id="allowedDomains" placeholder="example.com, school.org">
+                            </div>
+                            <div class="form-group" style="display:flex; align-items:center; gap:0.75rem;">
+                                <input type="checkbox" id="googleEnabled" checked>
+                                <label for="googleEnabled" style="margin:0;" data-i18n="enable_google_sso">Enable Google SSO</label>
+                            </div>
+                            <div class="form-group" style="display:flex; align-items:center; gap:0.75rem;">
+                                <input type="checkbox" id="microsoftEnabled" checked>
+                                <label for="microsoftEnabled" style="margin:0;" data-i18n="enable_microsoft_sso">Enable Microsoft SSO</label>
+                            </div>
+                        </div>
+                        <button class="btn-primary-sm" onclick="saveIntegrationSettings()" data-i18n="save">Save</button>
+                    </div>
+
+                    <!-- Calendar -->
+                    <div id="calendar-tab" class="tab-content">
+                        <h3 style="margin-bottom: 1rem;" data-i18n="calendar_export">Calendar Export</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1rem;" data-i18n="ical_note">
+                            Download an iCal (.ics) file generated from your Events. Subscription feeds require a server endpoint (Cloud Functions).
+                        </p>
+                        <button class="btn-primary-sm" onclick="downloadICal()" data-i18n="download_ical">Download iCal (.ics)</button>
+                    </div>
+
+                    <!-- Push -->
+                    <div id="push-tab" class="tab-content">
+                        <h3 style="margin-bottom: 1rem;" data-i18n="push_notifications">Push Notifications</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1rem;" data-i18n="web_push_vapid_key_note">
+                            Paste the Firebase Web Push certificate public key (Firebase Console → Cloud Messaging → Web Push certificates).
+                        </p>
+
+                        <div class="form-group">
+                            <label data-i18n="web_push_vapid_key">Web Push VAPID Key</label>
+                            <input type="text" id="fcmVapidKey" placeholder="BOD...">
+                        </div>
+
+                        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                            <button class="btn-primary-sm" onclick="saveIntegrationSettings()" data-i18n="save">Save</button>
+                            <button class="btn-secondary-sm" onclick="loadPushTokens()" data-i18n="refresh">Refresh</button>
+                        </div>
+
+                        <h3 style="margin: 1.5rem 0 1rem;" data-i18n="registered_devices">Registered Devices</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="name">Name</th>
+                                        <th data-i18n="role">Role</th>
+                                        <th data-i18n="device">Device</th>
+                                        <th data-i18n="updated">Updated</th>
+                                        <th data-i18n="actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pushTokensTable">
+                                    <tr><td colspan="5" data-i18n="loading">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Webhooks -->
+                    <div id="webhooks-tab" class="tab-content">
+                        <h3 style="margin-bottom: 1rem;" data-i18n="webhooks">Webhooks</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1rem;" data-i18n="webhooks_note">
+                            Client-side webhooks may be blocked by CORS. For production delivery, queue jobs and process with Cloud Functions.
+                        </p>
+
+                        <h4 style="margin: 0 0 0.75rem;" data-i18n="add_webhook">Add Webhook</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label data-i18n="name">Name</label>
+                                <input type="text" id="webhookName" placeholder="ERP Sync">
+                            </div>
+                            <div class="form-group">
+                                <label data-i18n="url">URL</label>
+                                <input type="url" id="webhookUrl" placeholder="https://example.com/webhook">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 0.5rem;">
+                            <label data-i18n="event_types">Event Types</label>
+                            <div style="display:flex; gap: 1rem; flex-wrap: wrap;">
+                                <label style="display:flex; gap:0.5rem; align-items:center;">
+                                    <input type="checkbox" id="whEventAudit" checked>
+                                    <span>Audit</span>
+                                </label>
+                                <label style="display:flex; gap:0.5rem; align-items:center;">
+                                    <input type="checkbox" id="whEventPayments">
+                                    <span>Payments</span>
+                                </label>
+                                <label style="display:flex; gap:0.5rem; align-items:center;">
+                                    <input type="checkbox" id="whEventEvents">
+                                    <span>Events</span>
+                                </label>
+                                <label style="display:flex; gap:0.5rem; align-items:center;">
+                                    <input type="checkbox" id="whEventMessages">
+                                    <span>Messages</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="display:flex; align-items:center; gap:0.75rem;">
+                            <input type="checkbox" id="webhookEnabled" checked>
+                            <label for="webhookEnabled" style="margin:0;" data-i18n="enabled">Enabled</label>
+                        </div>
+
+                        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                            <button class="btn-primary-sm" onclick="addWebhookEndpoint()" data-i18n="add">Add</button>
+                            <button class="btn-secondary-sm" onclick="queueTestWebhookJob()" data-i18n="queue_test_job">Queue Test Job</button>
+                        </div>
+
+                        <h3 style="margin: 1.5rem 0 1rem;" data-i18n="webhook_endpoints">Webhook Endpoints</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="name">Name</th>
+                                        <th data-i18n="url">URL</th>
+                                        <th data-i18n="events">Events</th>
+                                        <th data-i18n="enabled">Enabled</th>
+                                        <th data-i18n="actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="webhooksTable">
+                                    <tr><td colspan="5" data-i18n="loading">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/integrations.js"></script>
+    <script>
+        function switchIntegrationTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+            if (btn) btn.classList.add('active');
+
+            document.getElementById(`${tab}-tab`).classList.add('active');
+        }
+    </script>
+</body>
+
+</html>
