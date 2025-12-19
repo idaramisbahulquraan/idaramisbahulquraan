@@ -34,8 +34,7 @@ body {
 [dir="rtl"],
 .rtl-mode {
     font-family: 'Noto Nastaliq Urdu', serif;
-    line-height: 2;
-    font-size: 2em;
+    line-height: 1.8;
 }
 
 .bg-light {
@@ -217,6 +216,18 @@ body {
 
 .nav-icon {
     margin-right: 0.75rem;
+}
+
+.rtl-mode .sidebar {
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+.rtl-mode .sidebar-header h2 {
+    font-size: 1rem;
+    line-height: 1.4;
+}
+.rtl-mode .nav-item {
+    line-height: 1.6;
 }
 
 .main-content {
@@ -567,6 +578,8 @@ body {
 
     .rtl-mode .sidebar {
         transform: translateX(100%);
+        width: 250px;
+        max-width: 80vw;
     }
 
     .rtl-mode .sidebar.open {
