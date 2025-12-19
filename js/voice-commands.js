@@ -155,8 +155,31 @@ function handleVoiceIntent(result) {
     }
 }
 
-function speakResponse(text) {
+async function speakResponse(text) {
+    const getVoicesReady = () => new Promise(resolve => {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices && voices.length) return resolve(voices);
+        window.speechSynthesis.addEventListener('voiceschanged', () => {
+            resolve(window.speechSynthesis.getVoices());
+        }, { once: true });
+    });
+    const voices = await getVoicesReady();
+    const maleHints = ["Male", "David", "Mark", "Daniel", "James", "John", "George", "Fred", "Ahmed", "Imran", "Arif"];
+    const preferredLang = 'en';
+    const isMale = v => {
+        const n = String(v.name || '');
+        return maleHints.some(h => n.toLowerCase().includes(h.toLowerCase()));
+    };
+    const langMatch = v => String(v.lang || '').toLowerCase().startsWith(preferredLang);
+    let voice = voices.find(v => langMatch(v) && isMale(v))
+        || voices.find(v => isMale(v))
+        || voices.find(v => langMatch(v))
+        || voices[0];
     const utterance = new SpeechSynthesisUtterance(text);
+    if (voice) utterance.voice = voice;
+    utterance.pitch = 0.95;
+    utterance.rate = 1.0;
+    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
 }
 
