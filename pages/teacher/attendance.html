@@ -52,69 +52,71 @@
         <main class="main-content">
             <header class="header">
                 <div class="page-title">
-                    <h1 id="pageTitle">Attendance</h1>
+                    <h1 id="pageTitle" data-i18n="attendance">Attendance</h1>
                 </div>
-                <div class="user-profile">
-                    <div class="user-info">
-                        <p id="userName" style="font-weight: 600;">User</p>
-                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
                     </div>
-                    <div class="avatar">U</div>
                 </div>
             </header>
 
             <!-- Page Content -->
             <div class="dashboard-content">
                 <div class="stat-card" style="margin-bottom: 2rem;">
-                    <h3 style="margin-bottom: 1rem;">Select Class</h3>
+                    <h3 style="margin-bottom: 1rem;" data-i18n="select_class">Select Class</h3>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Department</label>
+                            <label data-i18n="department">Department</label>
                             <select id="department" onchange="updateClasses()" required>
-                                <option value="">Select Department</option>
+                                <option value="" data-i18n="select_department">Select Department</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Class</label>
+                            <label data-i18n="class">Class</label>
                             <select id="className" onchange="updateSubjects()" required>
-                                <option value="">Select Class</option>
+                                <option value="" data-i18n="select_class">Select Class</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Subject</label>
+                            <label data-i18n="subject">Subject</label>
                             <select id="subject" required>
-                                <option value="">Select Subject</option>
+                                <option value="" data-i18n="select_subject">Select Subject</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Date</label>
+                            <label data-i18n="date">Date</label>
                             <input type="date" id="date" required>
                         </div>
                         <div class="form-group" style="display: flex; align-items: flex-end;">
-                            <button class="btn-primary" onclick="loadStudents()">Fetch Students</button>
+                            <button class="btn-primary" onclick="loadStudents()" data-i18n="fetch_students">Fetch Students</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="stat-card" id="studentListCard" style="display: none;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h3>Mark Attendance</h3>
+                        <h3 data-i18n="mark_attendance">Mark Attendance</h3>
                         <div style="display: flex; gap: 0.5rem;">
-                            <button class="btn-primary" onclick="saveAttendance()" style="width: auto; background-color: var(--primary-color);">Save Attendance</button>
+                            <button class="btn-primary" onclick="saveAttendance()" style="width: auto; background-color: var(--primary-color);" data-i18n="save_attendance">Save Attendance</button>
                         </div>
                     </div>
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Roll No</th>
-                                    <th>Name</th>
+                                    <th data-i18n="roll_no">Roll No</th>
+                                    <th data-i18n="name">Name</th>
                                     <th>
-                                        Status
+                                        <span data-i18n="status">Status</span>
                                         <div style="font-size: 0.8rem; font-weight: normal; margin-top: 5px; display: flex; gap: 10px;">
-                                            <label style="cursor: pointer; color: var(--success);"><input type="radio" name="bulk_status" onclick="markAll('Present')"> All Present</label>
-                                            <label style="cursor: pointer; color: var(--danger);"><input type="radio" name="bulk_status" onclick="markAll('Absent')"> All Absent</label>
-                                            <label style="cursor: pointer; color: #f59e0b;"><input type="radio" name="bulk_status" onclick="markAll('Leave')"> All Leave</label>
+                                            <label style="cursor: pointer; color: var(--success);"><input type="radio" name="bulk_status" onclick="markAll('Present')"> <span data-i18n="all_present">All Present</span></label>
+                                            <label style="cursor: pointer; color: var(--danger);"><input type="radio" name="bulk_status" onclick="markAll('Absent')"> <span data-i18n="all_absent">All Absent</span></label>
+                                            <label style="cursor: pointer; color: #f59e0b;"><input type="radio" name="bulk_status" onclick="markAll('Leave')"> <span data-i18n="all_leave">All Leave</span></label>
                                         </div>
                                     </th>
                                 </tr>
@@ -136,6 +138,7 @@
 
     <!-- App Scripts -->
     <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
     <script src="../../js/script.js"></script>
     <script>
         // Data for dropdowns - DYNAMIC
@@ -143,7 +146,8 @@
         async function loadDepartments() {
             const select = document.getElementById('department');
             const currentVal = select.value;
-            select.innerHTML = '<option value="">Select Department</option>';
+            select.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
+            if (typeof updatePageLanguage === 'function') updatePageLanguage();
 
             try {
                 const snapshot = await db.collection('departments').orderBy('name').get();
@@ -166,8 +170,9 @@
         async function updateClasses() {
             const dept = document.getElementById('department').value;
             const classSelect = document.getElementById('className');
-            classSelect.innerHTML = '<option value="">Select Class</option>';
-            document.getElementById('subject').innerHTML = '<option value="">Select Subject</option>';
+            classSelect.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
+            document.getElementById('subject').innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
+            if (typeof updatePageLanguage === 'function') updatePageLanguage();
             
             if(!dept) return;
 
@@ -188,7 +193,8 @@
             const dept = document.getElementById('department').value;
             const className = document.getElementById('className').value;
             const subjectSelect = document.getElementById('subject');
-            subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+            subjectSelect.innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
+            if (typeof updatePageLanguage === 'function') updatePageLanguage();
 
             if(!dept || !className) return;
 

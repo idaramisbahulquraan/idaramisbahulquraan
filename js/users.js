@@ -8,30 +8,31 @@ async function loadUsers() {
 
     try {
         const snapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
-        
+
         let html = '';
         if (snapshot.empty) {
-            html = '<tr><td colspan="5" class="text-center">No users found.</td></tr>';
+            html = '<tr><td colspan="5" class="text-center" data-i18n="no_users_found">No users found.</td></tr>';
         } else {
             snapshot.forEach(doc => {
                 const user = doc.data();
                 html += `
                     <tr>
                         <td>${user.email}</td>
-                        <td><span class="badge badge-${getRoleColor(user.role)}">${user.role.toUpperCase()}</span></td>
+                        <td><span class="badge badge-${getRoleColor(user.role)}" data-i18n="${user.role}">${user.role.toUpperCase()}</span></td>
                         <td>${user.name || '-'}</td>
                         <td>${user.createdAt ? new Date(user.createdAt.toDate()).toLocaleDateString() : '-'}</td>
                         <td>
-                            <button onclick="editUser('${doc.id}')" class="btn-sm btn-secondary" style="background-color: var(--primary-color); color: white; border: none; margin-right: 0.5rem;">Edit</button>
-                            <button onclick="resetPassword('${user.email}')" class="btn-sm btn-secondary" title="Send Password Reset Email">🔑 Reset</button>
+                            <button onclick="editUser('${doc.id}')" class="btn-sm btn-secondary" style="background-color: var(--primary-color); color: white; border: none; margin-right: 0.5rem;" data-i18n="edit">Edit</button>
+                            <button onclick="resetPassword('${user.email}')" class="btn-sm btn-secondary" title="Send Password Reset Email" data-i18n="reset_password">🔑 Reset</button>
                             <!-- Deleting users from Client SDK is hard (requires Admin SDK), so we just delete from Firestore and block access logic -->
-                            <button onclick="deleteUser('${doc.id}')" class="btn-sm btn-danger" title="Remove Access">🗑️</button>
+                            <button onclick="deleteUser('${doc.id}')" class="btn-sm btn-danger" title="Remove Access" data-i18n="remove_access">🗑️</button>
                         </td>
                     </tr>
                 `;
             });
         }
         tbody.innerHTML = html;
+        updatePageLanguage();
     } catch (error) {
         console.error(error);
         tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading users.</td></tr>';
@@ -39,7 +40,7 @@ async function loadUsers() {
 }
 
 function getRoleColor(role) {
-    switch(role) {
+    switch (role) {
         case 'admin': return 'danger'; // Red
         case 'teacher': return 'warning'; // Yellow
         case 'student': return 'success'; // Green
@@ -112,22 +113,25 @@ async function handleAddUser(event) {
 async function editUser(uid) {
     try {
         const doc = await db.collection('users').doc(uid).get();
-        if(!doc.exists) return;
+        if (!doc.exists) return;
         const user = doc.data();
-        
+
         const form = document.querySelector('#userModal form');
         form.docId.value = uid;
         form.name.value = user.name;
         form.email.value = user.email;
         form.email.setAttribute('readonly', 'true');
         form.role.value = user.role;
-        
+
         document.getElementById('passwordGroup').style.display = 'none';
         form.password.removeAttribute('required');
-        
-        document.getElementById('userModalTitle').innerText = 'Edit User';
-        form.querySelector('button[type="submit"]').innerText = 'Update User';
-        
+
+        document.getElementById('userModalTitle').innerText = getTrans('edit_user') || 'Edit User';
+        document.getElementById('userModalTitle').setAttribute('data-i18n', 'edit_user');
+        const btn = form.querySelector('button[type="submit"]');
+        btn.innerText = getTrans('update_user');
+        btn.setAttribute('data-i18n', 'update_user');
+
         openModal('userModal');
     } catch (error) {
         console.error(error);
@@ -135,29 +139,29 @@ async function editUser(uid) {
     }
 }
 
-function downloadUsersPDF() {
+async function downloadUsersPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    
-    doc.text("User Management Report", 14, 20);
-    doc.setFontSize(10);
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 26);
-    
+
+    const startY = (typeof applyPdfBranding === 'function')
+        ? await applyPdfBranding(doc, { title: 'User Management Report' })
+        : 30;
+
     const rows = [];
     document.querySelectorAll('#usersList tr').forEach(tr => {
-         const tds = tr.querySelectorAll('td');
-         if(tds.length >= 5 && !tds[0].innerText.includes('Loading')) {
-             rows.push([tds[0].innerText, tds[1].innerText, tds[2].innerText, tds[3].innerText]);
-         }
+        const tds = tr.querySelectorAll('td');
+        if (tds.length >= 5 && !tds[0].innerText.includes('Loading')) {
+            rows.push([tds[0].innerText, tds[1].innerText, tds[2].innerText, tds[3].innerText]);
+        }
     });
-    
+
     doc.autoTable({
         head: [['Email', 'Role', 'Name', 'Created At']],
         body: rows,
-        startY: 30,
+        startY,
         theme: 'striped'
     });
-    
+
     doc.save('users_report.pdf');
 }
 
@@ -198,11 +202,14 @@ function closeModal(id) {
     const form = document.querySelector(`#${id} form`);
     form.reset();
     form.docId.value = '';
-    
+
     // Reset Edit Mode changes
     form.email.removeAttribute('readonly');
     document.getElementById('passwordGroup').style.display = 'block';
     form.password.setAttribute('required', 'true');
-    document.getElementById('userModalTitle').innerText = 'Add New User';
-    form.querySelector('button[type="submit"]').innerText = 'Create User';
+    document.getElementById('userModalTitle').innerText = getTrans('add_new_user');
+    document.getElementById('userModalTitle').setAttribute('data-i18n', 'add_new_user');
+    const btn = form.querySelector('button[type="submit"]');
+    btn.innerText = getTrans('create_user');
+    btn.setAttribute('data-i18n', 'create_user');
 }

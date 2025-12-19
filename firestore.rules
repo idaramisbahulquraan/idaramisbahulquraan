@@ -1,0 +1,393 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function hasRole(r) {
+      return isAuthenticated() && getUserData().role == r;
+    }
+
+    // Homework & Submissions
+    match /homework/{hwId} {
+      allow read: if isStaff() || isStudent() || isParent();
+      allow create, update, delete: if isAdmin() || isOwner() || isPrincipal() || isTeacher();
+    }
+    match /homework_submissions/{subId} {
+      allow read: if isStaff() || (isAuthenticated() && request.auth.uid == resource.data.studentId);
+      allow create: if isStudent() || isParent() || isTeacher();
+      allow update, delete: if isStaff() || (isAuthenticated() && request.auth.uid == resource.data.studentId);
+    }
+
+    function isOwner()      { return hasRole('owner'); }
+    function isAdmin()      { return hasRole('admin') || isOwner(); }
+    function isPrincipal()  { return hasRole('principal'); }
+    function isTeacher()    { return hasRole('teacher'); }
+    function isAccountant() { return hasRole('accountant'); }
+    function isClerk()      { return hasRole('clerk'); }
+    function isParent()     { return hasRole('parent'); }
+    function isStudent()    { return hasRole('student'); }
+
+    function isStaff() { return isOwner() || isAdmin() || isPrincipal() || isTeacher() || isAccountant() || isClerk(); }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin() || isOwner() || isPrincipal());
+      allow write: if isAdmin() || isOwner(); // Only top roles manage users
+    }
+
+    // Per-user settings (e.g., language preference)
+    match /user_settings/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Push tokens (Web Push / FCM device tokens)
+    match /push_tokens/{tokenId} {
+      allow read: if (isAuthenticated() && resource.data.uid == request.auth.uid)
+        || isAdmin() || isOwner() || isPrincipal();
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      allow update: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
+    }
+
+    // Branding / White-label settings (per-tenant)
+    match /branding/{tenantId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    // App settings (legacy/global docs)
+    match /settings/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    // Error reporting (client-side)
+    match /error_reports/{reportId} {
+      allow create: if isAuthenticated();
+      allow read: if isAdmin() || isOwner() || isPrincipal();
+      allow update: if isAdmin() || isOwner() || isPrincipal();
+      allow delete: if false;
+    }
+
+    // Students & Teachers Profiles
+    match /students/{studentId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+    
+    match /teachers/{teacherId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    // Academic Data
+    match /classes/{classId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+    
+    match /subjects/{subjectId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+    
+    match /departments/{deptId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    // Attendance
+    match /attendance/{docId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal() || isTeacher();
+    }
+    match /attendance_logs/{logId} {
+      allow create: if isStaff();
+      allow read: if isStaff();
+      allow update, delete: if false;
+    }
+
+    // Exams & Results
+    match /exams/{examId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal() || isTeacher();
+    }
+    
+    match /results/{resultId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal() || isTeacher();
+    }
+
+    // Timetable
+    match /timetable/{docId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal() || isTeacher();
+    }
+
+    match /timetable_rooms/{roomId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /timetable_overrides/{overrideId} {
+      allow read: if isStaff();
+      allow create, update: if isAdmin() || isOwner() || isPrincipal();
+      allow delete: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /timetable_audit/{auditId} {
+      allow create: if isStaff();
+      allow read: if isAdmin() || isOwner() || isPrincipal();
+      allow update, delete: if false;
+    }
+
+    // Finance & Fees (Strict)
+    match /fees/{docId} {
+      allow read, write: if isAdmin() || isOwner() || isAccountant() || isClerk();
+    }
+    
+    match /incomes/{docId} {
+      allow read, write: if isAdmin() || isOwner() || isAccountant();
+    }
+    
+    match /expenses/{docId} {
+      allow read, write: if isAdmin() || isOwner() || isAccountant();
+    }
+    
+    match /payroll/{docId} {
+      allow read, write: if isAdmin() || isOwner() || isAccountant();
+    }
+
+    match /finance_heads/{docId} {
+      allow read, write: if isAdmin() || isOwner() || isAccountant();
+    }
+
+    match /finance_budgets/{docId} {
+      allow read, write: if isAdmin() || isOwner() || isAccountant();
+    }
+
+    match /salary_structures/{docId} {
+      allow read, write: if isAdmin() || isOwner() || isAccountant();
+    }
+
+    match /salary_advances/{docId} {
+      allow read, write: if isAdmin() || isOwner() || isAccountant();
+    }
+
+    match /salary_advance_payments/{docId} {
+      allow read, write: if isAdmin() || isOwner() || isAccountant();
+    }
+    match /payment_intents/{pid} {
+      allow create: if isAuthenticated();
+      allow read: if isAdmin() || isOwner() || isAccountant() || isClerk() || (isAuthenticated() && resource.data.createdBy == request.auth.uid);
+      allow update: if isAdmin() || isOwner() || isAccountant() || isClerk();
+      allow delete: if false;
+    }
+    match /payment_receipts/{rid} {
+      allow read: if isAdmin() || isOwner() || isAccountant() || isClerk();
+      allow create: if isAdmin() || isOwner() || isAccountant() || isClerk();
+      allow update, delete: if false;
+    }
+
+    // Leaves
+    match /leaves/{docId} {
+      allow read: if isAdmin() || isOwner() || isPrincipal() || (isAuthenticated() && resource.data.staffId == request.auth.uid);
+      allow create: if isAdmin() || isOwner() || isPrincipal() || (isAuthenticated() && request.resource.data.staffId == request.auth.uid);
+      allow update, delete: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    // Inventory
+    match /inventory/{itemId} {
+      allow read, write: if isAdmin() || isOwner();
+    }
+    
+    match /inventoryTransactions/{transId} {
+      allow read, write: if isAdmin() || isOwner();
+    }
+
+    // Inventory (v2 collection names)
+    match /inventory_items/{itemId} {
+      allow read, write: if isAdmin() || isOwner();
+    }
+    match /inventory_transactions/{transId} {
+      allow read, write: if isAdmin() || isOwner();
+    }
+    match /inventory_categories/{catId} {
+      allow read, write: if isAdmin() || isOwner();
+    }
+
+    // Inventory & Assets extensions
+    match /inventory_procurements/{procId} {
+      allow read, write: if isAdmin() || isOwner();
+    }
+    match /assets/{assetId} {
+      allow read, write: if isAdmin() || isOwner();
+    }
+    match /maintenance_schedules/{scheduleId} {
+      allow read, write: if isAdmin() || isOwner();
+    }
+    match /maintenance_tickets/{ticketId} {
+      allow read, write: if isAdmin() || isOwner();
+    }
+
+    // Compliance & Privacy
+    match /privacy_notices/{tenantId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /retention_policies/{tenantId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /consents/{consentId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    // Integrations
+    match /integration_settings/{tenantId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /webhook_endpoints/{endpointId} {
+      allow read, write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /webhook_jobs/{jobId} {
+      allow create: if isAdmin() || isOwner() || isPrincipal();
+      allow read: if isAdmin() || isOwner() || isPrincipal();
+      allow update: if isAdmin() || isOwner() || isPrincipal();
+      allow delete: if false;
+    }
+
+    // Audits: anyone authenticated can write; only top roles can read
+    match /audits/{auditId} {
+      allow create: if isAuthenticated();
+      allow read: if isAdmin() || isOwner();
+      allow update, delete: if false;
+    }
+
+    // Communication (Notices)
+    match /notices/{noticeId} {
+      allow read: if isStaff()
+        || (isTeacher() && (resource.data.targetAudience == 'all' || resource.data.targetAudience == 'teachers'))
+        || (isStudent() && (resource.data.targetAudience == 'all' || resource.data.targetAudience == 'students'))
+        || (isParent() && (resource.data.targetAudience == 'all' || resource.data.targetAudience == 'parents'));
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+    
+    match /events/{eventId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    // Communication Suite: templates, jobs, and messaging
+    match /message_templates/{tplId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /message_jobs/{jobId} {
+      allow read: if isStaff();
+      allow create: if isAdmin() || isOwner() || isPrincipal();
+      allow update: if isAdmin() || isOwner() || isPrincipal();
+      allow delete: if false;
+    }
+
+    function isThreadParticipant(threadId) {
+      return isAuthenticated() && (request.auth.uid in get(/databases/$(database)/documents/message_threads/$(threadId)).data.participantIds);
+    }
+
+    match /message_threads/{threadId} {
+      allow create: if isAuthenticated() && (request.auth.uid in request.resource.data.participantIds);
+      allow read: if (isAdmin() || isOwner() || isPrincipal()) || isThreadParticipant(threadId);
+      allow update: if (isAdmin() || isOwner() || isPrincipal()) || isThreadParticipant(threadId);
+      allow delete: if isAdmin() || isOwner() || isPrincipal();
+
+      match /messages/{messageId} {
+        allow read: if (isAdmin() || isOwner() || isPrincipal()) || isThreadParticipant(threadId);
+        allow create: if isThreadParticipant(threadId) && (request.resource.data.senderId == request.auth.uid);
+        allow update: if (isAdmin() || isOwner() || isPrincipal()) || isThreadParticipant(threadId);
+        allow delete: if isAdmin() || isOwner() || isPrincipal();
+      }
+    }
+
+    // Transport Module
+    match /transport_routes/{routeId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /transport_vehicles/{vehicleId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /transport_drivers/{driverId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /transport_assignments/{assignmentId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /transport_trips/{tripId} {
+      allow read: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin() || isOwner() || isPrincipal();
+
+      match /attendance/{studentId} {
+        allow read: if isStaff();
+        allow create, update: if isStaff();
+        allow delete: if false;
+      }
+    }
+
+    match /transport_locations/{vehicleId} {
+      allow read: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if false;
+    }
+
+    // Library Module
+    match /library_books/{bookId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal() || isClerk();
+    }
+
+    match /library_loans/{loanId} {
+      allow read: if isStaff();
+      allow create, update: if isAdmin() || isOwner() || isPrincipal() || isClerk();
+      allow delete: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /library_reservations/{reservationId} {
+      allow read: if isStaff();
+      allow create, update: if isAdmin() || isOwner() || isPrincipal() || isClerk();
+      allow delete: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /library_settings/{tenantId} {
+      allow read: if isStaff();
+      allow write: if isAdmin() || isOwner() || isPrincipal() || isClerk();
+    }
+    
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

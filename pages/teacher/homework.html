@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Homework</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>SMS Teacher</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>Homework & Assignments</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="stat-card">
+                    <h3>Create Homework</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Department</label>
+                            <select id="hwDepartment">
+                                <option value="" data-i18n="select_department">Select Department</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Class</label>
+                            <select id="hwClass">
+                                <option value="" data-i18n="select_class">Select Class</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <input type="text" id="hwSubject" placeholder="Subject">
+                        </div>
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" id="hwTitle" placeholder="Assignment title">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Details</label>
+                            <textarea id="hwDetails" rows="3" style="width:100%; padding:0.75rem; border:1px solid var(--border-color); border-radius:0.5rem;" placeholder="Instructions, links, rubric summary"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Due Date</label>
+                            <input type="date" id="hwDueDate">
+                        </div>
+                        <div class="form-group">
+                            <label>Late Policy</label>
+                            <input type="text" id="hwLatePolicy" placeholder="e.g., -10% per day">
+                        </div>
+                    </div>
+                    <button class="btn-add" onclick="createHomework()">Save Homework</button>
+                </div>
+
+                <div class="stat-card" style="margin-top:1.5rem;">
+                    <h3>Assignments</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Class</th>
+                                    <th>Subject</th>
+                                    <th>Due</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="homeworkList">
+                                <tr><td colspan="5" style="text-align:center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/homework.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initDashboard(JSON.parse(localStorage.getItem('currentUser')||'{}'));
+            loadHomework();
+            initHomeworkSelectors();
+        });
+    </script>
+</body>
+</html>

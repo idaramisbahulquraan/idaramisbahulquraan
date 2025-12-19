@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communication - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-light);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .btn-add {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-add:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-meta {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .card-body {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            max-height: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-all { background-color: #e0f2fe; color: #0369a1; }
+        .badge-teachers { background-color: #fce7f3; color: #be185d; }
+        .badge-students { background-color: #dcfce7; color: #15803d; }
+        .badge-parents { background-color: #ffedd5; color: #9a3412; }
+        .badge-event { background-color: #f3e8ff; color: #7e22ce; }
+
+        .card-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+        }
+        
+        .btn-sm.delete { color: var(--danger); border-color: #fee2e2; }
+        .btn-sm.delete:hover { background: #fee2e2; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-family: inherit;
+        }
+
+        /* Messaging */
+        .messages-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 1rem;
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 520px;
+        }
+
+        .panel-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .panel-header input {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.6rem;
+            font-size: 0.9rem;
+        }
+
+        .thread-item {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .thread-item:hover { background: #f8fafc; }
+        .thread-item.active { background: #eef2ff; }
+        .thread-title { font-weight: 600; }
+        .thread-snippet { color: var(--text-light); font-size: 0.85rem; margin-top: 0.25rem; }
+        .thread-meta { color: var(--text-light); font-size: 0.75rem; margin-top: 0.25rem; }
+
+        .chat-body {
+            padding: 1rem;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .chat-message {
+            max-width: 80%;
+            padding: 0.75rem 0.9rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+            background: #f8fafc;
+        }
+
+        .chat-message.mine {
+            margin-left: auto;
+            background: #eef2ff;
+            border-color: #c7d2fe;
+        }
+
+        .chat-message .meta {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 0.35rem;
+        }
+
+        .chat-input {
+            padding: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .chat-input input {
+            padding: 0.75rem 0.9rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .btn-compact {
+            padding: 0.55rem 0.9rem;
+            border-radius: 0.6rem;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-compact:hover { background: var(--primary-hover); }
+
+        @media (max-width: 900px) {
+            .messages-layout { grid-template-columns: 1fr; }
+            .panel { min-height: 420px; }
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 data-i18n="communication_center">Communication Center</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('notices')" data-i18n="notice_board">Notice Board</button>
+                    <button class="tab-btn" onclick="switchTab('events')" data-i18n="events">Events</button>
+                    <button class="tab-btn" onclick="switchTab('templates')" data-i18n="templates">Templates</button>
+                    <button class="tab-btn" onclick="switchTab('messages')" data-i18n="messages">Messages</button>
+                </div>
+
+                <!-- NOTICES TAB -->
+                <div id="noticesTab">
+                    <div class="page-header">
+                        <h2 data-i18n="all_notices">All Notices</h2>
+                        <button class="btn-add" onclick="openNoticeModal()">
+                            <span>+</span> <span data-i18n="create_notice">Create Notice</span>
+                        </button>
+                    </div>
+                    <div id="noticesList" class="grid-container">
+                        <p data-i18n="loading">Loading...</p>
+                    </div>
+                </div>
+
+                <!-- EVENTS TAB -->
+                <div id="eventsTab" style="display: none;">
+                    <div class="page-header">
+                        <h2 data-i18n="upcoming_events">Upcoming Events</h2>
+                        <button class="btn-add" onclick="openEventModal()">
+                            <span>+</span> <span data-i18n="add_event">Add Event</span>
+                        </button>
+                    </div>
+                    <div id="eventsList" class="grid-container">
+                        <p data-i18n="loading">Loading...</p>
+                    </div>
+                </div>
+
+                <!-- TEMPLATES TAB -->
+                <div id="templatesTab" style="display: none;">
+                    <div class="page-header">
+                        <h2 data-i18n="message_templates">Message Templates</h2>
+                        <button class="btn-add" onclick="openTemplateModal()">
+                            <span>+</span> <span data-i18n="add_template">Add Template</span>
+                        </button>
+                    </div>
+                    <div id="templatesList" class="grid-container">
+                        <p data-i18n="loading">Loading...</p>
+                    </div>
+                </div>
+
+                <!-- MESSAGES TAB -->
+                <div id="messagesTab" style="display: none;">
+                    <div class="page-header">
+                        <h2 data-i18n="messages">Messages</h2>
+                        <button class="btn-add" onclick="openNewThreadModal()">
+                            <span>+</span> <span data-i18n="new_message">New Message</span>
+                        </button>
+                    </div>
+
+                    <div class="messages-layout">
+                        <div class="panel">
+                            <div class="panel-header">
+                                <input id="threadSearch" type="text" placeholder="Search conversations..." data-i18n="search_conversations">
+                            </div>
+                            <div id="threadsList">
+                                <div style="padding:1rem;color:var(--text-light);" data-i18n="loading">Loading...</div>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div id="chatHeader" style="font-weight:600;" data-i18n="select_conversation">Select a conversation</div>
+                            </div>
+                            <div id="chatMessages" class="chat-body"></div>
+                            <form id="chatForm" class="chat-input">
+                                <input id="chatInput" type="text" placeholder="Type a message..." autocomplete="off" data-i18n="type_message">
+                                <button class="btn-compact" type="submit" data-i18n="send">Send</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notice Modal -->
+    <div id="noticeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h3 id="noticeModalTitle" data-i18n="create_notice">Create Notice</h3>
+                <button onclick="closeModal('noticeModal')" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            <form id="noticeForm">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label data-i18n="title">Title</label>
+                    <input type="text" name="title" required placeholder="e.g. School Holiday">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="content">Content</label>
+                    <textarea name="content" rows="4" required placeholder="Enter details..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="target_audience">Target Audience</label>
+                    <select name="targetAudience" required>
+                        <option value="all" data-i18n="everyone">Everyone</option>
+                        <option value="teachers" data-i18n="teachers_only">Teachers Only</option>
+                        <option value="students" data-i18n="students_only">Students Only</option>
+                        <option value="parents">Parents Only</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Channels</label>
+                    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.5rem;">
+                        <label style="display:flex;gap:0.5rem;align-items:center;font-weight:500;">
+                            <input type="checkbox" name="channels" value="inapp" checked> In-app
+                        </label>
+                        <label style="display:flex;gap:0.5rem;align-items:center;font-weight:500;">
+                            <input type="checkbox" name="channels" value="email"> Email
+                        </label>
+                        <label style="display:flex;gap:0.5rem;align-items:center;font-weight:500;">
+                            <input type="checkbox" name="channels" value="sms"> SMS
+                        </label>
+                        <label style="display:flex;gap:0.5rem;align-items:center;font-weight:500;">
+                            <input type="checkbox" name="channels" value="whatsapp"> WhatsApp
+                        </label>
+                        <label style="display:flex;gap:0.5rem;align-items:center;font-weight:500;">
+                            <input type="checkbox" name="channels" value="push"> Push (hook)
+                        </label>
+                    </div>
+                    <p style="margin-top:0.5rem;color:var(--text-light);font-size:0.8rem;">Email/SMS/WhatsApp/Push are queued as jobs for future gateway/Cloud Functions.</p>
+                </div>
+                <div class="form-group">
+                    <label>Template (optional)</label>
+                    <select name="templateId" id="noticeTemplateSelect">
+                        <option value="">None</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="date">Date</label>
+                    <input type="date" name="date" required>
+                </div>
+                <button type="submit" class="btn-add" style="width: 100%; justify-content: center;" data-i18n="publish_notice">Publish Notice</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Event Modal -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h3 id="eventModalTitle" data-i18n="add_event">Add Event</h3>
+                <button onclick="closeModal('eventModal')" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            <form id="eventForm">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label data-i18n="event_title">Event Title</label>
+                    <input type="text" name="title" required placeholder="e.g. Annual Sports Day">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="description">Description</label>
+                    <textarea name="description" rows="3" placeholder="Event details..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="date">Date</label>
+                    <input type="date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="location">Location</label>
+                    <input type="text" name="location" placeholder="e.g. School Ground">
+                </div>
+                <button type="submit" class="btn-add" style="width: 100%; justify-content: center;" data-i18n="save_event">Save Event</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Template Modal -->
+    <div id="templateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h3 id="templateModalTitle">Add Template</h3>
+                <button onclick="closeModal('templateModal')" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            <form id="templateForm">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" required placeholder="e.g. Fee Reminder">
+                </div>
+                <div class="form-group">
+                    <label>Channel</label>
+                    <select name="channel" required>
+                        <option value="email">Email</option>
+                        <option value="sms">SMS</option>
+                        <option value="whatsapp">WhatsApp</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject (Email only)</label>
+                    <input type="text" name="subject" placeholder="e.g. Monthly Fee Due">
+                </div>
+                <div class="form-group">
+                    <label>Body</label>
+                    <textarea name="body" rows="5" required placeholder="Write your message. You can use variables like {{name}}, {{className}}, {{amount}}."></textarea>
+                </div>
+                <button type="submit" class="btn-add" style="width: 100%; justify-content: center;">Save Template</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Thread Modal -->
+    <div id="newThreadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h3>New Message</h3>
+                <button onclick="closeModal('newThreadModal')" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            <form id="newThreadForm">
+                <div class="form-group">
+                    <label>Recipient Type</label>
+                    <select id="recipientType" required>
+                        <option value="teachers">Teacher</option>
+                        <option value="students">Student</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Recipient</label>
+                    <select id="recipientSelect" required>
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject (optional)</label>
+                    <input id="threadSubject" type="text" placeholder="e.g. Meeting follow-up">
+                </div>
+                <button type="submit" class="btn-add" style="width: 100%; justify-content: center;">Create Conversation</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/communication.js"></script>
+</body>
+
+</html>

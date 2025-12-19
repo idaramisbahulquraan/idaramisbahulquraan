@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +16,7 @@
             gap: 2rem;
             margin-top: 2rem;
         }
-        
+
         .card {
             background: var(--white);
             padding: 2rem;
@@ -59,11 +60,22 @@
             border: 1px solid var(--border-color);
         }
 
-        .status-info { color: var(--primary-color); }
-        .status-success { color: #16a34a; font-weight: 600; }
-        .status-error { color: #dc2626; font-weight: 600; }
+        .status-info {
+            color: var(--primary-color);
+        }
+
+        .status-success {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .status-error {
+            color: #dc2626;
+            font-weight: 600;
+        }
     </style>
 </head>
+
 <body class="bg-light">
     <div class="dashboard-layout">
         <!-- Sidebar -->
@@ -81,48 +93,82 @@
         <main class="main-content">
             <header class="header">
                 <div class="page-title">
-                    <h1>Backup & Restore</h1>
+                    <h1 data-i18n="backup_restore">Backup & Restore</h1>
                 </div>
-                <div class="user-profile">
-                    <div class="user-info">
-                        <p id="userName" style="font-weight: 600;">User</p>
-                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
                     </div>
-                    <div class="avatar">U</div>
                 </div>
             </header>
 
             <div class="dashboard-content">
-                <p>Manage your data securely. Create backups regularly.</p>
-                
+                <p data-i18n="backup_description">Manage your data securely. Create backups regularly.</p>
+
                 <div class="backup-container">
                     <!-- Backup Section -->
                     <div class="card">
-                        <h3>📤 Backup Data</h3>
-                        <p style="color: var(--text-light); margin-bottom: 1.5rem;">
+                        <h3 data-i18n="backup_data">📤 Backup Data</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem;" data-i18n="backup_data_desc">
                             Download a complete copy of all system data (Users, Students, Finance, etc.) as a JSON file.
                         </p>
-                        <button onclick="backupData()" class="btn-primary">Download Backup</button>
+                        <button onclick="backupData()" class="btn-primary" data-i18n="download_backup">Download
+                            Backup</button>
                     </div>
 
                     <!-- Restore Section -->
                     <div class="card">
-                        <h3>📥 Restore Data</h3>
-                        <p style="color: var(--text-light); margin-bottom: 1.5rem;">
+                        <h3 data-i18n="restore_data">📥 Restore Data</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem;" data-i18n="restore_data_desc">
                             Restore data from a previously saved backup file. <br>
                             <strong>Warning:</strong> This may overwrite existing data.
                         </p>
                         <form onsubmit="restoreData(event)">
                             <div class="form-group">
-                                <input type="file" id="backupFile" accept=".json" required style="border: 1px solid #ddd; padding: 0.5rem; width: 100%;">
+                                <input type="file" id="backupFile" accept=".json" required
+                                    style="border: 1px solid #ddd; padding: 0.5rem; width: 100%;">
                             </div>
-                            <button type="submit" class="btn-warning">Restore Data</button>
+                            <button type="submit" class="btn-warning" data-i18n="restore_data_btn">Restore Data</button>
                         </form>
+                    </div>
+
+                    <!-- Import Section -->
+                    <div class="card">
+                        <h3 data-i18n="import_data">Import Data (CSV/Excel)</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem;" data-i18n="import_data_desc">
+                            Import Students or Teachers from a CSV/Excel file. You can optionally include email + password to create login accounts.
+                        </p>
+
+                        <div class="form-group">
+                            <label data-i18n="import_entity">Import Type</label>
+                            <select id="importEntity">
+                                <option value="students" data-i18n="students">Students</option>
+                                <option value="teachers" data-i18n="teachers">Teachers</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="file" id="importFile" accept=".csv,.xlsx,.xls"
+                                style="border: 1px solid #ddd; padding: 0.5rem; width: 100%;">
+                        </div>
+
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button type="button" onclick="downloadImportTemplate()" class="btn-primary" style="width: auto; flex: 1;"
+                                data-i18n="download_template">Download Template</button>
+                            <button type="button" onclick="runImport()" class="btn-warning" style="width: auto; flex: 1;"
+                                data-i18n="import_now">Import Now</button>
+                        </div>
+
+                        <div id="importPreview" class="status-box" style="margin-top: 1rem; display: none;"></div>
                     </div>
                 </div>
 
                 <div class="status-box">
-                    <strong>Status:</strong> <span id="statusMessage">Idle</span>
+                    <strong data-i18n="status">Status:</strong> <span id="statusMessage">Idle</span>
                 </div>
             </div>
         </main>
@@ -133,9 +179,15 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
+    <!-- SheetJS (CSV/Excel parsing) -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
     <!-- App Scripts -->
     <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
     <script src="../../js/script.js"></script>
     <script src="../../js/backup.js"></script>
+    <script src="../../js/import-export.js"></script>
 </body>
+
 </html>

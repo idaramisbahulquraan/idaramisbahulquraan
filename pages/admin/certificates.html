@@ -16,6 +16,7 @@
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1rem;
         }
+
         .cert-preview {
             border: 10px double #4a4a4a;
             padding: 2rem;
@@ -24,6 +25,7 @@
             background: #fff;
             display: none;
         }
+
         .cert-title {
             font-size: 2.5rem;
             font-family: 'Times New Roman', serif;
@@ -31,18 +33,21 @@
             margin-bottom: 1rem;
             text-transform: uppercase;
         }
+
         .cert-body {
             font-size: 1.2rem;
             line-height: 2;
             margin: 2rem 0;
             font-family: 'Times New Roman', serif;
         }
+
         .cert-footer {
             display: flex;
             justify-content: space-between;
             margin-top: 4rem;
             padding: 0 2rem;
         }
+
         .signature-line {
             border-top: 1px solid #000;
             width: 200px;
@@ -57,7 +62,8 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>SMS Admin</h2>
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
             </div>
             <nav class="sidebar-nav" id="sidebarNav">
                 <!-- Links rendered by JS -->
@@ -68,7 +74,7 @@
         <main class="main-content">
             <header class="header">
                 <div class="page-title">
-                    <h1 id="pageTitle">Certificates Module</h1>
+                    <h1 id="pageTitle" data-i18n="certificates_module">Certificates Module</h1>
                 </div>
                 <div class="user-profile">
                     <div class="user-info">
@@ -81,36 +87,40 @@
 
             <!-- Page Content -->
             <div class="dashboard-content">
-                
+
                 <!-- Issue Certificate Form -->
                 <div class="stat-card">
-                    <h3 style="margin-bottom: 1rem;">Issue New Certificate</h3>
-                    
+                    <h3 style="margin-bottom: 1rem;" data-i18n="issue_new_certificate">Issue New Certificate</h3>
+
                     <div class="form-grid">
                         <!-- Recipient Type -->
                         <div class="form-group">
-                            <label>Recipient Role</label>
+                            <label data-i18n="recipient_role">Recipient Role</label>
                             <select id="recipientRole" onchange="handleRoleChange()">
-                                <option value="student">Student</option>
-                                <option value="teacher">Teacher</option>
-                                <option value="staff">Staff / Other</option>
+                                <option value="student" data-i18n="student">Student</option>
+                                <option value="teacher" data-i18n="teacher">Teacher</option>
+                                <option value="staff" data-i18n="staff_other">Staff / Other</option>
                             </select>
                         </div>
 
                         <!-- Certificate Type -->
                         <div class="form-group">
-                            <label>Certificate Type</label>
+                            <label data-i18n="certificate_type">Certificate Type</label>
                             <select id="certType" onchange="updateCertTemplate()">
-                                <option value="Character Certificate">Character Certificate</option>
-                                <option value="School Leaving Certificate">School Leaving Certificate</option>
-                                <option value="Experience Certificate">Experience Certificate</option>
-                                <option value="Merit Certificate">Merit Certificate</option>
-                                <option value="Other">Other</option>
+                                <option value="Character Certificate" data-i18n="character_certificate">Character
+                                    Certificate</option>
+                                <option value="School Leaving Certificate" data-i18n="school_leaving_certificate">School
+                                    Leaving Certificate</option>
+                                <option value="Experience Certificate" data-i18n="experience_certificate">Experience
+                                    Certificate</option>
+                                <option value="Merit Certificate" data-i18n="merit_certificate">Merit Certificate
+                                </option>
+                                <option value="Other" data-i18n="other">Other</option>
                             </select>
                         </div>
 
                         <div class="form-group">
-                            <label>Issue Date</label>
+                            <label data-i18n="issue_date">Issue Date</label>
                             <input type="date" id="issueDate">
                         </div>
                     </div>
@@ -118,21 +128,21 @@
                     <!-- Student Specific Filters -->
                     <div id="studentFilters" class="form-grid" style="margin-top: 1rem;">
                         <div class="form-group">
-                            <label>Department</label>
+                            <label data-i18n="department">Department</label>
                             <select id="department" onchange="updateClasses()">
-                                <option value="">Select Department</option>
+                                <option value="" data-i18n="select_department">Select Department</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Class</label>
+                            <label data-i18n="class">Class</label>
                             <select id="className" onchange="loadStudents()">
-                                <option value="">Select Class</option>
+                                <option value="" data-i18n="select_class">Select Class</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Student</label>
+                            <label data-i18n="student">Student</label>
                             <select id="studentSelect" onchange="populateRecipient('student')">
-                                <option value="">Select Student</option>
+                                <option value="" data-i18n="select_student">Select Student</option>
                             </select>
                         </div>
                     </div>
@@ -140,9 +150,9 @@
                     <!-- Teacher Specific Filters -->
                     <div id="teacherFilters" class="form-grid" style="margin-top: 1rem; display: none;">
                         <div class="form-group">
-                            <label>Select Teacher</label>
+                            <label data-i18n="select_teacher">Select Teacher</label>
                             <select id="teacherSelect" onchange="populateRecipient('teacher')">
-                                <option value="">Select Teacher</option>
+                                <option value="" data-i18n="select_teacher">Select Teacher</option>
                             </select>
                         </div>
                     </div>
@@ -150,27 +160,32 @@
                     <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid #eee;">
 
                     <!-- Recipient Details (Auto-populated or Manual) -->
-                    <h4 style="margin-bottom: 0.5rem;">Recipient Details</h4>
+                    <h4 style="margin-bottom: 0.5rem;" data-i18n="recipient_details">Recipient Details</h4>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Full Name</label>
-                            <input type="text" id="recipientName" placeholder="Enter Full Name">
+                            <label data-i18n="full_name">Full Name</label>
+                            <input type="text" id="recipientName" placeholder="Enter Full Name"
+                                data-i18n="[placeholder]enter_full_name">
                         </div>
                         <div class="form-group">
-                            <label>Father's Name / ID</label>
-                            <input type="text" id="recipientDetails" placeholder="Father Name or ID">
+                            <label data-i18n="fathers_name_id">Father's Name / ID</label>
+                            <input type="text" id="recipientDetails" placeholder="Father Name or ID"
+                                data-i18n="[placeholder]father_name_or_id">
                         </div>
                     </div>
 
                     <!-- Certificate Content -->
                     <div class="form-group" style="margin-top: 1rem;">
-                        <label>Certificate Content / Remarks</label>
-                        <textarea id="certContent" rows="4" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">This is to certify that the above mentioned person has shown excellent conduct during their tenure.</textarea>
+                        <label data-i18n="certificate_content_remarks">Certificate Content / Remarks</label>
+                        <textarea id="certContent" rows="4"
+                            style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"></textarea>
                     </div>
 
                     <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-                        <button class="btn-primary" onclick="generatePreview()">Preview Certificate</button>
-                        <button class="btn-primary" style="background-color: var(--success);" onclick="saveAndDownload()">Save & Download PDF</button>
+                        <button class="btn-primary" onclick="generatePreview()" data-i18n="preview_certificate">Preview
+                            Certificate</button>
+                        <button class="btn-primary" style="background-color: var(--success);"
+                            onclick="saveAndDownload()" data-i18n="save_download_pdf">Save & Download PDF</button>
                     </div>
                 </div>
 
@@ -188,16 +203,16 @@
 
                 <!-- History Table -->
                 <div class="stat-card" style="margin-top: 2rem;">
-                    <h3>Issued Certificates History</h3>
+                    <h3 data-i18n="issued_certificates_history">Issued Certificates History</h3>
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Recipient</th>
-                                    <th>Role</th>
-                                    <th>Type</th>
-                                    <th>Actions</th>
+                                    <th data-i18n="date">Date</th>
+                                    <th data-i18n="recipient">Recipient</th>
+                                    <th data-i18n="recipient_role">Role</th>
+                                    <th data-i18n="certificate_type">Type</th>
+                                    <th data-i18n="actions">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="historyTableBody">
@@ -218,6 +233,7 @@
 
     <!-- App Scripts -->
     <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
     <script src="../../js/script.js"></script>
     <script>
         // Init
@@ -231,7 +247,7 @@
             const role = document.getElementById('recipientRole').value;
             document.getElementById('studentFilters').style.display = role === 'student' ? 'grid' : 'none';
             document.getElementById('teacherFilters').style.display = role === 'teacher' ? 'grid' : 'none';
-            
+
             // Clear fields
             document.getElementById('recipientName').value = '';
             document.getElementById('recipientDetails').value = '';
@@ -240,7 +256,7 @@
         // --- Data Loading ---
         async function loadDepartments() {
             const select = document.getElementById('department');
-            select.innerHTML = '<option value="">Select Department</option>';
+            select.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
             try {
                 const snapshot = await db.collection('departments').orderBy('name').get();
                 snapshot.forEach(doc => {
@@ -255,9 +271,9 @@
         async function updateClasses() {
             const dept = document.getElementById('department').value;
             const select = document.getElementById('className');
-            select.innerHTML = '<option value="">Select Class</option>';
-            if(!dept) return;
-            
+            select.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
+            if (!dept) return;
+
             try {
                 const snapshot = await db.collection('classes').where('department', '==', dept).get();
                 snapshot.forEach(doc => {
@@ -273,20 +289,20 @@
             const dept = document.getElementById('department').value;
             const className = document.getElementById('className').value;
             const select = document.getElementById('studentSelect');
-            select.innerHTML = '<option value="">Select Student</option>';
-            if(!dept || !className) return;
+            select.innerHTML = '<option value="" data-i18n="select_student">Select Student</option>';
+            if (!dept || !className) return;
 
             try {
                 const snapshot = await db.collection('students')
                     .where('department', '==', dept)
                     .where('className', '==', className)
                     .get();
-                
+
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const opt = document.createElement('option');
-                    opt.value = JSON.stringify({ name: data.firstName + ' ' + (data.lastName||''), detail: data.fatherName || '' });
-                    opt.innerText = data.firstName + ' ' + (data.lastName||'');
+                    opt.value = JSON.stringify({ name: data.firstName + ' ' + (data.lastName || ''), detail: data.fatherName || '' });
+                    opt.innerText = data.firstName + ' ' + (data.lastName || '');
                     select.appendChild(opt);
                 });
             } catch (e) { console.error(e); }
@@ -298,9 +314,9 @@
             // Let's try 'teachers' collection first
             try {
                 let snapshot = await db.collection('teachers').get();
-                if(snapshot.empty) {
-                     // Fallback to users role=teacher
-                     snapshot = await db.collection('users').where('role', '==', 'teacher').get();
+                if (snapshot.empty) {
+                    // Fallback to users role=teacher
+                    snapshot = await db.collection('users').where('role', '==', 'teacher').get();
                 }
 
                 snapshot.forEach(doc => {
@@ -316,15 +332,15 @@
 
         function populateRecipient(type) {
             let data;
-            if(type === 'student') {
+            if (type === 'student') {
                 const val = document.getElementById('studentSelect').value;
-                if(val) data = JSON.parse(val);
-            } else if(type === 'teacher') {
+                if (val) data = JSON.parse(val);
+            } else if (type === 'teacher') {
                 const val = document.getElementById('teacherSelect').value;
-                if(val) data = JSON.parse(val);
+                if (val) data = JSON.parse(val);
             }
 
-            if(data) {
+            if (data) {
                 document.getElementById('recipientName').value = data.name;
                 document.getElementById('recipientDetails').value = data.detail;
             }
@@ -333,13 +349,21 @@
         function updateCertTemplate() {
             const type = document.getElementById('certType').value;
             const contentBox = document.getElementById('certContent');
-            
-            if(type === 'Character Certificate') {
-                contentBox.value = "This is to certify that [Name] s/o [Father Name] has been a student of this institution. During his stay, his character and conduct has been excellent.";
+            const lang = (typeof currentLang !== 'undefined' ? currentLang : (localStorage.getItem('app_lang') || 'en'));
+            const isUrdu = lang === 'ur';
+
+            if (type === 'Character Certificate') {
+                contentBox.value = isUrdu
+                    ? "تصدیق کیا جاتا ہے کہ [Name] ولد [Father Name] اس ادارے کے طالب علم رہے ہیں۔ دورانِ قیام اُن کا کردار اور چال چلن نہایت عمدہ رہا۔"
+                    : "This is to certify that [Name] s/o [Father Name] has been a student of this institution. During his stay, his character and conduct has been excellent.";
             } else if (type === 'School Leaving Certificate') {
-                contentBox.value = "This is to certify that [Name] was a student of Class [Class] in this institution. He is leaving the school on his own request. We wish him success in future endeavors.";
+                contentBox.value = isUrdu
+                    ? "تصدیق کیا جاتا ہے کہ [Name] اس ادارے میں کلاس [Class] کے طالب علم تھے۔ وہ اپنی درخواست پر ادارہ چھوڑ رہے ہیں۔ ہم اُن کے مستقبل کے لیے نیک تمناؤں کا اظہار کرتے ہیں۔"
+                    : "This is to certify that [Name] was a student of Class [Class] in this institution. He is leaving the school on his own request. We wish him success in future endeavors.";
             } else if (type === 'Experience Certificate') {
-                contentBox.value = "This is to certify that [Name] has worked as a Teacher in our institution from [Start Date] to [End Date]. He is hardworking and dedicated.";
+                contentBox.value = isUrdu
+                    ? "تصدیق کیا جاتا ہے کہ [Name] نے ہمارے ادارے میں [Start Date] سے [End Date] تک بطورِ استاد خدمات انجام دیں۔ وہ محنتی اور ذمہ دار رہے۔"
+                    : "This is to certify that [Name] has worked as a Teacher in our institution from [Start Date] to [End Date]. He is hardworking and dedicated.";
             } else {
                 contentBox.value = "";
             }
@@ -350,15 +374,16 @@
             const name = document.getElementById('recipientName').value;
             const details = document.getElementById('recipientDetails').value;
             const type = document.getElementById('certType').value;
+            const typeLabel = document.querySelector('#certType option:checked')?.innerText || type;
             let content = document.getElementById('certContent').value;
             const date = document.getElementById('issueDate').value;
 
-            if(!name) { alert("Please enter recipient name"); return; }
+            if (!name) { alert("Please enter recipient name"); return; }
 
             // Replace placeholders
             content = content.replace('[Name]', `<b>${name}</b>`);
             content = content.replace('[Father Name]', details);
-            
+
             document.getElementById('previewTitle').innerHTML = `
                 <div style="margin-bottom: 1rem;">
                     <img src="../../assets/header-image.png" style="width: 100%; height: auto; max-width: 100%;">
@@ -366,15 +391,15 @@
                 <div style="margin-bottom: 1rem;">
                     <img src="../../assets/logo.png" style="width: 80px; height: auto;">
                 </div>
-                <div>${type.toUpperCase()}</div>
+                <div>${String(typeLabel).toUpperCase()}</div>
             `;
             document.getElementById('previewBody').innerHTML = `
-                <p>Date: ${date}</p>
+                <p>${getTrans('date') || 'Date'}: ${date}</p>
                 <p>${content}</p>
             `;
-            
+
             document.getElementById('certPreview').style.display = 'block';
-            document.getElementById('certPreview').scrollIntoView({behavior: 'smooth'});
+            document.getElementById('certPreview').scrollIntoView({ behavior: 'smooth' });
         }
 
         async function saveAndDownload() {
@@ -385,11 +410,12 @@
             const content = document.getElementById('certContent').value; // Raw content
             const date = document.getElementById('issueDate').value;
 
-            if(!name) { alert("Please enter recipient name"); return; }
+            if (!name) { alert("Please enter recipient name"); return; }
 
             const btn = document.querySelector('button[onclick="saveAndDownload()"]');
             btn.disabled = true;
-            btn.innerText = 'Processing...';
+            btn.innerText = getTrans('processing') || 'Processing...';
+            btn.setAttribute('data-i18n', 'processing');
 
             try {
                 // Load images first
@@ -422,13 +448,13 @@
                 // Header Image
                 try {
                     doc.addImage(headerImg, 'PNG', 20, 20, 257, 35); // Wide centered header
-                } catch(e) { console.warn("Could not add header image", e); }
+                } catch (e) { console.warn("Could not add header image", e); }
 
                 // Logo
                 try {
                     // Centered below header
-                    doc.addImage(logoImg, 'PNG', 136, 60, 25, 25); 
-                } catch(e) { console.warn("Could not add logo", e); }
+                    doc.addImage(logoImg, 'PNG', 136, 60, 25, 25);
+                } catch (e) { console.warn("Could not add logo", e); }
 
                 // Text Header (Optional - if header image fails or to supplement)
                 // doc.setFont("times", "bold");
@@ -449,7 +475,7 @@
                 doc.setTextColor(0, 0, 0);
                 doc.setFontSize(16);
                 doc.setFont("times", "normal");
-                
+
                 let finalContent = content.replace('[Name]', name).replace('[Father Name]', details);
                 // Simple word wrap
                 const splitText = doc.splitTextToSize(finalContent, 240);
@@ -478,20 +504,22 @@
                 });
 
                 loadHistory(); // Refresh table
-                alert("Certificate Generated and Saved!");
+                alert(getTrans('certificate_generated') || "Certificate Generated and Saved!");
 
             } catch (e) {
                 console.error(e);
                 alert("Error: " + e.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = 'Save & Download PDF';
+                btn.innerText = getTrans('save_download_pdf') || 'Save & Download PDF';
+                btn.setAttribute('data-i18n', 'save_download_pdf');
             }
         }
 
         async function loadHistory() {
             const tbody = document.getElementById('historyTableBody');
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Loading...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center" data-i18n="loading">Loading...</td></tr>';
+            updatePageLanguage();
 
             try {
                 const snapshot = await db.collection('certificates')
@@ -499,8 +527,9 @@
                     .limit(20)
                     .get();
 
-                if(snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">No certificates issued yet.</td></tr>';
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center" data-i18n="no_certificates_issued">No certificates issued yet.</td></tr>';
+                    updatePageLanguage();
                     return;
                 }
 
@@ -514,18 +543,23 @@
                         <td>${data.role.toUpperCase()}</td>
                         <td>${data.type}</td>
                         <td>
-                            <button class="btn-primary" style="padding: 2px 8px; font-size: 0.8rem;" onclick="reprintCert('${doc.id}')">Reprint</button>
+                            <button class="btn-primary" style="padding: 2px 8px; font-size: 0.8rem;" onclick="reprintCert('${doc.id}')" data-i18n="reprint">Reprint</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
                 });
+                updatePageLanguage();
             } catch (e) { console.error(e); }
         }
-        
+
         // Simple reprint function (simplified)
         async function reprintCert(id) {
-             alert("To reprint, please generate a new one with the same details for now.");
+            alert("To reprint, please generate a new one with the same details for now.");
         }
+
+        updateCertTemplate();
+        window.addEventListener('language-changed', updateCertTemplate);
     </script>
 </body>
+
 </html>

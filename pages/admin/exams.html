@@ -51,7 +51,8 @@
             min-width: 800px;
         }
 
-        th, td {
+        th,
+        td {
             padding: 1rem 1.5rem;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
@@ -132,7 +133,8 @@
             font-weight: 500;
         }
 
-        .form-group input, .form-group select {
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid var(--border-color);
@@ -158,27 +160,30 @@
         <main class="main-content">
             <header class="header">
                 <div class="page-title">
-                    <h1>Exams Management</h1>
+                    <h1 data-i18n="exams_management">Exams Management</h1>
                 </div>
-                <div class="user-profile">
-                    <div class="user-info">
-                        <p id="userName" style="font-weight: 600;">User</p>
-                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
                     </div>
-                    <div class="avatar">U</div>
                 </div>
             </header>
 
             <!-- Page Content -->
             <div class="dashboard-content">
                 <div class="page-header">
-                    <h2 style="font-size: 1.25rem; font-weight: 600;">Exam Schedule</h2>
+                    <h2 style="font-size: 1.25rem; font-weight: 600;" data-i18n="exam_schedule">Exam Schedule</h2>
                     <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn-add" onclick="downloadExamsPDF()" style="background-color: var(--secondary-color); border: none; cursor: pointer;">
-                            ↓ PDF
+                        <button class="btn-add" onclick="downloadExamsPDF()"
+                            style="background-color: var(--secondary-color); border: none; cursor: pointer;">
+                            <span data-i18n="pdf">↓ PDF</span>
                         </button>
                         <button onclick="openModal()" class="btn-add">
-                            <span>+</span> Add New Exam
+                            <span>+</span> <span data-i18n="add_new_exam">Add New Exam</span>
                         </button>
                     </div>
                 </div>
@@ -187,16 +192,17 @@
                     <table id="examsTable">
                         <thead>
                             <tr>
-                                <th>Exam Name</th>
-                                <th>Class</th>
-                                <th>Subject</th>
-                                <th>Date</th>
-                                <th>Actions</th>
+                                <th data-i18n="exam_name">Exam Name</th>
+                                <th data-i18n="class">Class</th>
+                                <th data-i18n="subject">Subject</th>
+                                <th data-i18n="date">Date</th>
+                                <th data-i18n="actions">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="examsList">
                             <tr>
-                                <td colspan="5" style="text-align: center; padding: 2rem;">Loading exams...</td>
+                                <td colspan="5" style="text-align: center; padding: 2rem;" data-i18n="loading_exams">
+                                    Loading exams...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -209,42 +215,48 @@
     <div id="examModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="examModalTitle">Schedule New Exam</h3>
+                <h3 id="examModalTitle" data-i18n="schedule_new_exam">Schedule New Exam</h3>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <form id="addExamForm">
                 <input type="hidden" name="docId">
                 <div class="form-group">
-                    <label>Exam Name</label>
+                    <label data-i18n="exam_name">Exam Name</label>
                     <input type="text" id="examName" required placeholder="e.g. Mid Term, Final Term">
                 </div>
                 <div class="form-group">
-                    <label>Department</label>
+                    <label data-i18n="department">Department</label>
                     <select id="department" onchange="updateClasses()" required>
-                        <option value="">Select Department</option>
+                        <option value="" data-i18n="select_department">Select Department</option>
                         <option value="Dars-e-Nizami">Dars-e-Nizami</option>
                         <option value="Hifz">Hifz</option>
                         <option value="Tajweed">Tajweed</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Class</label>
-                    <select id="className" required>
-                        <option value="">Select Class</option>
+                    <label data-i18n="class">Class</label>
+                    <select id="className"
+                        onchange="loadSubjects(document.getElementById('department').value,this.value)" required>
+                        <option value="" data-i18n="select_class">Select Class</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Subject</label>
-                    <input type="text" id="subject" required>
+                    <label data-i18n="subject">Subject</label>
+                    <select id="subject" required>
+                        <option value="" data-i18n="select_subject">Select Subject</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label>Date</label>
+                    <label data-i18n="date">Date</label>
                     <input type="date" id="examDate" required>
                 </div>
-                
+
                 <div style="margin-top: 1.5rem; text-align: right;">
-                    <button type="button" class="btn-secondary" onclick="closeModal()" style="margin-right: 0.5rem; padding: 0.75rem 1.5rem; border:none; border-radius: 0.5rem; background: #e2e8f0; cursor: pointer;">Cancel</button>
-                    <button type="submit" class="btn-add" style="border:none;">Save Schedule</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal()"
+                        style="margin-right: 0.5rem; padding: 0.75rem 1.5rem; border:none; border-radius: 0.5rem; background: #e2e8f0; cursor: pointer;"
+                        data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn-add" style="border:none;" data-i18n="save_schedule">Save
+                        Schedule</button>
                 </div>
             </form>
         </div>
@@ -257,36 +269,65 @@
 
     <!-- App Scripts -->
     <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
     <script src="../../js/script.js"></script>
 
     <script>
         // Data for dropdowns - DYNAMIC
-        
-        async function loadDepartments() {
+
+        async function loadDepartments(selected = '') {
             const select = document.getElementById('department');
             const currentVal = select.value;
-            select.innerHTML = '<option value="">Select Department</option>';
+            select.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
 
             try {
-                const snapshot = await db.collection('departments').orderBy('name').get();
-                snapshot.forEach(doc => {
-                    const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
-                    select.appendChild(opt);
-                });
-                if(currentVal) select.value = currentVal;
+                let snapshot = await db.collection('departments').orderBy('name').get();
+                // Fallback: derive from classes if departments collection is empty
+                if (snapshot.empty) {
+                    const classesSnap = await db.collection('classes').get();
+                    const set = new Set();
+                    classesSnap.forEach(c => {
+                        const dep = c.data().department;
+                        if (dep) set.add(dep);
+                    });
+                    Array.from(set).sort().forEach(dep => {
+                        const opt = document.createElement('option');
+                        opt.value = dep;
+                        opt.innerText = dep;
+                        select.appendChild(opt);
+                    });
+                } else {
+                    snapshot.forEach(doc => {
+                        const opt = document.createElement('option');
+                        opt.value = doc.data().name;
+                        opt.innerText = doc.data().name;
+                        select.appendChild(opt);
+                    });
+                }
+                const targetVal = selected || currentVal;
+                if (targetVal) {
+                    select.value = targetVal;
+                    if (select.value !== targetVal) {
+                        const opt = document.createElement('option');
+                        opt.value = targetVal;
+                        opt.innerText = targetVal;
+                        select.appendChild(opt);
+                        select.value = targetVal;
+                    }
+                }
+                if (typeof updatePageLanguage === 'function') updatePageLanguage();
             } catch (error) {
                 console.error("Error loading departments:", error);
             }
         }
 
-        async function updateClasses() {
+        async function updateClasses(prefillClass = '') {
             const dept = document.getElementById('department').value;
             const classSelect = document.getElementById('className');
-            classSelect.innerHTML = '<option value="">Select Class</option>';
-            
-            if(!dept) return;
+            classSelect.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
+            document.getElementById('subject').innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
+
+            if (!dept) return;
 
             try {
                 const snapshot = await db.collection('classes').where('department', '==', dept).get();
@@ -296,16 +337,69 @@
                     opt.innerText = doc.data().name;
                     classSelect.appendChild(opt);
                 });
+                if (prefillClass) {
+                    classSelect.value = prefillClass;
+                    if (classSelect.value !== prefillClass) {
+                        const opt = document.createElement('option');
+                        opt.value = prefillClass;
+                        opt.innerText = prefillClass;
+                        classSelect.appendChild(opt);
+                        classSelect.value = prefillClass;
+                    }
+                }
+                if (typeof updatePageLanguage === 'function') updatePageLanguage();
             } catch (error) {
                 console.error("Error loading classes:", error);
+            }
+
+            loadSubjects(dept, classSelect.value);
+        }
+
+        async function loadSubjects(department, className, preselect = '') {
+            const subjectSelect = document.getElementById('subject');
+            subjectSelect.innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
+            if (!department || !className) return;
+            try {
+                let snap = await db.collection('subjects')
+                    .where('department', '==', department)
+                    .where('className', '==', className)
+                    .get();
+                const names = [];
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.name) names.push(data.name);
+                });
+                names.sort();
+                names.forEach(n => {
+                    const opt = document.createElement('option');
+                    opt.value = n;
+                    opt.innerText = n;
+                    subjectSelect.appendChild(opt);
+                });
+                const target = preselect || '';
+                if (target) {
+                    subjectSelect.value = target;
+                    if (subjectSelect.value !== target) {
+                        const opt = document.createElement('option');
+                        opt.value = target;
+                        opt.innerText = target;
+                        subjectSelect.appendChild(opt);
+                        subjectSelect.value = target;
+                    }
+                }
+                if (typeof updatePageLanguage === 'function') updatePageLanguage();
+            } catch (error) {
+                console.error('Error loading subjects:', error);
             }
         }
 
         // Modal Logic
         const modal = document.getElementById('examModal');
-        
+
         async function openModal() {
             await loadDepartments();
+            await updateClasses();
+            loadSubjects(document.getElementById('department').value, document.getElementById('className').value);
             modal.classList.add('active');
         }
 
@@ -314,25 +408,28 @@
             const form = document.getElementById('addExamForm');
             form.reset();
             form.querySelector('input[name="docId"]').value = '';
-            document.getElementById('examModalTitle').textContent = 'Schedule New Exam';
+            document.getElementById('examModalTitle').textContent = getTrans('schedule_new_exam');
+            document.getElementById('examModalTitle').setAttribute('data-i18n', 'schedule_new_exam');
         }
 
         // Fetch and Display Exams
         async function loadExams() {
             const tableBody = document.getElementById('examsList');
-            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Loading exams...</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;" data-i18n="loading_exams">Loading exams...</td></tr>';
+            updatePageLanguage();
 
             try {
-                const snapshot = await db.collection('exams').orderBy('date', 'asc').get();
-                
+                let snapshot = await db.collection('exams').orderBy('date', 'asc').get();
+
                 if (snapshot.empty) {
                     tableBody.innerHTML = `
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-light);">
+                            <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-light);" data-i18n="no_exams_scheduled">
                                 No exams scheduled. Click "Add New Exam" to start.
                             </td>
                         </tr>
                     `;
+                    updatePageLanguage();
                     return;
                 }
 
@@ -340,7 +437,7 @@
                 snapshot.forEach(doc => {
                     const exam = doc.data();
                     const date = exam.date ? new Date(exam.date).toLocaleDateString() : 'N/A';
-                    
+
                     html += `
                         <tr>
                             <td>
@@ -350,14 +447,15 @@
                             <td>${exam.subject}</td>
                             <td>${date}</td>
                             <td>
-                                <button onclick="editExam('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;">Edit</button>
-                                <button onclick="deleteExam('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;">Delete</button>
+                                <button onclick="editExam('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">Edit</button>
+                                <button onclick="deleteExam('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">Delete</button>
                             </td>
                         </tr>
                     `;
                 });
 
                 tableBody.innerHTML = html;
+                updatePageLanguage();
 
             } catch (error) {
                 console.error("Error loading exams:", error);
@@ -368,7 +466,7 @@
         // Add/Edit Exam
         document.getElementById('addExamForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.innerText;
             btn.innerText = 'Saving...';
@@ -398,7 +496,7 @@
                     await db.collection('exams').add(examData);
                     alert('Exam scheduled successfully!');
                 }
-                
+
                 closeModal();
                 loadExams();
 
@@ -413,23 +511,22 @@
         async function editExam(id) {
             try {
                 const doc = await db.collection('exams').doc(id).get();
-                if(!doc.exists) return;
+                if (!doc.exists) return;
                 const e = doc.data();
-                
-                await loadDepartments();
-                
+
+                await loadDepartments(e.department);
                 document.getElementById('department').value = e.department || '';
-                await updateClasses();
-                
+                await updateClasses(e.className);
                 document.getElementById('className').value = e.className;
+                await loadSubjects(e.department, e.className, e.subject);
                 document.getElementById('examName').value = e.examName;
-                document.getElementById('subject').value = e.subject;
                 document.getElementById('examDate').value = e.date;
-                
+
                 const form = document.getElementById('addExamForm');
                 form.querySelector('input[name="docId"]').value = id;
-                document.getElementById('examModalTitle').textContent = 'Edit Exam';
-                
+                document.getElementById('examModalTitle').textContent = getTrans('edit_exam') || 'Edit Exam';
+                document.getElementById('examModalTitle').setAttribute('data-i18n', 'edit_exam');
+
                 modal.classList.add('active');
             } catch (error) {
                 console.error(error);
@@ -439,7 +536,7 @@
 
         // Delete Exam
         async function deleteExam(id) {
-            if(!confirm('Are you sure you want to delete this exam?')) return;
+            if (!confirm('Are you sure you want to delete this exam?')) return;
             try {
                 await db.collection('exams').doc(id).delete();
                 loadExams();
@@ -449,28 +546,28 @@
             }
         }
 
-        function downloadExamsPDF() {
+        async function downloadExamsPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            
-            doc.text("Exam Schedule", 14, 20);
-            doc.setFontSize(10);
-            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 26);
-            
+
+            const startY = (typeof applyPdfBranding === 'function')
+                ? await applyPdfBranding(doc, { title: 'Exam Schedule' })
+                : 30;
+
             const rows = [];
             document.querySelectorAll('#examsList tr').forEach(tr => {
-                 const tds = tr.querySelectorAll('td');
-                 if(tds.length >= 4 && !tds[0].innerText.includes('Loading')) {
-                     rows.push([tds[0].innerText.trim(), tds[1].innerText, tds[2].innerText, tds[3].innerText]);
-                 }
+                const tds = tr.querySelectorAll('td');
+                if (tds.length >= 4 && !tds[0].innerText.includes('Loading')) {
+                    rows.push([tds[0].innerText.trim(), tds[1].innerText, tds[2].innerText, tds[3].innerText]);
+                }
             });
-            
+
             doc.autoTable({
                 head: [['Exam Name', 'Class', 'Subject', 'Date']],
                 body: rows,
-                startY: 30
+                startY: startY
             });
-            
+
             doc.save('exams.pdf');
         }
 

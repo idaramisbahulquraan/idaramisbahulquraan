@@ -1,11 +1,12 @@
-// Default Configuration
-// PROVIDERS_CONFIG defines available models for each provider
+// AI Features Module ---------------------------------------------------------
+// Handles provider configuration, chatbot, smart reports, and AI data entry.
+
 const PROVIDERS_CONFIG = {
     gemini: {
         name: "Google Gemini",
         models: [
             { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash (Recommended)" },
-            { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro (Best Quality)" },
+            { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite" },
             { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash" },
             { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash (Legacy)" }
         ]
@@ -15,6 +16,9 @@ const PROVIDERS_CONFIG = {
         models: [
             { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B (Smart & Fast)" },
             { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B (Super Fast)" },
+            { id: "llama-3.1-8b", name: "Llama 3.1 8B" },
+            { id: "qwen/qwen3-32b", name: "Qwen 3 32B" },
+            { id: "openai/gpt-oss-20b", name: "GPT OSS 20B" },
             { id: "mixtral-8x7b-32768", name: "Mixtral 8x7B" }
         ]
     },
@@ -22,265 +26,285 @@ const PROVIDERS_CONFIG = {
         name: "Hugging Face",
         models: [
             { id: "meta-llama/Meta-Llama-3-8B-Instruct", name: "Meta Llama 3 8B" },
-            { id: "mistralai/Mistral-7B-Instruct-v0.3", name: "Mistral 7B v0.3" }
+            { id: "mistralai/Mistral-7B-Instruct-v0.3", name: "Mistral 7B v0.3" },
+            { id: "microsoft/Phi-3-mini-4k-instruct", name: "Phi-3 Mini" }
         ]
     },
     mistral: {
         name: "Mistral AI",
         models: [
             { id: "mistral-tiny", name: "Mistral Tiny" },
-            { id: "mistral-small", name: "Mistral Small" }
+            { id: "mistral-small", name: "Mistral Small" },
+            { id: "mistral-7b-instruct", name: "Mistral 7B Instruct" },
+            { id: "mistral-nemo", name: "Mistral Nemo" }
         ]
     },
     xai: {
         name: "xAI (Grok)",
         models: [
             { id: "grok-2", name: "Grok 2" },
-            { id: "grok-beta", name: "Grok Beta" }
+            { id: "grok-beta", name: "Grok Beta" },
+            { id: "grok-4.1-fast", name: "Grok 4.1 Fast" }
         ]
     }
 };
 
-// Default Keys provided by user
-// SECURITY NOTICE: Do NOT hardcode real keys here. 
-// Keys should be entered by the user in the UI and stored in localStorage.
 const DEFAULT_KEYS = {
-    gemini: '',
-    groq: '',
-    huggingface: '',
-    mistral: '',
-    xai: ''
+    gemini: "",
+    groq: "",
+    huggingface: "",
+    mistral: "",
+    xai: ""
 };
 
-// Initialize Settings
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
     loadSettingsUI();
 });
 
 async function loadSettingsUI() {
-    const providerSelect = document.getElementById('providerSelect');
+    const providerSelect = document.getElementById("providerSelect");
     if (!providerSelect) return;
 
-    // Ensure keys are loaded from system settings if available
-    if (typeof ensureAIKeysLoaded === 'function') {
+    if (typeof ensureAIKeysLoaded === "function") {
         await ensureAIKeysLoaded();
     }
 
-    // Load saved provider or default to gemini
-    const savedProvider = localStorage.getItem('ai_provider') || 'gemini';
+    try {
+        const cfgDoc = await db.collection("system_settings").doc("ai_config").get();
+        if (cfgDoc.exists) {
+            const cfg = cfgDoc.data();
+            if (cfg.provider) localStorage.setItem("ai_provider", cfg.provider);
+            if (cfg.model) localStorage.setItem("ai_model", cfg.model);
+        }
+    } catch (e) {
+        console.warn("Could not load AI config from Firebase:", e);
+    }
+
+    const savedProvider = localStorage.getItem("ai_provider") || "gemini";
     providerSelect.value = savedProvider;
-
-    // Load saved keys or defaults
-    document.getElementById('geminiKey').value = localStorage.getItem('gemini_api_key') || DEFAULT_KEYS.gemini;
-    document.getElementById('groqKey').value = localStorage.getItem('groq_api_key') || DEFAULT_KEYS.groq;
-    document.getElementById('hfKey').value = localStorage.getItem('huggingface_api_key') || DEFAULT_KEYS.huggingface;
-    document.getElementById('mistralKey').value = localStorage.getItem('mistral_api_key') || DEFAULT_KEYS.mistral;
-    document.getElementById('xaiKey').value = localStorage.getItem('xai_api_key') || DEFAULT_KEYS.xai;
-
-    // Update models based on provider
     updateModelList();
+
+    document.getElementById("modelSelect").value = localStorage.getItem("ai_model") || "";
+    document.getElementById("geminiKey").value = localStorage.getItem("gemini_api_key") || DEFAULT_KEYS.gemini;
+    document.getElementById("groqKey").value = localStorage.getItem("groq_api_key") || DEFAULT_KEYS.groq;
+    document.getElementById("hfKey").value = localStorage.getItem("huggingface_api_key") || DEFAULT_KEYS.huggingface;
+    document.getElementById("mistralKey").value = localStorage.getItem("mistral_api_key") || DEFAULT_KEYS.mistral;
+    document.getElementById("xaiKey").value = localStorage.getItem("xai_api_key") || DEFAULT_KEYS.xai;
 }
 
 function updateModelList() {
-    const provider = document.getElementById('providerSelect').value;
-    const modelSelect = document.getElementById('modelSelect');
+    const provider = document.getElementById("providerSelect").value;
+    const modelSelect = document.getElementById("modelSelect");
     const config = PROVIDERS_CONFIG[provider];
-    
     if (!config) return;
 
-    modelSelect.innerHTML = config.models.map(m => 
-        `<option value="${m.id}">${m.name}</option>`
-    ).join('');
+    modelSelect.innerHTML = config.models.map(m => `<option value="${m.id}">${m.name}</option>`).join("");
 
-    // Select previously saved model if valid for this provider
-    const savedModel = localStorage.getItem('ai_model');
-    if (savedModel && config.models.find(m => m.id === savedModel)) {
+    const savedModel = localStorage.getItem("ai_model");
+    if (savedModel && config.models.some(m => m.id === savedModel)) {
         modelSelect.value = savedModel;
+    } else {
+        modelSelect.value = config.models[0]?.id || "";
     }
 }
 
 async function saveSettings() {
-    const provider = document.getElementById('providerSelect').value;
-    const model = document.getElementById('modelSelect').value;
-    
-    localStorage.setItem('ai_provider', provider);
-    localStorage.setItem('ai_model', model);
-    
-    // Get keys from inputs
+    const provider = document.getElementById("providerSelect").value;
+    const model = document.getElementById("modelSelect").value;
+    localStorage.setItem("ai_provider", provider);
+    localStorage.setItem("ai_model", model);
+
     const keys = {
-        gemini: document.getElementById('geminiKey').value.trim(),
-        groq: document.getElementById('groqKey').value.trim(),
-        huggingface: document.getElementById('hfKey').value.trim(),
-        mistral: document.getElementById('mistralKey').value.trim(),
-        xai: document.getElementById('xaiKey').value.trim()
+        gemini: document.getElementById("geminiKey").value.trim(),
+        groq: document.getElementById("groqKey").value.trim(),
+        huggingface: document.getElementById("hfKey").value.trim(),
+        mistral: document.getElementById("mistralKey").value.trim(),
+        xai: document.getElementById("xaiKey").value.trim()
     };
 
-    // Save to LocalStorage
-    localStorage.setItem('gemini_api_key', keys.gemini);
-    localStorage.setItem('groq_api_key', keys.groq);
-    localStorage.setItem('huggingface_api_key', keys.huggingface);
-    localStorage.setItem('mistral_api_key', keys.mistral);
-    localStorage.setItem('xai_api_key', keys.xai);
-    
+    Object.entries(keys).forEach(([key, value]) => {
+        localStorage.setItem(`${key}_api_key`, value);
+    });
+
     const btn = document.querySelector('button[onclick="saveSettings()"]');
-    const originalText = btn ? btn.innerText : 'Save Settings';
+    const originalText = btn?.innerText;
 
     try {
-        if(btn) {
+        if (btn) {
             btn.disabled = true;
-            btn.innerText = 'Saving...';
+            btn.innerText = "Saving...";
         }
 
-        // Save to Firebase (System Settings)
-        // Note: This requires the user to have write permission to this collection.
-        // If not, it will fail (e.g. students/teachers usually don't have this permission).
-        // Only Admin should be doing this.
-        await db.collection('system_settings').doc('ai_keys').set(keys, { merge: true });
-        
-        alert('Settings saved locally and to Firebase!');
+        await db.collection("system_settings").doc("ai_keys").set(keys, { merge: true });
+        await db.collection("system_settings").doc("ai_config").set({
+            provider,
+            model,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        alert("Settings saved locally and in Firebase.");
     } catch (error) {
-        console.error("Error saving to Firebase:", error);
-        alert('Saved locally. Firebase sync failed (you might not have permission): ' + error.message);
+        console.error(error);
+        alert("Saved locally. Firebase sync failed: " + error.message);
     } finally {
-        if(btn) {
+        if (btn) {
             btn.disabled = false;
             btn.innerText = originalText;
         }
     }
 }
 
-// --- Chatbot Logic ---
+// ---------------------------------------------------------------------------
+// Chatbot logic
 let cachedSystemData = null;
-let lastFetchTime = 0;
-const DATA_CACHE_DURATION = 300000; // 5 minutes
+let lastSummaryFetch = 0;
+const DATA_CACHE_MS = 300000;
+let chatAttachments = [];
+
+function handleChatFiles(event) {
+    const files = event.target.files;
+    if (!files.length) return;
+    const preview = document.getElementById("chatFilePreview");
+
+    Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            chatAttachments.push({
+                mimeType: file.type,
+                data: e.target.result.split(",")[1],
+                name: file.name
+            });
+
+            const div = document.createElement("div");
+            div.className = "file-preview-item";
+            if (file.type.startsWith("image/")) {
+                div.innerHTML = `<img src="${e.target.result}"><span class="remove" onclick="removeChatAttachment('${file.name}', this)">x</span>`;
+            } else {
+                div.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#eee;font-size:22px;">FILE</div><span class="remove" onclick="removeChatAttachment('${file.name}', this)">x</span>`;
+            }
+            preview.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+    event.target.value = "";
+}
+
+function removeChatAttachment(name, el) {
+    chatAttachments = chatAttachments.filter(a => a.name !== name);
+    el.parentElement.remove();
+}
+
+function handleChatEnter(event) {
+    if (event.key === "Enter") sendMessage();
+}
 
 async function getSystemContext() {
     const now = Date.now();
-    if (cachedSystemData && (now - lastFetchTime < DATA_CACHE_DURATION)) {
-        console.log("Using cached system data");
+    if (cachedSystemData && (now - lastSummaryFetch) < DATA_CACHE_MS) {
         return cachedSystemData;
     }
-    
     cachedSystemData = await fetchSummaryData();
-    lastFetchTime = now;
+    lastSummaryFetch = now;
     return cachedSystemData;
 }
 
-async function sendMessage() {
-    const input = document.getElementById('chatInput');
-    const history = document.getElementById('chatHistory');
-    const message = input.value.trim();
-    
-    if (!message) return;
-    
-    // Add User Message
-    appendMessage('user', message);
-    input.value = '';
-    
-    // Show Loading
-    const loadingId = 'loading-' + Date.now();
-    const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'chat-message ai';
-    loadingDiv.id = loadingId;
-    loadingDiv.innerHTML = '<div class="loading-spinner"></div> Thinking...';
-    history.appendChild(loadingDiv);
-    history.scrollTop = history.scrollHeight;
-    
-    try {
-        // 1. Fetch Context Data (Cached)
-        const contextData = await getSystemContext();
-        
-        const systemContext = `You are a helpful assistant for a School Management System app. 
-        The app has features for Dashboard, Attendance, Students, Teachers, Fees, Timetable, Exams, Finance, Reports, etc.
-        
-        CURRENT SYSTEM DATA:
-        ${JSON.stringify(contextData, null, 2)}
-        
-        Answer questions based on the actual data provided above. 
-        If the user asks for specific details not in the summary, explain what is available or guide them to the relevant page.
-        For financial questions, refer to the 'finance' object in the data.
-        Be concise, professional, and helpful.`;
-        
-        const response = await callGemini(systemContext + "\n\nUser Question: " + message);
-        
-        // Remove loading
-        document.getElementById(loadingId).remove();
-        
-        // Add AI Response (rendered with Markdown)
-        const htmlResponse = marked.parse(response);
-        appendMessage('ai', htmlResponse);
-        
-    } catch (error) {
-        document.getElementById(loadingId).remove();
-        appendMessage('ai', 'Sorry, I encountered an error: ' + error.message);
-    }
-}
-
-function appendMessage(role, htmlContent) {
-    const history = document.getElementById('chatHistory');
-    const div = document.createElement('div');
+function appendMessage(role, html) {
+    const history = document.getElementById("chatHistory");
+    if (!history) return;
+    const div = document.createElement("div");
     div.className = `chat-message ${role}`;
-    div.innerHTML = htmlContent;
+    div.innerHTML = html;
     history.appendChild(div);
     history.scrollTop = history.scrollHeight;
 }
 
-// --- Reports Logic ---
-async function generateReport() {
-    const btn = document.getElementById('btnGenerateReport');
-    const resultArea = document.getElementById('reportResult');
-    const reportType = document.getElementById('reportType').value;
-    const focusArea = document.getElementById('reportFocus').value;
-    
-    btn.disabled = true;
-    btn.innerText = 'Analyzing Data...';
-    resultArea.style.display = 'block';
-    resultArea.innerHTML = '<div class="loading-spinner"></div> Gathering data and generating report...';
-    
+async function sendMessage() {
+    const input = document.getElementById("chatInput");
+    const message = input.value.trim();
+    if (!message && chatAttachments.length === 0) return;
+
+    appendMessage("user", message || "[Files attached]");
+
+    const history = document.getElementById("chatHistory");
+    const loading = document.createElement("div");
+    loading.className = "chat-message ai";
+    loading.innerHTML = '<div class="loading-spinner"></div> Thinking...';
+    history.appendChild(loading);
+    history.scrollTop = history.scrollHeight;
+
     try {
-        // 1. Fetch relevant data from Firestore (Mocking real data fetching for context limit reasons, 
-        // in production you would fetch actual collections)
-        const summaryData = await getSystemContext();
-        
-        // 2. Construct Prompt
-        const prompt = `
-        Act as a professional data analyst for a school. Generate a ${reportType} report focusing on ${focusArea}.
-        
-        Here is the current system data summary:
-        ${JSON.stringify(summaryData, null, 2)}
-        
-        Please provide a professional report with:
-        1. Executive Summary
-        2. Key Metrics Analysis
-        3. Recommendations
-        
-        Format the output in clean Markdown.
-        `;
-        
-        // 3. Call AI
-        const response = await callGemini(prompt);
-        
-        // 4. Display
-        resultArea.innerHTML = marked.parse(response);
-        
+        const contextData = await getSystemContext();
+        const schemaContext = typeof getSchemaSummary === "function" ? getSchemaSummary() : "";
+
+        const systemPrompt = `You are a School Management System assistant.
+
+DATA SUMMARY:
+${JSON.stringify(contextData, null, 2)}
+
+${schemaContext}
+
+Rules:
+- Reference the provided data whenever possible.
+- Be honest when information is missing.
+- If the user asks for data entry, return JSON arrays (collection + data) only when required fields are present.`;
+
+        const attachments = [...chatAttachments];
+        chatAttachments = [];
+        document.getElementById("chatFilePreview").innerHTML = "";
+
+        const response = await callGemini(`${systemPrompt}\n\nUser Question: ${message}`, attachments);
+
+        loading.remove();
+        appendMessage("ai", renderSafeMarkdown(response));
     } catch (error) {
-        resultArea.innerHTML = `<p style="color: var(--danger)">Error: ${error.message}</p>`;
+        console.error(error);
+        loading.innerHTML = `<span style="color: var(--danger)">Error: ${error.message}</span>`;
+    } finally {
+        input.value = "";
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Smart reports
+async function generateReport() {
+    const btn = document.getElementById("btnGenerateReport");
+    const result = document.getElementById("reportResult");
+    const type = document.getElementById("reportType").value;
+    const focus = document.getElementById("reportFocus").value;
+
+    btn.disabled = true;
+    btn.innerText = "Analyzing...";
+    result.style.display = "block";
+    result.innerHTML = '<div class="loading-spinner"></div> Generating report...';
+
+    try {
+        const contextData = await getSystemContext();
+        const schemaContext = typeof getSchemaSummary === "function" ? getSchemaSummary() : "";
+        const prompt = `Create a ${type} report focused on ${focus}.
+Use the data summary below. If metrics are missing, state clear assumptions.
+
+${JSON.stringify(contextData, null, 2)}
+
+${schemaContext}
+
+Structure:
+1. Executive Summary
+2. Key Metrics
+3. Recommended Actions`;
+
+        const response = await callGemini(prompt);
+        result.innerHTML = renderSafeMarkdown(response);
+    } catch (error) {
+        result.innerHTML = `<p style="color: var(--danger)">Error: ${error.message}</p>`;
     } finally {
         btn.disabled = false;
-        btn.innerText = 'Generate Report';
+        btn.innerText = "Generate Report";
     }
 }
 
 async function fetchSummaryData() {
-    console.log("Fetching live system data for AI context...");
-    
     const summary = {
-        date: new Date().toLocaleDateString(),
-        counts: {
-            students: 0,
-            teachers: 0,
-            classes: 0
-        },
+        generatedAt: new Date().toLocaleString(),
+        counts: { students: 0, teachers: 0, classes: 0 },
         finance: {
             totalIncome: 0,
             totalExpenses: 0,
@@ -292,144 +316,316 @@ async function fetchSummaryData() {
     };
 
     try {
-        // 1. Basic Counts
-        const sSnap = await db.collection('students').get();
-        summary.counts.students = sSnap.size;
-        
-        const tSnap = await db.collection('teachers').get();
-        summary.counts.teachers = tSnap.size;
+        const [studentsSnap, teachersSnap, classesSnap] = await Promise.all([
+            db.collection("students").get(),
+            db.collection("teachers").get(),
+            db.collection("classes").get()
+        ]);
+        summary.counts.students = studentsSnap.size;
+        summary.counts.teachers = teachersSnap.size;
+        summary.counts.classes = classesSnap.size;
 
-        // 2. Finance Data (Aggregated)
-        // Income
-        const incomeSnap = await db.collection('incomes').get();
+        const incomeSnap = await db.collection("incomes").get();
         incomeSnap.forEach(doc => {
-            const d = doc.data();
-            const amt = parseFloat(d.amount) || 0;
-            summary.finance.totalIncome += amt;
-            
-            const cat = d.category || 'Uncategorized';
-            summary.finance.incomeBreakdown[cat] = (summary.finance.incomeBreakdown[cat] || 0) + amt;
+            const data = doc.data();
+            const amount = parseFloat(data.amount) || 0;
+            summary.finance.totalIncome += amount;
+            const cat = data.category || "Other";
+            summary.finance.incomeBreakdown[cat] = (summary.finance.incomeBreakdown[cat] || 0) + amount;
         });
 
-        // Fees (Paid)
-        const feesSnap = await db.collection('fees').where('status', '==', 'Paid').get();
-        let feesTotal = 0;
-        feesSnap.forEach(doc => {
-            feesTotal += parseFloat(doc.data().amount) || 0;
+        const paidFees = await db.collection("fees").where("status", "==", "Paid").get();
+        paidFees.forEach(doc => {
+            const amount = parseFloat(doc.data().amount) || 0;
+            summary.finance.totalIncome += amount;
+            summary.finance.incomeBreakdown["Student Fees"] = (summary.finance.incomeBreakdown["Student Fees"] || 0) + amount;
         });
-        if (feesTotal > 0) {
-            summary.finance.totalIncome += feesTotal;
-            summary.finance.incomeBreakdown['Student Fees'] = feesTotal;
-        }
 
-        // Expenses
-        const expenseSnap = await db.collection('expenses').get();
+        const expenseSnap = await db.collection("expenses").get();
         expenseSnap.forEach(doc => {
-            const d = doc.data();
-            const amt = parseFloat(d.amount) || 0;
-            summary.finance.totalExpenses += amt;
-            
-            const cat = d.category || 'Uncategorized';
-            summary.finance.expenseBreakdown[cat] = (summary.finance.expenseBreakdown[cat] || 0) + amt;
+            const data = doc.data();
+            const amount = parseFloat(data.amount) || 0;
+            summary.finance.totalExpenses += amount;
+            const cat = data.category || "Other";
+            summary.finance.expenseBreakdown[cat] = (summary.finance.expenseBreakdown[cat] || 0) + amount;
         });
 
-        // Net
         summary.finance.netBalance = summary.finance.totalIncome - summary.finance.totalExpenses;
-
-    } catch (e) {
-        console.error("Error fetching data for AI:", e);
-        summary.error = "Partial data due to fetch error";
+    } catch (error) {
+        console.error("Failed to build summary", error);
+        summary.error = error.message;
     }
-
     return summary;
 }
 
-// --- Data Entry Logic ---
-let pendingDataEntry = null;
+// ---------------------------------------------------------------------------
+// Data entry assistant
+let dataEntryAttachments = [];
 
-async function processDataEntry() {
-    const input = document.getElementById('dataEntryInput').value;
-    const btn = document.getElementById('btnProcessData');
-    const resultArea = document.getElementById('dataEntryResult');
-    const jsonPreview = document.getElementById('jsonPreview');
-    
-    if (!input.trim()) return alert("Please describe the data entry.");
-    
-    btn.disabled = true;
-    btn.innerText = 'Processing...';
-    
-    try {
-        const prompt = `
-        You are a data entry assistant. Extract structured data from the following text into JSON format.
-        
-        The app has these collections and fields:
-        1. Students: { firstName, lastName, class, parentName, phone, email }
-        2. Teachers: { name, subject, phone, email }
-        3. Classes: { className, section }
-        
-        Text: "${input}"
-        
-        Identify the intent (add_student, add_teacher, add_class) and the data.
-        Return ONLY the raw JSON object, no markdown formatting.
-        Example:
-        {
-            "intent": "add_student",
-            "data": {
-                "firstName": "Ali",
-                "lastName": "Khan",
-                "class": "Grade 5",
-                ...
+function handleDataEntryChatFiles(event) {
+    const files = event.target.files;
+    if (!files.length) return;
+    const preview = document.getElementById("dataEntryFilePreview");
+
+    Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            dataEntryAttachments.push({
+                mimeType: file.type,
+                data: e.target.result.split(",")[1],
+                name: file.name
+            });
+
+            const div = document.createElement("div");
+            div.className = "file-preview-item";
+            if (file.type.startsWith("image/")) {
+                div.innerHTML = `<img src="${e.target.result}"><span class="remove" onclick="removeDataEntryAttachment('${file.name}', this)">x</span>`;
+            } else {
+                div.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#eee;font-size:22px;">FILE</div><span class="remove" onclick="removeDataEntryAttachment('${file.name}', this)">x</span>`;
             }
+            preview.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+    event.target.value = "";
+}
+
+function removeDataEntryAttachment(name, el) {
+    dataEntryAttachments = dataEntryAttachments.filter(a => a.name !== name);
+    el.parentElement.remove();
+}
+
+function handleDataEntryEnter(event) {
+    if (event.key === "Enter") processDataEntryChat();
+}
+
+async function processDataEntryChat() {
+    const input = document.getElementById("dataEntryChatInput");
+    const history = document.getElementById("dataEntryHistory");
+    const message = input.value.trim();
+    if (!message && dataEntryAttachments.length === 0) return;
+
+    let userMessage = message;
+    if (dataEntryAttachments.length) {
+        userMessage += `<br><small><i>Attached: ${dataEntryAttachments.map(a => a.name).join(", ")}</i></small>`;
+    }
+
+    const userDiv = document.createElement("div");
+    userDiv.className = "chat-message user";
+    userDiv.innerHTML = userMessage || "[Files attached]";
+    history.appendChild(userDiv);
+    history.scrollTop = history.scrollHeight;
+    input.value = "";
+
+    const loadingId = "de-" + Date.now();
+    const loadingDiv = document.createElement("div");
+    loadingDiv.className = "chat-message ai";
+    loadingDiv.id = loadingId;
+    loadingDiv.innerHTML = '<div class="loading-spinner"></div> Analyzing...';
+    history.appendChild(loadingDiv);
+    history.scrollTop = history.scrollHeight;
+
+    try {
+        const schemaContext = typeof getSchemaSummary === "function" ? getSchemaSummary() : "";
+        const attachmentNames = dataEntryAttachments.map(a => a.name);
+        const prompt = `You are an intelligent data entry assistant. Convert the user text/files into JSON.
+
+${schemaContext}
+
+Text: "${message}"
+
+Instructions:
+1. Use exact collection names and field names from the schema.
+2. Only return JSON arrays (collection + data) when confident about required fields and types.
+3. If information is missing or unclear, reply with {"error": "..."} asking for clarification.
+4. Never invent values.`;
+
+        const response = await callGemini(prompt, dataEntryAttachments);
+        dataEntryAttachments = [];
+        document.getElementById("dataEntryFilePreview").innerHTML = "";
+        document.getElementById(loadingId)?.remove();
+
+        const clean = response.replace(/```json/gi, "").replace(/```/g, "").trim();
+        let parsedData;
+        try {
+            parsedData = JSON.parse(clean);
+            if (!Array.isArray(parsedData) && !parsedData.error) {
+                parsedData = [parsedData];
+            }
+        } catch (parseError) {
+            const fallback = document.createElement("div");
+            fallback.className = "chat-message ai";
+            fallback.innerHTML = renderSafeMarkdown(clean);
+            history.appendChild(fallback);
+            return;
         }
+
+        if (parsedData.error) {
+            const errDiv = document.createElement("div");
+            errDiv.className = "chat-message ai";
+            errDiv.innerText = parsedData.error;
+            history.appendChild(errDiv);
+            return;
+        }
+
+        const reviewedEntries = typeof prepareAiEntriesForReview === "function"
+            ? await prepareAiEntriesForReview(parsedData)
+            : parsedData.map(entry => ({ ...entry, meta: { allowed: true, errors: [], warnings: [], diff: [] } }));
+
+        const hasBlockingIssues = reviewedEntries.some(entry => (entry.meta?.errors?.length || entry.meta?.allowed === false));
+        const hasWarnings = reviewedEntries.some(entry => entry.meta?.warnings?.length);
+        const rawAttr = encodeURIComponent(message || "");
+        const attachmentsAttr = encodeURIComponent(JSON.stringify(attachmentNames));
+        const issuesAttr = encodeURIComponent(JSON.stringify(reviewedEntries.map(item => ({
+            collection: item.collection,
+            errors: item.meta?.errors || [],
+            warnings: item.meta?.warnings || [],
+            allowed: item.meta?.allowed
+        }))));
+
+        const cardDiv = document.createElement("div");
+        cardDiv.className = "chat-message ai";
+        cardDiv.style.width = "100%";
+        cardDiv.style.maxWidth = "90%";
+
+        let cardHtml = `
+            <div style="background:#fff;border:1px solid var(--border-color);border-radius:0.75rem;overflow:hidden;">
+                <div style="padding:1rem;background:#f8fafc;border-bottom:1px solid var(--border-color);">
+                    <strong>[AI] Proposed Data Entry</strong>
+                    <span style="float:right;font-size:0.8rem;color:#64748b;">${reviewedEntries.length} item(s)</span>
+                </div>
+                <div style="padding:1rem;max-height:260px;overflow:auto;font-size:0.9rem;">
         `;
-        
-        let response = await callGemini(prompt);
-        
-        // Clean cleanup markdown if AI adds it
-        response = response.replace(/```json/g, '').replace(/```/g, '').trim();
-        
-        const parsedData = JSON.parse(response);
-        pendingDataEntry = parsedData;
-        
-        resultArea.style.display = 'block';
-        jsonPreview.textContent = JSON.stringify(parsedData, null, 2);
-        
+
+        reviewedEntries.forEach(item => {
+            const meta = item.meta || { allowed: true, errors: [], warnings: [], diff: [] };
+            cardHtml += `
+                <div style="margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:1px dashed #e2e8f0;">
+                    <span style="color:var(--primary-color);font-weight:600;">${item.collection}</span>
+                    <pre style="margin:0.4rem 0;font-size:0.75rem;color:#475569;background:#f8fafc;padding:0.6rem;border-radius:0.4rem;white-space:pre-wrap;">${JSON.stringify(item.data, null, 2)}</pre>
+            `;
+            if (meta.diff && meta.diff.length) {
+                cardHtml += `
+                    <div style="font-size:0.75rem;color:#0f172a;margin-top:0.4rem;">
+                        <strong>Detected changes:</strong>
+                        <ul style="padding-left:1rem;margin:0.25rem 0;">
+                            ${meta.diff.map(d => `<li>${d.field}: ${d.before} -> ${d.after}</li>`).join("")}
+                        </ul>
+                    </div>
+                `;
+            }
+            if (meta.allowed === false) {
+                cardHtml += `<div style="font-size:0.75rem;color:#b91c1c;margin-top:0.3rem;">You do not have permission to edit the '${item.collection}' collection.</div>`;
+            }
+            if (meta.errors && meta.errors.length) {
+                cardHtml += `<div style="font-size:0.75rem;color:#dc2626;margin-top:0.3rem;">Errors: ${meta.errors.join(" | ")}</div>`;
+            }
+            if (meta.warnings && meta.warnings.length) {
+                cardHtml += `<div style="font-size:0.75rem;color:#b45309;margin-top:0.3rem;">Warnings: ${meta.warnings.join(" | ")}</div>`;
+            }
+            cardHtml += "</div>";
+        });
+
+        cardHtml += `
+                </div>
+                <div style="padding:0.85rem 1rem;background:#f1f5f9;display:flex;flex-direction:column;gap:0.5rem;">
+                    ${hasBlockingIssues ? '<div style="color:#dc2626;font-size:0.85rem;">Resolve highlighted errors or regenerate the request.</div>' : ''}
+                    ${hasWarnings ? '<div style="color:#b45309;font-size:0.8rem;">Warnings detected. Double-check before confirming.</div>' : ''}
+                    <div style="display:flex;gap:0.5rem;justify-content:flex-end;">
+                        <button class="btn-secondary" onclick="this.closest('.chat-message').remove()" style="padding:0.4rem 1rem;font-size:0.9rem;background:#cbd5e1;color:#334155;">Discard</button>
+                        ${hasBlockingIssues
+                ? `<button class="btn-primary"
+                                data-issues="${issuesAttr}"
+                                onclick='showDataEntryIssues(this)'
+                                style="padding:0.4rem 1rem;font-size:0.9rem;">
+                                    Fix issues to save
+                               </button>`
+                : `<button class="btn-primary"
+                                data-source="data-entry-assistant"
+                                data-raw="${rawAttr}"
+                                data-attachments="${attachmentsAttr}"
+                                onclick='confirmDataEntryChat(this, ${JSON.stringify(parsedData)})'
+                                style="padding:0.4rem 1rem;font-size:0.9rem;">
+                                    Confirm & Save
+                               </button>`}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        cardDiv.innerHTML = cardHtml;
+        history.appendChild(cardDiv);
+        history.scrollTop = history.scrollHeight;
     } catch (error) {
-        alert("Failed to process: " + error.message);
-    } finally {
-        btn.disabled = false;
-        btn.innerText = 'Process Entry';
+        console.error(error);
+        document.getElementById(loadingId)?.remove();
+        const errDiv = document.createElement("div");
+        errDiv.className = "chat-message ai";
+        errDiv.style.color = "var(--danger)";
+        errDiv.innerText = "Error: " + error.message;
+        history.appendChild(errDiv);
     }
 }
 
-async function confirmDataEntry() {
-    if (!pendingDataEntry) return;
-    
+async function confirmDataEntryChat(btn, dataEntries) {
+    if (!dataEntries || !dataEntries.length) return;
+    const originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = "Saving...";
+
     try {
-        const { intent, data } = pendingDataEntry;
-        
-        if (intent === 'add_student') {
-            await db.collection('students').add({
-                ...data,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            alert('Student added successfully!');
-        } else if (intent === 'add_teacher') {
-            await db.collection('teachers').add({
-                ...data,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            alert('Teacher added successfully!');
-        } else {
-            alert('Simulated Save: ' + intent + ' processed (Collection not fully mapped in demo)');
+        const rawInput = decodeURIComponent(btn.dataset.raw || "");
+        const attachments = btn.dataset.attachments ? JSON.parse(decodeURIComponent(btn.dataset.attachments)) : [];
+        const report = typeof saveAiEntries === "function"
+            ? await saveAiEntries(dataEntries, {
+                source: btn.dataset.source || "data-entry-assistant",
+                rawInput,
+                attachmentNames: attachments
+            })
+            : { success: [], failed: [] };
+
+        if (report.failed.length && !report.success.length) {
+            throw new Error(report.failed[0].reason || "Validation failed.");
         }
-        
-        document.getElementById('dataEntryResult').style.display = 'none';
-        document.getElementById('dataEntryInput').value = '';
-        pendingDataEntry = null;
-        
+
+        const container = btn.closest(".chat-message");
+        const summary = [];
+        if (report.success.length) summary.push(`Saved ${report.success.length} item(s).`);
+        if (report.failed.length) summary.push(`Skipped ${report.failed.length}: ${report.failed.map(f => f.reason).join(" | ")}`);
+
+        container.innerHTML = `
+            <div style="padding:1rem;background:${report.failed.length ? "#fff7ed" : "#ecfdf5"};border:1px solid ${report.failed.length ? "#fb923c" : "#10b981"};border-radius:0.5rem;color:${report.failed.length ? "#9a3412" : "#065f46"};">
+                ${summary.join("<br>")}
+            </div>
+        `;
     } catch (error) {
         console.error(error);
-        alert('Error saving data: ' + error.message);
+        alert("Error saving data: " + error.message);
+        btn.disabled = false;
+        btn.innerText = originalText;
+    }
+}
+
+function showDataEntryIssues(btn) {
+    try {
+        const issues = btn.dataset.issues ? JSON.parse(decodeURIComponent(btn.dataset.issues)) : [];
+        if (!issues.length) {
+            alert("No additional details were provided. Please regenerate the request.");
+            return;
+        }
+        let message = "Please resolve the following before saving:\n\n";
+        issues.forEach(item => {
+            message += `Collection: ${item.collection || 'unknown'}\n`;
+            if (item.allowed === false) {
+                message += "- You do not have permission to edit this collection.\n";
+            }
+            (item.errors || []).forEach(err => message += `- ${err}\n`);
+            (item.warnings || []).forEach(warn => message += `- Warning: ${warn}\n`);
+            message += "\n";
+        });
+        alert(message);
+    } catch (error) {
+        console.error("Unable to show issue details:", error);
+        alert("Could not show issue details. Please regenerate the request.");
     }
 }

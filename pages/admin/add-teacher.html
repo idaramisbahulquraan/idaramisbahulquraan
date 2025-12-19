@@ -15,7 +15,7 @@
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
         }
-        
+
         .btn-secondary {
             background-color: var(--secondary-color);
             color: var(--white);
@@ -27,7 +27,7 @@
             text-decoration: none;
             display: inline-block;
         }
-        
+
         .btn-container {
             display: flex;
             justify-content: flex-end;
@@ -73,14 +73,16 @@
         <main class="main-content">
             <header class="header">
                 <div class="page-title">
-                    <h1>Add New Teacher</h1>
+                    <h1 data-i18n="add_new_teacher">Add New Teacher</h1>
                 </div>
-                <div class="user-profile">
-                    <div class="user-info">
-                        <p id="userName" style="font-weight: 600;">User</p>
-                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
                     </div>
-                    <div class="avatar">U</div>
                 </div>
             </header>
 
@@ -88,38 +90,62 @@
             <div class="dashboard-content">
                 <div class="login-card" style="max-width: 800px; margin: 0 auto;">
                     <div id="alertMessage" class="alert"></div>
-                    
+
                     <form id="addTeacherForm">
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="firstName">First Name</label>
+                                <label for="firstName" data-i18n="first_name">First Name</label>
                                 <input type="text" id="firstName" required>
                             </div>
                             <div class="form-group">
-                                <label for="lastName">Last Name</label>
+                                <label for="lastName" data-i18n="last_name">Last Name</label>
                                 <input type="text" id="lastName" required>
                             </div>
                             <div class="form-group">
-                                <label for="email">Email</label>
+                                <label for="email" data-i18n="email">Email</label>
                                 <input type="email" id="email" required>
                             </div>
                             <div class="form-group">
-                                <label for="password">Password</label>
+                                <label for="password" data-i18n="password">Password</label>
                                 <input type="password" id="password" required minlength="6">
                             </div>
                             <div class="form-group">
-                                <label for="subject">Subject</label>
+                                <label for="subject" data-i18n="subject">Subject</label>
                                 <input type="text" id="subject" required>
                             </div>
                             <div class="form-group">
-                                <label for="phone">Phone</label>
+                                <label for="phone" data-i18n="phone">Phone</label>
                                 <input type="tel" id="phone" required>
+                            </div>
+                            
+                            <!-- HR & Payroll Fields -->
+                            <div class="form-group">
+                                <label for="joiningDate" data-i18n="joining_date">Joining Date</label>
+                                <input type="date" id="joiningDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="department" data-i18n="department">Department</label>
+                                <select id="department">
+                                    <option value="Academic">Academic</option>
+                                    <option value="Administration">Administration</option>
+                                    <option value="Support">Support</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="basicSalary" data-i18n="basic_salary">Basic Salary</label>
+                                <input type="number" id="basicSalary" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="bankDetails" data-i18n="bank_details">Bank Account Details</label>
+                                <input type="text" id="bankDetails" placeholder="Bank Name - Account No">
                             </div>
                         </div>
 
                         <div class="btn-container">
-                            <a href="teachers.html" class="btn-secondary">Cancel</a>
-                            <button type="submit" class="btn-primary" style="width: auto; padding-left: 2rem; padding-right: 2rem;">Add Teacher</button>
+                            <a href="teachers.html" class="btn-secondary" data-i18n="cancel">Cancel</a>
+                            <button type="submit" class="btn-primary"
+                                style="width: auto; padding-left: 2rem; padding-right: 2rem;"
+                                data-i18n="add_teacher">Add Teacher</button>
                         </div>
                     </form>
                 </div>
@@ -134,8 +160,9 @@
 
     <!-- App Scripts -->
     <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
     <script src="../../js/script.js"></script>
-    
+
     <script>
         // Secondary App Initialization for creating users without logging out
         const secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
@@ -155,7 +182,7 @@
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
             submitBtn.disabled = true;
@@ -167,7 +194,11 @@
                 email: document.getElementById('email').value,
                 password: document.getElementById('password').value,
                 subject: document.getElementById('subject').value,
-                phone: document.getElementById('phone').value
+                phone: document.getElementById('phone').value,
+                joiningDate: document.getElementById('joiningDate').value,
+                department: document.getElementById('department').value,
+                basicSalary: parseFloat(document.getElementById('basicSalary').value) || 0,
+                bankDetails: document.getElementById('bankDetails').value
             };
 
             try {
@@ -192,13 +223,17 @@
                     subject: formData.subject,
                     phone: formData.phone,
                     role: 'teacher',
+                    joiningDate: formData.joiningDate,
+                    department: formData.department,
+                    basicSalary: formData.basicSalary,
+                    bankDetails: formData.bankDetails,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
                 // Success
                 showAlert('Teacher added successfully!', 'success');
                 form.reset();
-                
+
                 // Optional: Redirect after delay
                 setTimeout(() => {
                     window.location.href = 'teachers.html';

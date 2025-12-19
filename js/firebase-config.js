@@ -15,10 +15,10 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 // Enable offline persistence
-db.enablePersistence()
+db.enablePersistence({ synchronizeTabs: true })
     .catch((err) => {
         if (err.code == 'failed-precondition') {
-            console.log("Persistence failed: Multiple tabs open");
+            console.log("Persistence failed: Multiple tabs open or persistence already enabled");
         } else if (err.code == 'unimplemented') {
             console.log("Persistence not supported");
         }

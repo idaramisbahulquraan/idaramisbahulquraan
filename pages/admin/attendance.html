@@ -16,6 +16,7 @@
             display: flex;
             gap: 1rem;
         }
+
         .radio-option {
             display: flex;
             align-items: center;
@@ -23,10 +24,19 @@
             cursor: pointer;
             font-size: 0.9rem;
         }
-        .status-present { color: var(--success); }
-        .status-absent { color: var(--danger); }
-        .status-leave { color: #f59e0b; }
-        
+
+        .status-present {
+            color: var(--success);
+        }
+
+        .status-absent {
+            color: var(--danger);
+        }
+
+        .status-leave {
+            color: #f59e0b;
+        }
+
         .report-controls {
             display: flex;
             gap: 1rem;
@@ -41,7 +51,8 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>SMS Admin</h2>
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
             </div>
             <nav class="sidebar-nav" id="sidebarNav">
                 <!-- Links rendered by JS -->
@@ -52,69 +63,83 @@
         <main class="main-content">
             <header class="header">
                 <div class="page-title">
-                    <h1 id="pageTitle">Attendance</h1>
+                    <h1 id="pageTitle" data-i18n="attendance">Attendance</h1>
                 </div>
-                <div class="user-profile">
-                    <div class="user-info">
-                        <p id="userName" style="font-weight: 600;">User</p>
-                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
                     </div>
-                    <div class="avatar">U</div>
                 </div>
             </header>
 
             <!-- Page Content -->
             <div class="dashboard-content">
                 <div class="stat-card" style="margin-bottom: 2rem;">
-                    <h3 style="margin-bottom: 1rem;">Select Class</h3>
+                    <h3 style="margin-bottom: 1rem;" data-i18n="select_class">Select Class</h3>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Department</label>
+                            <label data-i18n="department">Department</label>
                             <select id="department" onchange="updateClasses()" required>
-                                <option value="">Select Department</option>
+                                <option value="" data-i18n="select_department">Select Department</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Class</label>
+                            <label data-i18n="class">Class</label>
                             <select id="className" onchange="updateSubjects()" required>
-                                <option value="">Select Class</option>
+                                <option value="" data-i18n="select_class">Select Class</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Subject</label>
+                            <label data-i18n="subject">Subject</label>
                             <select id="subject" required>
-                                <option value="">Select Subject</option>
+                                <option value="" data-i18n="select_subject">Select Subject</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Date</label>
+                            <label data-i18n="date">Date</label>
                             <input type="date" id="date" required>
                         </div>
-                        <div class="form-group" style="display: flex; align-items: flex-end;">
-                            <button class="btn-primary" onclick="loadStudents()">Fetch Students</button>
+                        <div class="form-group" style="display: flex; align-items: flex-end; gap: 0.5rem; flex-wrap: wrap;">
+                            <button class="btn-primary" onclick="loadStudents()" data-i18n="fetch_students">Fetch Students</button>
+                            <button class="btn-add" onclick="openQrScanner()" data-i18n="scan_qr_barcode">Scan QR/Barcode</button>
+                            <button class="btn-add" style="background:#0ea5e9;" onclick="logGeoCheckin()" data-i18n="geofence_checkin">Geofence Check-in</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="stat-card" id="studentListCard" style="display: none;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h3>Mark Attendance</h3>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 data-i18n="mark_attendance">Mark Attendance</h3>
                         <div style="display: flex; gap: 0.5rem;">
-                            <button class="btn-primary" onclick="saveAttendance()" style="width: auto; background-color: var(--primary-color);">Save Attendance</button>
+                            <button class="btn-primary" onclick="saveAttendance()"
+                                style="width: auto; background-color: var(--primary-color);"
+                                data-i18n="save_attendance">Save Attendance</button>
                         </div>
                     </div>
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Roll No</th>
-                                    <th>Name</th>
+                                    <th data-i18n="roll_no">Roll No</th>
+                                    <th data-i18n="name">Name</th>
                                     <th>
-                                        Status
-                                        <div style="font-size: 0.8rem; font-weight: normal; margin-top: 5px; display: flex; gap: 10px;">
-                                            <label style="cursor: pointer; color: var(--success);"><input type="radio" name="bulk_status" onclick="markAll('Present')"> All Present</label>
-                                            <label style="cursor: pointer; color: var(--danger);"><input type="radio" name="bulk_status" onclick="markAll('Absent')"> All Absent</label>
-                                            <label style="cursor: pointer; color: #f59e0b;"><input type="radio" name="bulk_status" onclick="markAll('Leave')"> All Leave</label>
+                                        <span data-i18n="status">Status</span>
+                                        <div
+                                            style="font-size: 0.8rem; font-weight: normal; margin-top: 5px; display: flex; gap: 10px;">
+                                            <label style="cursor: pointer; color: var(--success);"><input type="radio"
+                                                    name="bulk_status" onclick="markAll('Present')"> <span
+                                                    data-i18n="all_present">All Present</span></label>
+                                            <label style="cursor: pointer; color: var(--danger);"><input type="radio"
+                                                    name="bulk_status" onclick="markAll('Absent')"> <span
+                                                    data-i18n="all_absent">All Absent</span></label>
+                                            <label style="cursor: pointer; color: #f59e0b;"><input type="radio"
+                                                    name="bulk_status" onclick="markAll('Leave')"> <span
+                                                    data-i18n="all_leave">All Leave</span></label>
                                         </div>
                                     </th>
                                 </tr>
@@ -136,14 +161,16 @@
 
     <!-- App Scripts -->
     <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
     <script src="../../js/script.js"></script>
     <script>
         // Data for dropdowns - DYNAMIC
-        
+
         async function loadDepartments() {
             const select = document.getElementById('department');
             const currentVal = select.value;
-            select.innerHTML = '<option value="">Select Department</option>';
+            select.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
+            if (typeof updatePageLanguage === 'function') updatePageLanguage();
 
             try {
                 const snapshot = await db.collection('departments').orderBy('name').get();
@@ -153,7 +180,7 @@
                     opt.innerText = doc.data().name;
                     select.appendChild(opt);
                 });
-                if(currentVal) select.value = currentVal;
+                if (currentVal) select.value = currentVal;
             } catch (error) {
                 console.error("Error loading departments:", error);
             }
@@ -166,10 +193,11 @@
         async function updateClasses() {
             const dept = document.getElementById('department').value;
             const classSelect = document.getElementById('className');
-            classSelect.innerHTML = '<option value="">Select Class</option>';
-            document.getElementById('subject').innerHTML = '<option value="">Select Subject</option>';
-            
-            if(!dept) return;
+            classSelect.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
+            document.getElementById('subject').innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
+            if (typeof updatePageLanguage === 'function') updatePageLanguage();
+
+            if (!dept) return;
 
             try {
                 const snapshot = await db.collection('classes').where('department', '==', dept).get();
@@ -188,9 +216,10 @@
             const dept = document.getElementById('department').value;
             const className = document.getElementById('className').value;
             const subjectSelect = document.getElementById('subject');
-            subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+            subjectSelect.innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
+            if (typeof updatePageLanguage === 'function') updatePageLanguage();
 
-            if(!dept || !className) return;
+            if (!dept || !className) return;
 
             try {
                 const snapshot = await db.collection('subjects')
@@ -219,14 +248,14 @@
             const subject = document.getElementById('subject').value;
             const date = document.getElementById('date').value;
 
-            if(!dept || !className || !subject || !date) {
+            if (!dept || !className || !subject || !date) {
                 alert("Please select Department, Class, Subject and Date.");
                 return;
             }
 
             const listCard = document.getElementById('studentListCard');
             const tbody = document.getElementById('attendanceTableBody');
-            
+
             listCard.style.display = 'block';
             tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">Loading...</td></tr>';
 
@@ -235,8 +264,8 @@
                 const attId = `${date}_${dept}_${className}_${subject}`.replace(/[^a-zA-Z0-9]/g, '_');
                 const attDoc = await db.collection("attendance").doc(attId).get();
                 let existingData = null;
-                
-                if(attDoc.exists) {
+
+                if (attDoc.exists) {
                     existingData = attDoc.data().records;
                 }
 
@@ -264,15 +293,15 @@
                     data.uid = doc.id; // Use doc.id as uid
                     students.push(data);
                 });
-                students.sort((a,b) => (a.rollNumber || '').localeCompare(b.rollNumber || ''));
+                students.sort((a, b) => (a.rollNumber || '').localeCompare(b.rollNumber || ''));
 
                 tbody.innerHTML = '';
                 students.forEach(s => {
                     let status = 'Present'; // Default
-                    
-                    if(existingData) {
+
+                    if (existingData) {
                         const record = existingData.find(r => r.uid === s.uid);
-                        if(record) status = record.status;
+                        if (record) status = record.status;
                     }
 
                     const tr = document.createElement('tr');
@@ -282,13 +311,13 @@
                         <td>
                             <div class="radio-group">
                                 <label class="radio-option status-present">
-                                    <input type="radio" name="status_${s.uid}" value="Present" ${status==='Present'?'checked':''}> Present
+                                    <input type="radio" name="status_${s.uid}" value="Present" ${status === 'Present' ? 'checked' : ''}> <span data-i18n="present">Present</span>
                                 </label>
                                 <label class="radio-option status-absent">
-                                    <input type="radio" name="status_${s.uid}" value="Absent" ${status==='Absent'?'checked':''}> Absent
+                                    <input type="radio" name="status_${s.uid}" value="Absent" ${status === 'Absent' ? 'checked' : ''}> <span data-i18n="absent">Absent</span>
                                 </label>
                                 <label class="radio-option status-leave">
-                                    <input type="radio" name="status_${s.uid}" value="Leave" ${status==='Leave'?'checked':''}> Leave
+                                    <input type="radio" name="status_${s.uid}" value="Leave" ${status === 'Leave' ? 'checked' : ''}> <span data-i18n="leave">Leave</span>
                                 </label>
                             </div>
                         </td>
@@ -298,11 +327,52 @@
 
                 // Reset bulk action radios
                 document.querySelectorAll('input[name="bulk_status"]').forEach(r => r.checked = false);
+                updatePageLanguage();
 
             } catch (error) {
                 console.error("Error:", error);
                 tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: red;">Error loading data.</td></tr>';
             }
+        }
+
+        // QR/Barcode scan stub using native camera (requires https/localhost)
+        async function openQrScanner() {
+            if (!('mediaDevices' in navigator)) {
+                alert('Camera not available in this browser.');
+                return;
+            }
+            alert('QR/Barcode scanning placeholder. Integrate a scanner library to decode codes and then auto-mark attendance.');
+        }
+
+        // Geofence/mobile check-in stub with location logging
+        async function logGeoCheckin() {
+            if (!navigator.geolocation) {
+                alert('Geolocation not supported in this browser.');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                try {
+                    const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy };
+                    await db.collection('attendance_logs').add({
+                        type: 'geofence_checkin',
+                        coords,
+                        capturedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        userId: firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'unknown',
+                        userEmail: firebase.auth().currentUser ? firebase.auth().currentUser.email : '',
+                        device: navigator.userAgent || '',
+                        tenantId: (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default')
+                    });
+                    if (typeof logAudit === 'function') {
+                        logAudit('geo_checkin', 'attendance_logs', coords);
+                    }
+                    alert('Check-in recorded with location.');
+                } catch (err) {
+                    console.error(err);
+                    alert('Failed to record check-in.');
+                }
+            }, (err) => {
+                alert('Geolocation error: ' + err.message);
+            });
         }
 
         function markAll(status) {
@@ -315,28 +385,28 @@
             const className = document.getElementById('className').value;
             const subject = document.getElementById('subject').value;
             const date = document.getElementById('date').value;
-            
+
             // Get all students rendered
             const rows = document.querySelectorAll('#attendanceTableBody tr');
             const records = [];
 
             rows.forEach(tr => {
                 const inputs = tr.querySelectorAll('input[type="radio"]');
-                if(inputs.length > 0) {
+                if (inputs.length > 0) {
                     const uid = inputs[0].name.replace('status_', '');
                     const name = tr.children[1].innerText;
                     let status = 'Absent'; // Fallback
-                    
+
                     inputs.forEach(input => {
-                        if(input.checked) status = input.value;
+                        if (input.checked) status = input.value;
                     });
-                    
+
                     records.push({ uid, name, status });
                 }
             });
 
             const attId = `${date}_${dept}_${className}_${subject}`.replace(/[^a-zA-Z0-9]/g, '_');
-            
+
             const btn = document.querySelector('button[onclick="saveAttendance()"]');
             btn.innerText = 'Saving...';
             btn.disabled = true;
@@ -362,4 +432,5 @@
         }
     </script>
 </body>
+
 </html>

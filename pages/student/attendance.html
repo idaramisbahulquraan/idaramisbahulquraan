@@ -100,14 +100,16 @@
         <main class="main-content">
             <header class="header">
                 <div class="page-title">
-                    <h1>My Attendance</h1>
+                    <h1 data-i18n="my_attendance">My Attendance</h1>
                 </div>
-                <div class="user-profile">
-                    <div class="user-info">
-                        <p id="userName" style="font-weight: 600;">User</p>
-                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
                     </div>
-                    <div class="avatar">U</div>
                 </div>
             </header>
 
@@ -159,23 +161,43 @@
 
     <!-- App Scripts -->
     <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
     <script src="../../js/script.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             firebase.auth().onAuthStateChanged(async user => {
-                if (user) {
-                    try {
-                        const doc = await db.collection('students').doc(user.uid).get();
-                        if (doc.exists) {
-                            const student = doc.data();
-                            loadAttendance(student.department, student.className, student.uid);
-                        } else {
-                            document.getElementById('attendanceList').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">Student profile not found.</td></tr>';
-                        }
-                    } catch (error) {
-                        console.error("Error fetching profile:", error);
+                if (!user) {
+                    window.location.href = '../../index.html';
+                    return;
+                }
+                try {
+                    const doc = await db.collection('students').doc(user.uid).get();
+                    if (doc.exists) {
+                        const student = doc.data();
+                        const profile = {
+                            uid: user.uid,
+                            email: user.email,
+                            role: 'student',
+                            name: `${student.firstName || ''} ${student.lastName || ''}`.trim(),
+                            className: student.className || '',
+                            department: student.department || ''
+                        };
+                        localStorage.setItem('currentUser', JSON.stringify(profile));
+                        initDashboard(profile);
+                        loadAttendance(student.department, student.className, student.uid);
+                    } else {
+                        const profile = { uid: user.uid, email: user.email, role: 'student', name: user.email || 'Student' };
+                        localStorage.setItem('currentUser', JSON.stringify(profile));
+                        initDashboard(profile);
+                        document.getElementById('attendanceList').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">Student profile not found.</td></tr>';
                     }
+                } catch (error) {
+                    console.error("Error fetching profile:", error);
+                    const profile = { uid: user.uid, email: user.email, role: 'student', name: user.email || 'Student' };
+                    localStorage.setItem('currentUser', JSON.stringify(profile));
+                    initDashboard(profile);
+                    document.getElementById('attendanceList').innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">Student profile not found.</td></tr>';
                 }
             });
         });

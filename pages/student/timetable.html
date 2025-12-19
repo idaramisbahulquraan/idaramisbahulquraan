@@ -70,14 +70,16 @@
         <main class="main-content">
             <header class="header">
                 <div class="page-title">
-                    <h1 id="pageTitle">My Timetable</h1>
+                    <h1 id="pageTitle" data-i18n="my_timetable">My Timetable</h1>
                 </div>
-                <div class="user-profile">
-                    <div class="user-info">
-                        <p id="userName" style="font-weight: 600;">User</p>
-                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
                     </div>
-                    <div class="avatar">U</div>
                 </div>
             </header>
 
@@ -115,42 +117,64 @@
 
     <!-- App Scripts -->
     <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
     <script src="../../js/script.js"></script>
 
     <script>
         const dayOrder = { "Monday": 1, "Tuesday": 2, "Wednesday": 3, "Thursday": 4, "Friday": 5, "Saturday": 6, "Sunday": 7 };
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Wait for auth to be ready (handled by script.js but we need the user object)
-            // We can listen to auth state change or just wait a bit if script.js runs first.
-            // Better: use onAuthStateChanged here too or check if user is already in localStorage from script.js logic.
-            
-            // script.js initializes the dashboard and sidebar. We need to fetch specific data.
-            
             firebase.auth().onAuthStateChanged(async (user) => {
-                if (user) {
-                    await loadStudentTimetable(user.uid);
+                if (!user) {
+                    window.location.href = '../../index.html';
+                    return;
+                }
+                try {
+                    const studentDoc = await db.collection("students").doc(user.uid).get();
+                    if (studentDoc.exists) {
+                        const studentData = studentDoc.data();
+                        const profile = {
+                            uid: user.uid,
+                            email: user.email,
+                            role: 'student',
+                            name: `${studentData.firstName || ''} ${studentData.lastName || ''}`.trim(),
+                            className: studentData.className || '',
+                            department: studentData.department || ''
+                        };
+                        localStorage.setItem('currentUser', JSON.stringify(profile));
+                        initDashboard(profile);
+                        await loadStudentTimetable({ uid: user.uid, ...studentData });
+                    } else {
+                        const profile = { uid: user.uid, email: user.email, role: 'student', name: user.email || 'Student' };
+                        localStorage.setItem('currentUser', JSON.stringify(profile));
+                        initDashboard(profile);
+                        document.getElementById('classInfo').innerText = "Student profile not found.";
+                        document.getElementById('timetableList').innerHTML = '<tr><td colspan="4" style="text-align: center;">Profile error. Please contact admin.</td></tr>';
+                    }
+                } catch (err) {
+                    console.error('Error loading timetable profile:', err);
+                    const profile = { uid: user.uid, email: user.email, role: 'student', name: user.email || 'Student' };
+                    localStorage.setItem('currentUser', JSON.stringify(profile));
+                    initDashboard(profile);
+                    document.getElementById('classInfo').innerText = "Unable to load profile.";
+                    document.getElementById('timetableList').innerHTML = '<tr><td colspan="4" style="text-align: center; color:red;">Error loading data.</td></tr>';
                 }
             });
         });
 
-        async function loadStudentTimetable(uid) {
+        async function loadStudentTimetable(studentData) {
             const tbody = document.getElementById('timetableList');
             const classInfoEl = document.getElementById('classInfo');
 
             try {
-                // 1. Get Student Profile
-                const studentDoc = await db.collection("students").doc(uid).get();
-                
-                if (!studentDoc.exists) {
-                    classInfoEl.innerText = "Student profile not found.";
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Profile error. Please contact admin.</td></tr>';
-                    return;
-                }
-
-                const studentData = studentDoc.data();
                 const department = studentData.department;
                 const className = studentData.className;
+
+                if (!department || !className) {
+                    classInfoEl.innerText = "Student profile missing class or department.";
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Complete your profile to view timetable.</td></tr>';
+                    return;
+                }
 
                 classInfoEl.innerText = `${department} - ${className}`;
 

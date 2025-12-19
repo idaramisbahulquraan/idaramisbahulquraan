@@ -83,7 +83,8 @@
             min-width: 800px;
         }
 
-        th, td {
+        th,
+        td {
             padding: 1rem 1.5rem;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
@@ -155,19 +156,20 @@
             font-weight: 500;
         }
 
-        .form-group input, .form-group select {
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid var(--border-color);
             border-radius: 0.5rem;
         }
-        
+
         .filters {
             display: flex;
             gap: 1rem;
             margin-bottom: 1.5rem;
         }
-        
+
         .filters select {
             padding: 0.5rem;
             border: 1px solid var(--border-color);
@@ -194,36 +196,41 @@
         <main class="main-content">
             <header class="header">
                 <div class="page-title">
-                    <h1>Academic Management</h1>
+                    <h1 data-i18n="academic_management">Academic Management</h1>
                 </div>
-                <div class="user-profile">
-                    <div class="user-info">
-                        <p id="userName" style="font-weight: 600;">User</p>
-                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
                     </div>
-                    <div class="avatar">U</div>
                 </div>
             </header>
 
             <!-- Page Content -->
             <div class="dashboard-content">
-                
+
                 <div class="tabs">
-                    <button class="tab-btn active" onclick="switchTab('departments')">Departments</button>
-                    <button class="tab-btn" onclick="switchTab('classes')">Classes</button>
-                    <button class="tab-btn" onclick="switchTab('subjects')">Subjects & Allocation</button>
+                    <button class="tab-btn active" onclick="switchTab('departments')"
+                        data-i18n="departments">Departments</button>
+                    <button class="tab-btn" onclick="switchTab('classes')" data-i18n="classes">Classes</button>
+                    <button class="tab-btn" onclick="switchTab('subjects')" data-i18n="subjects_allocation">Subjects &
+                        Allocation</button>
                 </div>
 
                 <!-- Departments Tab -->
                 <div id="departmentsTab" class="tab-content active">
                     <div class="page-header">
-                        <h2 style="font-size: 1.25rem; font-weight: 600;">Departments</h2>
+                        <h2 style="font-size: 1.25rem; font-weight: 600;" data-i18n="departments">Departments</h2>
                         <div style="display: flex; gap: 0.5rem;">
-                             <button onclick="downloadDepartmentsPDF()" class="btn-add" style="background-color: #4b5563;">
-                                <span>↓</span> PDF
+                            <button onclick="downloadDepartmentsPDF()" class="btn-add"
+                                style="background-color: #4b5563;">
+                                <span>↓</span> <span data-i18n="pdf">PDF</span>
                             </button>
                             <button onclick="openModal('departmentModal')" class="btn-add">
-                                <span>+</span> Add Department
+                                <span>+</span> <span data-i18n="add_department">Add Department</span>
                             </button>
                         </div>
                     </div>
@@ -231,12 +238,14 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Department Name</th>
-                                    <th>Actions</th>
+                                    <th data-i18n="department_name">Department Name</th>
+                                    <th data-i18n="actions">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="departmentsList">
-                                <tr><td colspan="2" style="text-align:center; padding: 2rem;">Loading...</td></tr>
+                                <tr>
+                                    <td colspan="2" style="text-align:center; padding: 2rem;">Loading...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -245,32 +254,34 @@
                 <!-- Classes Tab -->
                 <div id="classesTab" class="tab-content">
                     <div class="page-header">
-                        <h2 style="font-size: 1.25rem; font-weight: 600;">Classes</h2>
+                        <h2 style="font-size: 1.25rem; font-weight: 600;" data-i18n="classes">Classes</h2>
                         <div style="display: flex; gap: 0.5rem;">
-                             <button onclick="downloadClassesPDF()" class="btn-add" style="background-color: #4b5563;">
-                                <span>↓</span> PDF
+                            <button onclick="downloadClassesPDF()" class="btn-add" style="background-color: #4b5563;">
+                                <span>↓</span> <span data-i18n="pdf">PDF</span>
                             </button>
                             <button onclick="openModal('classModal')" class="btn-add">
-                                <span>+</span> Add Class
+                                <span>+</span> <span data-i18n="add_class">Add Class</span>
                             </button>
                         </div>
                     </div>
                     <div class="filters">
                         <select id="classFilterDept" onchange="loadClasses()">
-                            <option value="">All Departments</option>
+                            <option value="" data-i18n="all_departments">All Departments</option>
                         </select>
                     </div>
                     <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Class Name</th>
-                                    <th>Department</th>
-                                    <th>Actions</th>
+                                    <th data-i18n="class_name">Class Name</th>
+                                    <th data-i18n="department">Department</th>
+                                    <th data-i18n="actions">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="classesList">
-                                <tr><td colspan="3" style="text-align:center; padding: 2rem;">Loading...</td></tr>
+                                <tr>
+                                    <td colspan="3" style="text-align:center; padding: 2rem;">Loading...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -279,37 +290,40 @@
                 <!-- Subjects Tab -->
                 <div id="subjectsTab" class="tab-content">
                     <div class="page-header">
-                        <h2 style="font-size: 1.25rem; font-weight: 600;">Subjects & Teacher Allocation</h2>
+                        <h2 style="font-size: 1.25rem; font-weight: 600;" data-i18n="subjects_teacher_allocation">
+                            Subjects & Teacher Allocation</h2>
                         <div style="display: flex; gap: 0.5rem;">
-                             <button onclick="downloadSubjectsPDF()" class="btn-add" style="background-color: #4b5563;">
-                                <span>↓</span> PDF
+                            <button onclick="downloadSubjectsPDF()" class="btn-add" style="background-color: #4b5563;">
+                                <span>↓</span> <span data-i18n="pdf">PDF</span>
                             </button>
                             <button onclick="openModal('subjectModal')" class="btn-add">
-                                <span>+</span> Add Subject
+                                <span>+</span> <span data-i18n="add_subject">Add Subject</span>
                             </button>
                         </div>
                     </div>
                     <div class="filters">
                         <select id="subjectFilterDept" onchange="updateSubjectFilterClasses()">
-                            <option value="">All Departments</option>
+                            <option value="" data-i18n="all_departments">All Departments</option>
                         </select>
                         <select id="subjectFilterClass" onchange="loadSubjects()">
-                            <option value="">All Classes</option>
+                            <option value="" data-i18n="all_classes">All Classes</option>
                         </select>
                     </div>
                     <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Subject Name</th>
-                                    <th>Class</th>
-                                    <th>Department</th>
-                                    <th>Assigned Teacher</th>
-                                    <th>Actions</th>
+                                    <th data-i18n="subject_name">Subject Name</th>
+                                    <th data-i18n="class">Class</th>
+                                    <th data-i18n="department">Department</th>
+                                    <th data-i18n="assigned_teacher">Assigned Teacher</th>
+                                    <th data-i18n="actions">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="subjectsList">
-                                <tr><td colspan="5" style="text-align:center; padding: 2rem;">Loading...</td></tr>
+                                <tr>
+                                    <td colspan="5" style="text-align:center; padding: 2rem;">Loading...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -325,17 +339,17 @@
     <div id="departmentModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="departmentModalTitle">Add Department</h3>
+                <h3 id="departmentModalTitle" data-i18n="add_department">Add Department</h3>
                 <button class="close-btn" onclick="closeModal('departmentModal')">&times;</button>
             </div>
             <form id="addDepartmentForm">
                 <input type="hidden" name="docId">
                 <div class="form-group">
-                    <label>Department Name</label>
+                    <label data-i18n="department_name">Department Name</label>
                     <input type="text" name="name" required placeholder="e.g. Dars-e-Nizami">
                 </div>
                 <div style="text-align: right; margin-top: 1.5rem;">
-                    <button type="submit" class="btn-add" style="border:none;">Save</button>
+                    <button type="submit" class="btn-add" style="border:none;" data-i18n="save_department">Save</button>
                 </div>
             </form>
         </div>
@@ -345,23 +359,23 @@
     <div id="classModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="classModalTitle">Add Class</h3>
+                <h3 id="classModalTitle" data-i18n="add_class">Add Class</h3>
                 <button class="close-btn" onclick="closeModal('classModal')">&times;</button>
             </div>
             <form id="addClassForm">
                 <input type="hidden" name="docId">
                 <div class="form-group">
-                    <label>Department</label>
+                    <label data-i18n="department">Department</label>
                     <select name="departmentId" id="classDepartmentSelect" required>
-                        <option value="">Select Department</option>
+                        <option value="" data-i18n="select_department">Select Department</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Class Name</label>
+                    <label data-i18n="class_name">Class Name</label>
                     <input type="text" name="name" required placeholder="e.g. 1st Year">
                 </div>
                 <div style="text-align: right; margin-top: 1.5rem;">
-                    <button type="submit" class="btn-add" style="border:none;">Save</button>
+                    <button type="submit" class="btn-add" style="border:none;" data-i18n="save_class">Save</button>
                 </div>
             </form>
         </div>
@@ -371,35 +385,232 @@
     <div id="subjectModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="subjectModalTitle">Add Subject & Allocate Teacher</h3>
+                <h3 id="subjectModalTitle" data-i18n="add_subject_allocate">Add Subject & Allocate Teacher</h3>
                 <button class="close-btn" onclick="closeModal('subjectModal')">&times;</button>
             </div>
             <form id="addSubjectForm">
                 <input type="hidden" name="docId">
                 <div class="form-group">
-                    <label>Department</label>
-                    <select name="departmentId" id="subjectDepartmentSelect" onchange="updateSubjectModalClasses()" required>
-                        <option value="">Select Department</option>
+                    <label data-i18n="department">Department</label>
+                    <select name="departmentId" id="subjectDepartmentSelect" onchange="updateSubjectModalClasses()"
+                        required>
+                        <option value="" data-i18n="select_department">Select Department</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Class</label>
+                    <label data-i18n="class">Class</label>
                     <select name="className" id="subjectClassSelect" required>
-                        <option value="">Select Class</option>
+                        <option value="" data-i18n="select_class">Select Class</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Subject Name</label>
+                    <label data-i18n="subject_name">Subject Name</label>
                     <input type="text" name="name" required placeholder="e.g. Fiqh">
                 </div>
                 <div class="form-group">
-                    <label>Assign Teacher (Optional)</label>
+                    <label data-i18n="assign_teacher_optional">Assign Teacher (Optional)</label>
                     <select name="teacherId" id="subjectTeacherSelect">
-                        <option value="">Select Teacher</option>
+                        <option value="" data-i18n="select_teacher">Select Teacher</option>
                     </select>
                 </div>
                 <div style="text-align: right; margin-top: 1.5rem;">
-                    <button type="submit" class="btn-add" style="border:none;">Save</button>
+                    <button type="submit" class="btn-add" style="border:none;" data-i18n="save_subject">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    ```
+    <span>+</span> <span data-i18n="add_department">Add Department</span>
+    </button>
+    </div>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th data-i18n="department_name">Department Name</th>
+                    <th data-i18n="actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="departmentsList">
+                <tr>
+                    <td colspan="2" style="text-align:center; padding: 2rem;">Loading...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </div>
+
+    <!-- Classes Tab -->
+    <div id="classesTab" class="tab-content">
+        <div class="page-header">
+            <h2 style="font-size: 1.25rem; font-weight: 600;" data-i18n="classes">Classes</h2>
+            <div style="display: flex; gap: 0.5rem;">
+                <button onclick="downloadClassesPDF()" class="btn-add" style="background-color: #4b5563;">
+                    <span>↓</span> <span data-i18n="pdf">PDF</span>
+                </button>
+                <button onclick="openModal('classModal')" class="btn-add">
+                    <span>+</span> <span data-i18n="add_class">Add Class</span>
+                </button>
+            </div>
+        </div>
+        <div class="filters">
+            <select id="classFilterDept" onchange="loadClasses()">
+                <option value="" data-i18n="all_departments">All Departments</option>
+            </select>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-i18n="class_name">Class Name</th>
+                        <th data-i18n="department">Department</th>
+                        <th data-i18n="actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="classesList">
+                    <tr>
+                        <td colspan="3" style="text-align:center; padding: 2rem;">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Subjects Tab -->
+    <div id="subjectsTab" class="tab-content">
+        <div class="page-header">
+            <h2 style="font-size: 1.25rem; font-weight: 600;" data-i18n="subjects_teacher_allocation">
+                Subjects & Teacher Allocation</h2>
+            <div style="display: flex; gap: 0.5rem;">
+                <button onclick="downloadSubjectsPDF()" class="btn-add" style="background-color: #4b5563;">
+                    <span>↓</span> <span data-i18n="pdf">PDF</span>
+                </button>
+                <button onclick="openModal('subjectModal')" class="btn-add">
+                    <span>+</span> <span data-i18n="add_subject">Add Subject</span>
+                </button>
+            </div>
+        </div>
+        <div class="filters">
+            <select id="subjectFilterDept" onchange="updateSubjectFilterClasses()">
+                <option value="" data-i18n="all_departments">All Departments</option>
+            </select>
+            <select id="subjectFilterClass" onchange="loadSubjects()">
+                <option value="" data-i18n="all_classes">All Classes</option>
+            </select>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-i18n="subject_name">Subject Name</th>
+                        <th data-i18n="class">Class</th>
+                        <th data-i18n="department">Department</th>
+                        <th data-i18n="assigned_teacher">Assigned Teacher</th>
+                        <th data-i18n="actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="subjectsList">
+                    <tr>
+                        <td colspan="5" style="text-align:center; padding: 2rem;">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    </div>
+    </main>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Add Department Modal -->
+    <div id="departmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="departmentModalTitle" data-i18n="add_department">Add Department</h3>
+                <button class="close-btn" onclick="closeModal('departmentModal')">&times;</button>
+            </div>
+            <form id="addDepartmentForm">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label data-i18n="department_name">Department Name</label>
+                    <input type="text" name="name" required placeholder="e.g. Dars-e-Nizami">
+                </div>
+                <div style="text-align: right; margin-top: 1.5rem;">
+                    <button type="submit" class="btn-add" style="border:none;" data-i18n="save_department">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Class Modal -->
+    <div id="classModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="classModalTitle" data-i18n="add_class">Add Class</h3>
+                <button class="close-btn" onclick="closeModal('classModal')">&times;</button>
+            </div>
+            <form id="addClassForm">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label data-i18n="department">Department</label>
+                    <select name="departmentId" id="classDepartmentSelect" required>
+                        <option value="" data-i18n="select_department">Select Department</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="class_name">Class Name</label>
+                    <input type="text" name="name" required placeholder="e.g. 1st Year">
+                </div>
+                <div style="text-align: right; margin-top: 1.5rem;">
+                    <button type="submit" class="btn-add" style="border:none;" data-i18n="save_class">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Subject Modal -->
+    <div id="subjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="subjectModalTitle" data-i18n="add_subject_allocate">Add Subject & Allocate Teacher</h3>
+                <button class="close-btn" onclick="closeModal('subjectModal')">&times;</button>
+            </div>
+            <form id="addSubjectForm">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label data-i18n="department">Department</label>
+                    <select name="departmentId" id="subjectDepartmentSelect" onchange="updateSubjectModalClasses()"
+                        required>
+                        <option value="" data-i18n="select_department">Select Department</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="class">Class</label>
+                    <select name="className" id="subjectClassSelect" required>
+                        <option value="" data-i18n="select_class">Select Class</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="subject_name">Subject Name</label>
+                    <input type="text" name="name" required placeholder="e.g. Fiqh">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="assign_teacher_optional">Assign Teacher (Optional)</label>
+                    <select name="teacherId" id="subjectTeacherSelect">
+                        <option value="" data-i18n="select_teacher">Select Teacher</option>
+                    </select>
+                </div>
+                <div style="text-align: right; margin-top: 1.5rem;">
+                    <button type="submit" class="btn-add" style="border:none;" data-i18n="save_subject">Save</button>
                 </div>
             </form>
         </div>
@@ -412,6 +623,7 @@
 
     <!-- App Scripts -->
     <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
     <script src="../../js/script.js"></script>
 
     <script>
@@ -419,20 +631,20 @@
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            
+
             document.getElementById(tabName + 'Tab').classList.add('active');
             document.querySelector(`button[onclick="switchTab('${tabName}')"]`).classList.add('active');
-            
-            if(tabName === 'departments') loadDepartments();
-            if(tabName === 'classes') loadClasses();
-            if(tabName === 'subjects') loadSubjects();
+
+            if (tabName === 'departments') loadDepartments();
+            if (tabName === 'classes') loadClasses();
+            if (tabName === 'subjects') loadSubjects();
         }
 
         // Modal Logic
         function openModal(id) {
             document.getElementById(id).classList.add('active');
-            if(id === 'classModal') loadDepartmentsForSelect('classDepartmentSelect');
-            if(id === 'subjectModal') {
+            if (id === 'classModal') loadDepartmentsForSelect('classDepartmentSelect');
+            if (id === 'subjectModal') {
                 loadDepartmentsForSelect('subjectDepartmentSelect');
                 loadTeachersForSelect();
             }
@@ -441,14 +653,14 @@
         function closeModal(id) {
             document.getElementById(id).classList.remove('active');
             const form = document.getElementById(id).querySelector('form');
-            if(form) {
+            if (form) {
                 form.reset();
                 const docIdInput = form.querySelector('input[name="docId"]');
-                if(docIdInput) docIdInput.value = '';
+                if (docIdInput) docIdInput.value = '';
             }
-            if(id === 'departmentModal') document.getElementById('departmentModalTitle').textContent = 'Add Department';
-            if(id === 'classModal') document.getElementById('classModalTitle').textContent = 'Add Class';
-            if(id === 'subjectModal') document.getElementById('subjectModalTitle').textContent = 'Add Subject & Allocate Teacher';
+            if (id === 'departmentModal') document.getElementById('departmentModalTitle').textContent = getTrans('add_department');
+            if (id === 'classModal') document.getElementById('classModalTitle').textContent = getTrans('add_class');
+            if (id === 'subjectModal') document.getElementById('subjectModalTitle').textContent = getTrans('add_subject_allocate');
         }
 
         // --- Departments ---
@@ -456,17 +668,22 @@
             const tbody = document.getElementById('departmentsList');
             const filter1 = document.getElementById('classFilterDept');
             const filter2 = document.getElementById('subjectFilterDept');
-            
+
+            // Only show loading if empty
+            if (!tbody.innerHTML.trim() || tbody.innerHTML.includes('Loading')) {
+                tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; padding: 2rem;">${getTrans('loading')}...</td></tr>`;
+            }
+
             try {
                 const snapshot = await db.collection('departments').orderBy('name').get();
-                
+
                 // Populate Filters
                 [filter1, filter2].forEach(select => {
                     const currentVal = select.value;
-                    select.innerHTML = '<option value="">All Departments</option>';
+                    select.innerHTML = `<option value="" data-i18n="all_departments">${getTrans('all_departments')}</option>`;
                     snapshot.forEach(doc => {
                         const opt = document.createElement('option');
-                        opt.value = doc.data().name; // Using name as ID for simplicity in filters for now
+                        opt.value = doc.data().name;
                         opt.innerText = doc.data().name;
                         select.appendChild(opt);
                     });
@@ -474,7 +691,7 @@
                 });
 
                 if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; padding: 2rem;">No departments found.</td></tr>';
+                    tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; padding: 2rem;">${getTrans('no_departments_found')}</td></tr>`;
                     return;
                 }
 
@@ -485,85 +702,65 @@
                         <tr>
                             <td style="font-weight: 500;">${d.name}</td>
                             <td>
-                                <button onclick="editDepartment('${doc.id}', '${d.name}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;">Edit</button>
-                                <button onclick="deleteDepartment('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;">Delete</button>
+                                <button onclick="editDepartment('${doc.id}', '${d.name}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">${getTrans('edit')}</button>
+                                <button onclick="deleteDepartment('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
                             </td>
                         </tr>
                     `;
                 });
                 tbody.innerHTML = html;
+                updatePageLanguage();
             } catch (error) {
                 console.error("Error loading departments:", error);
+                tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:red;">Error: ${error.message}</td></tr>`;
             }
         }
 
-        document.getElementById('addDepartmentForm').addEventListener('submit', async (e) => {
+        async function handleAddDepartment(e) {
             e.preventDefault();
             const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
             btn.disabled = true;
-            btn.innerText = 'Saving...';
-            
+            btn.innerText = getTrans('saving');
+
             const formData = new FormData(e.target);
             const name = formData.get('name');
             const docId = formData.get('docId');
 
             try {
-                if(docId) {
-                    await db.collection('departments').doc(docId).update({
-                        name: name
-                    });
+                if (docId) {
+                    await db.collection('departments').doc(docId).update({ name: name });
                 } else {
                     await db.collection('departments').add({
                         name: name,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
-
                 closeModal('departmentModal');
                 loadDepartments();
             } catch (error) {
                 alert(error.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = 'Save';
+                btn.innerText = originalText;
             }
-        });
+        }
 
         function editDepartment(id, name) {
             document.querySelector('#departmentModal input[name="docId"]').value = id;
             document.querySelector('#departmentModal input[name="name"]').value = name;
-            document.getElementById('departmentModalTitle').textContent = 'Edit Department';
+            document.getElementById('departmentModalTitle').textContent = getTrans('edit_department');
+            document.getElementById('departmentModalTitle').setAttribute('data-i18n', 'edit_department');
             openModal('departmentModal');
         }
 
-        function downloadDepartmentsPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text("Departments Report", 14, 20);
-            
-            const rows = [];
-            document.querySelectorAll('#departmentsList tr').forEach(tr => {
-                 const name = tr.cells[0]?.innerText;
-                 if(name && !name.includes('Loading') && !name.includes('No departments')) {
-                     rows.push([name]);
-                 }
-            });
-            
-            doc.autoTable({
-                head: [['Department Name']],
-                body: rows,
-                startY: 25,
-            });
-            doc.save('departments.pdf');
-        }
-
         async function deleteDepartment(id) {
-            if(!confirm('Delete this department?')) return;
+            if (!confirm(getTrans('confirm_delete'))) return;
             try {
                 await db.collection('departments').doc(id).delete();
                 loadDepartments();
             } catch (error) {
-                console.error(error);
+                alert(error.message);
             }
         }
 
@@ -571,17 +768,21 @@
         async function loadClasses() {
             const tbody = document.getElementById('classesList');
             const filterDept = document.getElementById('classFilterDept').value;
-            
+
+            if (!tbody.innerHTML.trim() || tbody.innerHTML.includes('Loading')) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 2rem;">${getTrans('loading')}...</td></tr>`;
+            }
+
             try {
                 let query = db.collection('classes').orderBy('name');
-                if(filterDept) {
+                if (filterDept) {
                     query = db.collection('classes').where('department', '==', filterDept);
                 }
-                
+
                 const snapshot = await query.get();
 
                 if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 2rem;">No classes found.</td></tr>';
+                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 2rem;">${getTrans('no_classes_found')}</td></tr>`;
                     return;
                 }
 
@@ -593,114 +794,95 @@
                             <td style="font-weight: 500;">${c.name}</td>
                             <td>${c.department}</td>
                             <td>
-                                <button onclick="editClass('${doc.id}', '${c.name}', '${c.department}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;">Edit</button>
-                                <button onclick="deleteClass('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;">Delete</button>
+                                <button onclick="editClass('${doc.id}', '${c.name}', '${c.department}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">${getTrans('edit')}</button>
+                                <button onclick="deleteClass('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
                             </td>
                         </tr>
                     `;
                 });
                 tbody.innerHTML = html;
+                updatePageLanguage();
             } catch (error) {
                 console.error("Error loading classes:", error);
-                // If index error (orderBy + where), fallback to client side filter
-                if(error.message.includes('index')) {
-                     const snapshot = await db.collection('classes').get();
-                     let html = '';
-                     snapshot.forEach(doc => {
+                if (error.message.includes('index')) {
+                    // Fallback client-side filtering if index missing
+                    const snapshot = await db.collection('classes').get();
+                    let html = '';
+                    let count = 0;
+                    snapshot.forEach(doc => {
                         const c = doc.data();
-                        if(filterDept && c.department !== filterDept) return;
+                        if (filterDept && c.department !== filterDept) return;
+                        count++;
                         html += `
                             <tr>
                                 <td style="font-weight: 500;">${c.name}</td>
                                 <td>${c.department}</td>
                                 <td>
-                                    <button onclick="deleteClass('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;">Delete</button>
+                                    <button onclick="editClass('${doc.id}', '${c.name}', '${c.department}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">${getTrans('edit')}</button>
+                                    <button onclick="deleteClass('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
                                 </td>
                             </tr>
-                        `;
-                     });
-                     tbody.innerHTML = html || '<tr><td colspan="3" style="text-align:center; padding: 2rem;">No classes found.</td></tr>';
+                         `;
+                    });
+                    if (count === 0) tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 2rem;">${getTrans('no_classes_found')}</td></tr>`;
+                    else tbody.innerHTML = html;
+                    updatePageLanguage();
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:red;">Error: ${error.message}</td></tr>`;
                 }
             }
         }
 
-        document.getElementById('addClassForm').addEventListener('submit', async (e) => {
+        async function handleAddClass(e) {
             e.preventDefault();
             const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
             btn.disabled = true;
-            btn.innerText = 'Saving...';
-            
+            btn.innerText = getTrans('saving');
+
             const formData = new FormData(e.target);
             const name = formData.get('name');
-            const department = formData.get('departmentId'); 
+            const department = formData.get('departmentId');
             const docId = formData.get('docId');
 
             try {
-                if(docId) {
-                    await db.collection('classes').doc(docId).update({
-                        name: name,
-                        department: department
-                    });
+                if (docId) {
+                    await db.collection('classes').doc(docId).update({ name, department });
                 } else {
                     await db.collection('classes').add({
-                        name: name,
-                        department: department,
+                        name, department,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
-
                 closeModal('classModal');
                 loadClasses();
             } catch (error) {
                 alert(error.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = 'Save';
+                btn.innerText = originalText;
             }
-        });
+        }
 
-        async function editClass(id, name, department) {
+        function editClass(id, name, department) {
             document.querySelector('#classModal input[name="docId"]').value = id;
             document.querySelector('#classModal input[name="name"]').value = name;
-            
-            // Populate departments if empty
-            const deptSelect = document.getElementById('classDepartmentSelect');
-            if(deptSelect.options.length <= 1) await loadDepartmentsForSelect('classDepartmentSelect');
-            deptSelect.value = department;
-
-            document.getElementById('classModalTitle').textContent = 'Edit Class';
+            // We need to ensure departments are loaded first
+            loadDepartmentsForSelect('classDepartmentSelect').then(() => {
+                document.querySelector('#classModal select[name="departmentId"]').value = department;
+            });
+            document.getElementById('classModalTitle').textContent = getTrans('edit_class');
+            document.getElementById('classModalTitle').setAttribute('data-i18n', 'edit_class');
             openModal('classModal');
         }
 
-        function downloadClassesPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text("Classes Report", 14, 20);
-            
-            const rows = [];
-            document.querySelectorAll('#classesList tr').forEach(tr => {
-                 const name = tr.cells[0]?.innerText;
-                 const dept = tr.cells[1]?.innerText;
-                 if(name && !name.includes('Loading') && !name.includes('No classes')) {
-                     rows.push([name, dept]);
-                 }
-            });
-            
-            doc.autoTable({
-                head: [['Class Name', 'Department']],
-                body: rows,
-                startY: 25,
-            });
-            doc.save('classes.pdf');
-        }
-
         async function deleteClass(id) {
-            if(!confirm('Delete this class?')) return;
+            if (!confirm(getTrans('confirm_delete'))) return;
             try {
                 await db.collection('classes').doc(id).delete();
                 loadClasses();
             } catch (error) {
-                console.error(error);
+                alert(error.message);
             }
         }
 
@@ -709,20 +891,23 @@
             const tbody = document.getElementById('subjectsList');
             const filterDept = document.getElementById('subjectFilterDept').value;
             const filterClass = document.getElementById('subjectFilterClass').value;
-            
+
+            if (!tbody.innerHTML.trim() || tbody.innerHTML.includes('Loading')) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem;">${getTrans('loading')}...</td></tr>`;
+            }
+
             try {
-                let query = db.collection('subjects').orderBy('name');
-                // Complex filtering might need composite index, doing client side filter for simplicity
-                const snapshot = await db.collection('subjects').get();
+                // Client-side filtering for simplicity as composite indexes might be missing
+                const snapshot = await db.collection('subjects').orderBy('name').get();
 
                 let html = '';
                 let count = 0;
-                
+
                 snapshot.forEach(doc => {
                     const s = doc.data();
-                    if(filterDept && s.department !== filterDept) return;
-                    if(filterClass && s.className !== filterClass) return;
-                    
+                    if (filterDept && s.department !== filterDept) return;
+                    if (filterClass && s.className !== filterClass) return;
+
                     count++;
                     html += `
                         <tr>
@@ -731,132 +916,106 @@
                             <td>${s.department}</td>
                             <td>${s.teacherName || '<span style="color:var(--text-light); font-style:italic;">Unassigned</span>'}</td>
                             <td>
-                                <button onclick="editSubject('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;">Edit</button>
-                                <button onclick="deleteSubject('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;">Delete</button>
+                                <button onclick="editSubject('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">${getTrans('edit')}</button>
+                                <button onclick="deleteSubject('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
                             </td>
                         </tr>
                     `;
                 });
 
                 if (count === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;">No subjects found.</td></tr>';
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem;">${getTrans('no_subjects_found')}</td></tr>`;
                 } else {
                     tbody.innerHTML = html;
+                    updatePageLanguage();
                 }
-
             } catch (error) {
                 console.error("Error loading subjects:", error);
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error: ${error.message}</td></tr>`;
             }
         }
 
-        document.getElementById('addSubjectForm').addEventListener('submit', async (e) => {
+        async function handleAddSubject(e) {
             e.preventDefault();
             const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
             btn.disabled = true;
-            btn.innerText = 'Saving...';
-            
+            btn.innerText = getTrans('saving');
+
             const formData = new FormData(e.target);
             const name = formData.get('name');
             const department = formData.get('departmentId');
             const className = formData.get('className');
             const teacherId = formData.get('teacherId');
             const docId = formData.get('docId');
-            
+
             let teacherName = '';
-            if(teacherId) {
+            if (teacherId) {
                 const select = document.getElementById('subjectTeacherSelect');
                 teacherName = select.options[select.selectedIndex].text;
             }
 
             try {
-                const data = {
-                    name: name,
-                    department: department,
-                    className: className,
-                    teacherId: teacherId,
-                    teacherName: teacherName,
-                };
-
-                if(docId) {
+                const data = { name, department, className, teacherId, teacherName };
+                if (docId) {
                     await db.collection('subjects').doc(docId).update(data);
                 } else {
                     data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
                     await db.collection('subjects').add(data);
                 }
-                
                 closeModal('subjectModal');
                 loadSubjects();
             } catch (error) {
                 alert(error.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = 'Save';
+                btn.innerText = originalText;
             }
-        });
-        
+        }
+
         async function editSubject(id) {
             try {
                 const doc = await db.collection('subjects').doc(id).get();
-                if(!doc.exists) return;
+                if (!doc.exists) return;
                 const s = doc.data();
 
                 document.querySelector('#subjectModal input[name="docId"]').value = id;
                 document.querySelector('#subjectModal input[name="name"]').value = s.name;
-                
-                const deptSelect = document.getElementById('subjectDepartmentSelect');
-                if(deptSelect.options.length <= 1) await loadDepartmentsForSelect('subjectDepartmentSelect');
-                deptSelect.value = s.department;
-                
-                await updateSubjectModalClasses();
-                document.getElementById('subjectClassSelect').value = s.className;
-                
-                const teacherSelect = document.getElementById('subjectTeacherSelect');
-                if(teacherSelect.options.length <= 1) await loadTeachersForSelect();
-                teacherSelect.value = s.teacherId || '';
 
-                document.getElementById('subjectModalTitle').textContent = 'Edit Subject';
+                await loadDepartmentsForSelect('subjectDepartmentSelect');
+                document.querySelector('#subjectModal select[name="departmentId"]').value = s.department;
+
+                await updateSubjectModalClasses();
+                document.querySelector('#subjectModal select[name="className"]').value = s.className;
+
+                await loadTeachersForSelect();
+                document.querySelector('#subjectModal select[name="teacherId"]').value = s.teacherId || '';
+
+                document.getElementById('subjectModalTitle').textContent = getTrans('edit_subject');
+                document.getElementById('subjectModalTitle').setAttribute('data-i18n', 'edit_subject');
                 openModal('subjectModal');
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
             }
         }
 
-        function downloadSubjectsPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text("Subjects Report", 14, 20);
-            
-            const rows = [];
-            document.querySelectorAll('#subjectsList tr').forEach(tr => {
-                 const tds = tr.querySelectorAll('td');
-                 if(tds.length >= 4 && !tds[0].innerText.includes('Loading')) {
-                     rows.push([tds[0].innerText, tds[1].innerText, tds[2].innerText, tds[3].innerText]);
-                 }
-            });
-            
-            doc.autoTable({
-                head: [['Subject', 'Class', 'Department', 'Teacher']],
-                body: rows,
-                startY: 25,
-            });
-            doc.save('subjects.pdf');
-        }
-        
         async function deleteSubject(id) {
-             if(!confirm('Delete this subject?')) return;
+            if (!confirm(getTrans('confirm_delete'))) return;
             try {
                 await db.collection('subjects').doc(id).delete();
                 loadSubjects();
             } catch (error) {
                 console.error(error);
+                alert(error.message);
             }
         }
 
         // --- Helpers ---
         async function loadDepartmentsForSelect(selectId) {
             const select = document.getElementById(selectId);
-            select.innerHTML = '<option value="">Select Department</option>';
-            
+            const current = select.value;
+            select.innerHTML = `<option value="" data-i18n="select_department">${getTrans('select_department')}</option>`;
+
             const snapshot = await db.collection('departments').orderBy('name').get();
             snapshot.forEach(doc => {
                 const opt = document.createElement('option');
@@ -864,14 +1023,18 @@
                 opt.innerText = doc.data().name;
                 select.appendChild(opt);
             });
+            if (current) select.value = current;
         }
 
         async function updateSubjectFilterClasses() {
             const dept = document.getElementById('subjectFilterDept').value;
             const select = document.getElementById('subjectFilterClass');
-            select.innerHTML = '<option value="">All Classes</option>';
-            
-            if(!dept) return;
+            select.innerHTML = `<option value="" data-i18n="all_classes">${getTrans('all_classes')}</option>`;
+
+            if (!dept) {
+                loadSubjects();
+                return;
+            }
 
             const snapshot = await db.collection('classes').where('department', '==', dept).get();
             snapshot.forEach(doc => {
@@ -884,11 +1047,11 @@
         }
 
         async function updateSubjectModalClasses() {
-             const dept = document.getElementById('subjectDepartmentSelect').value;
+            const dept = document.getElementById('subjectDepartmentSelect').value;
             const select = document.getElementById('subjectClassSelect');
-            select.innerHTML = '<option value="">Select Class</option>';
-            
-            if(!dept) return;
+            select.innerHTML = `<option value="" data-i18n="select_class">${getTrans('select_class')}</option>`;
+
+            if (!dept) return;
 
             const snapshot = await db.collection('classes').where('department', '==', dept).get();
             snapshot.forEach(doc => {
@@ -901,25 +1064,95 @@
 
         async function loadTeachersForSelect() {
             const select = document.getElementById('subjectTeacherSelect');
-            if(select.options.length > 1) return;
+            const current = select.value;
+            select.innerHTML = `<option value="" data-i18n="select_teacher">${getTrans('select_teacher')}</option>`;
 
             const snapshot = await db.collection('teachers').orderBy('firstName').get();
             snapshot.forEach(doc => {
                 const t = doc.data();
                 const opt = document.createElement('option');
                 opt.value = doc.id;
-                opt.innerText = `${t.firstName} ${t.lastName}`;
+                opt.innerText = `${t.firstName} ${t.lastName} (${t.subject})`;
                 select.appendChild(opt);
             });
+            if (current) select.value = current;
         }
 
-        // Initial Load
+        // --- PDF Generation ---
+        async function downloadDepartmentsPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const startY = (typeof applyPdfBranding === 'function') ? await applyPdfBranding(doc, { title: 'Departments List' }) : 30;
+
+            const rows = [];
+            document.querySelectorAll('#departmentsList tr').forEach(tr => {
+                const tds = tr.querySelectorAll('td');
+                if (tds.length > 1) {
+                    rows.push([tds[0].innerText]);
+                }
+            });
+
+            doc.autoTable({
+                head: [['Department Name']],
+                body: rows,
+                startY: startY,
+            });
+            doc.save('departments.pdf');
+        }
+
+        async function downloadClassesPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const startY = (typeof applyPdfBranding === 'function') ? await applyPdfBranding(doc, { title: 'Classes List' }) : 30;
+
+            const rows = [];
+            document.querySelectorAll('#classesList tr').forEach(tr => {
+                const tds = tr.querySelectorAll('td');
+                if (tds.length > 1) {
+                    rows.push([tds[0].innerText, tds[1].innerText]);
+                }
+            });
+
+            doc.autoTable({
+                head: [['Class Name', 'Department']],
+                body: rows,
+                startY: startY,
+            });
+            doc.save('classes.pdf');
+        }
+
+        async function downloadSubjectsPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const startY = (typeof applyPdfBranding === 'function') ? await applyPdfBranding(doc, { title: 'Subjects List' }) : 30;
+
+            const rows = [];
+            document.querySelectorAll('#subjectsList tr').forEach(tr => {
+                const tds = tr.querySelectorAll('td');
+                if (tds.length > 1) {
+                    rows.push([tds[0].innerText, tds[1].innerText, tds[2].innerText, tds[3].innerText]);
+                }
+            });
+
+            doc.autoTable({
+                head: [['Subject', 'Class', 'Department', 'Teacher']],
+                body: rows,
+                startY: startY,
+            });
+            doc.save('subjects.pdf');
+        }
+
+        // --- Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
-             loadDepartments();
-             loadClasses();
-             loadSubjects();
+            loadDepartments();
+
+            document.getElementById('addDepartmentForm').addEventListener('submit', handleAddDepartment);
+            document.getElementById('addClassForm').addEventListener('submit', handleAddClass);
+            document.getElementById('addSubjectForm').addEventListener('submit', handleAddSubject);
         });
 
     </script>
 </body>
+
 </html>
+```

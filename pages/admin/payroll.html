@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll Management - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        /* Reusing styles from fees.html */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-light);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filters select,
+        .filters input {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+            min-width: 150px;
+        }
+
+        .table-container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th,
+        td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-paid {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background-color: #fef9c3;
+            color: #854d0e;
+        }
+
+        .btn-action {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: var(--text-dark);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: var(--shadow-lg);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 data-i18n="payroll_management">Payroll Management</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('generate')" data-i18n="generate_payroll">Generate Payroll</button>
+                    <button class="tab-btn" onclick="switchTab('history')" data-i18n="salary_history">Salary History</button>
+                    <button class="tab-btn" onclick="switchTab('leaves')" data-i18n="leave_management">Leave Management</button>
+                    <button class="tab-btn" onclick="switchTab('structures')" data-i18n="salary_structures">Salary Structures</button>
+                    <button class="tab-btn" onclick="switchTab('advances')" data-i18n="advances_loans">Advances/Loans</button>
+                    <button class="tab-btn" onclick="switchTab('bank')" data-i18n="bank_export">Bank Export</button>
+                </div>
+
+                <!-- Generate Payroll Tab -->
+                <div id="generateTab">
+                    <div class="filters">
+                        <select id="genMonth">
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                        <select id="genYear">
+                            <!-- Populated by JS -->
+                        </select>
+                        <button class="btn-action btn-primary" onclick="loadStaffForPayroll()" data-i18n="fetch_staff">Fetch Staff</button>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="payrollTable">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="name">Name</th>
+                                    <th data-i18n="role">Role</th>
+                                    <th data-i18n="status">Status</th>
+                                    <th data-i18n="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffList">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; padding: 2rem;" data-i18n="select_month_year_fetch">Select month/year and click Fetch Staff.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Salary History Tab -->
+                <div id="historyTab" style="display: none;">
+                    <div class="filters">
+                        <select id="histMonth" onchange="loadHistory()">
+                            <option value="">All Months</option>
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                        <select id="histYear" onchange="loadHistory()">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="historyTable">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="date">Date</th>
+                                    <th data-i18n="name">Name</th>
+                                    <th data-i18n="month_year">Month/Year</th>
+                                    <th data-i18n="net_salary">Net Salary</th>
+                                    <th data-i18n="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyList">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 2rem;">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Leave Management Tab -->
+                <div id="leavesTab" style="display: none;">
+                    <div class="filters">
+                        <button class="btn-action btn-primary" onclick="openLeaveModal()" data-i18n="record_leave">Record Leave</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="leavesTable">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="name">Name</th>
+                                    <th data-i18n="type">Type</th>
+                                    <th data-i18n="dates">Dates</th>
+                                    <th data-i18n="days">Days</th>
+                                    <th data-i18n="status">Status</th>
+                                    <th data-i18n="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leavesList">
+                                <tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Salary Structures Tab -->
+                <div id="structuresTab" style="display: none;">
+                    <div class="filters">
+                        <button class="btn-action btn-primary" onclick="loadSalaryStructures()" data-i18n="refresh">Refresh</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="structuresTable">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="name">Name</th>
+                                    <th data-i18n="basic_salary">Basic</th>
+                                    <th data-i18n="allowances">Allowances</th>
+                                    <th data-i18n="deductions">Fixed Deductions</th>
+                                    <th data-i18n="tax">Tax %</th>
+                                    <th data-i18n="takaful">Takaful %</th>
+                                    <th data-i18n="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="structuresList">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 2rem;">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Advances/Loans Tab -->
+                <div id="advancesTab" style="display: none;">
+                    <div class="filters">
+                        <button class="btn-action btn-primary" onclick="openAdvanceModal()" data-i18n="new_advance">New Advance/Loan</button>
+                        <button class="btn-action btn-secondary" onclick="loadAdvances()" data-i18n="refresh">Refresh</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="advancesTable">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="date">Date</th>
+                                    <th data-i18n="name">Name</th>
+                                    <th data-i18n="type">Type</th>
+                                    <th data-i18n="amount">Principal</th>
+                                    <th data-i18n="balance">Balance</th>
+                                    <th data-i18n="status">Status</th>
+                                    <th data-i18n="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="advancesList">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 2rem;">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bank Export Tab -->
+                <div id="bankTab" style="display: none;">
+                    <div class="filters">
+                        <select id="bankMonth" onchange="loadBankPreview()">
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                        <select id="bankYear" onchange="loadBankPreview()">
+                            <!-- Populated by JS -->
+                        </select>
+                        <button class="btn-action btn-primary" onclick="exportBankCSV()" data-i18n="export_csv">Export CSV</button>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="bankTable">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="name">Name</th>
+                                    <th data-i18n="bank_details">Bank Details</th>
+                                    <th data-i18n="amount">Net Salary</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bankList">
+                                <tr>
+                                    <td colspan="3" style="text-align: center; padding: 2rem;">Select month/year to preview.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p style="margin-top: 0.75rem; color: var(--text-light); font-size: 0.85rem;">
+                        Exports paid payroll records for the selected month/year as a CSV file (staff name, bank details, net salary).
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="process_salary">Process Salary</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="paymentForm">
+                <input type="hidden" name="staffId">
+                <input type="hidden" name="staffName">
+                <input type="hidden" name="staffRole">
+                <input type="hidden" name="month">
+                <input type="hidden" name="year">
+
+                <div class="form-group">
+                    <label data-i18n="bank_details">Bank Details</label>
+                    <input type="text" name="bankDetails" id="bankDetails" readonly style="background-color: #f8fafc;">
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                    <button type="button" class="btn-action btn-secondary" onclick="applyStructureToPayment()"
+                        data-i18n="apply_structure">Apply Structure</button>
+                </div>
+
+                <div id="structureBreakdown" style="margin-bottom: 1rem; font-size: 0.85rem; color: var(--text-light);">
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label data-i18n="basic_salary">Basic Salary</label>
+                        <input type="number" name="basicSalary" id="basicSalary" required oninput="calculateNet()">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="allowances">Allowances</label>
+                        <input type="number" name="allowances" id="allowances" value="0" oninput="calculateNet()">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="bonuses">Bonuses</label>
+                        <input type="number" name="bonuses" id="bonuses" value="0" oninput="calculateNet()">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="structure_deductions">Structure Deductions</label>
+                        <input type="number" name="structureDeductions" id="structureDeductions" value="0" readonly
+                            style="background-color: #f8fafc;">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="tax_percent">Tax (%)</label>
+                        <input type="number" name="taxPercent" id="taxPercent" value="0" min="0" step="0.01"
+                            oninput="calculateNet()">
+                        <small id="taxAmountHint" style="color: var(--text-light);"></small>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="takaful_percent">Takaful (%)</label>
+                        <input type="number" name="takafulPercent" id="takafulPercent" value="0" min="0" step="0.01"
+                            oninput="calculateNet()">
+                        <small id="takafulAmountHint" style="color: var(--text-light);"></small>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="advance_deduction">Advance Deduction</label>
+                        <input type="number" name="advanceDeduction" id="advanceDeduction" value="0" min="0" step="0.01"
+                            oninput="calculateNet()">
+                        <small id="advanceOutstandingHint" style="color: var(--text-light);"></small>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="other_deductions">Other Deductions</label>
+                        <input type="number" name="deductions" id="deductions" value="0" min="0" step="0.01"
+                            oninput="calculateNet()">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="total_deductions">Total Deductions</label>
+                        <input type="number" name="totalDeductions" id="totalDeductions" value="0" readonly
+                            style="background-color: #f8fafc;">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="net_salary">Net Salary</label>
+                        <input type="number" name="netSalary" id="netSalary" readonly style="background-color: #f8fafc;">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label data-i18n="remarks">Remarks</label>
+                    <input type="text" name="remarks" placeholder="Optional notes">
+                </div>
+
+                <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="recordExpense" name="recordExpense" checked style="width: auto;">
+                    <label for="recordExpense" style="margin: 0; display: inline;" data-i18n="record_as_expense">Record as
+                        expense (Salaries)</label>
+                </div>
+
+                <div style="margin-top: 1.5rem; text-align: right;">
+                    <button type="button" class="btn-action btn-secondary" onclick="closeModal()" data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn-action btn-primary" data-i18n="save_payment">Save Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Salary Structure Modal -->
+    <div id="structureModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="salary_structure">Salary Structure</h3>
+                <button class="close-btn" onclick="closeStructureModal()">&times;</button>
+            </div>
+            <form id="structureForm">
+                <input type="hidden" name="staffId">
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label data-i18n="staff_member">Staff Member</label>
+                        <input type="text" name="staffName" id="structureStaffName" readonly
+                            style="background-color: #f8fafc;">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="basic_salary">Basic Salary</label>
+                        <input type="number" name="basicSalary" id="structureBasicSalary" readonly
+                            style="background-color: #f8fafc;">
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label data-i18n="tax_percent">Tax (%)</label>
+                        <input type="number" name="taxPercent" id="structureTaxPercent" value="0" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="takaful_percent">Takaful (%)</label>
+                        <input type="number" name="takafulPercent" id="structureTakafulPercent" value="0" min="0"
+                            step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label data-i18n="allowances">Allowances</label>
+                    <div id="allowancesContainer"></div>
+                    <button type="button" class="btn-action btn-secondary" onclick="addAllowanceRow()"
+                        data-i18n="add_allowance">+ Add Allowance</button>
+                </div>
+
+                <div class="form-group">
+                    <label data-i18n="deductions">Fixed Deductions</label>
+                    <div id="structureDeductionsContainer"></div>
+                    <button type="button" class="btn-action btn-secondary" onclick="addStructureDeductionRow()"
+                        data-i18n="add_deduction">+ Add Deduction</button>
+                </div>
+
+                <div style="margin-top: 1.5rem; text-align: right;">
+                    <button type="button" class="btn-action btn-secondary" onclick="closeStructureModal()"
+                        data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn-action btn-primary" data-i18n="save">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Advance/Loan Modal -->
+    <div id="advanceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="new_advance">New Advance/Loan</h3>
+                <button class="close-btn" onclick="closeAdvanceModal()">&times;</button>
+            </div>
+            <form id="advanceForm">
+                <div class="form-group">
+                    <label data-i18n="staff_member">Staff Member</label>
+                    <select name="staffId" id="advanceStaffId" required>
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label data-i18n="type">Type</label>
+                        <select name="advanceType" required>
+                            <option value="Advance">Advance</option>
+                            <option value="Loan">Loan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="amount">Amount</label>
+                        <input type="number" name="amount" required min="0" step="0.01">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="date">Date</label>
+                    <input type="date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="remarks">Remarks</label>
+                    <input type="text" name="remarks" placeholder="Optional notes">
+                </div>
+                <div style="margin-top: 1.5rem; text-align: right;">
+                    <button type="button" class="btn-action btn-secondary" onclick="closeAdvanceModal()"
+                        data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn-action btn-primary" data-i18n="save">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Advance Repayment Modal -->
+    <div id="repaymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="record_repayment">Record Repayment</h3>
+                <button class="close-btn" onclick="closeRepaymentModal()">&times;</button>
+            </div>
+            <form id="repaymentForm">
+                <input type="hidden" name="advanceId">
+                <input type="hidden" name="staffId">
+
+                <div class="form-group">
+                    <label data-i18n="staff_member">Staff Member</label>
+                    <input type="text" name="staffName" id="repaymentStaffName" readonly style="background-color: #f8fafc;">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="balance">Outstanding Balance</label>
+                    <input type="number" name="balance" id="repaymentBalance" readonly style="background-color: #f8fafc;">
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label data-i18n="amount">Amount</label>
+                        <input type="number" name="amount" id="repaymentAmount" required min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="date">Date</label>
+                        <input type="date" name="date" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label data-i18n="remarks">Remarks</label>
+                    <input type="text" name="remarks" placeholder="Optional notes">
+                </div>
+
+                <div style="margin-top: 1.5rem; text-align: right;">
+                    <button type="button" class="btn-action btn-secondary" onclick="closeRepaymentModal()"
+                        data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn-action btn-primary" data-i18n="save">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/payroll.js"></script>
+    <!-- Leave Modal -->
+    <div id="leaveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="record_leave">Record Leave</h3>
+                <button class="close-btn" onclick="closeLeaveModal()">&times;</button>
+            </div>
+            <form id="leaveForm">
+                <input type="hidden" name="leaveId">
+                <div class="form-group">
+                    <label data-i18n="staff_member">Staff Member</label>
+                    <select name="staffId" id="leaveStaffId" required>
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label data-i18n="leave_type">Leave Type</label>
+                        <select name="leaveType" required>
+                            <option value="Sick">Sick Leave</option>
+                            <option value="Casual">Casual Leave</option>
+                            <option value="Unpaid">Unpaid Leave</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="status">Status</label>
+                        <select name="status" required>
+                            <option value="Approved">Approved</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label data-i18n="start_date">Start Date</label>
+                        <input type="date" name="startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="end_date">End Date</label>
+                        <input type="date" name="endDate" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="reason">Reason</label>
+                    <textarea name="reason" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem;"></textarea>
+                </div>
+                <div style="margin-top: 1.5rem; text-align: right;">
+                    <button type="button" class="btn-action btn-secondary" onclick="closeLeaveModal()" data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn-action btn-primary" data-i18n="save">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

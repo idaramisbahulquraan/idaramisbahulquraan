@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Receipt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            color: #1f2937;
+        }
+
+        .receipt-container {
+            background: white;
+            width: 100%;
+            max-width: 800px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .school-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        .receipt-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #4b5563;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-group {
+            margin-bottom: 0.5rem;
+        }
+
+        .label {
+            font-weight: 500;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .value {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+
+        .total-row td {
+            border-top: 2px solid #e5e7eb;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .footer {
+            margin-top: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .signature {
+            text-align: center;
+            border-top: 1px solid #9ca3af;
+            padding-top: 0.5rem;
+            width: 200px;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .actions {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .btn {
+            background-color: #2563eb;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .receipt-container {
+                box-shadow: none;
+                padding: 0;
+                max-width: none;
+            }
+            .actions {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="receipt-container" id="receiptContent">
+        <div class="header">
+            <div class="school-name">Idara Misbah ul Quran</div>
+            <div class="receipt-title">Fee Receipt</div>
+        </div>
+
+        <div class="info-grid">
+            <div>
+                <div class="info-group">
+                    <span class="label">Receipt No:</span>
+                    <span class="value" id="receiptNo">Loading...</span>
+                </div>
+                <div class="info-group">
+                    <span class="label">Date:</span>
+                    <span class="value" id="receiptDate">Loading...</span>
+                </div>
+                <div class="info-group">
+                    <span class="label">Status:</span>
+                    <span class="value" id="status">Loading...</span>
+                </div>
+            </div>
+            <div>
+                <div class="info-group">
+                    <span class="label">Student Name:</span>
+                    <span class="value" id="studentName">Loading...</span>
+                </div>
+                <div class="info-group">
+                    <span class="label">Roll Number:</span>
+                    <span class="value" id="rollNo">Loading...</span>
+                </div>
+                <div class="info-group">
+                    <span class="label">Class:</span>
+                    <span class="value" id="className">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th style="text-align: right;">Amount (PKR)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="feeDescription">Tuition Fee</td>
+                    <td style="text-align: right;" id="baseAmount">0</td>
+                </tr>
+                <tr id="fineRow" style="display: none;">
+                    <td>Late Fine</td>
+                    <td style="text-align: right;" id="fineAmount">0</td>
+                </tr>
+                <tr id="discountRow" style="display: none;">
+                    <td>Discount</td>
+                    <td style="text-align: right; color: #dc2626;">-<span id="discountAmount">0</span></td>
+                </tr>
+                <tr class="total-row">
+                    <td>Total Paid</td>
+                    <td style="text-align: right;" id="totalAmount">0</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer">
+            <div style="font-size: 0.875rem; color: #6b7280;">
+                Generated by School Management System
+            </div>
+            <div class="signature">
+                Accountant Signature
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn" onclick="window.print()">Print Receipt</button>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+
+    <script>
+        async function loadReceipt() {
+            const params = new URLSearchParams(window.location.search);
+            const feeId = params.get('id');
+
+            if (!feeId) {
+                alert('No receipt ID provided');
+                return;
+            }
+
+            try {
+                const doc = await db.collection('fees').doc(feeId).get();
+                if (!doc.exists) {
+                    alert('Receipt not found');
+                    return;
+                }
+
+                const fee = doc.data();
+                
+                // Populate fields
+                document.getElementById('receiptNo').textContent = feeId.substring(0, 8).toUpperCase();
+                document.getElementById('receiptDate').textContent = fee.paidAt ? new Date(fee.paidAt.seconds * 1000).toLocaleDateString() : new Date().toLocaleDateString();
+                document.getElementById('status').textContent = fee.status;
+                
+                document.getElementById('studentName').textContent = fee.studentName;
+                document.getElementById('rollNo').textContent = fee.rollNumber;
+                document.getElementById('className').textContent = fee.className;
+                
+                document.getElementById('feeDescription').textContent = `${fee.feeType} - ${fee.month} ${fee.year}`;
+                document.getElementById('baseAmount').textContent = fee.amount.toLocaleString();
+
+                let total = fee.amount;
+
+                if (fee.fine > 0) {
+                    document.getElementById('fineRow').style.display = 'table-row';
+                    document.getElementById('fineAmount').textContent = fee.fine.toLocaleString();
+                    total += fee.fine;
+                }
+
+                if (fee.discount > 0) {
+                    document.getElementById('discountRow').style.display = 'table-row';
+                    document.getElementById('discountAmount').textContent = fee.discount.toLocaleString();
+                    total -= fee.discount;
+                }
+
+                document.getElementById('totalAmount').textContent = total.toLocaleString();
+
+                // Fetch school settings if available
+                try {
+                    const settingsDoc = await db.collection('settings').doc('school_profile').get();
+                    if (settingsDoc.exists) {
+                        const settings = settingsDoc.data();
+                        if (settings.schoolName) {
+                            document.querySelector('.school-name').textContent = settings.schoolName;
+                        }
+                    }
+                } catch (e) {
+                    console.log('Could not load school settings');
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert('Error loading receipt');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadReceipt);
+    </script>
+</body>
+</html>

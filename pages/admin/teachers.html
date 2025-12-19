@@ -49,7 +49,8 @@
             min-width: 800px;
         }
 
-        th, td {
+        th,
+        td {
             padding: 1rem 1.5rem;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
@@ -172,27 +173,31 @@
         <main class="main-content">
             <header class="header">
                 <div class="page-title">
-                    <h1>Teachers Management</h1>
+                    <h1 data-i18n="teachers_management">Teachers Management</h1>
                 </div>
-                <div class="user-profile">
-                    <div class="user-info">
-                        <p id="userName" style="font-weight: 600;">User</p>
-                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
                     </div>
-                    <div class="avatar">U</div>
                 </div>
             </header>
 
             <!-- Page Content -->
             <div class="dashboard-content">
                 <div class="page-header">
-                    <h2 style="font-size: 1.25rem; font-weight: 600;">All Teachers</h2>
+                    <h2 style="font-size: 1.25rem; font-weight: 600;" data-i18n="all_teachers">All Teachers</h2>
                     <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn-add" onclick="downloadTeachersPDF()" style="background-color: var(--secondary-color); border: none; cursor: pointer;">
-                            ↓ PDF
+                        <button class="btn-add" onclick="downloadTeachersPDF()"
+                            style="background-color: var(--secondary-color); border: none; cursor: pointer;">
+                            <span data-i18n="pdf">↓ PDF</span>
                         </button>
-                        <button onclick="openModal('teacherModal')" class="btn-add" style="border: none; cursor: pointer;">
-                            <span>+</span> Add New Teacher
+                        <button onclick="openModal('teacherModal')" class="btn-add"
+                            style="border: none; cursor: pointer;">
+                            <span>+</span> <span data-i18n="add_new_teacher">Add New Teacher</span>
                         </button>
                     </div>
                 </div>
@@ -201,12 +206,12 @@
                     <table id="teachersTable">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Subject</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Joined Date</th>
-                                <th>Actions</th>
+                                <th data-i18n="name">Name</th>
+                                <th data-i18n="subject">Subject</th>
+                                <th data-i18n="email">Email</th>
+                                <th data-i18n="phone">Phone</th>
+                                <th data-i18n="joined_date">Joined Date</th>
+                                <th data-i18n="actions">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="teachersList">
@@ -224,38 +229,41 @@
     <div id="teacherModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="teacherModalTitle">Add New Teacher</h3>
+                <h3 id="teacherModalTitle" data-i18n="add_new_teacher">Add New Teacher</h3>
                 <button class="close-btn" onclick="closeModal('teacherModal')">&times;</button>
             </div>
             <form id="addTeacherForm" onsubmit="handleAddTeacher(event)">
                 <input type="hidden" name="docId">
                 <div class="form-group">
-                    <label>First Name</label>
+                    <label data-i18n="first_name">First Name</label>
                     <input type="text" name="firstName" required>
                 </div>
                 <div class="form-group">
-                    <label>Last Name</label>
+                    <label data-i18n="last_name">Last Name</label>
                     <input type="text" name="lastName" required>
                 </div>
                 <div class="form-group">
-                    <label>Email (Login ID)</label>
+                    <label data-i18n="email_login_id">Email (Login ID)</label>
                     <input type="email" name="email" required>
                 </div>
                 <div class="form-group" id="passwordGroup">
-                    <label>Password</label>
+                    <label data-i18n="password">Password</label>
                     <input type="password" name="password" required minlength="6">
                 </div>
                 <div class="form-group">
-                    <label>Subject</label>
+                    <label data-i18n="subject">Subject</label>
                     <input type="text" name="subject" required>
                 </div>
                 <div class="form-group">
-                    <label>Phone</label>
+                    <label data-i18n="phone">Phone</label>
                     <input type="tel" name="phone" required>
                 </div>
                 <div style="margin-top: 1.5rem; text-align: right;">
-                    <button type="button" class="btn-add" onclick="closeModal('teacherModal')" style="background-color: var(--secondary-color); margin-right: 0.5rem; border:none; cursor:pointer;">Cancel</button>
-                    <button type="submit" class="btn-add" style="border:none; cursor:pointer;">Save Teacher</button>
+                    <button type="button" class="btn-add" onclick="closeModal('teacherModal')"
+                        style="background-color: var(--secondary-color); margin-right: 0.5rem; border:none; cursor:pointer;"
+                        data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn-add" style="border:none; cursor:pointer;"
+                        data-i18n="save_teacher">Save Teacher</button>
                 </div>
             </form>
         </div>
@@ -268,6 +276,7 @@
 
     <!-- App Scripts -->
     <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
     <script src="../../js/script.js"></script>
 
     <script>
@@ -278,7 +287,7 @@
         try {
             secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
             secondaryAuth = secondaryApp.auth();
-        } catch(e) {
+        } catch (e) {
             const apps = firebase.apps;
             secondaryApp = apps.find(app => app.name === "Secondary");
             secondaryAuth = secondaryApp.auth();
@@ -295,7 +304,7 @@
             form.reset();
             form.querySelector('input[name="docId"]').value = '';
             document.getElementById('teacherModalTitle').textContent = 'Add New Teacher';
-            
+
             // Reset fields
             document.getElementById('passwordGroup').style.display = 'block';
             document.querySelector('input[name="password"]').setAttribute('required', 'true');
@@ -309,11 +318,11 @@
 
             try {
                 const snapshot = await db.collection('teachers').orderBy('createdAt', 'desc').get();
-                
+
                 if (snapshot.empty) {
                     tableBody.innerHTML = `
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-light);">
+                            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-light);" data-i18n="no_teachers_found">
                                 No teachers found. Click "Add New Teacher" to start.
                             </td>
                         </tr>
@@ -328,7 +337,7 @@
                     const lastName = teacher.lastName || '';
                     const initials = ((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || 'T';
                     const date = teacher.createdAt ? new Date(teacher.createdAt.seconds * 1000).toLocaleDateString() : 'N/A';
-                    
+
                     html += `
                         <tr>
                             <td>
@@ -345,8 +354,8 @@
                             <td>${date}</td>
                             <td>
                                 <div style="display: flex; gap: 0.5rem;">
-                                    <button onclick="editTeacher('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer;">Edit</button>
-                                    <button onclick="deleteTeacher('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;">Delete</button>
+                                    <button onclick="editTeacher('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="edit">Edit</button>
+                                    <button onclick="deleteTeacher('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">Delete</button>
                                 </div>
                             </td>
                         </tr>
@@ -354,6 +363,7 @@
                 });
 
                 tableBody.innerHTML = html;
+                updatePageLanguage();
 
             } catch (error) {
                 console.error("Error fetching teachers:", error);
@@ -388,7 +398,7 @@
                         phone: data.phone
                     });
                     // Also update users collection if needed
-                     await db.collection("users").doc(docId).update({
+                    await db.collection("users").doc(docId).update({
                         email: data.email
                     });
                     alert('Teacher updated successfully!');
@@ -413,7 +423,7 @@
                         role: 'teacher',
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    
+
                     alert('Teacher added successfully!');
                 }
 
@@ -426,34 +436,32 @@
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;
-                if(!docId) secondaryAuth.signOut();
             }
         }
 
         async function editTeacher(uid) {
             try {
                 const doc = await db.collection('teachers').doc(uid).get();
-                if(!doc.exists) return;
-                const t = doc.data();
+                if (!doc.exists) return;
+                const t = doc.data() || {};
 
                 const form = document.getElementById('addTeacherForm');
                 form.querySelector('input[name="docId"]').value = uid;
-                form.querySelector('input[name="firstName"]').value = t.firstName;
-                form.querySelector('input[name="lastName"]').value = t.lastName;
-                
+                form.querySelector('input[name="firstName"]').value = t.firstName || '';
+                form.querySelector('input[name="lastName"]').value = t.lastName || '';
+
                 const emailInput = form.querySelector('input[name="email"]');
-                emailInput.value = t.email;
+                emailInput.value = t.email || '';
                 emailInput.setAttribute('readonly', 'true');
 
                 document.getElementById('passwordGroup').style.display = 'none';
                 document.querySelector('input[name="password"]').removeAttribute('required');
 
-                form.querySelector('input[name="subject"]').value = t.subject;
-                form.querySelector('input[name="phone"]').value = t.phone;
+                form.querySelector('input[name="subject"]').value = t.subject || '';
+                form.querySelector('input[name="phone"]').value = t.phone || '';
 
                 document.getElementById('teacherModalTitle').textContent = 'Edit Teacher';
                 openModal('teacherModal');
-
             } catch (error) {
                 console.error(error);
                 alert('Error loading teacher data');
@@ -461,8 +469,8 @@
         }
 
         async function deleteTeacher(uid) {
-            if(!confirm('Are you sure you want to delete this teacher? This cannot be undone.')) return;
-            
+            if (!confirm('Are you sure you want to delete this teacher? This cannot be undone.')) return;
+
             try {
                 // Ideally we should delete from Auth too, but client SDK can't delete other users easily.
                 // We'll just delete the data records.
@@ -476,31 +484,31 @@
             }
         }
 
-        function downloadTeachersPDF() {
+        async function downloadTeachersPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            doc.text("Teachers List", 14, 20);
-            doc.setFontSize(10);
-            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 26);
+            const startY = (typeof applyPdfBranding === 'function')
+                ? await applyPdfBranding(doc, { title: 'Teachers List' })
+                : 30;
 
             const rows = [];
             document.querySelectorAll('#teachersList tr').forEach(tr => {
                 const tds = tr.querySelectorAll('td');
                 if (tds.length > 1) { // Skip loading/empty rows
-                     const name = tds[0].innerText.trim(); // Avatar + Name text
-                     const subject = tds[1].innerText;
-                     const email = tds[2].innerText;
-                     const phone = tds[3].innerText;
-                     const joined = tds[4].innerText;
-                     rows.push([name, subject, email, phone, joined]);
+                    const name = tds[0].innerText.trim(); // Avatar + Name text
+                    const subject = tds[1].innerText;
+                    const email = tds[2].innerText;
+                    const phone = tds[3].innerText;
+                    const joined = tds[4].innerText;
+                    rows.push([name, subject, email, phone, joined]);
                 }
             });
 
             doc.autoTable({
                 head: [['Name', 'Subject', 'Email', 'Phone', 'Joined']],
                 body: rows,
-                startY: 30,
+                startY: startY,
             });
 
             doc.save('teachers.pdf');

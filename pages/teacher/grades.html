@@ -90,12 +90,14 @@
                 <div class="page-title">
                     <h1 id="pageTitle">Manage Grades</h1>
                 </div>
-                <div class="user-profile">
-                    <div class="user-info">
-                        <p id="userName" style="font-weight: 600;">User</p>
-                        <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
                     </div>
-                    <div class="avatar">U</div>
                 </div>
             </header>
 
@@ -107,7 +109,7 @@
                         <div class="form-group">
                             <label>Department</label>
                             <select id="department" onchange="updateClasses()" required>
-                                <option value="">Select Department</option>
+                                <option value="" data-i18n="select_department">Select Department</option>
                                 <option value="Dars-e-Nizami">Dars-e-Nizami</option>
                                 <option value="Hifz">Hifz</option>
                                 <option value="Tajweed">Tajweed</option>
@@ -116,14 +118,18 @@
                         <div class="form-group">
                             <label>Class</label>
                             <select id="className" onchange="loadExams()" required>
-                                <option value="">Select Class</option>
+                                <option value="" data-i18n="select_class">Select Class</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label>Exam & Subject</label>
                             <select id="examSelect" onchange="loadGradingSheet()" required>
-                                <option value="">Select Class First</option>
+                                <option value="" data-i18n="select_class_first">Select Class First</option>
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Weight (%)</label>
+                            <input type="number" id="examWeight" value="100" min="0" max="100" placeholder="100">
                         </div>
                     </div>
                 </div>
@@ -161,6 +167,7 @@
 
     <!-- App Scripts -->
     <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
     <script src="../../js/script.js"></script>
 
     <script>
@@ -172,7 +179,8 @@
         function updateClasses() {
             const dept = document.getElementById('department').value;
             const classSelect = document.getElementById('className');
-            classSelect.innerHTML = '<option value="">Select Class</option>';
+            classSelect.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
+            if (typeof updatePageLanguage === 'function') updatePageLanguage();
             
             let classes = [];
             if(dept === 'Dars-e-Nizami') classes = DARS_CLASSES;
@@ -187,7 +195,8 @@
             });
             
             // Reset Exam Select
-            document.getElementById('examSelect').innerHTML = '<option value="">Select Class First</option>';
+            document.getElementById('examSelect').innerHTML = '<option value="" data-i18n="select_class_first">Select Class First</option>';
+            if (typeof updatePageLanguage === 'function') updatePageLanguage();
             document.getElementById('gradingCard').style.display = 'none';
         }
 
@@ -267,6 +276,10 @@
                     gradesDoc.data().records.forEach(r => {
                         existingGrades[r.uid] = r;
                     });
+                    // Prefill weight if saved
+                    if (gradesDoc.data().weight) {
+                        document.getElementById('examWeight').value = gradesDoc.data().weight;
+                    }
                 }
 
                 // 4. Render
@@ -336,6 +349,7 @@
                     date: examData.date,
                     department: dept,
                     className: className,
+                    weight: parseFloat(document.getElementById('examWeight').value) || 100,
                     records: records,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });

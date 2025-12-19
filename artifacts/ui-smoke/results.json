@@ -1,0 +1,203 @@
+{
+  "startedAt": "2025-12-18T03:24:54.958Z",
+  "baseUrl": "http://127.0.0.1:5173",
+  "results": [
+    {
+      "url": "http://127.0.0.1:5173/index.html",
+      "path": "/index.html",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:5173/index.html",
+      "title": "Login - School Management System",
+      "screenshot": "F:\\codex projects\\newappsms2\\artifacts\\ui-smoke\\index_html.png",
+      "error": null
+    },
+    {
+      "url": "http://127.0.0.1:5173/dashboard.html",
+      "path": "/dashboard.html",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:5173/index.html?next=dashboard.html",
+      "title": "Login - School Management System",
+      "screenshot": "F:\\codex projects\\newappsms2\\artifacts\\ui-smoke\\dashboard_html.png",
+      "error": null
+    },
+    {
+      "url": "http://127.0.0.1:5173/pages/admin/settings.html",
+      "path": "/pages/admin/settings.html",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:5173/pages/admin/settings.html",
+      "title": "",
+      "screenshot": "F:\\codex projects\\newappsms2\\artifacts\\ui-smoke\\pages_admin_settings_html.png",
+      "error": null
+    },
+    {
+      "url": "http://127.0.0.1:5173/pages/admin/integrations.html",
+      "path": "/pages/admin/integrations.html",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:5173/index.html?next=pages%2Fadmin%2Fintegrations.html",
+      "title": "Login - School Management System",
+      "screenshot": "F:\\codex projects\\newappsms2\\artifacts\\ui-smoke\\pages_admin_integrations_html.png",
+      "error": null
+    },
+    {
+      "url": "http://127.0.0.1:5173/pages/admin/support.html",
+      "path": "/pages/admin/support.html",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:5173/index.html?next=pages%2Fadmin%2Fsupport.html",
+      "title": "Login - School Management System",
+      "screenshot": "F:\\codex projects\\newappsms2\\artifacts\\ui-smoke\\pages_admin_support_html.png",
+      "error": null
+    },
+    {
+      "url": "http://127.0.0.1:5173/pages/teacher/portal.html",
+      "path": "/pages/teacher/portal.html",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:5173/index.html?next=pages%2Fteacher%2Fportal.html",
+      "title": "Login - School Management System",
+      "screenshot": "F:\\codex projects\\newappsms2\\artifacts\\ui-smoke\\pages_teacher_portal_html.png",
+      "error": null
+    },
+    {
+      "url": "http://127.0.0.1:5173/pages/student/portal.html",
+      "path": "/pages/student/portal.html",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:5173/index.html?next=pages%2Fstudent%2Fportal.html",
+      "title": "Login - School Management System",
+      "screenshot": "F:\\codex projects\\newappsms2\\artifacts\\ui-smoke\\pages_student_portal_html.png",
+      "error": null
+    },
+    {
+      "url": "http://127.0.0.1:5173/pages/parent/portal.html",
+      "path": "/pages/parent/portal.html",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:5173/index.html",
+      "title": "Login - School Management System",
+      "screenshot": "F:\\codex projects\\newappsms2\\artifacts\\ui-smoke\\pages_parent_portal_html.png",
+      "error": null
+    },
+    {
+      "url": "http://127.0.0.1:5173/offline.html",
+      "path": "/offline.html",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:5173/offline.html",
+      "title": "Offline - School Management System",
+      "screenshot": "F:\\codex projects\\newappsms2\\artifacts\\ui-smoke\\offline_html.png",
+      "error": null
+    },
+    {
+      "url": "http://127.0.0.1:5173/manifest.json",
+      "path": "/manifest.json",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:5173/manifest.json",
+      "title": "",
+      "screenshot": "F:\\codex projects\\newappsms2\\artifacts\\ui-smoke\\manifest_json.png",
+      "error": null
+    },
+    {
+      "url": "http://127.0.0.1:5173/manifest.teacher.json",
+      "path": "/manifest.teacher.json",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:5173/manifest.teacher.json",
+      "title": "",
+      "screenshot": "F:\\codex projects\\newappsms2\\artifacts\\ui-smoke\\manifest_teacher_json.png",
+      "error": null
+    },
+    {
+      "url": "http://127.0.0.1:5173/manifest.student.json",
+      "path": "/manifest.student.json",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:5173/manifest.student.json",
+      "title": "",
+      "screenshot": "F:\\codex projects\\newappsms2\\artifacts\\ui-smoke\\manifest_student_json.png",
+      "error": null
+    },
+    {
+      "url": "http://127.0.0.1:5173/manifest.parent.json",
+      "path": "/manifest.parent.json",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:5173/manifest.parent.json",
+      "title": "",
+      "screenshot": "F:\\codex projects\\newappsms2\\artifacts\\ui-smoke\\manifest_parent_json.png",
+      "error": null
+    },
+    {
+      "url": "http://127.0.0.1:5173/sw.js",
+      "path": "/sw.js",
+      "status": 200,
+      "finalUrl": "http://127.0.0.1:5173/sw.js",
+      "title": "",
+      "screenshot": "F:\\codex projects\\newappsms2\\artifacts\\ui-smoke\\sw_js.png",
+      "error": null
+    }
+  ],
+  "consoleMessages": [
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:25:37.017Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    },
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:25:49.810Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    },
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:25:51.217Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    },
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:25:57.836Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    },
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:25:58.932Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    },
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:26:03.340Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    },
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:26:03.559Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    },
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:26:04.739Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    },
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:26:05.028Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    },
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:26:06.301Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    },
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:26:06.843Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    },
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:26:07.920Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    },
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:26:08.228Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    },
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:26:09.523Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    },
+    {
+      "type": "warning",
+      "text": "[2025-12-18T03:26:10.196Z]  @firebase/firestore: Firestore (10.7.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead."
+    }
+  ],
+  "pageErrors": [],
+  "requestFailures": [
+    {
+      "url": "http://127.0.0.1:5173/index.html?next=pages%2Fparent%2Fportal.html",
+      "method": "GET",
+      "failure": "net::ERR_ABORTED"
+    }
+  ],
+  "finishedAt": "2025-12-18T03:26:27.509Z"
+}
