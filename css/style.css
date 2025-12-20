@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap');
 
 :root {
     --primary-color: #4f46e5;
@@ -500,6 +501,22 @@ body {
 }
 
 .rtl-mode .sidebar {
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-family: 'Noto Sans Arabic', 'Noto Nastaliq Urdu', serif;
+}
+.rtl-mode .sidebar-header {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.rtl-mode .nav-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rtl-mode .sidebar {
     left: auto;
     right: 0;
     border-right: none;
@@ -580,6 +597,8 @@ body {
         transform: translateX(100%);
         width: 250px;
         max-width: 80vw;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
     .rtl-mode .sidebar.open {
