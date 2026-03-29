@@ -9,8 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <script src="../../js/pdf-snapshot.js"></script>
     <style>
         .page-header {
             display: flex;
@@ -243,6 +242,10 @@
                     <input type="text" name="lastName" required>
                 </div>
                 <div class="form-group">
+                    <label>Urdu Name (اردو نام)</label>
+                    <input type="text" name="name_ur">
+                </div>
+                <div class="form-group">
                     <label data-i18n="email_login_id">Email (Login ID)</label>
                     <input type="email" name="email" required>
                 </div>
@@ -335,7 +338,7 @@
                     const teacher = doc.data();
                     const firstName = teacher.firstName || '';
                     const lastName = teacher.lastName || '';
-                    const initials = ((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || 'T';
+                    const initials = ((firstName[0] || '') + (lastName[0] || '')).toUpperCase() || 'ا';
                     const date = teacher.createdAt ? new Date(teacher.createdAt.seconds * 1000).toLocaleDateString() : 'N/A';
 
                     html += `
@@ -344,7 +347,7 @@
                                 <div class="teacher-cell">
                                     <div class="avatar-sm">${initials}</div>
                                     <div>
-                                        <div style="font-weight: 500;">${firstName} ${lastName}</div>
+                                        <div style="font-weight: 500;">${teacher.name_ur || (firstName + ' ' + lastName)}</div>
                                     </div>
                                 </div>
                             </td>
@@ -354,8 +357,8 @@
                             <td>${date}</td>
                             <td>
                                 <div style="display: flex; gap: 0.5rem;">
-                                    <button onclick="editTeacher('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="edit">Edit</button>
-                                    <button onclick="deleteTeacher('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">Delete</button>
+                                    <button onclick="editTeacher('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="edit">${getTrans('edit')}</button>
+                                    <button onclick="deleteTeacher('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
                                 </div>
                             </td>
                         </tr>
@@ -394,13 +397,11 @@
                     await db.collection("teachers").doc(docId).update({
                         firstName: data.firstName,
                         lastName: data.lastName,
+                        name_ur: data.name_ur || '',
                         subject: data.subject,
                         phone: data.phone
                     });
-                    // Also update users collection if needed
-                    await db.collection("users").doc(docId).update({
-                        email: data.email
-                    });
+
                     alert('Teacher updated successfully!');
                 } else {
                     // Create
@@ -417,10 +418,12 @@
                         uid: uid,
                         firstName: data.firstName,
                         lastName: data.lastName,
+                        name_ur: data.name_ur || '',
                         email: data.email,
                         subject: data.subject,
                         phone: data.phone,
                         role: 'teacher',
+                        tenantId: (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default'),
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
 
@@ -449,6 +452,7 @@
                 form.querySelector('input[name="docId"]').value = uid;
                 form.querySelector('input[name="firstName"]').value = t.firstName || '';
                 form.querySelector('input[name="lastName"]').value = t.lastName || '';
+                form.querySelector('input[name="name_ur"]').value = t.name_ur || '';
 
                 const emailInput = form.querySelector('input[name="email"]');
                 emailInput.value = t.email || '';
@@ -485,33 +489,40 @@
         }
 
         async function downloadTeachersPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            const startY = (typeof applyPdfBranding === 'function')
-                ? await applyPdfBranding(doc, { title: 'Teachers List' })
-                : 30;
-
-            const rows = [];
-            document.querySelectorAll('#teachersList tr').forEach(tr => {
+            const table = document.createElement('table');
+            table.className = 'data-table';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Subject</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${Array.from(document.querySelectorAll('#teachersList tr')).map(tr => {
                 const tds = tr.querySelectorAll('td');
-                if (tds.length > 1) { // Skip loading/empty rows
-                    const name = tds[0].innerText.trim(); // Avatar + Name text
-                    const subject = tds[1].innerText;
-                    const email = tds[2].innerText;
-                    const phone = tds[3].innerText;
-                    const joined = tds[4].innerText;
-                    rows.push([name, subject, email, phone, joined]);
-                }
-            });
+                if (tds.length < 5) return '';
+                return `
+                            <tr>
+                                <td>${tds[0].innerText}</td>
+                                <td>${tds[1].innerText}</td>
+                                <td>${tds[2].innerText}</td>
+                                <td>${tds[3].innerText}</td>
+                                <td>${tds[4].innerText}</td>
+                            </tr>
+                        `;
+            }).join('')}
+                </tbody>
+            `;
 
-            doc.autoTable({
-                head: [['Name', 'Subject', 'Email', 'Phone', 'Joined']],
-                body: rows,
-                startY: startY,
+            window.PDFSnapshot.generate({
+                title: getTrans('teachers_report'),
+                content: table.outerHTML,
+                orientation: 'landscape'
             });
-
-            doc.save('teachers.pdf');
         }
 
         document.addEventListener('DOMContentLoaded', loadTeachers);

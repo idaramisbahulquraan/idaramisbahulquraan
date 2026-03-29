@@ -2,6 +2,47 @@
 // Language Management
 let currentLang = localStorage.getItem('app_lang') || 'en';
 let notificationsEnabled = false;
+let academicLabelMapsPromise = null;
+const defaultDepartmentUrduMap = {
+    'Dars-e-Nizami Department': 'شعبہ درس نظامی',
+    'Hifz Department': 'شعبہ تحفیظ القرآن',
+    'Tajweed Department': 'شعبہ تجوید و قرأت'
+};
+const defaultClassUrduMap = {
+    'Aamma Year 1': 'عامہ سال اول',
+    'Aamma Year 2': 'عامہ سال دوم',
+    'Aamma Year 1 (Arabic Language Foundation Course)': 'عامہ سال اول (عریبک لینگوئج کورس)',
+    'Aamma Year 2 (English Language Foundation Course)': 'عامہ سال دوم (انگلش لینگوئج کورس)',
+    'Khassa Year 1': 'خاصہ سال اول',
+    'Khassa Year 2': 'خاصہ سال دوم',
+    'Aliya Year 1': 'عالیہ سال اول',
+    'Aliya Year 2': 'عالیہ سال دوم',
+    'Alamiya Year 1': 'عالمیہ سال اول',
+    'Alamiya Year 2': 'عالمیہ سال دوم',
+    'Pre Arabic': 'پری عریبک',
+    'Hifz Class': 'حفظ کلاس',
+    'Abee Bin Kaab': 'ابی بن کعب',
+    'Zaid Bin Sabit': 'زید بن ثابت',
+    'Abdullah Bin Abbas': 'عبداللہ بن عباس',
+    'Abdullah Bin Masood': 'عبداللہ بن مسعود',
+    'Osman Ghani': 'عثمان غنی',
+    'Musab Bin Omair': 'مصعب بن عمیر',
+    'Abu Bakar Siddique': 'ابوبکر صدیق',
+    'Amer Bin Khatab': 'عمر بن خطاب',
+    'Naseerah Murseed': 'نصیرہ مرشد',
+    'Tajweed Class 1st year': 'تجوید کلاس سال اول',
+    'Tajweed Class 2nd year': 'تجوید کلاس سال دوم',
+    'Tajweed Class Ist year': 'تجوید کلاس سال اول',
+    'Tajweed Class IInd year': 'تجوید کلاس سال دوم',
+    'Class 1st year': 'تجوید کلاس سال اول',
+    'Class 2nd year': 'تجوید کلاس سال دوم',
+    'Class Ist year': 'تجوید کلاس سال اول',
+    'Class IInd year': 'تجوید کلاس سال دوم'
+};
+const academicLabelMaps = {
+    departments: new Map(),
+    classes: new Map()
+};
 let notificationsState = {
     tenantId: 'default',
     uid: '',
@@ -15,6 +56,130 @@ let notificationsState = {
 function normalizeLang(lang) {
     const v = String(lang || '').toLowerCase();
     return (v === 'en' || v === 'ur') ? v : null;
+}
+
+function getActiveLanguage() {
+    return normalizeLang(currentLang) || normalizeLang(localStorage.getItem('app_lang')) || 'en';
+}
+
+function getLocalizedName(data, fallback = '') {
+    if (!data) return fallback;
+    const name = data.name_en || data.nameEn || data.name || fallback || '';
+    const nameUr = data.name_ur || data.nameUr || data.name_urdu || '';
+    const lang = getActiveLanguage();
+    if (lang === 'ur') return nameUr || name || fallback;
+    return name || nameUr || fallback;
+}
+
+async function ensureAcademicLabelMaps(force = false) {
+    if (!force && academicLabelMapsPromise) return academicLabelMapsPromise;
+
+    academicLabelMapsPromise = (async () => {
+        if (typeof db === 'undefined' || !db) return academicLabelMaps;
+
+        const [departmentsSnap, classesSnap] = await Promise.all([
+            db.collection('departments').get(),
+            db.collection('classes').get()
+        ]);
+
+        academicLabelMaps.departments.clear();
+        academicLabelMaps.classes.clear();
+
+        departmentsSnap.forEach((doc) => {
+            const data = doc.data() || {};
+            if (!data.name) return;
+            academicLabelMaps.departments.set(data.name, data.name_ur || data.name);
+        });
+
+        classesSnap.forEach((doc) => {
+            const data = doc.data() || {};
+            if (!data.name) return;
+            academicLabelMaps.classes.set(data.name, data.name_ur || data.name);
+        });
+
+        return academicLabelMaps;
+    })().catch((err) => {
+        academicLabelMapsPromise = null;
+        console.warn('Academic label map load skipped', err?.message || err);
+        return academicLabelMaps;
+    });
+
+    return academicLabelMapsPromise;
+}
+
+function getDepartmentDisplayName(value, fallback = '') {
+    if (!value) return fallback;
+    return academicLabelMaps.departments.get(value) || defaultDepartmentUrduMap[value] || fallback || value;
+}
+
+function getClassDisplayName(value, fallback = '') {
+    if (!value) return fallback;
+    return academicLabelMaps.classes.get(value) || defaultClassUrduMap[value] || fallback || value;
+}
+
+function getSubjectTermLabel(term, fallback = 'Annual') {
+    const raw = String(term || '').trim();
+    const normalized = raw.toLowerCase();
+    const translate = (key, defaultValue) => {
+        if (typeof getTrans === 'function') {
+            const translated = getTrans(key);
+            return translated && translated !== key ? translated : defaultValue;
+        }
+        return defaultValue;
+    };
+
+    if (!raw) return fallback;
+    if (normalized.includes('foundation')) return translate('foundation_term', 'Foundation / Term 1');
+    if (normalized.includes('first')) return translate('first_term', 'First Term');
+    if (normalized.includes('second')) return translate('second_term', 'Second Term');
+    if (normalized.includes('annual')) return translate('annual_term', 'Annual');
+    return raw;
+}
+
+function getSubjectDisplayName(subject, options = {}) {
+    if (!subject) return '';
+
+    const includeBook = options.includeBook !== false;
+    const includeTerm = options.includeTerm !== false;
+    const name = getLocalizedName(subject, subject.name_ur || subject.name || '');
+    const book = String(subject.book || '').trim();
+    const term = String(subject.term || '').trim();
+
+    let label = name || '';
+    if (includeBook && book) label = label ? `${label} — ${book}` : book;
+    if (includeTerm && term) label = `${label} (${getSubjectTermLabel(term)})`;
+    return label || name || book || '';
+}
+
+function normalizeRoleValue(role) {
+    return String(role || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
+}
+
+function getUserRoles(userOrRole) {
+    if (!userOrRole) return [];
+    if (typeof userOrRole === 'string') return [normalizeRoleValue(userOrRole)].filter(Boolean);
+
+    const roles = [];
+    if (Array.isArray(userOrRole.roles)) roles.push(...userOrRole.roles);
+    if (userOrRole.role) roles.push(userOrRole.role);
+
+    return Array.from(new Set(roles.map(normalizeRoleValue).filter(Boolean)));
+}
+
+function getPrimaryRole(userOrRole) {
+    const roles = getUserRoles(userOrRole);
+    return roles[0] || 'student';
+}
+
+function hasUserRole(userOrRole, role) {
+    return getUserRoles(userOrRole).includes(normalizeRoleValue(role));
+}
+
+function formatRoleLabel(role) {
+    const normalized = normalizeRoleValue(role);
+    const translated = getTrans(normalized);
+    if (translated && translated !== normalized) return translated;
+    return normalized.replace(/_/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase());
 }
 
 function applyLanguagePreference(lang) {
@@ -32,7 +197,7 @@ function applyLanguagePreference(lang) {
 
     try {
         const user = JSON.parse(localStorage.getItem('currentUser'));
-        if (user) renderSidebar(user.role);
+        if (user) renderSidebar(user);
     } catch (e) { /* ignore */ }
 
     try {
@@ -735,13 +900,14 @@ function startNoticeNotifications(user) {
     const uid = user?.uid || '';
     if (!uid) return;
 
-    const role = String(user?.role || '').toLowerCase();
-    const audience = role === 'parent' ? 'parents' : (role === 'student' ? 'students' : '');
+    const roles = getUserRoles(user);
+    const primaryRole = getPrimaryRole(user);
+    const audience = primaryRole === 'parent' ? 'parents' : (primaryRole === 'student' ? 'students' : '');
 
     const key = getNotificationsStorageKey('last_notice_ms');
     let lastSeen = parseInt(localStorage.getItem(key) || '0', 10) || 0;
 
-    const isStaffRole = (r) => ['owner', 'admin', 'principal', 'teacher', 'accountant', 'clerk'].includes(r);
+    const isStaffRole = (roleList) => roleList.some(r => ['owner', 'admin', 'principal', 'teacher', 'accountant', 'clerk', 'nazim_e_taleemaat', 'hifz_supervisor'].includes(r));
 
     const handlers = [];
     const attach = (q) => {
@@ -778,7 +944,7 @@ function startNoticeNotifications(user) {
         handlers.push(unsub);
     };
 
-    if (isStaffRole(role)) {
+    if (isStaffRole(roles)) {
         attach(db.collection('notices').orderBy('createdAt', 'desc').limit(25));
     } else if (audience) {
         attach(db.collection('notices').where('targetAudience', '==', 'all'));
@@ -1207,9 +1373,12 @@ async function applyPdfBranding(doc, options = {}) {
 
         // Load images
         const logoImg = new Image();
-        logoImg.src = '../../assets/logo.png';
+        logoImg.crossOrigin = 'Anonymous';
+        logoImg.src = branding.logo || '../../assets/logo.png';
+
         const headerImg = new Image();
-        headerImg.src = '../../assets/header-image.png';
+        headerImg.crossOrigin = 'Anonymous';
+        headerImg.src = branding.banner || '../../assets/header-image.png';
 
         await Promise.all([
             new Promise(resolve => {
@@ -1361,7 +1530,7 @@ async function ensureProvisionedAccess(authUser) {
 
 async function handleLogin(event) {
     event.preventDefault();
-    const email = document.getElementById('email').value;
+    const loginId = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
 
     const btn = event.target.querySelector('button');
@@ -1371,11 +1540,65 @@ async function handleLogin(event) {
 
     try {
         try { localStorage.setItem('last_auth_provider', 'password'); } catch (e) { /* ignore */ }
+        let email = loginId;
+        if (loginId && !loginId.includes('@')) {
+            const userByUsername = await db.collection('users').where('username', '==', loginId.toLowerCase()).limit(1).get();
+            if (!userByUsername.empty) {
+                const userData = userByUsername.docs[0].data() || {};
+                email = userData.email || loginId;
+            }
+        }
+
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         void userCredential;
 
         // Auth state listener will handle the rest
     } catch (error) {
+        console.warn("Firebase Auth failed, trying local Firestore auth...", error.code);
+
+        // Fallback: Check for "localPassword" in Firestore (for "fake" email users)
+        try {
+            let snapshot = await db.collection('users').where('email', '==', loginId).limit(1).get();
+            if (snapshot.empty && loginId && !loginId.includes('@')) {
+                snapshot = await db.collection('users').where('username', '==', loginId.toLowerCase()).limit(1).get();
+            }
+            if (!snapshot.empty) {
+                const doc = snapshot.docs[0];
+                const userData = doc.data();
+
+                if (userData.localPassword && userData.localPassword === password) {
+                    console.log("Local auth successful for:", email);
+                    const roles = Array.isArray(userData.roles) && userData.roles.length
+                        ? userData.roles.map(normalizeRoleValue)
+                        : [normalizeRoleValue(userData.role || 'student')];
+                    const primaryRole = roles[0] || 'student';
+
+                    const fakeUser = {
+                        uid: doc.id,
+                        email: userData.email,
+                        role: primaryRole,
+                        roles,
+                        name: userData.name,
+                        displayName: userData.name,
+                        isLocalAuth: true
+                    };
+
+                    localStorage.setItem('currentUser', JSON.stringify(fakeUser));
+
+                    // Force redirect based on role
+                    const target = primaryRole === 'admin' ? 'pages/admin/dashboard.html' :
+                        primaryRole === 'teacher' ? 'pages/teacher/dashboard.html' :
+                            primaryRole === 'student' ? 'pages/student/dashboard.html' :
+                                'dashboard.html';
+
+                    window.location.href = target;
+                    return;
+                }
+            }
+        } catch (localErr) {
+            console.error("Local auth check failed", localErr);
+        }
+
         console.error("Login Error:", error);
         alert("Login failed: " + error.message);
         btn.innerText = originalText;
@@ -1514,11 +1737,13 @@ auth.onAuthStateChanged(async (user) => {
             // If local storage is missing or doesn't match auth user, fetch fresh data
             if (!currentUser || currentUser.uid !== user.uid) {
                 console.log("Fetching user data from Firestore...");
-                let role = 'student'; // Default
+                let roles = ['student']; // Default
                 try {
                     const userDoc = await db.collection("users").doc(user.uid).get();
                     if (userDoc.exists) {
-                        role = userDoc.data().role || 'student';
+                        const data = userDoc.data() || {};
+                        roles = getUserRoles(data);
+                        if (!roles.length) roles = [normalizeRoleValue(data.role || 'student')];
                     } else {
                         await auth.signOut();
                         alert(getTrans('account_not_provisioned'));
@@ -1526,13 +1751,14 @@ auth.onAuthStateChanged(async (user) => {
                     }
                 } catch (e) {
                     console.log("Error fetching role:", e);
-                    role = 'student'; // Fallback
+                    roles = ['student']; // Fallback
                 }
 
                 currentUser = {
                     uid: user.uid,
                     email: user.email,
-                    role: role,
+                    role: roles[0] || 'student',
+                    roles,
                     name: user.displayName || user.email.split('@')[0]
                 };
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -1616,11 +1842,13 @@ document.addEventListener('DOMContentLoaded', () => {
 function initDashboard(user) {
     const nameEl = document.getElementById('userName');
     const roleEl = document.getElementById('userRole');
+    const roles = getUserRoles(user);
 
     if (nameEl) nameEl.innerText = user.name;
-    if (roleEl) roleEl.innerText = user.role.toUpperCase();
+    if (roleEl) roleEl.innerText = (roles.length ? roles : [getPrimaryRole(user)]).map(formatRoleLabel).join(' / ');
 
-    renderSidebar(user.role);
+    ensureAcademicLabelMaps().catch(() => { });
+    renderSidebar(user);
     setupMobileSidebar();
 }
 
@@ -1651,7 +1879,7 @@ function toggleSidebar() {
     if (overlay) overlay.classList.toggle('active');
 }
 
-function renderSidebar(role) {
+function renderSidebar(userOrRole) {
     const sidebarNav = document.getElementById('sidebarNav');
     if (!sidebarNav) return;
 
@@ -1668,22 +1896,25 @@ function renderSidebar(role) {
     const roleLinks = {
         owner: 'admin',
         admin: [
+            { name: (getTrans('academic_planner') !== 'academic_planner') ? getTrans('academic_planner') : 'Academic Planner', icon: '📅', href: basePath + 'pages/admin/academic_planner.html' },
+            { name: getTrans('nazim_verbal_exam') !== 'nazim_verbal_exam' ? getTrans('nazim_verbal_exam') : 'Verbal Exam Scores', icon: '🗣️', href: basePath + 'pages/nazim/verbal_exam.html' },
+            { name: getTrans('timetable'), icon: '📅', href: basePath + 'pages/admin/timetable.html' },
+            { name: getTrans('attendance'), icon: '✅', href: basePath + 'pages/admin/attendance.html' },
             { name: getTrans('students'), icon: '👨‍🎓', href: basePath + 'pages/admin/students.html' },
             { name: getTrans('teachers'), icon: '👨‍🏫', href: basePath + 'pages/admin/teachers.html' },
-            { name: getTrans('attendance'), icon: '✅', href: basePath + 'pages/admin/attendance.html' },
-            { name: getTrans('timetable'), icon: '📅', href: basePath + 'pages/admin/timetable.html' },
             { name: getTrans('classes'), icon: '🏫', href: basePath + 'pages/admin/classes.html' },
             { name: getTrans('subjects'), icon: '📚', href: basePath + 'pages/admin/subjects.html' },
+            { name: getTrans('admissions') !== 'admissions' ? getTrans('admissions') : 'Admissions', icon: '📝', href: basePath + 'pages/admin/admissions.html' },
             { name: getTrans('exams'), icon: '📝', href: basePath + 'pages/admin/exams.html' },
             { name: getTrans('fees'), icon: '💸', href: basePath + 'pages/admin/fees.html' },
             { name: getTrans('finance'), icon: '💼', href: basePath + 'pages/admin/finance.html' },
             { name: getTrans('payroll'), icon: '🧾', href: basePath + 'pages/admin/payroll.html' },
+            { name: getTrans('reports'), icon: '📈', href: basePath + 'pages/admin/reports.html' },
+            { name: getTrans('attendance_report'), icon: '📄', href: basePath + 'pages/admin/attendance-report.html' },
             { name: getTrans('communication'), icon: '💬', href: basePath + 'pages/admin/communication.html' },
             { name: getTrans('library'), icon: '📖', href: basePath + 'pages/admin/library.html' },
             { name: getTrans('transport'), icon: '🚌', href: basePath + 'pages/admin/transport.html' },
             { name: getTrans('inventory'), icon: '📦', href: basePath + 'pages/admin/inventory.html' },
-            { name: getTrans('reports'), icon: '📈', href: basePath + 'pages/admin/reports.html' },
-            { name: getTrans('attendance_report'), icon: '📄', href: basePath + 'pages/admin/attendance-report.html' },
             { name: getTrans('certificates'), icon: '🎓', href: basePath + 'pages/admin/certificates.html' },
             { name: getTrans('users'), icon: '👥', href: basePath + 'pages/admin/users.html' },
             { name: getTrans('settings'), icon: '⚙️', href: basePath + 'pages/admin/settings.html' },
@@ -1699,8 +1930,26 @@ function renderSidebar(role) {
             { name: getTrans('attendance_report'), icon: '📄', href: basePath + 'pages/teacher/attendance-report.html' },
             { name: getTrans('grades'), icon: '📊', href: basePath + 'pages/teacher/grades.html' },
             { name: getTrans('homework'), icon: '📝', href: basePath + 'pages/teacher/homework.html' },
+            { name: (getTrans('academic_planner') !== 'academic_planner') ? getTrans('academic_planner') : 'Academic Planner', icon: '📅', href: basePath + 'pages/teacher/academic_planner.html' },
             { name: getTrans('communication'), icon: '💬', href: basePath + 'pages/admin/communication.html#messages' },
             { name: getTrans('timetable'), icon: '📅', href: basePath + 'pages/teacher/timetable.html' }
+        ],
+        nazim_e_taleemaat: [
+            { name: getTrans('portal'), icon: '🏠', href: basePath + 'dashboard.html' },
+            { name: getTrans('nazim_verbal_exam') !== 'nazim_verbal_exam' ? getTrans('nazim_verbal_exam') : 'Verbal Exam Scores', icon: '🗣️', href: basePath + 'pages/nazim/verbal_exam.html' },
+            { name: (getTrans('academic_planner') !== 'academic_planner') ? getTrans('academic_planner') : 'Academic Planner', icon: '📅', href: basePath + 'pages/admin/academic_planner.html' },
+            { name: getTrans('students'), icon: '👨‍🎓', href: basePath + 'pages/admin/students.html' },
+            { name: getTrans('classes'), icon: '🏫', href: basePath + 'pages/admin/classes.html' },
+            { name: getTrans('subjects'), icon: '📚', href: basePath + 'pages/admin/subjects.html' },
+            { name: getTrans('reports'), icon: '📈', href: basePath + 'pages/admin/reports.html' }
+        ],
+        hifz_supervisor: [
+            { name: getTrans('portal'), icon: '🏠', href: basePath + 'dashboard.html' },
+            { name: getTrans('students'), icon: '👨‍🎓', href: basePath + 'pages/admin/students.html' },
+            { name: getTrans('attendance'), icon: '✅', href: basePath + 'pages/admin/attendance.html' },
+            { name: getTrans('attendance_report'), icon: '📄', href: basePath + 'pages/admin/attendance-report.html' },
+            { name: getTrans('timetable'), icon: '📅', href: basePath + 'pages/admin/timetable.html' },
+            { name: getTrans('reports'), icon: '📈', href: basePath + 'pages/admin/reports.html' }
         ],
         student: [
             { name: getTrans('portal'), icon: '🏠', href: basePath + 'pages/student/portal.html' },
@@ -1733,13 +1982,147 @@ function renderSidebar(role) {
         ]
     };
 
-    // Normalize role to lowercase to match keys
-    const normalizedRole = role ? role.toLowerCase() : 'student';
-    const resolvedRoleLinks = Array.isArray(roleLinks[normalizedRole])
-        ? roleLinks[normalizedRole]
-        : Array.isArray(roleLinks[roleLinks[normalizedRole]])
-            ? roleLinks[roleLinks[normalizedRole]]
-            : [];
+    const roles = getUserRoles(userOrRole);
+    const normalizedRole = roles[0] || normalizeRoleValue(userOrRole) || 'student';
+    const resolvedRoleLinks = [];
+    const appendLinks = (roleKey) => {
+        const normalized = normalizeRoleValue(roleKey);
+        const target = roleLinks[normalized];
+        const list = Array.isArray(target)
+            ? target
+            : Array.isArray(roleLinks[target])
+                ? roleLinks[target]
+                : [];
+        list.forEach(link => {
+            if (!resolvedRoleLinks.some(existing => existing.href === link.href)) {
+                resolvedRoleLinks.push({ ...link });
+            }
+        });
+    };
+
+    if (roles.length) {
+        roles.forEach(appendLinks);
+    } else {
+        appendLinks(normalizedRole);
+    }
+
+    // Ensure Academic Planner is visible for staff roles
+    const isStaffRole = (roles.length ? roles : [normalizedRole]).some(role => !['student', 'parent'].includes(role));
+    const plannerHref = basePath + 'pages/admin/academic_planner.html';
+    const hasPlannerLink = resolvedRoleLinks.some(link => (link.href || '').includes('academic_planner.html'));
+    if (isStaffRole && !hasPlannerLink) {
+        resolvedRoleLinks.push({
+            name: (getTrans('academic_planner') !== 'academic_planner') ? getTrans('academic_planner') : 'Academic Planner',
+            icon: '📅',
+            href: plannerHref
+        });
+    }
+
+    const canAccessNazimExam = (roles.length ? roles : [normalizedRole]).some(role => ['admin', 'owner', 'principal', 'nazim_e_taleemaat'].includes(role));
+    const verbalExamHref = basePath + 'pages/nazim/verbal_exam.html';
+    const hasVerbalExamLink = resolvedRoleLinks.some(link => (link.href || '') === verbalExamHref);
+    if (canAccessNazimExam && !hasVerbalExamLink) {
+        resolvedRoleLinks.push({
+            name: getTrans('nazim_verbal_exam') !== 'nazim_verbal_exam' ? getTrans('nazim_verbal_exam') : 'Verbal Exam Scores',
+            icon: '🗣️',
+            href: verbalExamHref
+        });
+    }
+
+    const canAccessTeachersDiary = (roles.length ? roles : [normalizedRole]).some(role => !['student', 'parent'].includes(role));
+    const teachersDiaryHref = basePath + 'pages/shared/teachers_diary.html';
+    const hasTeachersDiaryLink = resolvedRoleLinks.some(link => (link.href || '') === teachersDiaryHref);
+    if (canAccessTeachersDiary && !hasTeachersDiaryLink) {
+        resolvedRoleLinks.push({
+            name: getTrans('teachers_diary') !== 'teachers_diary' ? getTrans('teachers_diary') : 'Teachers Diary',
+            icon: '📘',
+            href: teachersDiaryHref
+        });
+    }
+
+    const modelLessonPlanHref = basePath + 'pages/shared/model_lesson_plan.html';
+    const hasModelLessonPlanLink = resolvedRoleLinks.some(link => (link.href || '') === modelLessonPlanHref);
+    if (canAccessTeachersDiary && !hasModelLessonPlanLink) {
+        resolvedRoleLinks.push({
+            name: getTrans('model_lesson_plan') !== 'model_lesson_plan' ? getTrans('model_lesson_plan') : 'Model Lesson Plan',
+            icon: '🧭',
+            href: modelLessonPlanHref
+        });
+    }
+
+    const lessonDeliveryChecklistHref = basePath + 'pages/shared/lesson_delivery_checklist.html';
+    const hasLessonDeliveryChecklistLink = resolvedRoleLinks.some(link => (link.href || '') === lessonDeliveryChecklistHref);
+    if (canAccessTeachersDiary && !hasLessonDeliveryChecklistLink) {
+        resolvedRoleLinks.push({
+            name: getTrans('lesson_delivery_checklist') !== 'lesson_delivery_checklist' ? getTrans('lesson_delivery_checklist') : 'Lesson Delivery Checklist',
+            icon: '📋',
+            href: lessonDeliveryChecklistHref
+        });
+    }
+
+    const studentProfileHref = basePath + 'pages/shared/student_profile.html';
+    const hasStudentProfileLink = resolvedRoleLinks.some(link => (link.href || '') === studentProfileHref);
+    const canAccessStudentProfile = (roles.length ? roles : [normalizedRole]).some(role => role !== 'student');
+    if (canAccessStudentProfile && !hasStudentProfileLink) {
+        resolvedRoleLinks.push({
+            name: getTrans('student_profile') !== 'student_profile' ? getTrans('student_profile') : 'Student Profile',
+            icon: '🧾',
+            href: studentProfileHref
+        });
+    }
+
+    const studentFeedbackHref = basePath + 'pages/shared/student_feedback.html';
+    const hasStudentFeedbackLink = resolvedRoleLinks.some(link => (link.href || '') === studentFeedbackHref);
+    const canAccessStudentFeedback = (roles.length ? roles : [normalizedRole]).some(role => ['student', 'admin', 'owner'].includes(role));
+    if (canAccessStudentFeedback && !hasStudentFeedbackLink) {
+        resolvedRoleLinks.push({
+            name: getTrans('student_feedback') !== 'student_feedback' ? getTrans('student_feedback') : 'Student Feedback',
+            icon: '📝',
+            href: studentFeedbackHref
+        });
+    }
+
+    const assemblyResponsibilityHref = basePath + 'pages/shared/assembly_responsibility.html';
+    const hasAssemblyResponsibilityLink = resolvedRoleLinks.some(link => (link.href || '') === assemblyResponsibilityHref);
+    if (!hasAssemblyResponsibilityLink) {
+        resolvedRoleLinks.push({
+            name: getTrans('assembly_responsibility') !== 'assembly_responsibility' ? getTrans('assembly_responsibility') : 'Assembly Responsibility',
+            icon: '🎙️',
+            href: assemblyResponsibilityHref
+        });
+    }
+
+    const dailyAssemblyPerformanceHref = basePath + 'pages/shared/daily_assembly_performance.html';
+    const hasDailyAssemblyPerformanceLink = resolvedRoleLinks.some(link => (link.href || '') === dailyAssemblyPerformanceHref);
+    if (canAccessTeachersDiary && !hasDailyAssemblyPerformanceLink) {
+        resolvedRoleLinks.push({
+            name: getTrans('daily_assembly_performance') !== 'daily_assembly_performance' ? getTrans('daily_assembly_performance') : 'Daily Assembly Performance',
+            icon: '🏅',
+            href: dailyAssemblyPerformanceHref
+        });
+    }
+
+    const hifzProgressFormsHref = basePath + 'pages/shared/hifz_progress_forms.html';
+    const hasHifzProgressFormsLink = resolvedRoleLinks.some(link => (link.href || '') === hifzProgressFormsHref);
+    const canAccessHifzProgressForms = (roles.length ? roles : [normalizedRole]).some(role => ['hifz_supervisor', 'admin', 'owner', 'principal'].includes(role));
+    if (canAccessHifzProgressForms && !hasHifzProgressFormsLink) {
+        resolvedRoleLinks.push({
+            name: getTrans('hifz_progress_forms') !== 'hifz_progress_forms' ? getTrans('hifz_progress_forms') : 'Hifz Supervisor Forms',
+            icon: '📗',
+            href: hifzProgressFormsHref
+        });
+    }
+
+    const teacherAcademicQualityHref = basePath + 'pages/shared/teacher_academic_quality_scorecard.html';
+    const hasTeacherAcademicQualityLink = resolvedRoleLinks.some(link => (link.href || '') === teacherAcademicQualityHref);
+    const canAccessTeacherAcademicQuality = (roles.length ? roles : [normalizedRole]).some(role => ['admin', 'nazim_e_taleemaat'].includes(role));
+    if (canAccessTeacherAcademicQuality && !hasTeacherAcademicQualityLink) {
+        resolvedRoleLinks.push({
+            name: getTrans('teacher_academic_quality_scorecard') !== 'teacher_academic_quality_scorecard' ? getTrans('teacher_academic_quality_scorecard') : 'Teacher Academic Quality Score Card',
+            icon: '📈',
+            href: teacherAcademicQualityHref
+        });
+    }
 
     // Add Support link at the very end
     const supportLink = { name: getTrans('support'), icon: '🛟', href: basePath + 'pages/admin/support.html' };
@@ -2347,9 +2730,9 @@ async function ensureAIKeysLoaded() {
             const provider = cfg.provider || 'gemini';
             const model = cfg.model || (provider === 'gemini' ? 'gemini-2.5-flash' :
                 provider === 'groq' ? 'llama-3.1-8b-instant' :
-                provider === 'mistral' ? 'mistral-tiny' :
-                provider === 'xai' ? 'grok-beta' :
-                '');
+                    provider === 'mistral' ? 'mistral-tiny' :
+                        provider === 'xai' ? 'grok-beta' :
+                            '');
             localStorage.setItem('ai_provider', provider);
             if (model) localStorage.setItem('ai_model', model);
         }

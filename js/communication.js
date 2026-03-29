@@ -1061,7 +1061,12 @@ async function loadRecipientOptions() {
             snap.forEach(doc => {
                 const s = doc.data() || {};
                 const name = `${s.firstName || ''} ${s.lastName || ''}`.trim() || (s.email || 'Student');
-                const cls = s.className ? ` · ${s.className}` : '';
+                const displayClassName = s.className
+                    ? ((typeof getClassDisplayName === 'function')
+                        ? getClassDisplayName(s.className, s.className_ur || '')
+                        : (s.className_ur || s.className))
+                    : '';
+                const cls = displayClassName ? ` · ${displayClassName}` : '';
                 const label = s.email ? `${name}${cls} (${s.email})` : `${name}${cls}`;
                 options.push(`<option value="${doc.id}">${commEscape(label)}</option>`);
             });

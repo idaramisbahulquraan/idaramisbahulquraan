@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>زبانی امتحان نمبرات - ادارہ مصباح القرآن</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .criteria-note {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .criteria-pill {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            padding: 0.35rem 0.75rem;
+        }
+
+        .score-input {
+            width: 90px;
+            min-width: 90px;
+        }
+
+        .score-total {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table th,
+        .data-table td {
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .access-card {
+            padding: 1.5rem;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>زبانی امتحان نمبرات</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight:600;">User</p>
+                            <p id="userRole" style="font-size:0.75rem; color:var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="stat-card" id="accessDeniedCard" style="display:none;">
+                    <div class="access-card">
+                        <h3>رسائی نہیں</h3>
+                        <p>اس صفحہ تک صرف ایڈمن یا ناظمِ تعلیمات رسائی رکھتا ہے۔</p>
+                    </div>
+                </div>
+
+                <div id="verbalExamContent" style="display:none;">
+                    <div class="stat-card" style="margin-bottom:1.5rem;">
+                        <h3 style="margin-bottom:1rem;">کلاس اور مضمون منتخب کریں</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>شعبہ</label>
+                                <select id="department" onchange="updateNazimClasses()">
+                                    <option value="">شعبہ منتخب کریں</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>کلاس</label>
+                                <select id="className" onchange="updateNazimSubjects()">
+                                    <option value="">کلاس منتخب کریں</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>مضمون</label>
+                                <select id="subject">
+                                    <option value="">مضمون منتخب کریں</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>تاریخ</label>
+                                <input type="date" id="examDate">
+                            </div>
+                            <div class="form-group" style="display:flex; align-items:flex-end;">
+                                <button class="btn-primary" type="button" onclick="loadVerbalExamSheet()">شیٹ لوڈ کریں</button>
+                            </div>
+                        </div>
+                        <div class="criteria-note">
+                            <span class="criteria-pill">یاداشت 1-20</span>
+                            <span class="criteria-pill">اطلاق 1-25</span>
+                            <span class="criteria-pill">تجزیہ 1-25</span>
+                            <span class="criteria-pill">فہم 1-30</span>
+                            <span class="criteria-pill">اسائنمنٹ کا معیار</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card" id="scoreSheetCard" style="display:none;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+                            <div>
+                                <h3 id="sheetTitle" style="margin:0;">زبانی امتحان نمبرات</h3>
+                                <p id="sheetMeta" style="margin:0.35rem 0 0; color:var(--text-light);"></p>
+                            </div>
+                            <button class="btn-primary" type="button" onclick="saveVerbalExamScores()">تمام نمبرات محفوظ کریں</button>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>نمبر شمار</th>
+                                        <th>طالب علم کا نام</th>
+                                        <th>یاداشت 1-20</th>
+                                        <th>اطلاق 1-25</th>
+                                        <th>تجزیہ 1-25</th>
+                                        <th>فہم 1-30</th>
+                                        <th>اسائنمنٹ کا معیار</th>
+                                        <th>حاصل کردہ سکور</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scoreSheetBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/nazim-verbal-exam.js"></script>
+</body>
+
+</html>

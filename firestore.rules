@@ -26,16 +26,84 @@ service cloud.firestore {
       allow update, delete: if isStaff() || (isAuthenticated() && request.auth.uid == resource.data.studentId);
     }
 
+    match /teacher_diaries/{docId} {
+      allow read: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /model_lesson_plans/{docId} {
+      allow read: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /lesson_delivery_checklists/{docId} {
+      allow read: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /student_profiles/{docId} {
+      allow read: if isStaff() || isParent();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /student_feedback_responses/{docId} {
+      allow read: if isAdmin() || (isAuthenticated() && request.auth.uid == resource.data.studentId);
+      allow create: if isStudent() && request.resource.data.studentId == request.auth.uid;
+      allow update: if isStudent() && resource.data.studentId == request.auth.uid && request.resource.data.studentId == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    match /assembly_responsibilities/{docId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin() || isOwner() || isPrincipal() || isTeacher() || isNazim();
+      allow delete: if isAdmin() || isOwner() || isPrincipal() || isTeacher() || isNazim();
+    }
+
+    match /assembly_class_coordinators/{docId} {
+      allow read: if isStaff();
+      allow create, update, delete: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /daily_assembly_performance/{docId} {
+      allow read: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin() || isOwner() || isPrincipal();
+    }
+
+    match /teacher_academic_quality_scorecards/{docId} {
+      allow read: if isAdmin() || isNazim();
+      allow create, update: if isAdmin() || isNazim();
+      allow delete: if isAdmin() || isNazim();
+    }
+
+    match /hifz_supervisor_forms/{docId} {
+      allow read: if isAdmin() || isOwner() || isPrincipal() || isHifzSupervisor();
+      allow create, update: if isHifzSupervisor();
+      allow delete: if isAdmin() || isOwner() || isPrincipal() || isHifzSupervisor();
+    }
+
+    match /verbal_exam_scores/{docId} {
+      allow read: if isStaff();
+      allow create, update: if isAdmin() || isOwner() || isPrincipal() || isNazim();
+      allow delete: if isAdmin() || isOwner() || isPrincipal();
+    }
+
     function isOwner()      { return hasRole('owner'); }
     function isAdmin()      { return hasRole('admin') || isOwner(); }
     function isPrincipal()  { return hasRole('principal'); }
     function isTeacher()    { return hasRole('teacher'); }
+    function isNazim()      { return hasRole('nazim_e_taleemaat'); }
+    function isHifzSupervisor() { return hasRole('hifz_supervisor'); }
     function isAccountant() { return hasRole('accountant'); }
     function isClerk()      { return hasRole('clerk'); }
     function isParent()     { return hasRole('parent'); }
     function isStudent()    { return hasRole('student'); }
 
-    function isStaff() { return isOwner() || isAdmin() || isPrincipal() || isTeacher() || isAccountant() || isClerk(); }
+    function isStaff() { return isOwner() || isAdmin() || isPrincipal() || isTeacher() || isNazim() || isHifzSupervisor() || isAccountant() || isClerk(); }
 
     // Users collection
     match /users/{userId} {
@@ -79,7 +147,7 @@ service cloud.firestore {
 
     // Students & Teachers Profiles
     match /students/{studentId} {
-      allow read: if isStaff();
+      allow read: if isStaff() || (isAuthenticated() && (request.auth.uid == studentId || resource.data.userId == request.auth.uid));
       allow write: if isAdmin() || isOwner() || isPrincipal();
     }
     
@@ -95,7 +163,7 @@ service cloud.firestore {
     }
     
     match /subjects/{subjectId} {
-      allow read: if isStaff();
+      allow read: if isStaff() || isStudent();
       allow write: if isAdmin() || isOwner() || isPrincipal();
     }
     

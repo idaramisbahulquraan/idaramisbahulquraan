@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Academic Plan - Teacher Portal</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .planner-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            border: 1px solid #eee;
+        }
+
+        .planner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .subject-badge {
+            background: var(--primary-light);
+            color: var(--primary-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .month-row {
+            display: grid;
+            grid-template-columns: 100px 1fr 1fr 1fr 100px;
+            gap: 1rem;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f9f9f9;
+        }
+
+        .month-name {
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .status-ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-behind {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-ahead {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .progress-input {
+            width: 80px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 data-i18n="syllabus_planner">My Syllabus Planner</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">Teacher</p>
+                            <p id="userRole" style="font-size: 0.75rem;">Teacher</p>
+                        </div>
+                        <div class="avatar">T</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div id="loading" style="text-align:center; padding:2rem;" data-i18n="loading">Loading your assigned subjects...</div>
+                <div id="plannerContainer">
+                    <!-- Dynamic Content -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+
+    <script>
+        const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        let currentUser = null;
+        let sessionOrder = [];
+        const tr = (key, fallback) => (typeof getTransOr === 'function' ? getTransOr(key, fallback) : fallback);
+
+        // Helper to get session order
+        async function getSessionOrder() {
+            try {
+                const doc = await db.collection('academic_settings').doc('config').get();
+                if (!doc.exists) return [];
+
+                const data = doc.data();
+                if (data.sessionStartDate) {
+                    // Generate 12 months from start date
+                    const start = new Date(data.sessionStartDate);
+                    const months = [];
+                    let d = new Date(start);
+                    for (let i = 0; i < 12; i++) {
+                        const mName = d.toLocaleString('default', { month: 'long' });
+                        const y = d.getFullYear();
+                        months.push(`${mName} ${y}`);
+                        d.setMonth(d.getMonth() + 1);
+                    }
+                    return months;
+                }
+
+                // Fallback (Legacy)
+                const startMonth = data.sessionStartMonth || "January";
+                return getOrderedMonthsLegacy(startMonth);
+            } catch (e) {
+                console.error(e);
+                return [];
+            }
+        }
+
+        function getOrderedMonthsLegacy(startMonth) {
+            const startIdx = MONTHS.indexOf(startMonth);
+            if (startIdx === -1) return MONTHS;
+            return [...MONTHS.slice(startIdx), ...MONTHS.slice(0, startIdx)];
+        }
+
+        function normalizePlannerValue(value) {
+            return String(value || '').trim().replace(/\s+/g, ' ');
+        }
+
+        function makeTeacherPlanIdSegment(value) {
+            return normalizePlannerValue(value)
+                .replace(/[\/\\?#%\*:|"<>]/g, '-')
+                .replace(/\s+/g, '_');
+        }
+
+        function buildTeacherPlanId(subjectData) {
+            return [
+                'plan',
+                subjectData.className || '',
+                subjectData.name || subjectData.subject || subjectData.name_ur || '',
+                subjectData.term || 'Annual',
+                subjectData.book || '',
+                subjectData.subjectPart || ''
+            ].map(makeTeacherPlanIdSegment).filter(Boolean).join('__');
+        }
+
+        function planMatchesTeacherSubject(planData, subjectData) {
+            if (planData.subjectId && subjectData.id && normalizePlannerValue(planData.subjectId) === normalizePlannerValue(subjectData.id)) {
+                return true;
+            }
+            if (normalizePlannerValue(planData.className) !== normalizePlannerValue(subjectData.className)) return false;
+            if (normalizePlannerValue(planData.book || '') !== normalizePlannerValue(subjectData.book || '')) return false;
+            if (normalizePlannerValue(planData.term || 'Annual') !== normalizePlannerValue(subjectData.term || 'Annual')) return false;
+
+            const planSubject = normalizePlannerValue(planData.subject || '');
+            const subjectNames = [
+                subjectData.name,
+                subjectData.name_ur
+            ].map(normalizePlannerValue).filter(Boolean);
+
+            return subjectNames.includes(planSubject);
+        }
+
+        function getTermMonths(term) {
+            const allMonths = Array.isArray(sessionOrder) && sessionOrder.length ? sessionOrder : MONTHS;
+            const normalized = String(term || 'Annual').toLowerCase();
+            if (normalized.includes('foundation')) return allMonths.slice(0, 2);
+            if (normalized.includes('first')) return allMonths.slice(0, 5);
+            if (normalized.includes('second')) return allMonths.slice(5, 10);
+            return allMonths;
+        }
+
+        function hasMeaningfulTargets(planData) {
+            const targets = planData?.monthlyTargets || {};
+            return Object.values(targets).some(value => Number(value || 0) > 0);
+        }
+
+        function mergePlanWithSubject(planData, subjectData) {
+            if (!subjectData) return planData;
+
+            const merged = { ...planData };
+            if (!merged.className && subjectData.className) merged.className = subjectData.className;
+            if (!merged.className_ur && subjectData.className_ur) merged.className_ur = subjectData.className_ur;
+            if (!merged.department && subjectData.department) merged.department = subjectData.department;
+            if (!merged.department_ur && subjectData.department_ur) merged.department_ur = subjectData.department_ur;
+            if (!merged.subject && (subjectData.name_ur || subjectData.name)) merged.subject = subjectData.name_ur || subjectData.name;
+            if (!merged.teacherId && subjectData.teacherId) merged.teacherId = subjectData.teacherId;
+            if (!merged.teacherName && subjectData.teacherName) merged.teacherName = subjectData.teacherName;
+            if (!merged.book && subjectData.book) merged.book = subjectData.book;
+            if (!merged.authorPublisher && subjectData.authorPublisher) merged.authorPublisher = subjectData.authorPublisher;
+            if (!merged.details && subjectData.description) merged.details = subjectData.description;
+            if (!merged.term && subjectData.term) merged.term = subjectData.term;
+            if ((!merged.totalPages || Number(merged.totalPages) === 0) && Number(subjectData.totalPages || 0) > 0) {
+                merged.totalPages = subjectData.totalPages;
+            }
+            if (!hasMeaningfulTargets(merged) && hasMeaningfulTargets(subjectData)) {
+                merged.monthlyTargets = { ...(subjectData.monthlyTargets || {}) };
+            }
+            if ((!Array.isArray(merged.books) || merged.books.length === 0) && Array.isArray(subjectData.books) && subjectData.books.length > 0) {
+                merged.books = subjectData.books;
+            }
+            return merged;
+        }
+
+        async function initTeacherPlanner() {
+            try {
+                const userJson = localStorage.getItem('currentUser');
+                if (!userJson) return;
+                currentUser = JSON.parse(userJson);
+
+                // Get Session
+                sessionOrder = await getSessionOrder();
+
+                // 1. Fetch Plans where teacher matches
+                // Note: We store teacherName in plans. ideally we should store teacherId.
+                // But let's try to query by teacherName for now as that's what we saved.
+                // Or better, fetch ALL plans and filter on client side if index is missing?
+                // The most robust way for now is to find assigned classes first?
+                // Actually the planner is stored by ID.
+                // Let's query 'syllabus_plans' where 'teacherName' == currentUser.name
+
+                // Correction: In Step 290, we saved `teacherName: document.getElementById('displayTeacher').innerText`.
+                // This name comes from the Subject definition. 
+                // We should match strictly.
+
+                const container = document.getElementById('plannerContainer');
+                container.innerHTML = '';
+                document.getElementById('loading').style.display = 'none';
+                const matchedSubjects = [];
+
+                if (currentUser.uid) {
+                    const teacherSubjectsById = await db.collection('subjects')
+                        .where('teacherId', '==', currentUser.uid)
+                        .get();
+                    teacherSubjectsById.forEach(doc => matchedSubjects.push({ id: doc.id, ...(doc.data() || {}) }));
+                }
+
+                if (currentUser.name) {
+                    const teacherSubjectsByName = await db.collection('subjects')
+                        .where('teacherName', '==', currentUser.name)
+                        .get();
+                    teacherSubjectsByName.forEach(doc => matchedSubjects.push({ id: doc.id, ...(doc.data() || {}) }));
+                }
+
+                const subjectMap = new Map();
+                matchedSubjects.forEach(subject => {
+                    const key = buildTeacherPlanId(subject);
+                    if (!subjectMap.has(key)) subjectMap.set(key, subject);
+                });
+
+                const allPlans = [];
+                const allPlansSnap = await db.collection('syllabus_plans').get();
+                allPlansSnap.forEach(doc => allPlans.push({ id: doc.id, ...(doc.data() || {}) }));
+
+                const selectedPlans = new Map();
+
+                subjectMap.forEach((subject, subjectKey) => {
+                    const candidates = allPlans.filter(plan => planMatchesTeacherSubject(plan, subject));
+                    let bestPlan = null;
+
+                    candidates.forEach(candidate => {
+                        if (!bestPlan) {
+                            bestPlan = candidate;
+                            return;
+                        }
+
+                        const currentScore = (hasMeaningfulTargets(bestPlan) ? 1000000 : 0)
+                            + (Number(bestPlan.totalPages || 0) || 0)
+                            + ((bestPlan.updatedAt?.toMillis?.() || 0) / 1000000000000);
+                        const nextScore = (hasMeaningfulTargets(candidate) ? 1000000 : 0)
+                            + (Number(candidate.totalPages || 0) || 0)
+                            + ((candidate.updatedAt?.toMillis?.() || 0) / 1000000000000);
+
+                        if (nextScore >= currentScore) bestPlan = candidate;
+                    });
+
+                    selectedPlans.set(bestPlan?.id || subjectKey, mergePlanWithSubject(bestPlan || {}, subject));
+                });
+
+                if (selectedPlans.size === 0 && currentUser.uid) {
+                    const teacherIdPlans = await db.collection('syllabus_plans')
+                        .where('teacherId', '==', currentUser.uid)
+                        .get();
+                    teacherIdPlans.forEach(doc => selectedPlans.set(doc.id, { id: doc.id, ...(doc.data() || {}) }));
+                }
+
+                if (selectedPlans.size === 0 && currentUser.name) {
+                    const teacherNamePlans = await db.collection('syllabus_plans')
+                        .where('teacherName', '==', currentUser.name)
+                        .get();
+                    teacherNamePlans.forEach(doc => selectedPlans.set(doc.id, { id: doc.id, ...(doc.data() || {}) }));
+                }
+
+                if (selectedPlans.size === 0) {
+                    container.innerHTML = `<div class="card"><p>${tr('no_plans_found', 'No plans found.')}</p></div>`;
+                    return;
+                }
+
+                Array.from(selectedPlans.entries()).forEach(([planId, plan]) => {
+                    renderPlanCard(planId, plan);
+                });
+
+            } catch (e) {
+                console.error(e);
+                const loading = document.getElementById('loading');
+                if (loading) loading.innerText = tr('error_loading_report', 'Error loading report.');
+                const container = document.getElementById('plannerContainer');
+                if (container) {
+                    container.innerHTML = `<div class="card"><p>${tr('error_loading_report', 'Error loading report.')}</p></div>`;
+                }
+            }
+        }
+
+        function renderPlanCard(planId, data) {
+            const container = document.getElementById('plannerContainer');
+            const displayClassName = (typeof getClassDisplayName === 'function')
+                ? getClassDisplayName(data.className || '', data.className_ur || '')
+                : (data.className_ur || data.className || '');
+            const displayDepartment = (typeof getDepartmentDisplayName === 'function')
+                ? getDepartmentDisplayName(data.department || '', data.department_ur || '')
+                : (data.department_ur || data.department || '');
+            const displaySubject = (typeof getSubjectDisplayName === 'function')
+                ? getSubjectDisplayName({ name: data.subject, name_ur: data.subject, book: data.book, term: data.term })
+                : data.subject;
+
+            let html = `
+                <div class="planner-card">
+                    <div class="planner-header">
+                        <div>
+                            <h3 style="margin:0;">${displaySubject} ${data.subjectPart ? `(${data.subjectPart})` : ''}</h3>
+                            <div style="margin-top:5px; color:#666; font-size:0.9em;">
+                                ${displayClassName} <span style="margin:0 5px;">•</span> ${displayDepartment}
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-weight:600;">${tr('target', 'Target')}: ${data.totalPages} ${tr('pages', 'Pages')}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background:#f8f9fa; padding:10px; border-radius:4px; font-weight:600; font-size:0.85em; display:grid; grid-template-columns: 100px 1fr 1fr 100px;">
+                        <div>${tr('month', 'Month')}</div>
+                        <div>${tr('target', 'Target')} ${tr('pages', 'Pages')}</div>
+                        <div>${tr('achieved', 'Achieved')}</div>
+                        <div>${tr('status', 'Status')}</div>
+                    </div>
+            `;
+
+            const achieved = data.monthlyAchieved || {};
+            const targets = data.monthlyTargets || {};
+            const visibleMonths = getTermMonths(data.term || 'Annual');
+
+            visibleMonths.forEach(m => {
+                const target = targets[m] || 0;
+                const done = achieved[m] || 0;
+                let status = tr('status_pending', 'Pending');
+                let statusClass = '';
+
+                if (done >= target && target > 0) {
+                    status = tr('status_on_track', 'On Track');
+                    statusClass = 'status-ok';
+                } else if (done < target && target > 0) {
+                    status = tr('status_behind', 'Behind');
+                    statusClass = 'status-behind';
+                }
+
+                html += `
+                    <div class="month-row">
+                        <div class="month-name">${m}</div>
+                        <div>${target}</div>
+                        <div>
+                            <input type="number" 
+                                   value="${done > 0 ? done : ''}" 
+                                   class="progress-input" 
+                                   placeholder="0"
+                                   data-plan-id="${planId}"
+                                   data-month="${m}">
+                        </div>
+                        <div><span class="status-badge ${statusClass}">${status}</span></div>
+                    </div>
+                `;
+            });
+
+            html += `
+                <div style="display:flex; justify-content:flex-end; margin-top:1rem;">
+                    <button class="btn-primary" type="button" onclick="savePlanProgress('${planId}')">${tr('save', 'Save')}</button>
+                </div>
+            `;
+            html += `</div>`;
+            container.innerHTML += html;
+        }
+
+        async function savePlanProgress(planId) {
+            try {
+                const inputs = document.querySelectorAll(`.progress-input[data-plan-id="${planId}"]`);
+                const achieved = {};
+                inputs.forEach(input => {
+                    const month = input.dataset.month || '';
+                    if (!month) return;
+                    achieved[month] = parseInt(input.value, 10) || 0;
+                });
+
+                await db.collection('syllabus_plans').doc(planId).set({
+                    monthlyAchieved: achieved,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                await initTeacherPlanner();
+            } catch (e) {
+                console.error(e);
+                alert(`${tr('failed_update_progress', 'Failed to update progress:')} ${e.message}`);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.title = `${tr('academic_planner', 'Academic Planner')} - ${tr('teacher', 'Teacher')}`;
+            // Slight delay to ensure firebase auth and user are ready
+            setTimeout(initTeacherPlanner, 1000);
+        });
+
+        window.addEventListener('language-changed', () => {
+            document.title = `${tr('academic_planner', 'Academic Planner')} - ${tr('teacher', 'Teacher')}`;
+            initTeacherPlanner();
+        });
+
+    </script>
+</body>
+
+</html>

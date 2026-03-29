@@ -103,10 +103,14 @@
                             <label data-i18n="date">Date</label>
                             <input type="date" id="date" required>
                         </div>
-                        <div class="form-group" style="display: flex; align-items: flex-end; gap: 0.5rem; flex-wrap: wrap;">
-                            <button class="btn-primary" onclick="loadStudents()" data-i18n="fetch_students">Fetch Students</button>
-                            <button class="btn-add" onclick="openQrScanner()" data-i18n="scan_qr_barcode">Scan QR/Barcode</button>
-                            <button class="btn-add" style="background:#0ea5e9;" onclick="logGeoCheckin()" data-i18n="geofence_checkin">Geofence Check-in</button>
+                        <div class="form-group"
+                            style="display: flex; align-items: flex-end; gap: 0.5rem; flex-wrap: wrap;">
+                            <button class="btn-primary" onclick="loadStudents()" data-i18n="fetch_students">Fetch
+                                Students</button>
+                            <button class="btn-add" onclick="openQrScanner()" data-i18n="scan_qr_barcode">Scan
+                                QR/Barcode</button>
+                            <button class="btn-add" style="background:#0ea5e9;" onclick="logGeoCheckin()"
+                                data-i18n="geofence_checkin">Geofence Check-in</button>
                         </div>
                     </div>
                 </div>
@@ -177,7 +181,7 @@
                 snapshot.forEach(doc => {
                     const opt = document.createElement('option');
                     opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
+                    opt.innerText = doc.data().name_ur || doc.data().name;
                     select.appendChild(opt);
                 });
                 if (currentVal) select.value = currentVal;
@@ -201,10 +205,17 @@
 
             try {
                 const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                const seen = new Set();
                 snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (!data.name) return;
+                    const label = data.name_ur || data.name;
+                    if (seen.has(label)) return;
+                    seen.add(label);
+
                     const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
+                    opt.value = data.name;
+                    opt.innerText = label;
                     classSelect.appendChild(opt);
                 });
             } catch (error) {
@@ -228,13 +239,17 @@
                     .get();
 
                 const subjects = [];
-                snapshot.forEach(doc => subjects.push(doc.data().name));
-                subjects.sort(); // Sort alphabetically
+                snapshot.forEach(doc => subjects.push(doc.data()));
+                subjects.sort((a, b) => {
+                    const aLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(a) : (a.name_ur || a.name || '');
+                    const bLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(b) : (b.name_ur || b.name || '');
+                    return aLabel.localeCompare(bLabel);
+                });
 
-                subjects.forEach(name => {
+                subjects.forEach(s => {
                     const opt = document.createElement('option');
-                    opt.value = name;
-                    opt.innerText = name;
+                    opt.value = s.name;
+                    opt.innerText = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(s) : (s.name_ur || s.name);
                     subjectSelect.appendChild(opt);
                 });
             } catch (error) {

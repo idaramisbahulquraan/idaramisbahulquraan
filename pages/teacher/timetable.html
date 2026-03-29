@@ -176,13 +176,19 @@
 
                 tbody.innerHTML = '';
                 periods.forEach(p => {
+                    const displayClassName = (typeof getClassDisplayName === 'function')
+                        ? getClassDisplayName(p.className || '', p.className_ur || '')
+                        : (p.className_ur || p.className || '');
+                    const displayDepartment = (typeof getDepartmentDisplayName === 'function')
+                        ? getDepartmentDisplayName(p.department || '', p.department_ur || '')
+                        : (p.department_ur || p.department || '');
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td style="font-weight: 500;">${p.day}</td>
                         <td>${formatTime(p.startTime)} - ${formatTime(p.endTime)}</td>
-                        <td>${p.className}</td>
-                        <td>${p.subject}</td>
-                        <td><span style="font-size: 0.85rem; color: var(--text-light); background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 0.25rem;">${p.department}</span></td>
+                        <td>${displayClassName}</td>
+                        <td>${p.subject_ur || p.subject}</td>
+                        <td><span style="font-size: 0.85rem; color: var(--text-light); background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 0.25rem;">${displayDepartment}</span></td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -225,9 +231,9 @@
                 const row = [
                     p.day,
                     time,
-                    p.className,
+                    (typeof getClassDisplayName === 'function') ? getClassDisplayName(p.className || '', p.className_ur || '') : (p.className_ur || p.className || ''),
                     p.subject,
-                    p.department
+                    (typeof getDepartmentDisplayName === 'function') ? getDepartmentDisplayName(p.department || '', p.department_ur || '') : (p.department_ur || p.department || '')
                 ];
                 tableRows.push(row);
             });

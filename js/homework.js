@@ -8,29 +8,67 @@ async function initHomeworkSelectors() {
     const deptSel = document.getElementById('hwDepartment');
     const classSel = document.getElementById('hwClass');
     if (!deptSel || !classSel) return;
-    deptSel.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
-    classSel.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
-    if (typeof updatePageLanguage === 'function') updatePageLanguage();
-    try {
+    const renderDepartments = async () => {
+        const currentVal = deptSel.value;
+        deptSel.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
+        if (typeof updatePageLanguage === 'function') updatePageLanguage();
         const deps = await db.collection('departments').get();
+        const list = [];
         deps.forEach(d => {
+            const data = d.data();
+            if (data?.name) list.push({ name: data.name, name_ur: data.name_ur || '' });
+        });
+        list.sort((a, b) => {
+            const aLabel = (typeof getDepartmentDisplayName === 'function') ? getDepartmentDisplayName(a.name, a.name_ur || a.name) : (a.name_ur || a.name);
+            const bLabel = (typeof getDepartmentDisplayName === 'function') ? getDepartmentDisplayName(b.name, b.name_ur || b.name) : (b.name_ur || b.name);
+            return aLabel.localeCompare(bLabel);
+        });
+        list.forEach(dep => {
             const opt = document.createElement('option');
-            opt.value = d.data().name;
-            opt.innerText = d.data().name;
+            opt.value = dep.name;
+            opt.innerText = (typeof getDepartmentDisplayName === 'function') ? getDepartmentDisplayName(dep.name, dep.name_ur || dep.name) : (dep.name_ur || dep.name);
             deptSel.appendChild(opt);
         });
+        if (currentVal) deptSel.value = currentVal;
+    };
+
+    const renderClasses = async (dep) => {
+        const currentVal = classSel.value;
+        classSel.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
+        if (typeof updatePageLanguage === 'function') updatePageLanguage();
+        if (!dep) return;
+        const snap = await db.collection('classes').where('department', '==', dep).get();
+        const list = [];
+        snap.forEach(c => {
+            const data = c.data();
+            if (data?.name) list.push({ name: data.name, name_ur: data.name_ur || '' });
+        });
+        list.sort((a, b) => {
+            const aLabel = (typeof getClassDisplayName === 'function') ? getClassDisplayName(a.name, a.name_ur || a.name) : (a.name_ur || a.name);
+            const bLabel = (typeof getClassDisplayName === 'function') ? getClassDisplayName(b.name, b.name_ur || b.name) : (b.name_ur || b.name);
+            return aLabel.localeCompare(bLabel);
+        });
+        list.forEach(cls => {
+            const opt = document.createElement('option');
+            opt.value = cls.name;
+            opt.innerText = (typeof getClassDisplayName === 'function') ? getClassDisplayName(cls.name, cls.name_ur || cls.name) : (cls.name_ur || cls.name);
+            classSel.appendChild(opt);
+        });
+        if (currentVal) classSel.value = currentVal;
+    };
+
+    try {
+        await renderDepartments();
         deptSel.addEventListener('change', async () => {
-            classSel.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
-            if (typeof updatePageLanguage === 'function') updatePageLanguage();
-            const dep = deptSel.value;
-            if (!dep) return;
-            let snap = await db.collection('classes').where('department', '==', dep).get();
-            snap.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c.data().name;
-                opt.innerText = c.data().name;
-                classSel.appendChild(opt);
-            });
+            await renderClasses(deptSel.value);
+        });
+        if (deptSel.value) await renderClasses(deptSel.value);
+
+        window.addEventListener('language-changed', async () => {
+            try {
+                await renderDepartments();
+                await renderClasses(deptSel.value);
+            } catch (e) { /* noop */ }
         });
     } catch (err) {
         console.error('Failed to load selectors', err);
@@ -95,7 +133,7 @@ async function loadHomework() {
             rows += `
                 <tr>
                     <td>${h.title}</td>
-                    <td>${h.className}</td>
+                    <td>${(typeof getClassDisplayName === 'function') ? getClassDisplayName(h.className || '') : (h.className_ur || h.className || '')}</td>
                     <td>${h.subject}</td>
                     <td>${h.dueDate || ''}</td>
                     <td><button class="btn-primary" style="padding:0.35rem 0.75rem;" onclick="deleteHomework('${doc.id}')">Delete</button></td>

@@ -1,0 +1,1417 @@
+{
+  "Tajweed Class 1st year": [
+    {
+      "subject": "انگلش",
+      "book": "Navigate Reading",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "ریاضی",
+      "book": "ریاضی",
+      "authorPublisher": "",
+      "details": "پہلا نصف حصہ",
+      "term": "First Term"
+    },
+    {
+      "subject": "اُردو",
+      "book": "بنیاد اُردو",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "اُردو",
+      "book": "گلزار اُردو",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "انگلش",
+      "book": "Whispering pages",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "ریاضی",
+      "book": "ریاضی 5th",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "اُردو",
+      "book": "اُردو5th",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "Second Term"
+    }
+  ],
+  "Tajweed Class 2nd year": [
+    {
+      "subject": "انگلش",
+      "book": "انگلش 6th",
+      "authorPublisher": "",
+      "details": "پہلانصف حصہ",
+      "term": "First Term"
+    },
+    {
+      "subject": "ریاضی",
+      "book": "ریاضی 6th",
+      "authorPublisher": "",
+      "details": "پہلانصف حصہ",
+      "term": "First Term"
+    },
+    {
+      "subject": "اُردو",
+      "book": "اُردو6th",
+      "authorPublisher": "",
+      "details": "پہلانصف حصہ",
+      "term": "First Term"
+    },
+    {
+      "subject": "انگلش",
+      "book": "انگلش 6th",
+      "authorPublisher": "",
+      "details": "دوسرانصف حصہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "ریاضی",
+      "book": "ریاضی 6th",
+      "authorPublisher": "",
+      "details": "دوسرانصف حصہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "اُردو",
+      "book": "اُردو6th",
+      "authorPublisher": "",
+      "details": "دوسرانصف حصہ",
+      "term": "Second Term"
+    }
+  ],
+  "Pre Arabic": [
+    {
+      "subject": "انگلش لینگوئچ",
+      "book": "Navigate Reading",
+      "authorPublisher": "",
+      "details": "پہلی مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "انگلش",
+      "book": "انگلش 6th",
+      "authorPublisher": "",
+      "details": "پہلانصف حصہ",
+      "term": "First Term"
+    },
+    {
+      "subject": "عربی",
+      "book": "مطالعۃ العربیہ 6th",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "سائنس",
+      "book": "سائنس 6th",
+      "authorPublisher": "",
+      "details": "پہلانصف حصہ",
+      "term": "First Term"
+    },
+    {
+      "subject": "دو ماہ تجوید ،مدنی قاعدہ",
+      "book": "دو ماہ تجوید ،مدنی قاعدہ",
+      "authorPublisher": "",
+      "details": "",
+      "term": "First Term"
+    },
+    {
+      "subject": "ریاضی",
+      "book": "ریاضی 6th",
+      "authorPublisher": "",
+      "details": "پہلانصف حصہ",
+      "term": "First Term"
+    },
+    {
+      "subject": "اُردو",
+      "book": "اُردو 6th",
+      "authorPublisher": "",
+      "details": "پہلانصف حصہ",
+      "term": "First Term"
+    },
+    {
+      "subject": "فارسی",
+      "book": "فارسی قاعدہ",
+      "authorPublisher": "",
+      "details": "مکمل",
+      "term": "First Term"
+    },
+    {
+      "subject": "انگلش لینگوئچ",
+      "book": "Navigate Reading",
+      "authorPublisher": "",
+      "details": "دوسری مکمل کتاب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "انگلش",
+      "book": "انگلش 6th",
+      "authorPublisher": "",
+      "details": "دوسرا نصف حصہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "عربی",
+      "book": "القاموس المصور",
+      "authorPublisher": "",
+      "details": "منتخب حصہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "سائنس",
+      "book": "سائنس 6th",
+      "authorPublisher": "",
+      "details": "دوسرا نصف حصہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "ریاضی",
+      "book": "ریاضی 6th",
+      "authorPublisher": "",
+      "details": "دوسرا نصف حصہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "اُردو",
+      "book": "اُردو 6th",
+      "authorPublisher": "",
+      "details": "دوسرا نصف حصہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "فارسی",
+      "book": "پند نامہ",
+      "authorPublisher": "",
+      "details": "منتخب حصہ",
+      "term": "Second Term"
+    }
+  ],
+  "Aamma Year 1 (Arabic Language Foundation Course)": [
+    {
+      "subject": "قرآنی عربی",
+      "book": "قرآنی عربی",
+      "authorPublisher": "",
+      "details": "قرآنی عربی جلداول مکمل",
+      "term": "First Term"
+    },
+    {
+      "subject": "ترجمہ قرآن",
+      "book": "ترجمہ قرآن",
+      "authorPublisher": "",
+      "details": "قرآنی عربی جلددوم الثمانیہ دروس تک",
+      "term": "First Term"
+    },
+    {
+      "subject": "حدیث",
+      "book": "حفظ الحدیث",
+      "authorPublisher": "",
+      "details": "متن اربعین 30 احادیث مکمل ہفتے میں 4دن",
+      "term": "First Term"
+    },
+    {
+      "subject": "تحسین الخط",
+      "book": "تحسین الخط",
+      "authorPublisher": "",
+      "details": "تحسین الخط بمطابق تفصیل ہفتے میں دو دن",
+      "term": "First Term"
+    },
+    {
+      "subject": "عربی بول چال",
+      "book": "الحوارات المفیدہ",
+      "authorPublisher": "",
+      "details": "بمطابق تفصیل 62حوار 220جملے",
+      "term": "First Term"
+    },
+    {
+      "subject": "عربی",
+      "book": "العربیہ للناشین",
+      "authorPublisher": "",
+      "details": "یومیہ 4صفحات جلدثانی مکمل",
+      "term": "First Term"
+    },
+    {
+      "subject": "انگلش",
+      "book": "انگلش",
+      "authorPublisher": "",
+      "details": "بمطابق تفصیل",
+      "term": "First Term"
+    },
+    {
+      "subject": "عربی",
+      "book": "دروس المفیدہ",
+      "authorPublisher": "",
+      "details": "دروس المفیدہ مکمل",
+      "term": "First Term"
+    },
+    {
+      "subject": "عربی",
+      "book": "دروس اللغۃ العربیہ",
+      "authorPublisher": "",
+      "details": "دروس اللغۃ العربیہ پہلے 8سبق",
+      "term": "First Term"
+    },
+    {
+      "subject": "ریاضی",
+      "book": "ریاضی",
+      "authorPublisher": "",
+      "details": "بمطابق تفصیل",
+      "term": "First Term"
+    },
+    {
+      "subject": "صرف",
+      "book": "اساس الصرف",
+      "authorPublisher": "",
+      "details": "پہلے 40دن کتاب مکمل",
+      "term": "First Term"
+    },
+    {
+      "subject": "صرف",
+      "book": "نصاب الصرف",
+      "authorPublisher": "",
+      "details": "بقیہ 3ماہ نصاب الصرف",
+      "term": "First Term"
+    },
+    {
+      "subject": "عربی",
+      "book": "القاموس المصور",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "نحو",
+      "book": "نعیم التحریر",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "قرآنی عربی",
+      "book": "قرآنی عربی",
+      "authorPublisher": "",
+      "details": "قرآنی عربی جلددوم بقیہ حصہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "قرآنی عربی",
+      "book": "ترجمہ قرآن",
+      "authorPublisher": "",
+      "details": "قرآنی عربی جلدسوم مکمل",
+      "term": "Second Term"
+    },
+    {
+      "subject": "عربی ادب",
+      "book": "قصص النبین حصہ اول",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "عربی ادب",
+      "book": "الخطب العربیہ",
+      "authorPublisher": "",
+      "details": "خطابہ العربیہ بمطابق تفصیل",
+      "term": "Second Term"
+    },
+    {
+      "subject": "عربی خطابہ وتحسین الخط",
+      "book": "تحسین الخط ومجلہ جداریہ",
+      "authorPublisher": "",
+      "details": "تحسین الخط بمطابق تفصیل ومجلہ جداریہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "عربی بول چال",
+      "book": "الحوارات المفید",
+      "authorPublisher": "",
+      "details": "73حوار 135جملے",
+      "term": "Second Term"
+    },
+    {
+      "subject": "عربی",
+      "book": "العربیہ للناشین جلد سوم",
+      "authorPublisher": "",
+      "details": "یومیہ 4صفحات جلدسوم مکمل",
+      "term": "Second Term"
+    },
+    {
+      "subject": "انگلش",
+      "book": "انگلش",
+      "authorPublisher": "",
+      "details": "بمطابق تفصیل",
+      "term": "Second Term"
+    },
+    {
+      "subject": "عربی",
+      "book": "دروس اللغۃ العربیہ",
+      "authorPublisher": "",
+      "details": "جلد اول سبق 9 تا مکمل",
+      "term": "Second Term"
+    },
+    {
+      "subject": "عربی",
+      "book": "دروس اللغۃ العربیہ",
+      "authorPublisher": "",
+      "details": "جلد ثانی مکمل",
+      "term": "Second Term"
+    },
+    {
+      "subject": "ریاضی",
+      "book": "ریاضی",
+      "authorPublisher": "",
+      "details": "بمطابق تفصیل",
+      "term": "Second Term"
+    },
+    {
+      "subject": "صرف",
+      "book": "نصاب الصرف",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "نحو",
+      "book": "خلاصۃ النحو حصہ اول و دوم",
+      "authorPublisher": "",
+      "details": "مکمل دونوں حصے",
+      "term": "Second Term"
+    }
+  ],
+  "Aamma Year 2 (English Language Foundation Course)": [
+    {
+      "subject": "انگلش",
+      "book": "Grammar",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "انگلش",
+      "book": "The Whispering pages",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "انگلش",
+      "book": "Writing",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "انگلش",
+      "book": "Building Conversation",
+      "authorPublisher": "",
+      "details": "Chap:1&2",
+      "term": "First Term"
+    },
+    {
+      "subject": "سائنس",
+      "book": "سائنس",
+      "authorPublisher": "",
+      "details": "سائنس صفحہ نمبر 1تا 70 ہفتہ میں دو دن",
+      "term": "First Term"
+    },
+    {
+      "subject": "جنرل نالج",
+      "book": "جنرل نالج",
+      "authorPublisher": "",
+      "details": "جنرل نالج صفحہ نمبر 1تا 97 ہفتہ میں ایک دن",
+      "term": "First Term"
+    },
+    {
+      "subject": "ریاضی",
+      "book": "ریاضیII",
+      "authorPublisher": "",
+      "details": "ریاضی صفحہ نمبر 1تا 89 ہفتہ میں تین دن",
+      "term": "First Term"
+    },
+    {
+      "subject": "صرف",
+      "book": "علم الصیغہ",
+      "authorPublisher": "",
+      "details": "",
+      "term": "First Term"
+    },
+    {
+      "subject": "صرف",
+      "book": "خاصیات ابواب",
+      "authorPublisher": "",
+      "details": "",
+      "term": "First Term"
+    },
+    {
+      "subject": "نحو",
+      "book": "شرح مائۃ عامل",
+      "authorPublisher": "",
+      "details": "شرح مائۃ عامل مکمل",
+      "term": "First Term"
+    },
+    {
+      "subject": "نحو",
+      "book": "ہدایۃ النحو",
+      "authorPublisher": "",
+      "details": "ہدایۃ النحو جزوی حصہ",
+      "term": "First Term"
+    },
+    {
+      "subject": "فقہ",
+      "book": "نورالایضاح",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "انگلش",
+      "book": "Listening +(انگلش فاؤنڈیشن بکI I)",
+      "authorPublisher": "",
+      "details": "",
+      "term": "Second Term"
+    },
+    {
+      "subject": "اسلامیات",
+      "book": "اسلامیات",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "ڈکشنری",
+      "book": "قاموس المصور",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "انگلش",
+      "book": "Building Conversation \nChap : 2 To 10",
+      "authorPublisher": "",
+      "details": "10ورب روزانہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "انگلش",
+      "book": "Verb",
+      "authorPublisher": "",
+      "details": "10ورب روزانہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "سائنس",
+      "book": "سائنس",
+      "authorPublisher": "",
+      "details": "سائنس صفحہ نمبر 48تا 78",
+      "term": "Second Term"
+    },
+    {
+      "subject": "ریاضی",
+      "book": "ریاضی",
+      "authorPublisher": "",
+      "details": "ریاضی صفحہ نمبر 90تا 192",
+      "term": "Second Term"
+    },
+    {
+      "subject": "ریاضی",
+      "book": "ریاضی تنظیم المدارس",
+      "authorPublisher": "",
+      "details": "آخری دوماہ ریاضی تنظیم المدارس",
+      "term": "Second Term"
+    },
+    {
+      "subject": "صرف",
+      "book": "علم الصیغہ",
+      "authorPublisher": "",
+      "details": "",
+      "term": "Second Term"
+    },
+    {
+      "subject": "صرف",
+      "book": "خاصیات ابواب",
+      "authorPublisher": "",
+      "details": "",
+      "term": "Second Term"
+    },
+    {
+      "subject": "نحو",
+      "book": "ہدایۃ النحو",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "منطق",
+      "book": "تعلیم المنطق",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "Second Term"
+    }
+  ],
+  "Khassa Year 1": [
+    {
+      "subject": "عقائد",
+      "book": "العقائد والمسائل",
+      "authorPublisher": "مفتی عبدالقیوم ہزاروی",
+      "details": "مکمل کتاب",
+      "term": "Foundation Course"
+    },
+    {
+      "subject": "سیرت",
+      "book": "سیرت رسول عربی",
+      "authorPublisher": "مولانا نوربخش توکلی",
+      "details": "(پہلے چار ابواب)",
+      "term": "Foundation Course"
+    },
+    {
+      "subject": "تاریخ",
+      "book": "تاریخ الخلفاء",
+      "authorPublisher": "علامہ جلاالدین السیوطی",
+      "details": "(خلافت راشدہ )",
+      "term": "Foundation Course"
+    },
+    {
+      "subject": "ردِرافضیت",
+      "book": "ردالرفضہ",
+      "authorPublisher": "امام احمدرضا خاں",
+      "details": "ردالرفضیۃ مکمل رسالہ",
+      "term": "Foundation Course"
+    },
+    {
+      "subject": "ردقادنیت",
+      "book": "تبیان القرآن",
+      "authorPublisher": "مولاناغلام رسول سعیدی",
+      "details": "تبیان القرآن جلد نمبر9 سورۃ احزاب آیت نمبر9",
+      "term": "Foundation Course"
+    },
+    {
+      "subject": "ردِانکار حدیث",
+      "book": "فتنہ انکار حدیث",
+      "authorPublisher": "پیر کرم شاہ الازہری",
+      "details": "منتخب عنوانات",
+      "term": "Foundation Course"
+    },
+    {
+      "subject": "ردِانکار حدیث",
+      "book": "سنت خیر الانام",
+      "authorPublisher": "پیر کرم شاہ الازہری",
+      "details": "منتخب عنوانات",
+      "term": "Foundation Course"
+    },
+    {
+      "subject": "ردِ الحاد",
+      "book": "الحاد کے مسلم اور مغربی معاشروں پر اثرات",
+      "authorPublisher": "محمد مبشر نذیر",
+      "details": "منتخب عنوانات",
+      "term": "Foundation Course"
+    },
+    {
+      "subject": "ردِ الحاد",
+      "book": "جدید الحاد اسباب اور سد باب",
+      "authorPublisher": "مفتی محمدرضا قادری مصباحی نقشبندی",
+      "details": "منتخب عنوانات",
+      "term": "Foundation Course"
+    },
+    {
+      "subject": "فقہ (مطالعہ فقہ اسلامی )",
+      "book": "مختصرقدوری",
+      "authorPublisher": "امام ابوالحسین احمدبن محمدالقدوری",
+      "details": "(کتاب الحج تا آخر کتاب)ماسوا کتاب العتاق",
+      "term": "First Term"
+    },
+    {
+      "subject": "اصول فقہ",
+      "book": "اصول الشاشی مکمل",
+      "authorPublisher": "امام نظام الدین الشاشی",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "اصول فقہ",
+      "book": "تاریخ فقہ وعلوم فقہ",
+      "authorPublisher": "المدینۃ العلمیہ",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "نحو",
+      "book": "کافیہ",
+      "authorPublisher": "ابن حاجب رحمۃاللہ علیہ",
+      "details": "صفحہ نمبر ایک تا پچاس",
+      "term": "First Term"
+    },
+    {
+      "subject": "نحو",
+      "book": "النحو الواضح دوسرا +تیسرا حصہ",
+      "authorPublisher": "علی الجارم ومصطفٰے امین",
+      "details": "مکمل",
+      "term": "First Term"
+    },
+    {
+      "subject": "بلاغت",
+      "book": "دروس البلاغہ",
+      "authorPublisher": "حنفی ناصف ،",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "علوم الحدیث",
+      "book": "علوم الحدیث",
+      "authorPublisher": "ڈاکٹر صبحی صالح",
+      "details": "منتخب حصے",
+      "term": "First Term"
+    },
+    {
+      "subject": "علوم الحدیث",
+      "book": "تاریخ کتابت حدیث",
+      "authorPublisher": "مفتی محمدعثمانی",
+      "details": "منتخب حصے",
+      "term": "First Term"
+    },
+    {
+      "subject": "علوم الحدیث",
+      "book": "تاریخ حدیث (دعوت اسلامی)",
+      "authorPublisher": "المدینۃ العلمیہ",
+      "details": "منتخب حصے",
+      "term": "First Term"
+    },
+    {
+      "subject": "کمپیوٹر",
+      "book": "Introduction to Computer",
+      "authorPublisher": "LARRY LANG",
+      "details": "منتخب حصے",
+      "term": "First Term"
+    },
+    {
+      "subject": "منطق",
+      "book": "مرقات",
+      "authorPublisher": "علامہ فضل امام خیرآبادی",
+      "details": "مکمل کتاب کل 95 صفحے",
+      "term": "Second Term"
+    },
+    {
+      "subject": "نحو",
+      "book": "کافیہ",
+      "authorPublisher": "علامہ ابن حاجب رحمۃاللہ علیہ",
+      "details": "صفحہ نمبر 50تاآخر کتاب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "حدیث",
+      "book": "ریاض الصالحین",
+      "authorPublisher": "",
+      "details": "کتاب الادب تاآخر کتاب آداب السفر (81صفحے)",
+      "term": "Second Term"
+    },
+    {
+      "subject": "فقہ",
+      "book": "فقہ اسلامی کاپس منظر",
+      "authorPublisher": "محمد تقی امینی",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "فقہ",
+      "book": "تاریخ التشریع الاسلامی",
+      "authorPublisher": "محمدالخضرمی",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "علوم القرآ ن",
+      "book": "تعارف مطالعہ قرآن",
+      "authorPublisher": "مولانامحمد حنیف",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "علوم القرآ ن",
+      "book": "مطالعہ قرآن",
+      "authorPublisher": "مولانا عبدالماجد",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "علوم القرآ ن",
+      "book": "ترجمہ قرآن کریم",
+      "authorPublisher": "قرآن کریم",
+      "details": "پار ہ 10تا 18ترجمہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "تاریخ اسلام",
+      "book": "تاریخ اسلام",
+      "authorPublisher": "اکبر شاہ خاں",
+      "details": "عہد بنوامیہ تا خلافت عثمانیہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "تاریخ اسلام",
+      "book": "تاریخ اسلام",
+      "authorPublisher": "معین احمد",
+      "details": "عہد بنوامیہ تا خلافت عثمانیہ",
+      "term": "Second Term"
+    }
+  ],
+  "Khassa Year 2": [
+    {
+      "subject": "علوم القرآن",
+      "book": "تفسیر جلالین",
+      "authorPublisher": "المدینۃ العلمیہ",
+      "details": "پارہ نمبر 19تا 21",
+      "term": "First Term"
+    },
+    {
+      "subject": "علوم القرآن",
+      "book": "تاریخ حدیث وتفسیر",
+      "authorPublisher": "مفتی احمد یار نعیمی",
+      "details": "تعارف تفسیر اور مفسرین (24 صفحات)",
+      "term": "First Term"
+    },
+    {
+      "subject": "علوم القرآن",
+      "book": "علوم القرآن",
+      "authorPublisher": "",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "اصول فقہ",
+      "book": "نور الانوار",
+      "authorPublisher": "ملا احمدجیون",
+      "details": "۱: کتاب اللہ ۲: سنت ۳:اجماع",
+      "term": "First Term"
+    },
+    {
+      "subject": "اصول فقہ",
+      "book": "اصول الشریعہ الاسلامی",
+      "authorPublisher": "علی حسب اللہ",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "اصول فقہ",
+      "book": "الو جیر فی اصول الفقہ",
+      "authorPublisher": "عبدالکریم",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "بلاغت",
+      "book": "بلاغۃ الواضحہ",
+      "authorPublisher": "مکتبہ المدینہ",
+      "details": "بلاغۃ الواضحہ مع تدریبات",
+      "term": "First Term"
+    },
+    {
+      "subject": "نحو",
+      "book": "شرح جامی",
+      "authorPublisher": "علامہ نورالدین عبدالرحمٰن بن احمدالجامی رحمۃ اللہ علیہ",
+      "details": "مقدمہ ، مرفوعات",
+      "term": "First Term"
+    },
+    {
+      "subject": "کمپیوٹر",
+      "book": "Introduction to Computer",
+      "authorPublisher": "LARRY LANG",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "فقہ",
+      "book": "ہدیہ ربع اول",
+      "authorPublisher": "شیخ الاسلام ابوالحسن علی بن ابی بکر مرغینانی رحمۃ اللہ علیہ",
+      "details": "کتاب الطھارات تا قبل ازباب",
+      "term": "First Term"
+    },
+    {
+      "subject": "نحو",
+      "book": "شرح جامی",
+      "authorPublisher": "علامہ نور الدین عبدالرحمٰن بن احمدجامی رحمۃ اللہ علیہ",
+      "details": "منصوبات تا آخرمفعول معہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "1۔متن حدیث",
+      "book": "مسند امام اعظم",
+      "authorPublisher": "مام اعظم نعمان بن ثابت رحمۃ اللہ علیہ",
+      "details": "شروع کتاب تا کتاب الطلاق",
+      "term": "Second Term"
+    },
+    {
+      "subject": "2۔عربی ادب",
+      "book": "قصیدہ بردہ شریف",
+      "authorPublisher": "امام شرف الدین بصیری رحمۃ اللہ علیہ",
+      "details": "قصیدہ بردہ شریف مکمل",
+      "term": "Second Term"
+    },
+    {
+      "subject": "علوم القرآن",
+      "book": "تفسیر جلالین +",
+      "authorPublisher": "امام جلال الدین السیوطی",
+      "details": "پارہ 22تا 24",
+      "term": "Second Term"
+    },
+    {
+      "subject": "علوم القرآن",
+      "book": "مطالعہ علم العقائد",
+      "authorPublisher": "مطالعہ متن قرآن مجید",
+      "details": "منتخب آیات عقائد",
+      "term": "Second Term"
+    },
+    {
+      "subject": "مذاہب عالم",
+      "book": "مقارنۃ الادیان",
+      "authorPublisher": "ڈاکٹر احمدشبلی",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "مذاہب عالم",
+      "book": "تاریخ مذاہب",
+      "authorPublisher": "رشید احمد",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "مذاہب عالم",
+      "book": "دنیا کے بڑے مذاہب",
+      "authorPublisher": "عماد الحسن فاروقی",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "فقہ",
+      "book": "ہدایہ ربع اول",
+      "authorPublisher": "شیخ الاسلام ابوالحسن علی بن ابی بکر مرغینانی رحمۃ اللہ علیہ",
+      "details": "صفحہ نمبر151تا صفحہ نمبر324",
+      "term": "Second Term"
+    },
+    {
+      "subject": "منطق",
+      "book": "شرح تہذیب",
+      "authorPublisher": "ملا عبداللہ یزدی",
+      "details": "مکمل کتاب",
+      "term": "Second Term"
+    }
+  ],
+  "Aliya Year 1": [
+    {
+      "subject": "علوم القرآن",
+      "book": "الفوز الکبیر",
+      "authorPublisher": "شاہ ولی اللہ",
+      "details": "مکمل کتاب",
+      "term": "First Term"
+    },
+    {
+      "subject": "علوم القرآن",
+      "book": "تفسیر جلالین",
+      "authorPublisher": "امام جلال الدین سیوطی",
+      "details": "پارہ 25تا 26",
+      "term": "First Term"
+    },
+    {
+      "subject": "فقہ",
+      "book": "ہدایہ ربع ثانی",
+      "authorPublisher": "شیخ الاسلام ابوالحسن علی بن ابی بکر مرغینانی",
+      "details": "پہلا نصف صفحہ نمبر325",
+      "term": "First Term"
+    },
+    {
+      "subject": "متن حدیث",
+      "book": "مشکوٰۃ المصابیح",
+      "authorPublisher": "امام ابو عبد اللہ تبریزی",
+      "details": "کتاب الایمان ، العلم ، الجنائز، البیوع 67صفحے",
+      "term": "First Term"
+    },
+    {
+      "subject": "علوم القرآن",
+      "book": "تاریخ تفسیرو مفسرین",
+      "authorPublisher": "غلام احمدحریری",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "مطالعہ احکام القرآن",
+      "book": "روائع البیان تفسیر آیات الاحکام",
+      "authorPublisher": "محمدعلی صابونی",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "الدعوہ والا رشاد",
+      "book": "اصول الارشاد",
+      "authorPublisher": "مفتی نقی علی خاں",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "الدعوہ والا رشاد",
+      "book": "قواعد الدعوۃ الی اللہ",
+      "authorPublisher": "داکٹر حماد سعید",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "الدعوہ والا رشاد",
+      "book": "نیکی دعوت کے اہم اصول",
+      "authorPublisher": "مکتبہ المدینیہ",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "اسلام کے سیاسی ومعاشی افکار",
+      "book": "اسلامی ریاست",
+      "authorPublisher": "ڈاکٹر حمید اللہ",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "اسلام کے سیاسی ومعاشی افکار",
+      "book": "متفرق کتب",
+      "authorPublisher": "ڈاکٹر حمید اللہ",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "اصول فقہ",
+      "book": "حسامی",
+      "authorPublisher": "امام حسام الدین محمدبن محمدعمر",
+      "details": "قیاس مع بحث احکام مشرو عہ ومتعلقات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "اصول فقہ",
+      "book": "ابوجیز فی اصول فقہ (معاون کتاب)",
+      "authorPublisher": "عبدالکریم زیدان",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "عربی ادب",
+      "book": "مقامات حریری",
+      "authorPublisher": "مقامات حریری",
+      "details": "ابتدتا آخر مقامہ خامسہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "تصوف",
+      "book": "مکاشفۃ القلوب",
+      "authorPublisher": "امام غزالی",
+      "details": "مکمل کتاب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "اصول حدیث",
+      "book": "مقدمہ شیخ عبدالحق",
+      "authorPublisher": "شیخ عبدالحق محدث دہلوی",
+      "details": "مکمل کتاب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "بلاغت",
+      "book": "تلخیص المفتاح",
+      "authorPublisher": "شیخ عبدالحق محدث دہلوی",
+      "details": "مکمل کتاب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "فقہ",
+      "book": "ہدایہ ربع ثانی",
+      "authorPublisher": "شیخ الاسلام ابوالحسن علی بن ابی بکر مرغینانی",
+      "details": "صفحہ نمبر 467",
+      "term": "Second Term"
+    },
+    {
+      "subject": "علوم الحدیث( جرح و تعدیل)",
+      "book": "علم الجرح و تعدیل",
+      "authorPublisher": "داکٹر سہیل حسن",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "علوم الحدیث( جرح و تعدیل)",
+      "book": "ضوابط الجرح وتعدیل",
+      "authorPublisher": "عبدالواہاب ، عبدالطیف",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "علوم التخریج",
+      "book": "تفسیر جلالین",
+      "authorPublisher": "مولانا جلال الدین سیوطی",
+      "details": "پارہ 27تا30",
+      "term": "Second Term"
+    },
+    {
+      "subject": "علوم القرآن",
+      "book": "اصول التخریج ودراسۃ اسانید",
+      "authorPublisher": "ڈاکٹر محمود الطحاوی",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    }
+  ],
+  "Aliya Year 2": [
+    {
+      "subject": "تفسیر و اصول تفسیر",
+      "book": "زبدۃ الاتقان",
+      "authorPublisher": "سید محمدبن علوی رحمۃ اللہ علیہ",
+      "details": "مکمل کتاب 180صفحے",
+      "term": "First Term"
+    },
+    {
+      "subject": "تفسیر و اصول تفسیر",
+      "book": "تفسیر بیضاوی",
+      "authorPublisher": "قاضی ناصر الدین ا بوسعیدعبداللہ بن عمر بیضاوی رحمۃ اللہ علیہ",
+      "details": "نصف اول پہلا پارہ صفحہ 134تک",
+      "term": "First Term"
+    },
+    {
+      "subject": "بلاغت",
+      "book": "مختصر المعانی",
+      "authorPublisher": "علامہ سعدالدین مسعود بن عمر التفتازانی رحمۃ اللہ علیہ",
+      "details": "بیان و بدیع صفحات:165",
+      "term": "First Term"
+    },
+    {
+      "subject": "حدیث",
+      "book": "مشکوٰۃ المصابیح",
+      "authorPublisher": "امام ابو عبد اللہ تبریزی رحمۃ اللہ علیہ",
+      "details": "کتاب القصاص ، الحدود ،الادآب ، الرقاق صفحات:ـــ---ـــــــــ",
+      "term": "First Term"
+    },
+    {
+      "subject": "فقہ",
+      "book": "ہدایہ ربع ثالث",
+      "authorPublisher": "شیخ الاسلام ابوالحسن علی بن ابی بکر مرغینانی رحمۃ اللہ علیہ",
+      "details": "کتاب البیوع ، ادب القاضی ، المضاربہ صفحہ نمبر18 تا صفحہ نمبر183",
+      "term": "First Term"
+    },
+    {
+      "subject": "اصول حدیث",
+      "book": "مصطلع الحدیث",
+      "authorPublisher": "ڈاکٹر محمود طحان",
+      "details": "مکمل کتاب صفحات175",
+      "term": "First Term"
+    },
+    {
+      "subject": "اصول حدیث",
+      "book": "تاریخ فلسفۃ الاسلام",
+      "authorPublisher": "ڈاکٹر لطفی جمعہ",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "تہذیب وثقافت",
+      "book": "تاریخ تمدن اسلامی",
+      "authorPublisher": "شاہ معین الدین",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "تہذیب وثقافت",
+      "book": "اسلامی تہذیب کے درخشاں پہلو",
+      "authorPublisher": "مصطفیٰ سباعی",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "بلاغت",
+      "book": "مطول",
+      "authorPublisher": "",
+      "details": "فن اول تا ماأناقلت",
+      "term": "Second Term"
+    },
+    {
+      "subject": "فقہ",
+      "book": "ہدایہ ربع ثالث (دوم)",
+      "authorPublisher": "شیخ الاسلام ابوالحسن علی بن ابی بکر مرغینانی رحمۃ اللہ علیہ",
+      "details": "کتاب الھبہ ، الاجارات، الغصب صفحہ نمبر184تا صفحہ نمبر370",
+      "term": "Second Term"
+    },
+    {
+      "subject": "عربی ادب",
+      "book": "المدئح النبویہ",
+      "authorPublisher": "ذکی مبارک رحمۃ اللہ علیہ",
+      "details": "مکمل رسالہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "عربی ادب",
+      "book": "دیوان حماسہ",
+      "authorPublisher": "دیوان حماسہ",
+      "details": "باب الحماسہ قصیدہ نمبر 1 تا 50",
+      "term": "Second Term"
+    },
+    {
+      "subject": "عربی ادب",
+      "book": "دیوان متنبی",
+      "authorPublisher": "دیوان متنبی",
+      "details": "متفرق",
+      "term": "Second Term"
+    },
+    {
+      "subject": "رد الحاد",
+      "book": "ردالحاد+اسلامی سوفٹ وئیر +ایپس",
+      "authorPublisher": "متفرق کتب",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "رد الحاد",
+      "book": "الکلمۃ الملھمۃ",
+      "authorPublisher": "امام احمدرضاخان رحمۃ اللہ علیہ",
+      "details": "مکمل رسالہ",
+      "term": "Second Term"
+    },
+    {
+      "subject": "فلسفہ و مناظرہ",
+      "book": "مناظرہ رشیدیہ",
+      "authorPublisher": "عبدالرشید مصطفےٰ رحمۃ اللہ علیہ",
+      "details": "مکمل رسالے",
+      "term": "Second Term"
+    },
+    {
+      "subject": "فلسفہ و مناظرہ",
+      "book": "ھدایۃ الحکمۃ",
+      "authorPublisher": "اثیر الدین المفضل بن عمر رحمۃ اللہ علیہ",
+      "details": "مکمل رسالے",
+      "term": "Second Term"
+    },
+    {
+      "subject": "تفسیر",
+      "book": "تفسیر بیضاوی",
+      "authorPublisher": "قاضی ناصرالدین عبداللہ بن عمر بیضاوی",
+      "details": "پہلاپارہ صفحہ نمبر 135 تا صفحہ نمبر 287 تک",
+      "term": "Second Term"
+    }
+  ],
+  "Alamiya Year 1": [
+    {
+      "subject": "علم الکلام",
+      "book": "شرح عقائد النسفی",
+      "authorPublisher": "سعد الدین مسعود بن عمر التفضانی رحمۃ اللہ علیہ",
+      "details": "ابدا کتاب تا ماقبل الاستطاعۃ مع الفصل",
+      "term": "First Term"
+    },
+    {
+      "subject": "فقہ",
+      "book": "ہدایہ ربع آخر",
+      "authorPublisher": "شیخ الاسلام ابوالحسن علی بن ابی بکر مرغینانی رحمۃ اللہ علیہ",
+      "details": "کتاب الشفعہ، الذبائح والاضحیہ، الکراھیہ ، الاشرابہ ، رہن ، جنایات وصایا صفحہ نمبر391تا صفحہ نمبر536",
+      "term": "First Term"
+    },
+    {
+      "subject": "اصول حدیث",
+      "book": "شرح نخبۃ الفکر",
+      "authorPublisher": "حافظ ابن حجر عسقلانی رحمۃ اللہ علیہ",
+      "details": "مکمل کتاب 113 صفحات",
+      "term": "First Term"
+    },
+    {
+      "subject": "حدیث",
+      "book": "شرح معانی الآثار",
+      "authorPublisher": "امام ابو جعفر احمدبن محمد طحاوی رحمۃ اللہ علیہ",
+      "details": "کتاب الصلوٰۃ مکمل",
+      "term": "First Term"
+    },
+    {
+      "subject": "اسلامک مالیات/معاشیات",
+      "book": "اسلامک بینکنگ کی بنیاد یں",
+      "authorPublisher": "مولانا محمدتقی",
+      "details": "متنخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "اصول تحقیق",
+      "book": "تحقیق وتدوین کا طریقہ",
+      "authorPublisher": "ڈاکٹر خالق داد ملک",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "اصول تحقیق",
+      "book": "اصول تحقیق اسلامی تناظر میں",
+      "authorPublisher": "ڈاکٹر خالق داد ملک",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "اصول تحقیق",
+      "book": "علوم اسلامیہ میں تحقیق",
+      "authorPublisher": "ڈاکٹر سراج الاسلام",
+      "details": "منتخب عنوانات",
+      "term": "First Term"
+    },
+    {
+      "subject": "اصول فقہ",
+      "book": "توضیح وتلویح",
+      "authorPublisher": "صدرالشرعیہ عبیداللہ بن مسعود الحنفی رحمۃ اللہ علیہ",
+      "details": "البدایہ تا بحث العام",
+      "term": "Second Term"
+    },
+    {
+      "subject": "حدیث",
+      "book": "مؤطاامام مالک",
+      "authorPublisher": "امام مالک بن انس",
+      "details": "منتخب ابواب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "حدیث",
+      "book": "التعلیق الممجد علی مؤطا امام مالک",
+      "authorPublisher": "امام محمد بن حسن شہبانی",
+      "details": "منتخب ابواب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "اسماء الرجال",
+      "book": "الرفع والتکمیل فی الجرح وتعدیل",
+      "authorPublisher": "عبدالحی لکھنوی",
+      "details": "مکمل",
+      "term": "Second Term"
+    },
+    {
+      "subject": "اسماء الرجال",
+      "book": "آئین پاکستان",
+      "authorPublisher": "آئین پاکستان",
+      "details": "مکمل",
+      "term": "Second Term"
+    },
+    {
+      "subject": "فقہ المعاملات (سراجی)",
+      "book": "سراجی",
+      "authorPublisher": "سراج الدین",
+      "details": "فن البدایہ الی آخرباب المناہجۃ سوی مفاسمۃ الجد",
+      "term": "Second Term"
+    },
+    {
+      "subject": "فقہ المعاملات (سراجی)",
+      "book": "جدید فقہی مباحث",
+      "authorPublisher": "مجاہد اسلام",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "مطالعہ سیرت",
+      "book": "ضیاء النبی",
+      "authorPublisher": "پیر کرم شاہ الازھری",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "مطالعہ سیرت",
+      "book": "رحمۃ اللعالمین",
+      "authorPublisher": "قاری محمدسلطان",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "مطالعہ سیرت",
+      "book": "انسان کا مل",
+      "authorPublisher": "ڈاکٹر خالد علوی",
+      "details": "منتخب عنوانات",
+      "term": "Second Term"
+    }
+  ],
+  "Alamiya Year 2": [
+    {
+      "subject": "حدیث",
+      "book": "صحیح بخاری",
+      "authorPublisher": "امام محمدبن اسماعیل بخاری",
+      "details": "جلد اول",
+      "term": "First Term"
+    },
+    {
+      "subject": "حدیث",
+      "book": "صحیح مسلم",
+      "authorPublisher": "ابوالحسن مسلم بن حجاج قشیری نیشاپوری",
+      "details": "جلدثانی",
+      "term": "First Term"
+    },
+    {
+      "subject": "حدیث",
+      "book": "جامع ترمذی",
+      "authorPublisher": "ابوعیسی ٰ محمد بن سورہ بن شداد",
+      "details": "من البدایہ الی ابواب السیر",
+      "term": "First Term"
+    },
+    {
+      "subject": "حدیث",
+      "book": "ابو داؤد + تعارف آئمۃالحدیث",
+      "authorPublisher": "امام ابوداؤد سلیمان بن الاشعب",
+      "details": "تنظیم سلیبس",
+      "term": "First Term"
+    },
+    {
+      "subject": "حدیث",
+      "book": "نسائی + تخریج الاحادیث العملی",
+      "authorPublisher": "امام ابوعبدالرحمٰن بن شعیب نسائی",
+      "details": "تنظیم سلیبس",
+      "term": "First Term"
+    },
+    {
+      "subject": "فقہ المعاملات",
+      "book": "فقہ المعاملات",
+      "authorPublisher": "متفرق کتب",
+      "details": "متفرق موضوعات",
+      "term": "First Term"
+    },
+    {
+      "subject": "حدیث",
+      "book": "صحیح بخاری",
+      "authorPublisher": "امام محمدبن اسماعیل بخاری رحمۃ اللہ علیہ",
+      "details": "جلد اول بقیہ حصہ صفحہ :------",
+      "term": "Second Term"
+    },
+    {
+      "subject": "حدیث",
+      "book": "صحیح مسلم",
+      "authorPublisher": "ابوالحسن مسلم بن حجاج قشیری نیشاپوری رحمۃ اللہ علیہ",
+      "details": "جلد ثانی صفحہ نمبر:-------",
+      "term": "Second Term"
+    },
+    {
+      "subject": "حدیث",
+      "book": "آثار السنن",
+      "authorPublisher": "",
+      "details": "من البدایۃ الیٰ آخر کتاب الوتر ابواب التروایح",
+      "term": "Second Term"
+    },
+    {
+      "subject": "حدیث",
+      "book": "ابن ماجہ + تخریج الاحادیث العملی",
+      "authorPublisher": "ابوعبداللہ محمدابن ماجہ رحمۃ اللہ علیہ",
+      "details": "مکمل کتاب",
+      "term": "Second Term"
+    },
+    {
+      "subject": "معیشت",
+      "book": "اسلامی نظام معیشت کی بنیادیں اور مروجہ بینکاری نظام",
+      "authorPublisher": "متفر ق کتب",
+      "details": "متفر ق موضوعات",
+      "term": "Second Term"
+    },
+    {
+      "subject": "معیشت",
+      "book": "شریعہ اسیٹنڈڈ",
+      "authorPublisher": "متفرق کتب",
+      "details": "مختلف موضوعات",
+      "term": "Second Term"
+    }
+  ]
+}

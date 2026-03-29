@@ -330,7 +330,7 @@ async function loadAssignments() {
             return `
                 <tr>
                     <td style="font-weight:600;">${escapeHtml(a.studentName || '')}</td>
-                    <td>${escapeHtml(a.className || '-')}</td>
+                    <td>${escapeHtml((typeof getClassDisplayName === 'function') ? getClassDisplayName(a.className || '', a.className_ur || '') : (a.className_ur || a.className || '-'))}</td>
                     <td>${escapeHtml(rName)}</td>
                     <td>${escapeHtml(a.pickupStop || '-')}</td>
                     <td>${escapeHtml(a.dropStop || '-')}</td>
@@ -768,12 +768,12 @@ async function loadDepartments(selected = '') {
         let snap = await db.collection('departments').where('tenantId', '==', tenantId).get();
         if (snap.empty) snap = await db.collection('departments').get();
         const departments = [];
-        snap.forEach(doc => { if (doc.data()?.name) departments.push(doc.data().name); });
-        departments.sort((a, b) => a.localeCompare(b));
+        snap.forEach(doc => { if (doc.data()?.name) departments.push({ name: doc.data().name, name_ur: doc.data().name_ur || '' }); });
+        departments.sort((a, b) => a.name.localeCompare(b.name));
         departments.forEach(dep => {
             const opt = document.createElement('option');
-            opt.value = dep;
-            opt.innerText = dep;
+            opt.value = dep.name;
+            opt.textContent = dep.name_ur || dep.name;
             deptSel.appendChild(opt);
         });
         if (selected) deptSel.value = selected;
@@ -799,12 +799,17 @@ async function loadClasses(department) {
             snap = await db.collection('classes').where('department', '==', department).get();
         }
         const classes = [];
-        snap.forEach(doc => { if (doc.data()?.name) classes.push(doc.data().name); });
-        classes.sort((a, b) => a.localeCompare(b));
+        snap.forEach(doc => { if (doc.data()?.name) classes.push({ name: doc.data().name, name_ur: doc.data().name_ur || '' }); });
+        classes.sort((a, b) => a.name.localeCompare(b.name));
+        const seen = new Set();
         classes.forEach(cls => {
+            const label = cls.name_ur || cls.name;
+            if (seen.has(label)) return;
+            seen.add(label);
+
             const opt = document.createElement('option');
-            opt.value = cls;
-            opt.innerText = cls;
+            opt.value = cls.name;
+            opt.textContent = label;
             classSel.appendChild(opt);
         });
     } catch (err) {
@@ -1157,7 +1162,7 @@ async function loadTripRoster(tripId, routeId) {
                 return `
                     <tr data-student-id="${studentId}">
                         <td style="font-weight:600;">${escapeHtml(a.studentName || '')}</td>
-                        <td>${escapeHtml(a.className || '-')}</td>
+                        <td>${escapeHtml((typeof getClassDisplayName === 'function') ? getClassDisplayName(a.className || '', a.className_ur || '') : (a.className_ur || a.className || '-'))}</td>
                         <td>${escapeHtml(a.pickupStop || '-')}</td>
                         <td>${escapeHtml(a.dropStop || '-')}</td>
                         <td data-role="status"><span class="badge badge-warn">PENDING</span></td>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>روزانہ اسمبلی کارکردگی - ادارہ مصباح القرآن</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .dap-shell { display:flex; flex-direction:column; gap:1.5rem; padding-bottom:7rem; }
+        .dap-hero {
+            position:relative; overflow:hidden;
+            background:linear-gradient(135deg, rgba(30,64,175,0.97), rgba(79,70,229,0.94));
+            color:#fff; border-radius:1.35rem; padding:1.55rem 1.65rem;
+            box-shadow:0 18px 35px rgba(37,99,235,0.18);
+        }
+        .dap-hero::after {
+            content:''; position:absolute; left:-2rem; bottom:-4.2rem; width:220px; height:220px;
+            border-radius:50%; background:rgba(255,255,255,0.08);
+        }
+        .dap-hero h2 { margin:0 0 0.35rem; color:#fff; font-size:1.8rem; }
+        .dap-hero p { margin:0; max-width:760px; opacity:0.94; }
+        .dap-hero-chips { display:flex; gap:0.65rem; flex-wrap:wrap; margin-top:1rem; }
+        .dap-chip { border:1px solid rgba(255,255,255,0.24); background:rgba(255,255,255,0.12); color:#fff; border-radius:999px; padding:0.38rem 0.85rem; font-size:0.86rem; }
+        .dap-card {
+            background:linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+            border:1px solid rgba(148,163,184,0.22);
+            border-radius:1.2rem; padding:1.35rem; box-shadow:0 10px 24px rgba(15,23,42,0.05);
+        }
+        .dap-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:1rem; padding-bottom:0.85rem; border-bottom:1px solid rgba(148,163,184,0.18); }
+        .dap-head-main { display:flex; align-items:center; gap:0.9rem; }
+        .dap-badge {
+            display:inline-flex; align-items:center; justify-content:center; min-width:2.4rem; height:2.4rem;
+            border-radius:0.85rem; background:linear-gradient(135deg, #dbeafe, #ede9fe); color:#3730a3; font-weight:700;
+            box-shadow:inset 0 0 0 1px rgba(79,70,229,0.12);
+        }
+        .dap-title { margin:0; font-size:1.14rem; color:#0f172a; }
+        .dap-subtitle { margin:0.2rem 0 0; color:var(--text-light); font-size:0.92rem; }
+        .dap-note { color:var(--text-light); font-size:0.84rem; background:#f8fafc; border:1px solid rgba(148,163,184,0.18); padding:0.45rem 0.7rem; border-radius:999px; white-space:nowrap; }
+        .dap-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:1rem; }
+        .dap-grid-3 { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:1rem; }
+        .dap-card .form-group { margin-bottom:0; }
+        .dap-card label, .dap-card .form-group label { color:#334155; font-weight:700; font-size:0.88rem; margin-bottom:0.45rem; }
+        .dap-input, .dap-select {
+            width:100%; min-height:50px; padding:0.82rem 0.92rem; border:1px solid rgba(148,163,184,0.32);
+            border-radius:0.9rem; background:#fff; font-size:0.95rem; transition:border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .dap-input:focus, .dap-select:focus { outline:none; border-color:rgba(79,70,229,0.52); box-shadow:0 0 0 4px rgba(79,70,229,0.08); }
+        .dap-toolbar { display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:1rem; align-items:center; padding-top:1rem; border-top:1px dashed rgba(148,163,184,0.32); }
+        .dap-state { color:var(--text-light); font-size:0.9rem; }
+        .dap-stats { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:1rem; }
+        .dap-stat { border:1px solid rgba(148,163,184,0.2); border-radius:1rem; padding:1rem; background:linear-gradient(180deg, #fff 0%, #f8fafc 100%); }
+        .dap-stat-label { color:var(--text-light); font-size:0.84rem; margin-bottom:0.35rem; }
+        .dap-stat-value { font-size:1.38rem; font-weight:700; color:#0f172a; }
+        .dap-board-wrap { overflow:auto; border:1px solid rgba(148,163,184,0.22); border-radius:1rem; background:#fff; }
+        .dap-board { width:100%; border-collapse:collapse; min-width:1180px; }
+        .dap-board th, .dap-board td { border-bottom:1px solid rgba(148,163,184,0.16); padding:0.8rem; text-align:right; vertical-align:middle; }
+        .dap-board th { background:linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%); color:#334155; font-weight:700; }
+        .dap-board tr:last-child td { border-bottom:0; }
+        .dap-score { width:82px; min-width:82px; text-align:center; }
+        .dap-participant { min-width:180px; font-weight:700; color:#0f172a; }
+        .dap-task { min-width:170px; color:#1e40af; }
+        .dap-total-pill {
+            display:inline-flex; align-items:center; justify-content:center; min-width:56px; min-height:2.2rem;
+            border-radius:999px; background:linear-gradient(135deg, #4f46e5, #4338ca); color:#fff; font-weight:700;
+        }
+        .dap-readonly { background:#f8fafc; }
+        .dap-editor-hidden { display:none !important; }
+        .dap-access { padding:1.75rem; text-align:center; }
+        .dap-sticky {
+            position:sticky; bottom:1rem; z-index:4; display:flex; justify-content:space-between; align-items:center; gap:1rem;
+            padding:1rem 1.1rem; border:1px solid rgba(148,163,184,0.22); border-radius:1.1rem;
+            background:rgba(255,255,255,0.96); backdrop-filter:blur(10px); box-shadow:0 16px 35px rgba(15,23,42,0.1);
+        }
+        .dap-actions { display:flex; gap:0.75rem; flex-wrap:wrap; }
+        .dap-actions .btn-primary, .dap-actions .btn-secondary { min-width:150px; border-radius:0.85rem; }
+        @media (max-width: 980px) {
+            .dap-grid-3, .dap-stats { grid-template-columns:1fr; }
+            .dap-head, .dap-sticky { flex-direction:column; align-items:stretch; }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title"><h1>روزانہ اسمبلی کارکردگی</h1></div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight:600;">User</p>
+                            <p id="userRole" style="font-size:0.75rem; color:var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+            <div class="dashboard-content dap-shell">
+                <div class="dap-card" id="dailyAssemblyAccessDenied" style="display:none;">
+                    <div class="dap-access">
+                        <h3>رسائی نہیں</h3>
+                        <p>یہ صفحہ طلبہ اور والدین کے علاوہ عملہ کے لیے دستیاب ہے۔</p>
+                    </div>
+                </div>
+                <div id="dailyAssemblyContent" style="display:none;">
+                    <div class="dap-hero">
+                        <h2>اسمبلی مشارکین کی روزانہ کارکردگی</h2>
+                        <p>کلاس کوآرڈینیٹر ہر روز اسمبلی میں شریک طلبہ کی تیاری، پیغام، اعتماد، ڈیلیوری اور باڈی لینگویج کی بنیاد پر نمبر درج کرے گا۔</p>
+                        <div class="dap-hero-chips">
+                            <span class="dap-chip">کل 25 نمبر</span>
+                            <span class="dap-chip">کلاس کوآرڈینیٹر اسائنمنٹ</span>
+                            <span class="dap-chip">روزانہ اندراج</span>
+                        </div>
+                    </div>
+
+                    <div class="dap-card editor-only" id="assemblyCoordinatorCard">
+                        <div class="dap-head">
+                            <div class="dap-head-main">
+                                <span class="dap-badge">1</span>
+                                <div>
+                                    <h3 class="dap-title">کلاس کوآرڈینیٹر تفویض کریں</h3>
+                                    <p class="dap-subtitle">ایڈمن / پرنسپل کلاس کے لیے ذمہ دار استاد مقرر کرے گا جو روزانہ کارکردگی درج کرے۔</p>
+                                </div>
+                            </div>
+                            <span class="dap-note">صرف انتظامی پروفائلز</span>
+                        </div>
+                        <div class="dap-grid-3">
+                            <div class="form-group"><label>شعبہ</label><select id="dacDepartment" class="dap-select"></select></div>
+                            <div class="form-group"><label>کلاس</label><select id="dacClass" class="dap-select"></select></div>
+                            <div class="form-group"><label>سیکشن</label><select id="dacSection" class="dap-select"></select></div>
+                            <div class="form-group"><label>کوآرڈینیٹر استاد</label><select id="dacTeacher" class="dap-select"></select></div>
+                        </div>
+                        <div class="dap-toolbar">
+                            <button type="button" class="btn-primary" id="dacSaveBtn">کوآرڈینیٹر محفوظ کریں</button>
+                            <span class="dap-state" id="dacState">کلاس کے لیے ایک کوآرڈینیٹر استاد منتخب کریں۔</span>
+                        </div>
+                    </div>
+
+                    <div class="dap-card">
+                        <div class="dap-head">
+                            <div class="dap-head-main">
+                                <span class="dap-badge">2</span>
+                                <div>
+                                    <h3 class="dap-title">یومیہ جانچ</h3>
+                                    <p class="dap-subtitle">تاریخ، شعبہ اور کلاس منتخب کریں۔ شیٹ اسمبلی ذمہ داریوں سے متعلقہ مشارکین خودکار لائے گی۔</p>
+                                </div>
+                            </div>
+                            <span class="dap-note" id="dapModeNote">صرف مقررہ کوآرڈینیٹر محفوظ کر سکتا ہے</span>
+                        </div>
+                        <div class="dap-grid">
+                            <div class="form-group"><label>تاریخ</label><input id="dapDate" class="dap-input" type="date"></div>
+                            <div class="form-group"><label>شعبہ</label><select id="dapDepartment" class="dap-select"></select></div>
+                            <div class="form-group"><label>کلاس</label><select id="dapClass" class="dap-select"></select></div>
+                            <div class="form-group"><label>سیکشن</label><select id="dapSection" class="dap-select"></select></div>
+                            <div class="form-group"><label>دن</label><input id="dapDayLabel" class="dap-input dap-readonly" type="text" readonly></div>
+                        </div>
+                        <div class="dap-toolbar">
+                            <button type="button" class="btn-secondary" id="dapLoadBtn">شیٹ لوڈ کریں</button>
+                            <span class="dap-state" id="dapLoadState">تاریخ اور کلاس منتخب کر کے شیٹ لوڈ کریں۔</span>
+                        </div>
+                    </div>
+
+                    <div class="dap-card">
+                        <div class="dap-head">
+                            <div class="dap-head-main">
+                                <span class="dap-badge">3</span>
+                                <div>
+                                    <h3 class="dap-title">مشارکین کی کارکردگی</h3>
+                                    <p class="dap-subtitle">ہر معیار کے لیے 0 تا 5 نمبر درج کریں۔ مجموعی اسکور خودکار بنے گا۔</p>
+                                </div>
+                            </div>
+                            <span class="dap-note">پانچ معیار × 5 نمبر</span>
+                        </div>
+                        <div class="dap-stats">
+                            <div class="dap-stat"><div class="dap-stat-label">موجودہ کلاس</div><div class="dap-stat-value" id="dapStatClass">-</div></div>
+                            <div class="dap-stat"><div class="dap-stat-label">کوآرڈینیٹر</div><div class="dap-stat-value" id="dapStatCoordinator">-</div></div>
+                            <div class="dap-stat"><div class="dap-stat-label">مشارکین</div><div class="dap-stat-value" id="dapStatParticipants">0</div></div>
+                            <div class="dap-stat"><div class="dap-stat-label">اوسط مجموعہ</div><div class="dap-stat-value" id="dapStatAverage">0 / 25</div></div>
+                        </div>
+                        <div class="dap-board-wrap" style="margin-top:1rem;">
+                            <table class="dap-board">
+                                <thead>
+                                    <tr>
+                                        <th>نمبر شمار</th>
+                                        <th>مشارك / طالب علم</th>
+                                        <th>اسمبلی ٹاسک</th>
+                                        <th>تیاری 5</th>
+                                        <th>پیغام 5</th>
+                                        <th>اعتماد 5</th>
+                                        <th>ڈیلیوری 5</th>
+                                        <th>باڈی لینگویج 5</th>
+                                        <th>کل / 25</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dapTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="dap-sticky">
+                        <span class="dap-state">صرف کلاس کوآرڈینیٹر یا انتظامی پروفائل محفوظ کر سکتا ہے۔</span>
+                        <div class="dap-actions">
+                            <button type="button" class="btn-secondary" id="dapPrintBtn">پرنٹ / PDF</button>
+                            <button type="button" class="btn-primary" id="dapSaveBtn">تمام نمبرات محفوظ کریں</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/daily-assembly-performance.js"></script>
+</body>
+</html>

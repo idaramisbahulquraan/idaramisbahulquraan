@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admission - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        .urdu-text {
+            font-family: 'Noto Nastaliq Urdu', serif;
+            direction: rtl;
+        }
+
+        .bilingual-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-section-title {
+            background: #008080;
+            /* Teal like image */
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin: 2rem 0 1rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .upload-box {
+            border: 2px dashed #ccc;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .upload-box img {
+            max-width: 100px;
+            max-height: 100px;
+            display: none;
+            margin: 0 auto;
+        }
+
+        .pledge-box {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .guidelines-box {
+            background: #f0fdf4;
+            /* Green-50 */
+            padding: 1.5rem;
+            border: 1px solid #bbf7d0;
+            /* Green-200 */
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            opacity: 0.6;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--primary-color);
+            opacity: 1;
+            color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div>
+                    <h1>Admission</h1>
+                    <p class="text-muted">New Student Registration & Approval</p>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('newAdmission')">New Admission Form</div>
+                    <div class="tab" onclick="switchTab('pendingApprovals')">Pending Approvals</div>
+                </div>
+
+                <!-- TAB 1: NEW ADMISSION FORM -->
+                <div id="newAdmission" class="tab-content active">
+                    <form id="admissionForm">
+                        <div class="card">
+
+                            <!-- 1. Student Info -->
+                            <div class="form-section-title">
+                                <span>1. Student Information</span>
+                                <span class="urdu-text">کوائف طالب علم</span>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Full Name</span><span class="urdu-text">نام طالب
+                                            علم</span></div>
+                                    <input type="text" name="fullName" required>
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Admission Level</span><span
+                                            class="urdu-text">درجہ داخلہ</span></div>
+                                    <select name="department" id="deptSelect" onchange="loadClasses()" required>
+                                        <option value="">Select Department</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Admission Class</span><span class="urdu-text">نام
+                                            کلاس</span></div>
+                                    <select name="admissionClass" id="classSelect" required>
+                                        <option value="">Select Class</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Date of Birth</span><span class="urdu-text">تاریخ
+                                            پیدائش</span></div>
+                                    <input type="date" name="dob" required>
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>CNIC/B-Form</span><span class="urdu-text">شناختی
+                                            کارڈ نمبر</span></div>
+                                    <input type="text" name="cnic" placeholder="xxxxx-xxxxxxx-x" required>
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Nationality</span><span
+                                            class="urdu-text">قومیت</span></div>
+                                    <input type="text" name="nationality" required>
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Religion</span><span
+                                            class="urdu-text">مذہب</span></div>
+                                    <select name="religion">
+                                        <option value="Islam">Islam</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Gender</span><span class="urdu-text">جنس</span>
+                                    </div>
+                                    <select name="gender">
+                                        <option value="Male">Male / مرد</option>
+                                        <option value="Female">Female / عورت</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 2. Father Info -->
+                            <div class="form-section-title">
+                                <span>2. Father/Guardian's Information</span>
+                                <span class="urdu-text">کوائف والد/سرپرست</span>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Father's Name</span><span class="urdu-text">نام
+                                            والد</span></div>
+                                    <input type="text" name="fatherName" required>
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Father's CNIC</span><span class="urdu-text">والد
+                                            کا شناختی کارڈ نمبر</span></div>
+                                    <input type="text" name="fatherCnic" required>
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Guardian's Name (Optional)</span><span
+                                            class="urdu-text">نام سرپرست</span></div>
+                                    <input type="text" name="guardianName">
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Guardian's CNIC (Optional)</span><span
+                                            class="urdu-text">سرپرست کا شناختی کارڈ نمبر</span></div>
+                                    <input type="text" name="guardianCnic">
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Occupation</span><span class="urdu-text">والد کا
+                                            پیشہ</span></div>
+                                    <input type="text" name="occupation" required>
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Monthly Income</span><span class="urdu-text">والد
+                                            کی ماہانہ آمدن</span></div>
+                                    <input type="text" name="monthlyIncome">
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Mobile Number</span><span
+                                            class="urdu-text">موبائل نمبر</span></div>
+                                    <input type="tel" name="contact" required>
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Business Address</span><span
+                                            class="urdu-text">کاروبار/دفتر کا پتہ</span></div>
+                                    <input type="text" name="businessAddress">
+                                </div>
+                                <div class="form-group full-width">
+                                    <div class="bilingual-label"><span>Is there any Aalim/Hafiz in family?</span><span
+                                            class="urdu-text">کیا خاندان میں کوئی عالم/حافظ ہے؟</span></div>
+                                    <select name="aalimInFamily">
+                                        <option value="">Select / منتخب کریں</option>
+                                        <option value="Yes">Yes / ہاں</option>
+                                        <option value="No">No / نہیں</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 3. Address -->
+                            <div class="form-section-title">
+                                <span>3. Address</span>
+                                <span class="urdu-text">پتہ</span>
+                            </div>
+                            <div class="form-group">
+                                <div class="bilingual-label"><span>Current Address</span><span class="urdu-text">موجودہ
+                                        پتہ</span></div>
+                                <textarea name="currentAddress" rows="2" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <div class="bilingual-label"><span>Permanent Address</span><span class="urdu-text">مستقل
+                                        پتہ</span></div>
+                                <textarea name="permanentAddress" rows="2" required></textarea>
+                            </div>
+
+                            <!-- 4. Accommodation -->
+                            <div class="form-section-title">
+                                <span>4. Accommodation Type</span>
+                                <span class="urdu-text">اقامتی/غیر اقامتی</span>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Accommodation Type</span><span
+                                            class="urdu-text">اقامتی/غیر اقامتی</span></div>
+                                    <select name="accommodationType" required>
+                                        <option value="">Select / منتخب کریں</option>
+                                        <option value="Residential">Residential (Boarding) / اقامتی</option>
+                                        <option value="Non-Residential">Non-Residential (Day Scholar) / غیر اقامتی
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="display:flex; align-items:center;">
+                                    <p class="urdu-text"
+                                        style="background:#fffbeb; padding:10px; border-radius:4px; font-size:0.9em; width:100%;">
+                                        غیر اقامتی کی صورت میں دوماہ کے اندر مغرب تاعشاء حاضری کو یقینی بنائے گا۔
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- 5. Previous Education -->
+                            <div class="form-section-title">
+                                <span>5. Previous Education</span>
+                                <span class="urdu-text">سابقہ تعلیم</span>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Prev. Religious Education</span><span
+                                            class="urdu-text">سابقہ دینی تعلیم</span></div>
+                                    <input type="text" name="previousReligiousEducation"
+                                        placeholder="دینی تعلیم کتنی حاصل کی">
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Duration</span><span class="urdu-text">عرصہ سابقہ
+                                            دینی تعلیم</span></div>
+                                    <input type="text" name="religiousEducationDuration">
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Secular Education</span><span
+                                            class="urdu-text">عصری تعلیمی قابلیت</span></div>
+                                    <input type="text" name="secularEducation" placeholder="میٹرک، انٹرمیڈیئٹ، وغیرہ">
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Previous Institute</span><span
+                                            class="urdu-text">سابقہ تعلیمی ادارہ</span></div>
+                                    <input type="text" name="previousInstitute">
+                                </div>
+                            </div>
+
+                            <!-- 6. Quran Info -->
+                            <div class="form-section-title">
+                                <span>6. Quran & Hifz Information</span>
+                                <span class="urdu-text">قرآن و حفظ کی معلومات</span>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Hafiz/Non-Hafiz</span><span
+                                            class="urdu-text">حافظ/غیر حافظ</span></div>
+                                    <select name="hafizStatus">
+                                        <option value="">Select / منتخب کریں</option>
+                                        <option value="Hafiz">Hafiz / حافظ</option>
+                                        <option value="Non-Hafiz">Non-Hafiz / غیر حافظ</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Duration of Hifz</span><span
+                                            class="urdu-text">دورانیہ حفظ</span></div>
+                                    <input type="text" name="hifzDuration" placeholder="اگر حافظ ہیں تو دورانیہ لکھیں">
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Quality of Quran Reading</span><span
+                                            class="urdu-text">قرآن مجید پڑھنے کی کیفیت</span></div>
+                                    <select name="quranReadingQuality">
+                                        <option value="">Select / منتخب کریں</option>
+                                        <option value="Excellent">Excellent / بہترین</option>
+                                        <option value="Good">Good / اچھی</option>
+                                        <option value="Average">Average / اوسط</option>
+                                        <option value="Needs Improvement">Needs Improvement / بہتری کی ضرورت</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Memorized Amount</span><span class="urdu-text">اس
+                                            وقت کتنا قرآن پاک صحیح یاد ہے؟</span></div>
+                                    <input type="text" name="quranMemorized" placeholder="پارہ/سیپارہ بتائیں">
+                                </div>
+                            </div>
+
+                            <!-- 7. Health -->
+                            <div class="form-section-title">
+                                <span>7. Health Information</span>
+                                <span class="urdu-text">صحت کی معلومات</span>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Any Illness/Disability</span><span
+                                            class="urdu-text">کوئی بیماری/معذوری</span></div>
+                                    <select name="hasIllness">
+                                        <option value="No">No / نہیں</option>
+                                        <option value="Yes">Yes / ہاں</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <div class="bilingual-label"><span>Details</span><span
+                                            class="urdu-text">تفصیل</span></div>
+                                    <input type="text" name="illnessDetails" placeholder="اگر ہاں تو تفصیل لکھیں">
+                                </div>
+                            </div>
+
+                            <!-- 8. Documents -->
+                            <div class="form-section-title">
+                                <span>8. Documents</span>
+                                <span class="urdu-text">دستاویزات</span>
+                            </div>
+                            <div class="form-grid">
+                                <div>
+                                    <div class="bilingual-label"><span>Student Photo</span><span class="urdu-text">طالب
+                                            علم کی تصویر</span></div>
+                                    <div class="upload-box" onclick="document.getElementById('photoInput').click()">
+                                        <p>Click to Upload Photo</p>
+                                        <img id="photoPreview" src="">
+                                        <input type="file" id="photoInput" accept="image/*" style="display:none"
+                                            onchange="previewImage(this, 'photoPreview', 'photoBase64')">
+                                        <input type="hidden" name="photoBase64" id="photoBase64">
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="bilingual-label"><span>B-Form / CNIC</span><span
+                                            class="urdu-text">دستاویزات</span></div>
+                                    <div class="upload-box" onclick="document.getElementById('bformInput').click()">
+                                        <p>Click to Upload Copy</p>
+                                        <img id="bformPreview" src="">
+                                        <input type="file" id="bformInput" accept="image/*" style="display:none"
+                                            onchange="previewImage(this, 'bformPreview', 'bformBase64')">
+                                        <input type="hidden" name="bformBase64" id="bformBase64">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 9. Guidelines -->
+                            <div class="form-section-title">
+                                <span>9. Admission Guidelines</span>
+                                <span class="urdu-text">ہدایات برائے داخلہ</span>
+                            </div>
+                            <div class="guidelines-box">
+                                <h4 class="urdu-text" style="text-align:right; margin-bottom:10px;">:داخلہ فارم کے ساتھ
+                                    مندرجہ ذیل دستاویزات منسلک ہوں</h4>
+                                <ul class="urdu-text"
+                                    style="text-align:right; list-style-type:disc; padding-right:20px; margin-bottom:15px;">
+                                    <li>والد/سرپرست کے شناختی کارڈ کی کاپی</li>
+                                    <li>طالب علم کی ب فارم/شناختی کارڈ کی کاپی</li>
+                                    <li>دو عدد تازہ تصاویر</li>
+                                    <li>تعلیمی اسناد کی کاپی</li>
+                                </ul>
+
+                                <h4 class="urdu-text" style="text-align:right; margin-bottom:10px;">:طریقہ کار داخلہ
+                                </h4>
+                                <ol class="urdu-text"
+                                    style="text-align:right; list-style-type:decimal; padding-right:20px;">
+                                    <li>درخواست برائے داخلہ بمعہ دستاویزات ایک فولڈر میں لگا کر انچارچ داخلہ سیل کے پاس
+                                        جمع کرائیں جائیں۔</li>
+                                    <li>انچارچ داخلہ سیل طالب علم کے تحریری امتحان کا انعقاد کرے گا اور نمبر لگوائے گا،
+                                        قرآن پاک سنے گا اور یاداشت ٹیسٹ کے لیے مختصر حدیث دے کر یاد کروائے گا اور رپورٹ
+                                        دے گا۔</li>
+                                    <li>انچارچ داخلہ سیل داخلہ فارم، دستاویزات، امتحانی پیپر فولڈر میں لگا کر داخلہ
+                                        کمیٹی کے پاس جمع کروائے گا۔</li>
+                                    <li>داخلہ کمیٹی طالب علم کا زبانی امتحان لے گی، طالب علم اور والد/سرپرست سے انٹرویو
+                                        کرے گی۔</li>
+                                </ol>
+                            </div>
+
+                            <!-- 10. Pledge -->
+                            <div class="form-section-title">
+                                <span>10. Pledge</span>
+                                <span class="urdu-text">حلف</span>
+                            </div>
+                            <div class="pledge-box">
+                                <p class="urdu-text" style="font-size: 1.1em; line-height: 2;">
+                                    میں عہد کرتاہوں کہ طالب علم اپنی تعلیم دورہ حدیث تک ادارہ ہذا میں مکمل کرے گا۔
+                                    روزانہ کے اسباق روزانہ یاد کرکے سنائے گا غیر حاضری سے اجتناب کرکے سالانہ %80 حاضری
+                                    کو یقینی بنائے گا اورمیں نے جان لیاہے کہ طالب علم عامہ عریبک پڑھے گااور عامہ انگلش
+                                    پڑھے گا عصری تعلیم کے امتحانات صرف ادارے کی پالیسی کے مطابق دےگا۔ اپنے تعلیمی،
+                                    تربیتی ورہائشی اخراجات کے لئے صدقات واجبہ کا انتظامیہ ادارہ ہٰذا کو وکیل بناتا ہوں۔
+                                </p>
+                                <div style="margin-top:1rem;">
+                                    <input type="checkbox" id="pledgeCheck" required>
+                                    <label for="pledgeCheck"> I agree to the above pledge / میں مندرجہ بالا حلف سے متفق
+                                        ہوں</label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-primary"
+                                style="width:100%; padding: 1rem; font-size: 1.2em;">Submit Application / درخواست جمع
+                                کروائیں</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- TAB 2: PENDING APPROVALS -->
+                <div id="pendingApprovals" class="tab-content">
+                    <div class="card">
+                        <h3>Pending Admission Requests</h3>
+                        <table style="width:100%; border-collapse:collapse; margin-top:1rem;">
+                            <thead>
+                                <tr style="background:#f8f9fa;">
+                                    <th style="padding:10px; text-align:left;">Date</th>
+                                    <th style="padding:10px; text-align:left;">Name</th>
+                                    <th style="padding:10px; text-align:left;">Father Name</th>
+                                    <th style="padding:10px; text-align:left;">Class</th>
+                                    <th style="padding:10px; text-align:left;">Status</th>
+                                    <th style="padding:10px; text-align:left;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingTableBody">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+
+    <script>
+        // Initialize Secondary App for creating users without logging out
+        let secondaryApp;
+        let secondaryAuth;
+
+        try {
+            secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
+            secondaryAuth = secondaryApp.auth();
+        } catch (e) {
+            // If already initialized
+            const apps = firebase.apps;
+            secondaryApp = apps.find(app => app.name === "Secondary");
+            secondaryAuth = secondaryApp.auth();
+        }
+
+        // --- 1. TAB LOGIC ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+            if (tabId === 'pendingApprovals') loadPendingApplications();
+        }
+
+        // --- 2. DROPDOWNS ---
+        async function loadDepts() {
+            const sel = document.getElementById('deptSelect');
+            const snap = await db.collection('departments').get();
+            snap.forEach(d => {
+                const name = d.data().name;
+                const nameUr = d.data().name_ur || name;
+                sel.innerHTML += `<option value="${name}">${nameUr}</option>`;
+            });
+        }
+
+        async function loadClasses() {
+            const dept = document.getElementById('deptSelect').value;
+            const sel = document.getElementById('classSelect');
+            sel.innerHTML = '<option value="">Loading...</option>';
+            const snap = await db.collection('classes').where('department', '==', dept).get();
+            sel.innerHTML = '<option value="">Select Class</option>';
+            snap.forEach(d => {
+                const name = d.data().name;
+                const nameUr = d.data().name_ur || name;
+                sel.innerHTML += `<option value="${name}">${nameUr}</option>`;
+            });
+        }
+
+        // --- 3. IMAGE PREVIEW ---
+        function previewImage(input, imgId, hiddenId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById(imgId);
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.getElementById(hiddenId).value = e.target.result; // Base64
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // --- 4. SUBMISSION ---
+        document.getElementById('admissionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true; btn.innerText = "Submitting...";
+
+            try {
+                const formData = new FormData(e.target);
+                const data = {};
+                formData.forEach((value, key) => data[key] = value);
+
+                // Add Metadata
+                data.status = 'pending';
+                data.submittedAt = firebase.firestore.FieldValue.serverTimestamp();
+
+                await db.collection('admissions').add(data);
+
+                alert("Application Submitted Successfully! / درخواست کامیابی سے جمع ہو گئی ہے");
+                e.target.reset();
+                document.getElementById('photoPreview').style.display = 'none';
+                document.getElementById('bformPreview').style.display = 'none';
+
+            } catch (err) {
+                console.error(err);
+                alert("Error submitting form: " + err.message);
+            } finally {
+                btn.disabled = false; btn.innerText = "Submit Application / درخواست جمع کروائیں";
+            }
+        });
+
+        // --- 5. APPROVAL WORKFLOW ---
+        async function loadPendingApplications() {
+            const tbody = document.getElementById('pendingTableBody');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
+
+            try {
+                const snap = await db.collection('admissions').where('status', '==', 'pending').get();
+                if (snap.empty) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No pending requests.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    // Basic date fmt
+                    const date = d.submittedAt ? new Date(d.submittedAt.seconds * 1000).toLocaleDateString() : '-';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${d.fullName}</td>
+                            <td>${d.fatherName}</td>
+                            <td>${(typeof getClassDisplayName === 'function') ? getClassDisplayName(d.admissionClass, d.admissionClass_ur || d.admissionClass) : (d.admissionClass_ur || d.admissionClass)} (${(typeof getDepartmentDisplayName === 'function') ? getDepartmentDisplayName(d.department, d.department_ur || d.department) : (d.department_ur || d.department)})</td>
+                            <td><span style="background:#fff3cd; color:#856404; padding:2px 6px; border-radius:4px;">Pending</span></td>
+                            <td>
+                                <button onclick="approveStudent('${doc.id}')" class="btn-primary" style="padding:4px 8px; font-size:0.9em;">Approve</button>
+                                <button onclick="rejectStudent('${doc.id}')" style="background:#fee2e2; color:#991b1b; border:none; padding:4px 8px; border-radius:4px; font-size:0.9em; cursor:pointer; margin-left:5px;">Reject</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function approveStudent(docId) {
+            if (!confirm("Are you sure you want to approve this student? This will add them to the main database.")) return;
+
+            try {
+                // 1. Get Data
+                const admissionRef = db.collection('admissions').doc(docId);
+                const doc = await admissionRef.get();
+                if (!doc.exists) return;
+                const data = doc.data();
+
+                // 2. Map to Student Schema
+                // Ensure field names match 'students' collection schema
+                const rollNo = 'TEMP-' + Date.now().toString().slice(-4);
+                const emailToUse = prompt("Enter an email for the new student login:", `student${rollNo}@example.com`);
+                if (!emailToUse) {
+                    alert("Approval cancelled. Student requires an email.");
+                    return;
+                }
+                const passwordToUse = prompt("Enter a default password for the student (min 6 chars):", "password123");
+                if (!passwordToUse || passwordToUse.length < 6) {
+                    alert("Approval cancelled. Valid password is required.");
+                    return;
+                }
+
+                const userCredential = await secondaryAuth.createUserWithEmailAndPassword(emailToUse, passwordToUse);
+                const uid = userCredential.user.uid;
+
+                await db.collection("users").doc(uid).set({
+                    email: emailToUse,
+                    role: 'student',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                const studentData = {
+                    uid: uid,
+                    firstName: data.fullName,
+                    lastName: '', // Leave blank or prompt
+                    name_ur: '',
+                    email: emailToUse,
+                    department: data.department,
+                    className: data.admissionClass,
+                    gender: data.gender,
+                    dob: data.dob,
+                    parentName: data.fatherName,
+                    parentPhone: data.contact, // Father's contact
+                    address: data.currentAddress,
+                    rollNumber: rollNo,
+                    status: 'Active',
+                    role: 'student',
+                    tenantId: (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default'),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    // Store other fields as well if schema supports, or in metadata
+                    metadata: {
+                        cnic: data.cnic,
+                        nationality: data.nationality,
+                        fatherCnic: data.fatherCnic,
+                        guardianName: data.guardianName,
+                        guardianCnic: data.guardianCnic,
+                        occupation: data.occupation,
+                        monthlyIncome: data.monthlyIncome,
+                        businessAddress: data.businessAddress,
+                        aalimInFamily: data.aalimInFamily,
+                        accommodationType: data.accommodationType,
+                        previousEducation: {
+                            religious: data.previousReligiousEducation,
+                            duration: data.religiousEducationDuration,
+                            secular: data.secularEducation,
+                            institute: data.previousInstitute
+                        },
+                        quranInfo: {
+                            hafizStatus: data.hafizStatus,
+                            hifzDuration: data.hifzDuration,
+                            readingQuality: data.quranReadingQuality,
+                            memorized: data.quranMemorized
+                        },
+                        health: {
+                            hasIllness: data.hasIllness,
+                            details: data.illnessDetails
+                        },
+                        photoBase64: data.photoBase64
+                    }
+                };
+
+                // 3. Add to Students
+                await db.collection('students').doc(uid).set(studentData);
+
+                // 4. Update Admission Status
+                await admissionRef.update({ status: 'approved' });
+
+                alert("Student Approved & Added to Database!");
+                loadPendingApplications();
+
+            } catch (e) {
+                alert("Error: " + e.message);
+            }
+        }
+
+        async function rejectStudent(docId) {
+            if (confirm("Reject this application?")) {
+                await db.collection('admissions').doc(docId).update({ status: 'rejected' });
+                loadPendingApplications();
+            }
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDepts();
+        });
+
+    </script>
+</body>
+
+</html>

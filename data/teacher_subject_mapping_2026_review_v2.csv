@@ -1,0 +1,4 @@
+﻿matchStatus,sourceClass,section,rawTeacherNames,canonicalTeacherNames,allTeachersExistInCurrentSeed,teacherAliasApplied,extractedSubject,appClassName,appSubjectNames,appBookNames,notes
+review,Alamiya Year 2,,Principal Sahib,Principal Sahib,False,False,Teacher seed pending,Alamiya Year 2,,,"Subject is now mapped, but Principal Sahib is not in the current teacher seed list"
+review,Aama English A / B,A | B,,,False,False,Class sections metadata,Aamma Year 2 (English Language Foundation Course),,,Class and subject metadata now carry sections A and B; later teacher assignment seeding should use section field
+review,Aama Arabic - Section 1 & 2,1 | 2,,,False,False,Class sections metadata,Aamma Year 1 (Arabic Language Foundation Course),,,Class and subject metadata now carry sections 1 and 2; later teacher assignment seeding should use section field

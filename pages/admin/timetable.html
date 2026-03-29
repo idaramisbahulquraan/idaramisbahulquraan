@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <!-- PDF Support -->
+    <script src="../../js/pdf-snapshot.js"></script>
     <style>
         .page-header {
             display: flex;
@@ -61,7 +61,7 @@
             overflow-x: auto;
             padding-bottom: 1rem;
         }
-        
+
         .day-column {
             flex: 0 0 250px;
             background: #f8fafc;
@@ -92,14 +92,14 @@
             background: white;
             padding: 0.75rem;
             border-radius: 0.5rem;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             border-left: 4px solid var(--secondary-color);
             transition: transform 0.2s;
         }
 
         .period-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
 
         .period-time {
@@ -182,8 +182,13 @@
             border-bottom-color: var(--primary-color);
         }
 
-        .tools-tab { display: none; }
-        .tools-tab.active { display: block; }
+        .tools-tab {
+            display: none;
+        }
+
+        .tools-tab.active {
+            display: block;
+        }
 
         .btn-sm {
             padding: 0.45rem 0.75rem;
@@ -206,10 +211,18 @@
             color: #991b1b;
         }
 
-        .btn-sm:hover { background: var(--background-light); }
-        .btn-sm.primary:hover { background: var(--primary-hover); }
+        .btn-sm:hover {
+            background: var(--background-light);
+        }
 
-        .muted { color: var(--text-light); font-size: 0.85rem; }
+        .btn-sm.primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .muted {
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
 
         .grid-2 {
             display: grid;
@@ -218,7 +231,9 @@
         }
 
         @media (max-width: 900px) {
-            .grid-2 { grid-template-columns: 1fr; }
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Modal Styles */
@@ -347,7 +362,8 @@
 
                 <div id="timetableContainer" class="table-container" style="background: none; box-shadow: none;">
                     <!-- Grid will be rendered here -->
-                    <div style="text-align: center; padding: 3rem; background: white; border-radius: 1rem; box-shadow: var(--shadow-sm);">
+                    <div
+                        style="text-align: center; padding: 3rem; background: white; border-radius: 1rem; box-shadow: var(--shadow-sm);">
                         <p style="color: var(--text-light); font-size: 1.1rem;" data-i18n="select_dept_class_view">
                             Select Department and Class to view timetable.
                         </p>
@@ -447,18 +463,26 @@
 
             <!-- Generator -->
             <div id="tools-generator" class="tools-tab active">
-                <div class="muted" style="margin-bottom: 0.75rem;">Generates a weekly schedule preview for the selected Department/Class, checks conflicts, then applies if you confirm.</div>
+                <div class="muted" style="margin-bottom: 0.75rem;">Generates a weekly schedule preview for the selected
+                    Department/Class, checks conflicts, then applies if you confirm.</div>
                 <div class="grid-2">
                     <div class="form-group">
                         <label>Days</label>
                         <div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;">
-                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox" id="genDayMon" checked> Mon</label>
-                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox" id="genDayTue" checked> Tue</label>
-                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox" id="genDayWed" checked> Wed</label>
-                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox" id="genDayThu" checked> Thu</label>
-                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox" id="genDayFri" checked> Fri</label>
-                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox" id="genDaySat"> Sat</label>
-                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox" id="genDaySun"> Sun</label>
+                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox"
+                                    id="genDayMon" checked> Mon</label>
+                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox"
+                                    id="genDayTue" checked> Tue</label>
+                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox"
+                                    id="genDayWed" checked> Wed</label>
+                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox"
+                                    id="genDayThu" checked> Thu</label>
+                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox"
+                                    id="genDayFri" checked> Fri</label>
+                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox"
+                                    id="genDaySat"> Sat</label>
+                            <label style="display:flex;gap:0.35rem;align-items:center;"><input type="checkbox"
+                                    id="genDaySun"> Sun</label>
                         </div>
                     </div>
                     <div class="form-group">
@@ -525,7 +549,8 @@
 
             <!-- Rooms -->
             <div id="tools-rooms" class="tools-tab">
-                <div class="muted" style="margin-bottom: 0.75rem;">Rooms are used for conflict checks and auto-assignment.</div>
+                <div class="muted" style="margin-bottom: 0.75rem;">Rooms are used for conflict checks and
+                    auto-assignment.</div>
                 <form id="roomForm" style="margin-bottom: 1rem;">
                     <input type="hidden" name="roomId">
                     <div class="grid-2">
@@ -578,7 +603,9 @@
                             </tr>
                         </thead>
                         <tbody id="roomsBody">
-                            <tr><td colspan="5" class="muted">Loading...</td></tr>
+                            <tr>
+                                <td colspan="5" class="muted">Loading...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -598,7 +625,8 @@
                     <div class="form-group">
                         <label>Scan</label>
                         <div style="display:flex;gap:0.75rem;align-items:center;margin-top:0.25rem;">
-                            <button class="btn-sm" type="button" onclick="scanTimetableConflicts()">Run Conflict Scan</button>
+                            <button class="btn-sm" type="button" onclick="scanTimetableConflicts()">Run Conflict
+                                Scan</button>
                             <span class="muted">Checks teacher/room/class overlaps.</span>
                         </div>
                     </div>
@@ -608,7 +636,8 @@
 
             <!-- Coverage -->
             <div id="tools-coverage" class="tools-tab">
-                <div class="muted" style="margin-bottom: 0.75rem;">Uses approved leaves to detect absent teachers and lets you assign substitutes for a specific date.</div>
+                <div class="muted" style="margin-bottom: 0.75rem;">Uses approved leaves to detect absent teachers and
+                    lets you assign substitutes for a specific date.</div>
                 <div class="grid-2">
                     <div class="form-group">
                         <label>Date</label>
@@ -618,7 +647,8 @@
                         <label>Actions</label>
                         <div style="display:flex;gap:0.75rem;align-items:center;margin-top:0.25rem;">
                             <button class="btn-sm" type="button" onclick="loadCoverage()">Load</button>
-                            <button class="btn-sm primary" type="button" onclick="saveCoverageOverrides()">Save Overrides</button>
+                            <button class="btn-sm primary" type="button" onclick="saveCoverageOverrides()">Save
+                                Overrides</button>
                         </div>
                     </div>
                 </div>
@@ -636,7 +666,9 @@
                             </tr>
                         </thead>
                         <tbody id="coverageBody">
-                            <tr><td colspan="6" class="muted">Select a date and click Load.</td></tr>
+                            <tr>
+                                <td colspan="6" class="muted">Select a date and click Load.</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

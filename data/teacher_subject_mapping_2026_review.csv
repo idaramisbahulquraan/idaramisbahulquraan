@@ -1,0 +1,7 @@
+﻿matchStatus,extractedClass,section,rawTeacherName,canonicalTeacherName,teacherExistsInCurrentSeed,teacherAliasApplied,extractedSubject,appClassName,appSubjectNames,appBookNames,notes
+review,Aaliya Doam,,Muhammad Mohsin,Muhammad Mohsin,True,False,Muqaddima Ibn al-Salah,,,,No exact seeded item found; likely missing from app syllabus
+review,Aaliya Awal,,Muhammad Mohsin,Muhammad Mohsin,True,False,Muqaddima Ibn al-Salah,,,,No exact seeded item found; likely missing from app syllabus
+review,Aama English B,B,Muhammad Azeem,Muhammad Azeem,True,False,Qurani Arabi / Arabi Bol Chal,,,,"This belongs to Aamma Year 1 syllabus, not current seeded Aamma Year 2"
+review,Aama Arabic - Section 1 & 2,1 & 2,Azeem + Saeedi,Azeem + Saeedi,False,False,Arabic Speech & Videos,,,,No exact seeded item; closest items are الخطب العربیہ and عربی خطابہ وتحسین الخط
+review,Aaliya Doam,,Principal Sahib,Principal Sahib,False,False,Class mapping review,Aliya Year 2 vs Alamiya Year 2,,,This extracted class mixes Aliya and Alamiya seeded subjects; confirm target class before seeding
+review,Aaliya Awal,,,,False,False,Class mapping review,Alamiya Year 1,,,Extracted Aaliya Awal subject set matches Alamiya Year 1 more than literal Aliya Year 1

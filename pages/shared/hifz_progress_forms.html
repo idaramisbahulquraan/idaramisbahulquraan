@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حفظ سپروائزر فارمز - ادارہ مصباح القرآن</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .hifz-shell { display:flex; flex-direction:column; gap:1.5rem; padding-bottom:7rem; }
+        .hifz-hero {
+            position:relative; overflow:hidden; color:#fff; border-radius:1.35rem; padding:1.65rem 1.75rem;
+            background:linear-gradient(135deg, rgba(12,74,110,0.98), rgba(14,116,144,0.95), rgba(79,70,229,0.9));
+            box-shadow:0 20px 38px rgba(14,116,144,0.16);
+        }
+        .hifz-hero::after {
+            content:''; position:absolute; left:-2rem; bottom:-4rem; width:220px; height:220px; border-radius:50%;
+            background:rgba(255,255,255,0.09);
+        }
+        .hifz-hero h2 { margin:0 0 0.35rem; color:#fff; font-size:1.9rem; }
+        .hifz-hero p { margin:0; max-width:860px; opacity:0.94; }
+        .hifz-chip-row { display:flex; flex-wrap:wrap; gap:0.65rem; margin-top:1rem; }
+        .hifz-chip {
+            padding:0.42rem 0.9rem; border-radius:999px; color:#fff; font-size:0.86rem;
+            border:1px solid rgba(255,255,255,0.24); background:rgba(255,255,255,0.12);
+        }
+        .hifz-card {
+            background:linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+            border:1px solid rgba(148,163,184,0.22); border-radius:1.2rem; padding:1.35rem;
+            box-shadow:0 10px 24px rgba(15,23,42,0.05);
+        }
+        .hifz-head {
+            display:flex; align-items:flex-start; justify-content:space-between; gap:1rem;
+            margin-bottom:1rem; padding-bottom:0.85rem; border-bottom:1px solid rgba(148,163,184,0.18);
+        }
+        .hifz-head-main { display:flex; align-items:center; gap:0.9rem; }
+        .hifz-badge {
+            display:inline-flex; align-items:center; justify-content:center; min-width:2.45rem; height:2.45rem;
+            border-radius:0.85rem; background:linear-gradient(135deg, #dbeafe, #ccfbf1); color:#0f172a; font-weight:700;
+            box-shadow:inset 0 0 0 1px rgba(13,148,136,0.12);
+        }
+        .hifz-title { margin:0; font-size:1.14rem; color:#0f172a; }
+        .hifz-subtitle { margin:0.2rem 0 0; color:var(--text-light); font-size:0.92rem; }
+        .hifz-note { color:var(--text-light); font-size:0.84rem; background:#f8fafc; border:1px solid rgba(148,163,184,0.18); padding:0.45rem 0.7rem; border-radius:999px; white-space:nowrap; }
+        .hifz-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:1rem; }
+        .hifz-card .form-group { margin-bottom:0; }
+        .hifz-card label, .hifz-card .form-group label { color:#334155; font-weight:700; font-size:0.88rem; margin-bottom:0.45rem; }
+        .hifz-input, .hifz-select, .hifz-textarea {
+            width:100%; min-height:50px; padding:0.82rem 0.92rem; border:1px solid rgba(148,163,184,0.32);
+            border-radius:0.9rem; background:#fff; font-size:0.95rem; transition:border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .hifz-input:focus, .hifz-select:focus, .hifz-textarea:focus {
+            outline:none; border-color:rgba(13,148,136,0.48); box-shadow:0 0 0 4px rgba(13,148,136,0.08);
+        }
+        .hifz-textarea { min-height:92px; resize:vertical; }
+        .hifz-input[readonly] { background:#f8fafc; color:#475569; }
+        .hifz-tabs { display:flex; flex-wrap:wrap; gap:0.75rem; }
+        .hifz-tab {
+            border:1px solid rgba(148,163,184,0.22); background:#fff; color:#334155; border-radius:999px;
+            padding:0.7rem 1rem; cursor:pointer; font-weight:700; transition:all 0.18s ease;
+        }
+        .hifz-tab.active { background:linear-gradient(135deg, #0f766e, #0ea5e9); color:#fff; border-color:transparent; box-shadow:0 10px 20px rgba(14,116,144,0.18); }
+        .hifz-meta-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; }
+        .hifz-table-wrap { overflow:auto; border:1px solid rgba(148,163,184,0.18); border-radius:1rem; background:#fff; }
+        .hifz-table { width:100%; border-collapse:collapse; min-width:1180px; }
+        .hifz-table th, .hifz-table td { border-bottom:1px solid rgba(148,163,184,0.16); padding:0.78rem; text-align:right; vertical-align:top; }
+        .hifz-table th { background:linear-gradient(180deg, #f8fafc 0%, #ecfeff 100%); color:#334155; font-weight:700; }
+        .hifz-table tr:last-child td { border-bottom:0; }
+        .hifz-serial { width:72px; text-align:center; color:#475569; font-weight:700; }
+        .hifz-student-name { min-width:190px; color:#0f172a; font-weight:700; }
+        .hifz-status {
+            color:var(--text-light); font-size:0.9rem; background:#f8fafc; border:1px dashed rgba(148,163,184,0.28);
+            padding:0.9rem 1rem; border-radius:1rem;
+        }
+        .hifz-toolbar {
+            position:sticky; bottom:1rem; z-index:4; display:flex; justify-content:space-between; align-items:center; gap:1rem;
+            padding:1rem 1.1rem; border:1px solid rgba(148,163,184,0.22); border-radius:1.1rem;
+            background:rgba(255,255,255,0.96); backdrop-filter:blur(10px); box-shadow:0 16px 35px rgba(15,23,42,0.1);
+        }
+        .hifz-actions { display:flex; gap:0.75rem; flex-wrap:wrap; }
+        .hifz-access { padding:1.8rem; text-align:center; }
+        .hifz-readonly { opacity:0.9; }
+        @media (max-width: 980px) {
+            .hifz-head, .hifz-toolbar { flex-direction:column; align-items:stretch; }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title"><h1>حفظ سپروائزر فارمز</h1></div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight:600;">User</p>
+                            <p id="userRole" style="font-size:0.75rem; color:var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+            <div class="dashboard-content hifz-shell">
+                <div class="hifz-card" id="hifzFormsAccessDenied" style="display:none;">
+                    <div class="hifz-access">
+                        <h3>رسائی نہیں</h3>
+                        <p>یہ صفحہ صرف حفظ سپروائزر، ایڈمن، اونر یا پرنسپل کے لیے دستیاب ہے۔</p>
+                    </div>
+                </div>
+
+                <div id="hifzFormsContent" style="display:none;">
+                    <div class="hifz-hero">
+                        <h2>حفظ سپروائزر ریکارڈ فارم</h2>
+                        <p>شعبہ اور حفظ کلاس منتخب کریں۔ منتخب کلاس کے طلبہ خودکار طور پر لوڈ ہوں گے اور تین الگ فارم علیحدہ علیحدہ محفوظ کیے جا سکیں گے۔</p>
+                        <div class="hifz-chip-row">
+                            <span class="hifz-chip">طلبہ خودکار لوڈ</span>
+                            <span class="hifz-chip">تین الگ فارم</span>
+                            <span class="hifz-chip" id="hifzModeChip">صرف مشاہدہ</span>
+                        </div>
+                    </div>
+
+                    <div class="hifz-card">
+                        <div class="hifz-head">
+                            <div class="hifz-head-main">
+                                <span class="hifz-badge">ا</span>
+                                <div>
+                                    <h3 class="hifz-title">عمومی معلومات</h3>
+                                    <p class="hifz-subtitle">شعبہ، کلاس، ریکارڈ ماہ اور تعلیمی سال منتخب کر کے طلبہ اور محفوظ شدہ فارم لوڈ کریں۔</p>
+                                </div>
+                            </div>
+                            <span class="hifz-note" id="hifzFormsModeNote">صرف مشاہدہ</span>
+                        </div>
+                        <div class="hifz-grid">
+                            <div class="form-group"><label>شعبہ</label><select id="hifzDepartment" class="hifz-select"></select></div>
+                            <div class="form-group"><label>حفظ کلاس</label><select id="hifzClass" class="hifz-select"></select></div>
+                            <div class="form-group"><label>ریکارڈ ماہ</label><input id="hifzRecordMonth" type="month" class="hifz-input"></div>
+                            <div class="form-group"><label>تعلیمی سال</label><input id="hifzAcademicYear" type="text" class="hifz-input" placeholder="مثلاً 2026-2027"></div>
+                        </div>
+                        <div class="hifz-actions" style="margin-top:1rem;">
+                            <button type="button" class="btn-secondary" id="hifzLoadBtn">طلبہ اور فارمز لوڈ کریں</button>
+                        </div>
+                        <div id="hifzFormsState" class="hifz-status" style="margin-top:1rem;">شعبہ اور کلاس منتخب کر کے ریکارڈ لوڈ کریں۔</div>
+                    </div>
+
+                    <div class="hifz-card">
+                        <div class="hifz-head">
+                            <div class="hifz-head-main">
+                                <span class="hifz-badge">1</span>
+                                <div>
+                                    <h3 class="hifz-title">فارم منتخب کریں</h3>
+                                    <p class="hifz-subtitle">ہر فارم الگ ریکارڈ کے طور پر محفوظ ہوگا۔</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hifz-tabs" id="hifzFormTabs"></div>
+                    </div>
+
+                    <div class="hifz-card" id="hifzMetaCard" style="display:none;">
+                        <div class="hifz-head">
+                            <div class="hifz-head-main">
+                                <span class="hifz-badge">2</span>
+                                <div>
+                                    <h3 class="hifz-title" id="hifzMetaTitle">فارم کی اضافی معلومات</h3>
+                                    <p class="hifz-subtitle">یہ فیلڈز منتخب فارم کے مجموعی سیاق کے لیے ہیں۔</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hifz-meta-grid" id="hifzMetaFields"></div>
+                    </div>
+
+                    <div class="hifz-card">
+                        <div class="hifz-head">
+                            <div class="hifz-head-main">
+                                <span class="hifz-badge">3</span>
+                                <div>
+                                    <h3 class="hifz-title" id="hifzTableTitle">ریکارڈ فارم</h3>
+                                    <p class="hifz-subtitle" id="hifzTableSubtitle">منتخب فارم کے مطابق طلبہ کا ریکارڈ درج کریں۔</p>
+                                </div>
+                            </div>
+                            <span class="hifz-note" id="hifzStudentCountNote">0 طلبہ</span>
+                        </div>
+                        <div class="hifz-table-wrap">
+                            <table class="hifz-table">
+                                <thead id="hifzTableHead"></thead>
+                                <tbody id="hifzTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="hifz-toolbar">
+                        <span id="hifzStickyState" class="hifz-status" style="margin:0; flex:1;">محفوظ کرنے سے پہلے طلبہ کی سطریں مکمل کریں۔</span>
+                        <div class="hifz-actions">
+                            <button type="button" class="btn-secondary" id="hifzPrintBtn">پرنٹ / PDF</button>
+                            <button type="button" class="btn-primary" id="hifzSaveBtn">موجودہ فارم محفوظ کریں</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/hifz-progress-forms.js"></script>
+</body>
+</html>

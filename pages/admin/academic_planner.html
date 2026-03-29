@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Planner - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            opacity: 0.6;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--primary-color);
+            opacity: 1;
+            color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 1rem;
+        }
+
+        .book-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .month-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .month-card label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9em;
+        }
+
+        .month-card input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--secondary-color);
+            width: 0%;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filters select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-width: 150px;
+        }
+
+        /* Info Card for Planner */
+        .info-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-item label {
+            font-size: 0.75em;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .info-item span {
+            font-weight: 600;
+            color: #333;
+            font-size: 1em;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Multi-Book Tabs and Modern UI */
+        .book-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+
+        .book-header {
+            background: linear-gradient(to right, #f8f9fa, #fff);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .book-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            word-break: break-word;
+        }
+
+        .book-title i {
+            color: #ccc;
+        }
+
+        .book-meta {
+            font-size: 0.85em;
+            color: #666;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .book-meta span {
+            white-space: nowrap;
+        }
+
+        .book-content {
+            padding: 1.5rem;
+        }
+
+        .total-input-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            background: #fcfcfc;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px dashed #ddd;
+        }
+
+        .total-input-group label {
+            font-weight: 600;
+            color: #555;
+            white-space: nowrap;
+        }
+
+        .total-input-group input {
+            max-width: 150px;
+            padding: 0.5rem;
+            border: 2px solid #eee;
+            border-radius: 6px;
+            font-weight: bold;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .total-input-group input:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Links rendered by JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 data-i18n="academic_planner">Academic Planner</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">Admin</p>
+                            <p id="userRole" style="font-size: 0.75rem;">Administrator</p>
+                        </div>
+                        <div class="avatar">A</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('settings')" data-i18n="settings_working_days">Settings (Working Days)</div>
+                    <div class="tab" onclick="switchTab('syllabus')" data-i18n="syllabus_planner">Syllabus Planner</div>
+                    <div class="tab" onclick="switchTab('reports')" data-i18n="progress_reports">Progress Reports</div>
+                </div>
+
+                <!-- TAB 1: ACADEMIC CALENDAR -->
+                <div id="settings" class="tab-content active">
+                    <div class="card" style="padding: 2rem;">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
+                            <h3 data-i18n="academic_calendar_working_days">Academic Calendar & Working Days</h3>
+                            <div style="display:flex; gap:1rem; align-items:center;">
+                                <label style="font-weight:600;" data-i18n="year">Year:</label>
+                                <select id="sessionYear" onchange="loadSettings()"
+                                    style="padding:0.5rem; border-radius:4px; border:1px solid #ccc;">
+                                    <option value="2024">2024-2025</option>
+                                    <option value="2025">2025-2026</option>
+                                    <option value="2026" selected>2026-2027</option>
+                                    <option value="2027">2027-2028</option>
+                                    <option value="2028">2028-2029</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;">
+                            <div class="form-group">
+                                <label data-i18n="session_start_date">Session Start Date</label>
+                                <div style="display:flex; gap:0.5rem; max-width: 400px;">
+                                    <input type="date" id="sessionStartDate" onchange="generateCalendarTables()">
+                                    <button type="button" class="btn-primary" onclick="setFirstShawwal()"
+                                        style="font-size:0.8em; white-space:nowrap;" data-i18n="set_first_shawwal" title="Set to approx 1st Shawwal">
+                                        Set to 1st Shawwal
+                                    </button>
+                                </div>
+                                <small style="color:#666;" data-i18n="session_start_help">Defines the start of the 12-month academic cycle.</small>
+                            </div>
+
+                            <div class="form-group" style="display:flex; align-items:flex-end;">
+                                <label style="display:flex; align-items:center; cursor:pointer;">
+                                    <input type="checkbox" id="enableThreeTerms" onchange="generateCalendarTables()"
+                                        style="width:20px; height:20px; margin-right:10px;">
+                                    <span style="font-weight:600;" data-i18n="enable_3_term_system">Enable 3-Term System (Foundation)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <form id="workingDaysForm">
+                            <div class="calendar-layout"
+                                style="display:grid; grid-template-columns: 1fr 1fr; gap:2rem;">
+                                <!-- Dynamic Term Tables will appear here -->
+                            </div>
+
+                            <div style="margin-top:2rem; text-align:right;">
+                                <button type="submit" class="btn-add"
+                                    style="border:none; cursor:pointer; background:var(--primary-color); color:white; padding:12px 30px; border-radius:4px; font-weight:600;" data-i18n="save_calendar">
+                                    Save Calendar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TAB 2: SYLLABUS -->
+                <div id="syllabus" class="tab-content">
+                    <div class="filters">
+                        <select id="planDept" onchange="loadClassesForPlan()">
+                            <option value="" data-i18n="select_department">Select Department</option>
+                        </select>
+                        <select id="planClass" onchange="loadSubjectsForPlan()">
+                            <option value="" data-i18n="select_class">Select Class</option>
+                        </select>
+                        <select id="planSubject" onchange="loadPartsOrLoadPlan()">
+                            <option value="" data-i18n="select_subject">Select Subject</option>
+                        </select>
+                        <select id="planPart" style="display:none;" onchange="loadPlan()">
+                            <option value="" data-i18n="select_part">Select Part</option>
+                        </select>
+                        <div id="planSemesterDiv" style="display:none;">
+                            <select id="planSemester" onchange="loadPlan()">
+                                <option value="1" data-i18n="first_semester">1st Semester</option>
+                                <option value="2" data-i18n="second_semester">2nd Semester</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary" onclick="loadPlan()" style="margin-left:auto;" data-i18n="load_plan">Load Plan</button>
+                    </div>
+
+                    <div id="planEditor" style="display:none;" class="card animate-up">
+                        <div class="info-card">
+                            <div class="info-item">
+                                <label data-i18n="teacher">Teacher</label>
+                                <span id="displayTeacher" data-i18n="unassigned">Unassigned</span>
+                            </div>
+                            <div class="info-item">
+                                <label data-i18n="book">Book</label>
+                                <span id="displayBook" style="color:var(--primary-color);">...</span>
+                            </div>
+                            <div class="info-item">
+                                <label data-i18n="author_publisher">Author/Publisher</label>
+                                <span id="displayAuthorPublisher" style="font-size:0.9em; color:#666;">...</span>
+                            </div>
+                            <div class="info-item" style="grid-column: span 2;">
+                                <label data-i18n="details">Details</label>
+                                <span id="displayDetails" style="font-size:0.9em; color:#666;">...</span>
+                            </div>
+                            <div class="info-item">
+                                <label data-i18n="total_pages_target">Total Pages Target</label>
+                                <input type="number" id="totalPages" placeholder="Pages" data-i18n="pages"
+                                    style="padding:8px; border:1px solid #dfe6e9; border-radius:6px; width:100%; font-weight:bold; color:var(--primary-color);"
+                                    oninput="distributePages()">
+                            </div>
+                        </div>
+
+                        <h4 style="margin-left:5px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+                            <span data-i18n="monthly_targets">Monthly Targets</span>
+                            <span style="font-size:0.7em; font-weight:400; color:#888;" data-i18n="auto_distributed">(Auto-distributed)</span>
+                        </h4>
+
+                        <!-- Using Div instead of Form for better control -->
+                        <div id="syllabusFormDiv">
+                            <div class="book-grid" id="syllabusGrid">
+                                <!-- Dynamic -->
+                            </div>
+
+                            <div class="action-bar">
+                                <div id="totalCheck" class="total-badge">Total: 0 / 0</div>
+                                <div id="planActions" style="display:flex; gap:10px;">
+                                    <button type="button" onclick="saveSyllabusPlan()" id="btnSavePlan" class="btn-add"
+                                        style="border:none; cursor:pointer; background:var(--primary-color); color:white; padding:12px 30px; border-radius:8px; font-weight:600; box-shadow:0 4px 6px rgba(0,0,0,0.1);" data-i18n="save_syllabus_plan">
+                                        Save Plan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: REPORTS -->
+                <div id="reports" class="tab-content">
+                    <div class="card">
+                        <h3 data-i18n="progress_report">Progress Report</h3>
+                        <p data-i18n="progress_report_desc">Detailed teacher progress monitoring.</p>
+
+                        <div class="filters" style="margin-top:1rem; padding:0; box-shadow:none;">
+                            <select id="reportDept" onchange="loadReportClasses()">
+                                <option value="" data-i18n="all_departments">All Departments</option>
+                            </select>
+                            <select id="reportClass" onchange="loadReport()">
+                                <option value="" data-i18n="all_classes">All Classes</option>
+                            </select>
+                            <button class="btn-primary" onclick="loadReport()"
+                                style="margin-left:auto;" data-i18n="refresh">Refresh</button>
+                        </div>
+                        <table style="width:100%; border-collapse:collapse; margin-top:1rem;">
+                            <thead>
+                                <tr style="background:#f8f9fa;">
+                                    <th style="padding:10px; text-align:left;" data-i18n="teacher">Teacher</th>
+                                    <th style="padding:10px; text-align:left;" data-i18n="class_subject">Class/Subject</th>
+                                    <th style="padding:10px; text-align:left;" data-i18n="book">Book</th>
+                                    <th style="padding:10px; text-align:left;" data-i18n="author_publisher">Author/Publisher</th>
+                                    <th style="padding:10px; text-align:left;" data-i18n="total_pages_target">Total Pages</th>
+                                    <th style="padding:10px; text-align:left;" data-i18n="target_current_month">Target (Current Month)</th>
+                                    <th style="padding:10px; text-align:left;" data-i18n="achieved">Achieved</th>
+                                    <th style="padding:10px; text-align:left;" data-i18n="status">Status</th>
+                                    <th style="padding:10px; text-align:left;" data-i18n="action">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportTableBody">
+                                <tr>
+                                    <td colspan="9" style="padding:20px; text-align:center;" data-i18n="select_filter_view_reports">Select filter to view
+                                        reports</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+
+    <script>
+        const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        let currentSessionOrder = [];
+        const tr = (key, fallback) => (typeof getTransOr === 'function' ? getTransOr(key, fallback) : fallback);
+        const trf = (key, fallback, params = {}) => {
+            let text = tr(key, fallback);
+            Object.entries(params).forEach(([k, v]) => {
+                text = text.replace(`{${k}}`, v);
+            });
+            return text;
+        };
+
+        function getTermLabel(term) {
+            const t = (term || '').toLowerCase();
+            if (t.includes('foundation')) return tr('foundation_term', 'Foundation / Term 1');
+            if (t.includes('first')) return tr('first_term', 'First Term');
+            if (t.includes('second')) return tr('second_term', 'Second Term');
+            return tr('annual_term', 'Annual');
+        }
+
+        function normalizePlannerValue(value) {
+            return String(value || '').trim().replace(/\s+/g, ' ');
+        }
+
+        function makePlanIdSegment(value) {
+            return normalizePlannerValue(value)
+                .replace(/[\/\\?#%\*:|"<>]/g, '-')
+                .replace(/\s+/g, '_');
+        }
+
+        function buildStablePlanId(className, subjectData, part = '') {
+            return [
+                'plan',
+                className,
+                subjectData.name || subjectData.subject || '',
+                subjectData.term || 'Annual',
+                subjectData.book || '',
+                part || ''
+            ].map(makePlanIdSegment).filter(Boolean).join('__');
+        }
+
+        function buildLegacyPlanId(className, subjectData, part = '') {
+            let planId = `${className}_${subjectData.id || subjectData.name || subjectData.subject || ''}`;
+            if (part) planId += `_${part}`;
+            return planId.replace(/\s+/g, '_');
+        }
+
+        function planMatchesSubject(planData, className, subjectData, part = '') {
+            if (normalizePlannerValue(planData.className) !== normalizePlannerValue(className)) return false;
+            if (normalizePlannerValue(planData.term || 'Annual') !== normalizePlannerValue(subjectData.term || 'Annual')) return false;
+            if (normalizePlannerValue(planData.book || '') !== normalizePlannerValue(subjectData.book || '')) return false;
+            if (normalizePlannerValue(planData.subjectPart || '') !== normalizePlannerValue(part || '')) return false;
+
+            const planSubject = normalizePlannerValue(planData.subject || '');
+            const candidateSubjects = [
+                subjectData.subject,
+                subjectData.name,
+                subjectData.name_ur
+            ].map(normalizePlannerValue).filter(Boolean);
+
+            return candidateSubjects.includes(planSubject);
+        }
+
+        async function findExistingPlanRecord(className, subjectData, part = '') {
+            const stablePlanId = buildStablePlanId(className, subjectData, part);
+            const candidateIds = [stablePlanId];
+            const legacyPlanId = buildLegacyPlanId(className, subjectData, part);
+            if (legacyPlanId && legacyPlanId !== stablePlanId) candidateIds.push(legacyPlanId);
+
+            for (const candidateId of candidateIds) {
+                const doc = await db.collection('syllabus_plans').doc(candidateId).get();
+                if (doc.exists) {
+                    return {
+                        planId: stablePlanId,
+                        sourceDocId: doc.id,
+                        legacyDocId: doc.id !== stablePlanId ? doc.id : '',
+                        data: doc.data() || {}
+                    };
+                }
+            }
+
+            const classSnap = await db.collection('syllabus_plans').where('className', '==', className).get();
+            let matchedDoc = null;
+            classSnap.forEach(doc => {
+                const data = doc.data() || {};
+                if (!planMatchesSubject(data, className, subjectData, part)) return;
+                if (!matchedDoc) {
+                    matchedDoc = { id: doc.id, data };
+                    return;
+                }
+                const currentTs = matchedDoc.data.updatedAt?.toMillis?.() || 0;
+                const nextTs = data.updatedAt?.toMillis?.() || 0;
+                if (nextTs >= currentTs) matchedDoc = { id: doc.id, data };
+            });
+
+            return {
+                planId: stablePlanId,
+                sourceDocId: matchedDoc ? matchedDoc.id : stablePlanId,
+                legacyDocId: matchedDoc && matchedDoc.id !== stablePlanId ? matchedDoc.id : '',
+                data: matchedDoc ? (matchedDoc.data || {}) : {}
+            };
+        }
+
+        function getSeededBookDefaults(subjectData, bookName, index) {
+            const seededBooks = Array.isArray(subjectData.seedBooks) ? subjectData.seedBooks : [];
+            const normalizedBook = normalizePlannerValue(bookName);
+            const exactBook = seededBooks.find(book => normalizePlannerValue(book.name || '') === normalizedBook);
+            if (exactBook) return exactBook;
+            if (seededBooks[index]) return seededBooks[index];
+            if (index === 0) {
+                return {
+                    totalPages: subjectData.seedTotalPages || 0,
+                    monthlyTargets: subjectData.seedMonthlyTargets || {},
+                    dailyPages: subjectData.seedDailyPages || '',
+                    teachingDays: subjectData.seedTeachingDays || 0,
+                    monthlyPages: subjectData.seedMonthlyPages || 0
+                };
+            }
+            return {};
+        }
+
+        function resolveTeacherDisplayName(planData, subjectData) {
+            return planData.teacherName || subjectData.teacherName || subjectData.teacher || tr('unassigned', 'Unassigned');
+        }
+
+        function findMatchingSubjectRecord(planData, subjects) {
+            return subjects.find(subject => {
+                if (normalizePlannerValue(subject.className) !== normalizePlannerValue(planData.className)) return false;
+                if (normalizePlannerValue(subject.book || '') !== normalizePlannerValue(planData.book || '')) return false;
+                if (normalizePlannerValue(subject.term || 'Annual') !== normalizePlannerValue(planData.term || 'Annual')) return false;
+                const planSubject = normalizePlannerValue(planData.subject || '');
+                return [
+                    subject.name,
+                    subject.name_ur
+                ].map(normalizePlannerValue).filter(Boolean).includes(planSubject);
+            }) || null;
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // --- SECTION 1: ACADEMIC CALENDAR ---
+        // Removed toggleSemesterOptions as we are now strictly Term-based visualization
+
+        function setFirstShawwal() {
+            // Approx Shawwal 1st Logic
+            const year = parseInt(document.getElementById('sessionYear').value);
+            // Rough Estimates
+            const estimates = {
+                2024: "2024-04-10",
+                2025: "2025-03-31",
+                2026: "2026-03-20",
+                2027: "2027-03-09",
+                2028: "2028-02-26"
+            };
+
+            if (estimates[year]) {
+                document.getElementById('sessionStartDate').value = estimates[year];
+                generateCalendarTables();
+            } else {
+                alert(tr('auto_date_not_available', 'Auto-date not available for this year. Please set manually.'));
+            }
+        }
+
+        function generateCalendarTables() {
+            const startDateStr = document.getElementById('sessionStartDate').value;
+            if (!startDateStr) return;
+
+            const isThreeTerm = document.getElementById('enableThreeTerms').checked;
+            const container = document.querySelector('.calendar-layout');
+
+            // Adjust Grid Columns
+            container.style.gridTemplateColumns = isThreeTerm ? '1fr 1fr 1fr' : '1fr 1fr';
+
+            container.innerHTML = '';
+
+            const start = new Date(startDateStr);
+            currentSessionOrder = [];
+            let d = new Date(start);
+
+            // Define Terms
+            // 2-Term: 6 months each
+            // 3-Term: Foundation (2 months), Term 1 (4 months), Term 2 (6 months)
+            const terms = isThreeTerm ?
+                [{ name: getTermLabel('Foundation Course'), count: 2 }, { name: getTermLabel('First Term'), count: 4 }, { name: getTermLabel('Second Term'), count: 6 }] :
+                [{ name: getTermLabel('First Term'), count: 6 }, { name: getTermLabel('Second Term'), count: 6 }];
+
+            let totalMonthsGenerated = 0;
+
+            terms.forEach((term, idx) => {
+                let tbodyId = `term${idx + 1}Body`; // Dynamic ID
+
+                let tableHtml = `
+                    <div>
+                        <h4 style="margin-bottom:1rem; color:var(--primary-color); white-space:nowrap;">${term.name}</h4>
+                        <table style="width:100%; border-collapse:collapse; font-size:0.9em;">
+                            <thead>
+                                <tr style="background:#f8f9fa;">
+                                    <th style="padding:6px; border:1px solid #eee; width:30px;">#</th>
+                                    <th style="padding:6px; border:1px solid #eee;">${tr('month', 'Month')}</th>
+                                    <th style="padding:6px; border:1px solid #eee; width:60px;">${tr('days', 'Days')}</th>
+                                    <th style="padding:6px; border:1px solid #eee;">${tr('remarks', 'Remarks')}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="${tbodyId}"></tbody>
+                        </table>
+                    </div>
+                `;
+                container.innerHTML += tableHtml;
+            });
+
+            // Populate Rows
+            for (let i = 0; i < 12; i++) {
+                const monthName = d.toLocaleString('default', { month: 'long' });
+                const year = d.getFullYear();
+                const key = `${monthName} ${year}`;
+                currentSessionOrder.push(key);
+
+                // Determine which term body to append to
+                let targetBodyId = '';
+                if (isThreeTerm) {
+                    if (i < 2) targetBodyId = 'term1Body';
+                    else if (i < 6) targetBodyId = 'term2Body';
+                    else targetBodyId = 'term3Body';
+                } else {
+                    if (i < 6) targetBodyId = 'term1Body';
+                    else targetBodyId = 'term2Body';
+                }
+
+                const tbody = document.getElementById(targetBodyId);
+                if (tbody) {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td style="padding:6px; border:1px solid #eee;">${i + 1}</td>
+                            <td style="padding:6px; border:1px solid #eee; font-weight:500;">${key}</td>
+                            <td style="padding:6px; border:1px solid #eee;">
+                                <input type="number" name="days_${key}" min="0" max="31" class="days-input" 
+                                    style="width:100%; padding:4px; border:1px solid #ddd; border-radius:4px;">
+                            </td>
+                             <td style="padding:6px; border:1px solid #eee;">
+                                <input type="text" name="remarks_${key}" class="remarks-input" placeholder="..." 
+                                    style="width:100%; padding:4px; border:1px solid #ddd; border-radius:4px;">
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                d.setMonth(d.getMonth() + 1);
+            }
+        }
+
+        async function loadSettings() {
+            const year = document.getElementById('sessionYear').value;
+            try {
+                // Try year specific doc first
+                let doc = await db.collection('academic_settings').doc(year).get();
+
+                // Fallback to 'config' if migrating (or empty)
+                if (!doc.exists && year === '2024') {
+                    doc = await db.collection('academic_settings').doc('config').get();
+                }
+
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.sessionStartDate) {
+                        document.getElementById('sessionStartDate').value = data.sessionStartDate;
+                    }
+                    if (data.isThreeTerm) {
+                        document.getElementById('enableThreeTerms').checked = true;
+                    } else {
+                        document.getElementById('enableThreeTerms').checked = false;
+                    }
+
+                    generateCalendarTables();
+
+                    // Wait for DOM
+                    setTimeout(() => {
+                        if (data.months) {
+                            Object.entries(data.months).forEach(([k, v]) => {
+                                const dayInp = document.querySelector(`input[name="days_${k}"]`);
+                                const remInp = document.querySelector(`input[name="remarks_${k}"]`);
+                                if (dayInp) dayInp.value = v.days;
+                                if (remInp) remInp.value = v.remarks || '';
+                            });
+                        } else if (data.workingDays) {
+                            // Legacy support
+                            Object.entries(data.workingDays).forEach(([k, v]) => {
+                                const dayInp = document.querySelector(`input[name="days_${k}"]`);
+                                if (dayInp) dayInp.value = v;
+                            });
+                        }
+                    }, 50);
+                } else {
+                    // Default start for new years
+                    setFirstShawwal();
+                }
+            } catch (e) {
+                console.error(e);
+                setFirstShawwal();
+            }
+        }
+
+        document.getElementById('workingDaysForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const year = document.getElementById('sessionYear').value;
+            const monthsData = {};
+
+            // Gather data
+            document.querySelectorAll('.days-input').forEach(inp => {
+                const key = inp.name.replace('days_', '');
+                const remarks = document.querySelector(`input[name="remarks_${key}"]`).value;
+                monthsData[key] = {
+                    days: parseInt(inp.value) || 0,
+                    remarks: remarks
+                };
+            });
+
+            try {
+                await db.collection('academic_settings').doc(year).set({
+                    sessionStartDate: document.getElementById('sessionStartDate').value,
+                    isThreeTerm: document.getElementById('enableThreeTerms').checked,
+                    months: monthsData,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                alert(trf('academic_calendar_saved_for', 'Academic Calendar Saved for {year}!', { year }));
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+
+        // --- SECTION 2: PLANNER ---
+        async function loadClassesForPlan() {
+            const dept = document.getElementById('planDept').value;
+            const select = document.getElementById('planClass');
+            select.innerHTML = `<option>${tr('loading', 'Loading...')}</option>`;
+
+            const snap = await db.collection('classes').where('department', '==', dept).get();
+            select.innerHTML = `<option value="">${tr('select_class', 'Select Class')}</option>`;
+            const seen = new Set();
+            snap.forEach(doc => {
+                const data = doc.data();
+                if (!data.name) return;
+                const label = data.name_ur || data.name;
+                if (seen.has(label)) return;
+                seen.add(label);
+
+                const opt = document.createElement('option');
+                opt.value = data.name;
+                opt.innerText = label;
+                select.appendChild(opt);
+            });
+        }
+
+        async function loadSubjectsForPlan() {
+            const dept = document.getElementById('planDept').value;
+            const cls = document.getElementById('planClass').value;
+            if (!dept || !cls) return;
+
+            const select = document.getElementById('planSubject');
+            select.innerHTML = `<option>${tr('loading', 'Loading...')}</option>`;
+            // Single field query (optimized)
+            const snap = await db.collection('subjects').where('department', '==', dept).get();
+
+            select.innerHTML = `<option value="">${tr('select_subject', 'Select Subject')}</option>`;
+            snap.forEach(doc => {
+                const s = doc.data();
+                if (s.className === cls) {
+                    const val = JSON.stringify({
+                        id: doc.id,
+                        name: s.name,
+                        name_ur: s.name_ur || '',
+                        parts: s.parts,
+                        teacher: s.teacherName,
+                        teacherId: s.teacherId || '',
+                        teacherName: s.teacherName || '',
+                        book: s.book || '',
+                        authorPublisher: s.authorPublisher || '',
+                        details: s.description || '',
+                        term: s.term || 'Annual',
+                        seedTotalPages: s.totalPages || 0,
+                        seedMonthlyTargets: s.monthlyTargets || {},
+                        seedBooks: Array.isArray(s.books) ? s.books : [],
+                        seedDailyPages: s.dailyPages || '',
+                        seedTeachingDays: s.teachingDays || 0,
+                        seedMonthlyPages: s.monthlyPages || 0
+                    });
+                    const displayName = (typeof getSubjectDisplayName === 'function')
+                        ? getSubjectDisplayName(s)
+                        : `${s.name_ur || s.name}${s.book ? ` — ${s.book}` : ''} (${getTermLabel(s.term || 'Annual')})`;
+                    select.innerHTML += `<option value='${val}'>${displayName}</option>`;
+                }
+            });
+        }
+
+        function loadPartsOrLoadPlan() {
+            const val = document.getElementById('planSubject').value;
+            const partSelect = document.getElementById('planPart');
+            partSelect.style.display = 'none';
+            document.getElementById('planEditor').style.display = 'none';
+
+            if (!val) return;
+            const s = JSON.parse(val);
+
+            if (s.parts && s.parts.length > 0) {
+                partSelect.style.display = 'inline-block';
+                partSelect.innerHTML = `<option value="">${tr('select_part', 'Select Part')}</option>`;
+                s.parts.forEach(p => {
+                    partSelect.innerHTML += `<option value="${p}">${p}</option>`;
+                });
+            } else {
+                loadPlan();
+            }
+        }
+
+        // Utility: Parse book string into array
+        function parseBooks(bookStr) {
+            if (!bookStr) return [tr('book', 'Book')];
+            // Check for (i), (ii) pattern
+            if (bookStr.includes('(i)')) {
+                // Split by roman numerals enclosed in parens
+                // Regex looks for (i), (ii), (iii), etc.
+                const parts = bookStr.split(/\((?=[ivx]+\))/i).filter(p => p.trim() !== '');
+                return parts.map(p => {
+                    // Clean up existing numbering inside the string if needed
+                    let name = p.trim();
+                    if (name.match(/^[ivx]+\)/i)) {
+                        name = name.replace(/^[ivx]+\)/i, '').trim();
+                    }
+                    return name;
+                });
+            }
+            // Check for (1), (2) pattern
+            if (bookStr.match(/\(\s*1\s*\)/)) {
+                const parts = bookStr.split(/\(\s*\d+\s*\)/).filter(p => p.trim() !== '');
+                return parts.map(p => p.trim());
+            }
+            // Check for 1., 2. or 1۔, 2۔ pattern (including Urdu full stop)
+            if (bookStr.match(/^\s*1\s*[\.\-۔]/)) {
+                const parts = bookStr.split(/\s*\d+\s*[\.\-۔]\s*/).filter(p => p.trim() !== '');
+                return parts.map(p => p.trim());
+            }
+            // Check for 1) 2) pattern
+            if (bookStr.match(/^\s*1\s*\)/)) {
+                const parts = bookStr.split(/\s*\d+\s*\)\s*/).filter(p => p.trim() !== '');
+                return parts.map(p => p.trim());
+            }
+            // Split by newline if multiple entries are on separate lines
+            if (bookStr.includes('\n')) {
+                const parts = bookStr.split('\n').map(p => p.trim()).filter(Boolean);
+                if (parts.length > 1) return parts;
+            }
+            // Default: Single book
+            return [bookStr];
+        }
+
+        async function loadPlan() {
+            const dept = document.getElementById('planDept').value;
+            const cls = document.getElementById('planClass').value;
+            const subjVal = document.getElementById('planSubject').value;
+            const part = document.getElementById('planPart').value;
+
+            if (!dept || !cls || !subjVal) return;
+            const s = JSON.parse(subjVal);
+
+            // Show Editor
+            const editor = document.getElementById('planEditor');
+            editor.style.display = 'block';
+            document.getElementById('displayBook').innerText = s.book || '-';
+            document.getElementById('displayAuthorPublisher').innerText = s.authorPublisher || '-';
+            document.getElementById('displayDetails').innerText = s.details || '-';
+
+            // Generate Grid
+            const grid = document.getElementById('syllabusGrid');
+            grid.innerHTML = '';
+
+            // Ensure we have session months - fetch from DB if not loaded yet
+            let displayMonths = [...currentSessionOrder];
+            if (displayMonths.length === 0) {
+                // Fetch from academic_settings for current year
+                const year = document.getElementById('sessionYear')?.value || '2026';
+                try {
+                    const settingsDoc = await db.collection('academic_settings').doc(year).get();
+                    if (settingsDoc.exists && settingsDoc.data().months) {
+                        displayMonths = Object.keys(settingsDoc.data().months);
+                        currentSessionOrder = displayMonths; // Cache for future use
+                    } else {
+                        // Fallback: Generate 12 months from April (typical academic year start)
+                        const startMonth = 3; // April (0-indexed)
+                        const startYear = parseInt(year);
+                        for (let i = 0; i < 12; i++) {
+                            const d = new Date(startYear, startMonth + i, 1);
+                            displayMonths.push(d.toLocaleString('default', { month: 'long' }) + ' ' + d.getFullYear());
+                        }
+                        currentSessionOrder = displayMonths;
+                    }
+                } catch (e) {
+                    console.error("Error fetching session months:", e);
+                    // Fallback
+                    const startMonth = 3;
+                    const startYear = parseInt(year);
+                    for (let i = 0; i < 12; i++) {
+                        const d = new Date(startYear, startMonth + i, 1);
+                        displayMonths.push(d.toLocaleString('default', { month: 'long' }) + ' ' + d.getFullYear());
+                    }
+                    currentSessionOrder = displayMonths;
+                }
+            }
+
+            // Term-Based Month Filtering
+            // Subject term values: "Foundation Course", "First Term", "Second Term", "Annual"
+            const subjectTerm = s.term || 'Annual';
+            let termMonths = [...displayMonths]; // Default: all 12 months
+
+            if (subjectTerm.toLowerCase().includes('foundation')) {
+                // Foundation Course: First 2 months (April, May)
+                termMonths = displayMonths.slice(0, 2);
+            } else if (subjectTerm.toLowerCase().includes('first')) {
+                // First Term: Months 1-5 (April, May, June, July, August)
+                termMonths = displayMonths.slice(0, 5);
+            } else if (subjectTerm.toLowerCase().includes('second')) {
+                // Second Term: Months 6-10 (September, October, November, December, January)
+                termMonths = displayMonths.slice(5, 10);
+            }
+
+            // Store common data
+            editor.dataset.termMonths = JSON.stringify(termMonths);
+
+            // Parse books from subject data
+            const books = parseBooks(s.book);
+
+            const existingPlanRecord = await findExistingPlanRecord(cls, s, part);
+            const planId = existingPlanRecord.planId;
+            const existingData = existingPlanRecord.data || {};
+            window.currentPlanExisting = existingData;
+            window.currentPlanSourceDocId = existingPlanRecord.sourceDocId || planId;
+            window.currentPlanLegacyDocId = existingPlanRecord.legacyDocId || '';
+            editor.dataset.planId = planId;
+            editor.dataset.sourceDocId = existingPlanRecord.sourceDocId || planId;
+            document.getElementById('displayTeacher').innerText = resolveTeacherDisplayName(existingData, s);
+
+            // Clear & Generate UI
+            grid.innerHTML = '';
+            let autoFilledGrandTotal = 0;
+
+            books.forEach((bookName, index) => {
+                // Determine existing values for this book
+                let bookTotal = 0;
+                let bookTargets = {};
+                const seededDefaults = getSeededBookDefaults(s, bookName, index);
+
+                if (existingData.books && existingData.books[index]) {
+                    // New Format
+                    bookTotal = existingData.books[index].totalPages || 0;
+                    bookTargets = existingData.books[index].monthlyTargets || {};
+                } else if (index === 0 && existingData.monthlyTargets) {
+                    // Legacy Format Fallback for first book
+                    bookTotal = existingData.totalPages || 0;
+                    bookTargets = existingData.monthlyTargets || {};
+                } else {
+                    bookTotal = seededDefaults.totalPages || 0;
+                    bookTargets = seededDefaults.monthlyTargets || {};
+                }
+
+                // Create Book Section
+                const section = document.createElement('div');
+                section.className = 'book-section';
+                const bookMeta = (existingData.books && existingData.books[index]) ? existingData.books[index] : seededDefaults;
+                const metaDaily = bookMeta.dailyPages || '';
+                const metaDays = bookMeta.teachingDays || '';
+                autoFilledGrandTotal += bookTotal;
+                section.innerHTML = `
+                    <div class="book-header">
+                        <div class="book-title"><i class="fas fa-book-open"></i> ${bookName}</div>
+                        <div class="book-meta">
+                            <span>${tr('daily_pages', 'Daily Pages')}: <strong>${metaDaily || '-'}</strong></span>
+                            <span>${tr('teaching_days', 'Teaching Days')}: <strong>${metaDays || '-'}</strong></span>
+                        </div>
+                    </div>
+                    <div class="book-content">
+                        <div class="total-input-group">
+                            <label>${tr('total_pages_for_book', 'Total Pages for this Book:')}</label>
+                            <input type="number" id="total_${index}" value="${bookTotal}" min="0" oninput="checkTotal(${index})">
+                            <span id="dist_msg_${index}" style="font-size:0.8rem; color:#888;">${tr('enter_total_auto_distribute', 'Enter total to auto-distribute')}</span>
+                        </div>
+                        <div class="month-grid" id="grid_${index}">
+                            <!-- Month Cards Go Here -->
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(section);
+
+                // Populate Months for this Book
+                const monthGrid = section.querySelector(`#grid_${index}`);
+                termMonths.forEach(m => {
+                    const savedVal = bookTargets[m] || '';
+                    monthGrid.innerHTML += `
+                        <div class="month-card">
+                            <label>${m}</label>
+                            <input type="number" class="target-input book-${index}" name="${m}" value="${savedVal}" placeholder="${tr('pages', 'Pages')}" data-book-index="${index}" oninput="manualOverride(${index})">
+                        </div>
+                    `;
+                });
+
+                if (bookTotal > 0 && Object.keys(bookTargets || {}).length === 0) {
+                    setTimeout(() => checkTotal(index), 0);
+                }
+            });
+
+            // Update Save Button State
+            document.getElementById('totalCheck').innerText = `${tr('total', 'Total')}: ${autoFilledGrandTotal} / ${autoFilledGrandTotal}`;
+            const saveBtn = document.getElementById('btnSavePlan');
+            saveBtn.innerText = tr('save_syllabus_plan', 'Save Syllabus Plan');
+            saveBtn.disabled = false;
+        }
+
+        // Logic to Auto-Distribute for a specific book
+        function checkTotal(bookIndex) {
+            const totalInput = document.getElementById(`total_${bookIndex}`);
+            const total = parseInt(totalInput.value) || 0;
+            if (total <= 0) return;
+
+            const inputs = document.querySelectorAll(`.target-input.book-${bookIndex}`);
+            const count = inputs.length;
+            if (count === 0) return;
+
+            const perMonth = Math.floor(total / count);
+            let remainder = total % count;
+
+            inputs.forEach(input => {
+                let val = perMonth;
+                if (remainder > 0) {
+                    val++;
+                    remainder--;
+                }
+                input.value = val;
+            });
+
+            document.getElementById(`dist_msg_${bookIndex}`).innerText = trf('auto_distributed_pages_months', 'Auto-distributed {pages} pages across {months} months', { pages: total, months: count });
+        }
+
+        function manualOverride(bookIndex) {
+            document.getElementById(`dist_msg_${bookIndex}`).innerText = tr('manual_editing_enabled', 'Manual editing enabled');
+        }
+
+        async function saveSyllabusPlan() {
+            const btn = document.getElementById('btnSavePlan');
+            const originalText = btn.innerText;
+            btn.innerText = tr('saving', 'Saving...');
+            btn.disabled = true;
+
+            try {
+                const dept = document.getElementById('planDept').value;
+                const cls = document.getElementById('planClass').value;
+                const subVal = document.getElementById('planSubject').value;
+                const part = document.getElementById('planPart')?.value || '';
+
+                if (!dept || !cls || !subVal) {
+                    throw new Error(tr('please_select_department_class_subject', 'Please select department, class, and subject.'));
+                }
+                const s = JSON.parse(subVal);
+
+                // Gather Data for All Books
+                const bookSections = document.querySelectorAll('.book-section');
+                const booksData = [];
+                const planMonthlyTargets = {};
+                let grandTotal = 0;
+                const existingPlan = window.currentPlanExisting || {};
+
+                bookSections.forEach((section, index) => {
+                    const title = section.querySelector('.book-title').innerText.trim();
+                    const totalInput = section.querySelector(`#total_${index}`);
+                    const bookTotal = parseInt(totalInput.value) || 0;
+                    grandTotal += bookTotal;
+
+                    const monthInputs = section.querySelectorAll(`.target-input.book-${index}`);
+                    const bookTargets = {};
+
+                    monthInputs.forEach(input => {
+                        const month = input.name;
+                        const val = parseInt(input.value) || 0;
+                        if (val > 0) bookTargets[month] = val;
+                    });
+
+                    const existingBook = (existingPlan.books && existingPlan.books[index]) ? existingPlan.books[index] : {};
+                    booksData.push({
+                        name: title,
+                        totalPages: bookTotal,
+                        monthlyTargets: bookTargets,
+                        dailyPages: existingBook.dailyPages || '',
+                        teachingDays: existingBook.teachingDays || 0,
+                        monthlyPages: existingBook.monthlyPages || 0
+                    });
+
+                    Object.entries(bookTargets).forEach(([m, v]) => {
+                        planMonthlyTargets[m] = (planMonthlyTargets[m] || 0) + v;
+                    });
+                });
+
+                const planId = buildStablePlanId(cls, s, part);
+                const sourceDocId = window.currentPlanSourceDocId || planId;
+                const legacyDocId = window.currentPlanLegacyDocId || '';
+
+                await db.collection('syllabus_plans').doc(planId).set({
+                    department: dept,
+                    className: cls,
+                    subjectId: s.id || '',
+                    subject: s.name_ur || s.name || '',
+                    subjectPart: part || '',
+                    teacherId: s.teacherId || '',
+                    teacherName: s.teacherName || s.teacher || '',
+                    book: s.book || '',
+                    authorPublisher: s.authorPublisher || '',
+                    details: s.details || '',
+                    term: s.term || 'Annual',
+                    // Storing aggregated total for quick reference
+                    totalPages: grandTotal,
+                    monthlyTargets: planMonthlyTargets,
+                    monthlyAchieved: existingPlan.monthlyAchieved || {},
+                    books: booksData, // The new multi-book structure
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                if (legacyDocId && legacyDocId !== planId) {
+                    await db.collection('syllabus_plans').doc(legacyDocId).delete();
+                    window.currentPlanSourceDocId = planId;
+                    window.currentPlanLegacyDocId = '';
+                } else {
+                    window.currentPlanSourceDocId = planId;
+                }
+
+                btn.innerText = tr('saved_successfully', 'Saved Successfully!');
+                btn.classList.add('btn-success');
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.classList.remove('btn-success');
+                    btn.disabled = false;
+                }, 2000);
+
+            } catch (error) {
+                console.error("Save failed:", error);
+                btn.innerText = tr('error_saving', 'Error Saving');
+                btn.classList.add('btn-danger');
+                alert(tr('failed_save_plan', 'Failed to save plan:') + ' ' + error.message);
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.classList.remove('btn-danger');
+                    btn.disabled = false;
+                }, 3000);
+            }
+        }
+        async function loadDepts() {
+            const sel = document.getElementById('planDept');
+            const repSel = document.getElementById('reportDept');
+            const snap = await db.collection('departments').get();
+            snap.forEach(d => {
+                const name = d.data().name;
+                const nameUr = d.data().name_ur || name;
+                sel.innerHTML += `<option value="${name}">${nameUr}</option>`;
+                if (repSel) repSel.innerHTML += `<option value="${name}">${nameUr}</option>`;
+            });
+        }
+
+        // --- REPORT LOGIC ---
+        async function loadReportClasses() {
+            const dept = document.getElementById('reportDept').value;
+            const select = document.getElementById('reportClass');
+            select.innerHTML = `<option value="">${tr('all_classes', 'All Classes')}</option>`;
+            if (!dept) { loadReport(); return; }
+
+            const snap = await db.collection('classes').where('department', '==', dept).get();
+            const seen = new Set();
+            snap.forEach(doc => {
+                const data = doc.data();
+                if (!data.name) return;
+                const label = data.name_ur || data.name;
+                if (seen.has(label)) return;
+                seen.add(label);
+
+                const opt = document.createElement('option');
+                opt.value = data.name;
+                opt.textContent = label;
+                select.appendChild(opt);
+            });
+            loadReport();
+        }
+
+        async function loadReport() {
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">${tr('loading', 'Loading...')}</td></tr>`;
+
+            try {
+                const dept = document.getElementById('reportDept').value;
+                const cls = document.getElementById('reportClass').value;
+
+                let query = db.collection('syllabus_plans');
+                if (dept) query = query.where('department', '==', dept);
+                if (cls) query = query.where('className', '==', cls);
+
+                const [snap, subjectsSnap] = await Promise.all([
+                    query.get(),
+                    db.collection('subjects').get()
+                ]);
+
+                if (snap.empty) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">${tr('no_plans_found', 'No plans found.')}</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = '';
+
+                // Determine Current Month Key
+                const now = new Date();
+                const currentMonthName = now.toLocaleString('default', { month: 'long' });
+                const currentYear = now.getFullYear();
+                const key = `${currentMonthName} ${currentYear}`;
+
+                // Helper to parse "Month Year" to Date object for sorting
+                const parseKey = (key) => new Date(key);
+
+                const subjectRecords = [];
+                subjectsSnap.forEach(doc => subjectRecords.push({ id: doc.id, ...(doc.data() || {}) }));
+
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const matchedSubject = findMatchingSubjectRecord(data, subjectRecords);
+                    const resolvedTeacher = data.teacherName || matchedSubject?.teacherName || tr('unknown', 'Unknown');
+                    let target = (data.monthlyTargets && data.monthlyTargets[key]) || 0;
+                    let achieved = (data.monthlyAchieved && data.monthlyAchieved[key]) || 0;
+                    let displayLabel = tr('current', 'Current');
+
+                    // Fallback: If current month has no target, find the FIRST future month with a target
+                    if (target === 0 && data.monthlyTargets) {
+                        const today = new Date();
+                        // Sort keys by date
+                        const sortedKeys = Object.keys(data.monthlyTargets).sort((a, b) => new Date(a) - new Date(b));
+
+                        for (const k of sortedKeys) {
+                            if (new Date(k) >= today && data.monthlyTargets[k] > 0) {
+                                target = data.monthlyTargets[k];
+                                achieved = (data.monthlyAchieved && data.monthlyAchieved[k]) || 0;
+                                displayLabel = k; // e.g., "March 2026"
+                                break;
+                            }
+                        }
+                    }
+
+                    let status = tr('status_pending', 'Pending');
+                    let color = 'orange';
+
+                    if (target === 0) {
+                        status = '-';
+                        color = 'gray';
+                    } else if (achieved >= target) {
+                        status = tr('status_on_track', 'On Track');
+                        color = 'green';
+                    } else {
+                        status = tr('status_behind', 'Behind');
+                        color = 'red';
+                    }
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${resolvedTeacher}</td>
+                            <td>${(typeof getClassDisplayName === 'function') ? getClassDisplayName(data.className, data.className_ur || data.className) : (data.className_ur || data.className)} / ${((typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName({ name: data.subject, name_ur: data.subject, book: data.book, term: data.term }) : data.subject)} ${data.subjectPart ? '(' + data.subjectPart + ')' : ''}</td>
+                            <td>${data.book || '-'}</td>
+                            <td>${data.authorPublisher || '-'}</td>
+                            <td>${data.totalPages || 0}</td>
+                            <td>
+                                <strong>${target}</strong> <br>
+                                <span style="font-size:0.75em; color:#666;">(${displayLabel})</span>
+                            </td>
+                            <td>${achieved}</td>
+                            <td><span style="color:${color}; font-weight:600;">${status}</span></td>
+                            <td>
+                                <button onclick="editProgress('${doc.id}', '${displayLabel}', '${achieved || 0}')" style="background:#e0f2fe; color:#075985; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; margin-right:6px;">${tr('edit_progress', 'Edit')}</button>
+                                <button onclick="deletePlan('${doc.id}')" style="background:#fee2e2; color:#991b1b; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">${tr('delete_plan', 'Delete')}</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+            } catch (e) {
+                console.error(e);
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:red;">${tr('error_loading_report', 'Error loading report.')}</td></tr>`;
+            }
+        }
+
+        async function deletePlan(id) {
+            if (confirm(tr('confirm_delete_plan', 'Are you sure you want to delete this plan? This action cannot be undone.'))) {
+                try {
+                    await db.collection('syllabus_plans').doc(id).delete();
+                    loadReport(); // Reload list
+                } catch (e) {
+                    alert(`${tr('error_deleting_plan', 'Error deleting plan:')} ${e.message}`);
+                }
+            }
+        }
+
+        async function editProgress(planId, monthKey, currentVal) {
+            const input = prompt(trf('enter_achieved_pages_for', 'Enter achieved pages for {month}:', { month: monthKey }), currentVal || 0);
+            if (input === null) return;
+            const val = parseInt(input, 10);
+            if (Number.isNaN(val) || val < 0) {
+                alert(tr('please_enter_valid_number', 'Please enter a valid number.'));
+                return;
+            }
+            try {
+                const update = {};
+                update[`monthlyAchieved.${monthKey}`] = val;
+                update['lastUpdated'] = firebase.firestore.FieldValue.serverTimestamp();
+                await db.collection('syllabus_plans').doc(planId).set(update, { merge: true });
+                loadReport();
+            } catch (e) {
+                alert(`${tr('failed_update_progress', 'Failed to update progress:')} ${e.message}`);
+            }
+        }
+
+        function updatePlannerPageTitle() {
+            document.title = `${tr('academic_planner', 'Academic Planner')} - Idara Misbah ul Quran`;
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            updatePlannerPageTitle();
+            loadSettings();
+            loadDepts();
+            // Semester Options will be toggled after settings load
+            setTimeout(toggleSemesterOptions, 1000);
+        });
+
+        window.addEventListener('language-changed', () => {
+            updatePlannerPageTitle();
+            const dept = document.getElementById('planDept').value;
+            const cls = document.getElementById('planClass').value;
+            const subjVal = document.getElementById('planSubject').value;
+            const reportDept = document.getElementById('reportDept').value;
+            const reportCls = document.getElementById('reportClass').value;
+
+            if (dept) {
+                loadClassesForPlan().then(() => {
+                    document.getElementById('planClass').value = cls || '';
+                    if (cls) {
+                        loadSubjectsForPlan().then(() => {
+                            document.getElementById('planSubject').value = subjVal || '';
+                            if (subjVal) loadPlan();
+                        });
+                    }
+                });
+            }
+
+            if (reportDept) {
+                loadReportClasses().then(() => {
+                    document.getElementById('reportClass').value = reportCls || '';
+                    loadReport();
+                });
+            } else {
+                loadReport();
+            }
+        });
+
+    </script>
+</body>
+
+</html>

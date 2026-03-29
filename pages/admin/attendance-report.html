@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <!-- PDF Support -->
+    <script src="../../js/pdf-snapshot.js"></script>
     <style>
         .report-controls {
             display: flex;
@@ -126,7 +126,7 @@
                 snapshot.forEach(doc => {
                     const opt = document.createElement('option');
                     opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
+                    opt.innerText = doc.data().name_ur || doc.data().name;
                     select.appendChild(opt);
                 });
                 if (currentVal) select.value = currentVal;
@@ -150,10 +150,17 @@
 
             try {
                 const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                const seen = new Set();
                 snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (!data.name) return;
+                    const label = data.name_ur || data.name;
+                    if (seen.has(label)) return;
+                    seen.add(label);
+
                     const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
+                    opt.value = data.name;
+                    opt.innerText = label;
                     classSelect.appendChild(opt);
                 });
             } catch (error) {
@@ -177,13 +184,20 @@
                     .get();
 
                 const subjects = [];
-                snapshot.forEach(doc => subjects.push(doc.data().name));
-                subjects.sort(); // Sort alphabetically
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    subjects.push({ name: data.name, name_ur: data.name_ur, book: data.book || '', term: data.term || '' });
+                });
+                subjects.sort((a, b) => {
+                    const aLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(a) : (a.name_ur || a.name || '');
+                    const bLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(b) : (b.name_ur || b.name || '');
+                    return aLabel.localeCompare(bLabel);
+                });
 
-                subjects.forEach(name => {
+                subjects.forEach(s => {
                     const opt = document.createElement('option');
-                    opt.value = name;
-                    opt.innerText = name;
+                    opt.value = s.name;
+                    opt.innerText = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(s) : (s.name_ur || s.name);
                     subjectSelect.appendChild(opt);
                 });
             } catch (error) {
@@ -283,33 +297,57 @@
             if (btn) { btn.disabled = true; btn.innerText = "Generating..."; }
 
             try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('l');
-
                 const dept = document.getElementById('department').value;
                 const className = document.getElementById('className').value;
                 const subject = document.getElementById('subject').value;
                 const monthVal = document.getElementById('reportMonth').value;
 
-                let startY = 60;
-                if (typeof applyPdfBranding === 'function') {
-                    startY = await applyPdfBranding(doc, { title: `Attendance Report: ${monthVal}` });
-                } else {
-                    doc.setFontSize(14);
-                    doc.text(`Attendance Report: ${monthVal}`, 14, 45);
-                }
+                const classUrdu = {
+                    "Aamma Year 1": "عامہ سال اول",
+                    "Aamma Year 2": "عامہ سال دوم",
+                    "Khassa Year 1": "خاصہ سال اول",
+                    "Khassa Year 2": "خاصہ سال دوم",
+                    "Aliya Year 1": "عالیہ سال اول",
+                    "Aliya Year 2": "عالیہ سال دوم",
+                    "Alamiya Year 1": "عالمیہ سال اول",
+                    "Alamiya Year 2": "عالمیہ سال دوم",
+                    "Aamma Year 1 (Arabic Language Foundation Course)": "عامہ سال اول (عریبک لینگوئج کورس)",
+                    "Aamma Year 2 (English Language Foundation Course)": "عامہ سال دوم (انگلش لینگوئج کورس)",
+                    "Hifz Class": "حفظ کلاس",
+                    "Abee Bin Kaab": "ابی بن کعب",
+                    "Zaid Bin Sabit": "زید بن ثابت",
+                    "Abdullah Bin Abbas": "عبداللہ بن عباس",
+                    "Abdullah Bin Masood": "عبداللہ بن مسعود",
+                    "Osman Ghani": "عثمان غنی",
+                    "Musab Bin Omair": "مصعب بن عمیر",
+                    "Abu Bakar Siddique": "ابوبکر صدیق",
+                    "Amer Bin Khatab": "عمر بن خطاب",
+                    "Naseerah Murseed": "نصیرہ مرشد",
+                    "Tajweed Class 1st year": "تجوید کلاس سال اول",
+                    "Tajweed Class 2nd year": "تجوید کلاس سال دوم",
+                    "Class 1st year": "تجوید کلاس سال اول",
+                    "Class 2nd year": "تجوید کلاس سال دوم"
+                };
 
-                doc.setFontSize(11);
-                doc.text(`Class: ${className} | Subject: ${subject}`, 14, startY - 5);
+                const deptUrdu = {
+                    "Dars-e-Nizami Department": "شعبہ درس نظامی",
+                    "Hifz Department": "شعبہ تحفیظ القرآن",
+                    "Tajweed Department": "شعبہ تجوید و قرأت"
+                };
 
-                doc.autoTable({
-                    html: '#reportTable',
-                    startY: startY,
-                    styles: { fontSize: 8 },
-                    headStyles: { fillColor: [66, 66, 66] },
+                const displayDept = deptUrdu[dept] || dept;
+                const displayClass = classUrdu[className] || className;
+
+                const table = document.getElementById('reportTable');
+                if (!table) throw new Error("Report not generated yet");
+
+                window.PDFSnapshot.generate({
+                    title: `${getTrans('attendance_report')}: ${monthVal}`,
+                    subtitle: `${displayDept} | ${displayClass} | ${subject}`,
+                    content: table.outerHTML,
+                    orientation: 'landscape'
                 });
 
-                doc.save(`Attendance_${className}_${subject}_${monthVal}.pdf`);
             } catch (e) {
                 console.error(e);
                 alert("Error generating PDF: " + e.message);

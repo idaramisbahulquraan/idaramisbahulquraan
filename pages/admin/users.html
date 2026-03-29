@@ -236,14 +236,47 @@
                 </div>
                 <div class="form-group">
                     <label data-i18n="role">Role</label>
-                    <select name="role" required>
-                        <option value="student" data-i18n="student">Student</option>
-                        <option value="teacher" data-i18n="teacher">Teacher</option>
-                        <option value="admin" data-i18n="admin">Admin</option>
+                    <div id="rolesCheckboxGroup" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:0.75rem; border:1px solid var(--border-color); border-radius:10px; padding:0.85rem;">
+                        <label style="display:flex; align-items:center; gap:0.5rem;"><input type="checkbox" name="roles" value="student" onchange="syncPrimaryRoleOptions(this.form)"> <span data-i18n="student">Student</span></label>
+                        <label style="display:flex; align-items:center; gap:0.5rem;"><input type="checkbox" name="roles" value="teacher" onchange="syncPrimaryRoleOptions(this.form)"> <span data-i18n="teacher">Teacher</span></label>
+                        <label style="display:flex; align-items:center; gap:0.5rem;"><input type="checkbox" name="roles" value="admin" onchange="syncPrimaryRoleOptions(this.form)"> <span data-i18n="admin">Admin</span></label>
+                        <label style="display:flex; align-items:center; gap:0.5rem;"><input type="checkbox" name="roles" value="nazim_e_taleemaat" onchange="syncPrimaryRoleOptions(this.form)"> <span data-i18n="nazim_e_taleemaat">Nazim e Taleemaat</span></label>
+                        <label style="display:flex; align-items:center; gap:0.5rem;"><input type="checkbox" name="roles" value="hifz_supervisor" onchange="syncPrimaryRoleOptions(this.form)"> <span data-i18n="hifz_supervisor">Hifz Supervisor</span></label>
+                    </div>
+                    <small style="display:block; margin-top:0.5rem; color:var(--text-light);" data-i18n="roles_multi_help">Select one or more roles. The first selected role becomes the primary role.</small>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="primary_role">Primary Role</label>
+                    <select name="primaryRole" required>
+                        <option value="" data-i18n="select_role">Select Role</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-add" style="width: 100%; justify-content: center;"
                     data-i18n="create_user">Create User</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div id="resetPasswordModal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0;" data-i18n="reset_password">Reset Password</h3>
+                <button onclick="closeModal('resetPasswordModal')"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <p style="margin-bottom: 1rem; color: var(--text-light); font-size: 0.9rem;">
+                <span data-i18n="reset_password_desc">Enter the new password for this user below.</span><br>
+                <strong style="color: var(--danger);">Note:</strong> This requires admin privileges.
+            </p>
+            <form onsubmit="handleManualPasswordReset(event)">
+                <input type="hidden" name="email">
+                <div class="form-group">
+                    <label data-i18n="new_password">New Password</label>
+                    <input type="text" name="newPassword" required minlength="6" placeholder="Enter new password">
+                </div>
+                <button type="submit" class="btn-add" style="width: 100%; justify-content: center;"
+                    data-i18n="save_password">Save Password</button>
             </form>
         </div>
     </div>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ٹیچر اکیڈمک کوالٹی اسکور کارڈ - ادارہ مصباح القرآن</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .taqs-shell { display:flex; flex-direction:column; gap:1.5rem; padding-bottom:7rem; }
+        .taqs-hero {
+            position:relative; overflow:hidden;
+            background:linear-gradient(135deg, rgba(29,78,216,0.96), rgba(67,56,202,0.94));
+            color:#fff; border-radius:1.4rem; padding:1.55rem 1.65rem;
+            box-shadow:0 20px 38px rgba(37,99,235,0.18);
+        }
+        .taqs-hero::after {
+            content:''; position:absolute; inset:auto auto -4rem -2rem; width:220px; height:220px;
+            border-radius:50%; background:rgba(255,255,255,0.08);
+        }
+        .taqs-hero h2 { margin:0 0 0.35rem; color:#fff; font-size:1.85rem; }
+        .taqs-hero p { margin:0; max-width:760px; opacity:0.95; }
+        .taqs-hero-chips { display:flex; flex-wrap:wrap; gap:0.65rem; margin-top:1rem; }
+        .taqs-chip {
+            border:1px solid rgba(255,255,255,0.24); background:rgba(255,255,255,0.12); color:#fff;
+            border-radius:999px; padding:0.4rem 0.9rem; font-size:0.86rem;
+        }
+        .taqs-card {
+            background:linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+            border:1px solid rgba(148,163,184,0.22);
+            border-radius:1.2rem; padding:1.35rem; box-shadow:0 10px 24px rgba(15,23,42,0.05);
+        }
+        .taqs-head {
+            display:flex; align-items:flex-start; justify-content:space-between; gap:1rem;
+            margin-bottom:1rem; padding-bottom:0.85rem; border-bottom:1px solid rgba(148,163,184,0.18);
+        }
+        .taqs-head-main { display:flex; align-items:center; gap:0.9rem; }
+        .taqs-badge {
+            display:inline-flex; align-items:center; justify-content:center; min-width:2.45rem; height:2.45rem;
+            border-radius:0.85rem; background:linear-gradient(135deg, #dbeafe, #ede9fe); color:#3730a3; font-weight:700;
+            box-shadow:inset 0 0 0 1px rgba(79,70,229,0.12);
+        }
+        .taqs-title { margin:0; font-size:1.14rem; color:#0f172a; }
+        .taqs-subtitle { margin:0.2rem 0 0; color:var(--text-light); font-size:0.92rem; }
+        .taqs-note { color:var(--text-light); font-size:0.84rem; background:#f8fafc; border:1px solid rgba(148,163,184,0.18); padding:0.45rem 0.7rem; border-radius:999px; white-space:nowrap; }
+        .taqs-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; }
+        .taqs-card .form-group { margin-bottom:0; }
+        .taqs-card label, .taqs-card .form-group label { color:#334155; font-weight:700; font-size:0.88rem; margin-bottom:0.45rem; }
+        .taqs-input, .taqs-select, .taqs-textarea {
+            width:100%; min-height:50px; padding:0.82rem 0.92rem; border:1px solid rgba(148,163,184,0.32);
+            border-radius:0.9rem; background:#fff; font-size:0.95rem; transition:border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .taqs-textarea { min-height:92px; resize:vertical; }
+        .taqs-input:focus, .taqs-select:focus, .taqs-textarea:focus {
+            outline:none; border-color:rgba(79,70,229,0.52); box-shadow:0 0 0 4px rgba(79,70,229,0.08);
+        }
+        .taqs-input[readonly] { background:#f8fafc; color:#475569; }
+        .taqs-stats { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:1rem; }
+        .taqs-stat {
+            border:1px solid rgba(148,163,184,0.2); border-radius:1rem; padding:1rem;
+            background:linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+        }
+        .taqs-stat-label { color:var(--text-light); font-size:0.84rem; margin-bottom:0.35rem; }
+        .taqs-stat-value { font-size:1.34rem; font-weight:700; color:#0f172a; }
+        .taqs-board-wrap { overflow:auto; border:1px solid rgba(148,163,184,0.22); border-radius:1rem; background:#fff; }
+        .taqs-board { width:100%; border-collapse:collapse; min-width:980px; }
+        .taqs-board th, .taqs-board td { border-bottom:1px solid rgba(148,163,184,0.16); padding:0.85rem; text-align:right; vertical-align:top; }
+        .taqs-board th { background:linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%); color:#334155; font-weight:700; }
+        .taqs-board tr:last-child td { border-bottom:0; }
+        .taqs-kpi { min-width:320px; line-height:1.8; color:#0f172a; font-weight:600; }
+        .taqs-max, .taqs-score, .taqs-percentage { width:110px; min-width:110px; text-align:center; }
+        .taqs-score input { text-align:center; }
+        .taqs-performance-table { width:100%; border-collapse:collapse; min-width:900px; }
+        .taqs-performance-table th, .taqs-performance-table td { border-bottom:1px solid rgba(148,163,184,0.16); padding:0.85rem; text-align:right; vertical-align:top; }
+        .taqs-performance-table th { background:linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%); color:#334155; font-weight:700; }
+        .taqs-auto-badge {
+            display:inline-flex; align-items:center; justify-content:center; min-width:56px; min-height:2.1rem;
+            border-radius:999px; background:#eff6ff; color:#1d4ed8; border:1px solid rgba(29,78,216,0.16); font-weight:700;
+        }
+        .taqs-help-line { color:var(--text-light); font-size:0.82rem; margin-top:0.3rem; line-height:1.7; }
+        .taqs-guides { display:grid; grid-template-columns:1.2fr 1fr; gap:1rem; }
+        .taqs-guide-box {
+            border:1px solid rgba(148,163,184,0.2); border-radius:1rem; padding:1rem; background:#fff;
+        }
+        .taqs-guide-box h4 { margin:0 0 0.7rem; color:#0f172a; font-size:1rem; }
+        .taqs-guide-box ul { margin:0; padding:0 1rem 0 0; line-height:2; color:#475569; }
+        .taqs-toolbar {
+            position:sticky; bottom:1rem; z-index:4; display:flex; justify-content:space-between; align-items:center; gap:1rem;
+            padding:1rem 1.1rem; border:1px solid rgba(148,163,184,0.22); border-radius:1.1rem;
+            background:rgba(255,255,255,0.96); backdrop-filter:blur(10px); box-shadow:0 16px 35px rgba(15,23,42,0.1);
+        }
+        .taqs-state { color:var(--text-light); font-size:0.9rem; }
+        .taqs-actions { display:flex; gap:0.75rem; flex-wrap:wrap; }
+        .taqs-actions .btn-primary, .taqs-actions .btn-secondary { min-width:170px; border-radius:0.85rem; }
+        .taqs-readonly { opacity:0.84; pointer-events:none; }
+        .taqs-access { padding:1.8rem; text-align:center; }
+        @media (max-width: 980px) {
+            .taqs-head, .taqs-toolbar { flex-direction:column; align-items:stretch; }
+            .taqs-stats, .taqs-guides { grid-template-columns:1fr; }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title"><h1>ٹیچر اکیڈمک کوالٹی اسکور کارڈ</h1></div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight:600;">User</p>
+                            <p id="userRole" style="font-size:0.75rem; color:var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+            <div class="dashboard-content taqs-shell">
+                <div class="taqs-card" id="taqsAccessDenied" style="display:none;">
+                    <div class="taqs-access">
+                        <h3>رسائی نہیں</h3>
+                        <p>یہ صفحہ صرف ناظمِ تعلیمات اور ایڈمن کے لیے دستیاب ہے۔</p>
+                    </div>
+                </div>
+
+                <div id="taqsContent" style="display:none;">
+                    <div class="taqs-hero">
+                        <h2>اساتذہ کا اکیڈمک کوالٹی اسکور کارڈ</h2>
+                        <p>یہ کارڈ ماہانہ / مدت وار بنیاد پر استاد کی تدریسی کارکردگی، ریکارڈ، نظم، سرگرمیوں اور نتائج کو جانچنے کے لیے ہے۔ اندراج ناظمِ تعلیمات کرے گا اور ایڈمن اسے دیکھ سکے گا۔</p>
+                        <div class="taqs-hero-chips">
+                            <span class="taqs-chip">کل نمبر 100</span>
+                            <span class="taqs-chip">اندراج صرف ناظمِ تعلیمات</span>
+                            <span class="taqs-chip">مشاہدہ + ریکارڈ + نتائج</span>
+                        </div>
+                    </div>
+
+                    <div class="taqs-card">
+                        <div class="taqs-head">
+                            <div class="taqs-head-main">
+                                <span class="taqs-badge">1</span>
+                                <div>
+                                    <h3 class="taqs-title">عمومی معلومات</h3>
+                                    <p class="taqs-subtitle">شعبہ، استاد، مہینہ اور جائزے کی تاریخ منتخب کریں۔ محفوظ شدہ ریکارڈ خود بخود لوڈ ہو جائے گا۔</p>
+                                </div>
+                            </div>
+                            <span class="taqs-note" id="taqsModeNote">صرف مشاہدہ</span>
+                        </div>
+                        <div class="taqs-grid">
+                            <div class="form-group"><label>شعبہ</label><select id="taqsDepartment" class="taqs-select"></select></div>
+                            <div class="form-group"><label>استاد</label><select id="taqsTeacher" class="taqs-select"></select></div>
+                            <div class="form-group"><label>مہینہ</label><input id="taqsMonth" class="taqs-input" type="month"></div>
+                            <div class="form-group"><label>جائزہ تاریخ</label><input id="taqsReviewDate" class="taqs-input" type="date"></div>
+                            <div class="form-group"><label>جائزہ لینے والا</label><input id="taqsReviewer" class="taqs-input" type="text" readonly></div>
+                            <div class="form-group"><label>مجموعی نوٹ</label><input id="taqsSummaryNote" class="taqs-input" type="text" placeholder="مختصر تاثر درج کریں"></div>
+                        </div>
+                    </div>
+
+                    <div class="taqs-card">
+                        <div class="taqs-head">
+                            <div class="taqs-head-main">
+                                <span class="taqs-badge">2</span>
+                                <div>
+                                    <h3 class="taqs-title">معیار اور اسکور</h3>
+                                    <p class="taqs-subtitle">ہر معیار کے مطابق حاصل شدہ نمبر درج کریں۔ مجموعی اسکور اور درجہ خود بخود بنے گا۔</p>
+                                </div>
+                            </div>
+                            <span class="taqs-note">زیادہ سے زیادہ 100</span>
+                        </div>
+                        <div class="taqs-stats">
+                            <div class="taqs-stat"><div class="taqs-stat-label">کل نمبر</div><div class="taqs-stat-value" id="taqsTotalScore">0 / 100</div></div>
+                            <div class="taqs-stat"><div class="taqs-stat-label">فیصد</div><div class="taqs-stat-value" id="taqsPercentage">0%</div></div>
+                            <div class="taqs-stat"><div class="taqs-stat-label">درجہ</div><div class="taqs-stat-value" id="taqsGrade">-</div></div>
+                            <div class="taqs-stat"><div class="taqs-stat-label">فالو اپ</div><div class="taqs-stat-value" id="taqsAction">-</div></div>
+                        </div>
+                        <div class="taqs-board-wrap" style="margin-top:1rem;">
+                            <table class="taqs-board">
+                                <thead>
+                                    <tr>
+                                        <th style="width:72px;">نمبر</th>
+                                        <th>معیار / KPIs</th>
+                                        <th class="taqs-max">کل نمبر</th>
+                                        <th class="taqs-score">عمل نمبر</th>
+                                        <th>عمل درآمد کے قواعد / مشاہدہ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="taqsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="taqs-card">
+                        <div class="taqs-head">
+                            <div class="taqs-head-main">
+                                <span class="taqs-badge">3</span>
+                                <div>
+                                    <h3 class="taqs-title">ماہانہ ٹیچر پرفارمنس</h3>
+                                    <p class="taqs-subtitle">سسٹم کے دستیاب ریکارڈ سے خودکار اعداد لائیں اور ضرورت ہو تو انہیں دستی طور پر ایڈجسٹ کریں۔</p>
+                                </div>
+                            </div>
+                            <span class="taqs-note">آٹو + دستی تدوین</span>
+                        </div>
+                        <div class="taqs-stats">
+                            <div class="taqs-stat"><div class="taqs-stat-label">آٹو مجموعہ</div><div class="taqs-stat-value" id="taqsPerformanceAutoTotal">0</div></div>
+                            <div class="taqs-stat"><div class="taqs-stat-label">حتمی مجموعہ</div><div class="taqs-stat-value" id="taqsPerformanceFinalTotal">0</div></div>
+                            <div class="taqs-stat"><div class="taqs-stat-label">حاضرہ / ریکارڈ</div><div class="taqs-stat-value" id="taqsPerformanceCoverage">-</div></div>
+                            <div class="taqs-stat"><div class="taqs-stat-label">ماہانہ تبصرہ</div><div class="taqs-stat-value" id="taqsPerformanceStatus">-</div></div>
+                        </div>
+                        <div class="taqs-board-wrap" style="margin-top:1rem;">
+                            <table class="taqs-performance-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:72px;">نمبر</th>
+                                        <th>ماہانہ کارکردگی معیار</th>
+                                        <th style="width:130px;">سسٹم آٹو</th>
+                                        <th style="width:150px;">حتمی اندراج</th>
+                                        <th>نوٹ / وضاحت</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="taqsPerformanceBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="taqs-grid" style="margin-top:1rem;">
+                            <div class="form-group" style="grid-column:1 / -1;">
+                                <label>ماہانہ مجموعی تاثر</label>
+                                <textarea id="taqsPerformanceSummary" class="taqs-textarea" placeholder="اس مہینے کے دوران استاد کی مجموعی کارکردگی، قوت اور بہتری کے نکات درج کریں۔"></textarea>
+                            </div>
+                        </div>
+                        <div class="taqs-actions" style="margin-top:1rem;">
+                            <button type="button" class="btn-secondary" id="taqsRefreshPerformanceBtn">سسٹم اعداد ریفریش کریں</button>
+                        </div>
+                    </div>
+
+                    <div class="taqs-card">
+                        <div class="taqs-head">
+                            <div class="taqs-head-main">
+                                <span class="taqs-badge">4</span>
+                                <div>
+                                    <h3 class="taqs-title">گریڈنگ اسکیل اور رہنمائی</h3>
+                                    <p class="taqs-subtitle">مجموعی اسکور کے مطابق درجہ اور ضروری اگلا عمل۔</p>
+                                </div>
+                            </div>
+                            <span class="taqs-note">معیار واضح رکھیں</span>
+                        </div>
+                        <div class="taqs-guides">
+                            <div class="taqs-guide-box">
+                                <h4>گریڈنگ اسکیل</h4>
+                                <ul>
+                                    <li><strong>90 تا 100:</strong> ممتاز (Outstanding)</li>
+                                    <li><strong>75 تا 89:</strong> بہتر (Good)</li>
+                                    <li><strong>60 تا 74:</strong> اوسط / قابل اصلاح (Average)</li>
+                                    <li><strong>60 سے کم:</strong> فوری اصلاحی توجہ (Needs Action)</li>
+                                </ul>
+                            </div>
+                            <div class="taqs-guide-box">
+                                <h4>Implementation Guide</h4>
+                                <ul>
+                                    <li>مشاہدہ، ٹیسٹ نتائج، حاضری، ڈائری اور کلاس ریکارڈ دیکھ کر نمبر دیں۔</li>
+                                    <li>کم اسکور کی صورت میں مختصر اصلاحی نوٹ لازماً درج کریں۔</li>
+                                    <li>یہ کارڈ ماہانہ مانیٹرنگ اور تعلیمی فالو اپ کے لیے استعمال ہو۔</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="taqs-toolbar">
+                        <span class="taqs-state" id="taqsState">شعبہ، استاد اور مہینہ منتخب کریں۔ محفوظ ریکارڈ خود لوڈ ہو گا۔</span>
+                        <div class="taqs-actions">
+                            <button type="button" class="btn-secondary" id="taqsPrintBtn">پرنٹ / PDF</button>
+                            <button type="button" class="btn-primary" id="taqsSaveBtn">اسکور کارڈ محفوظ کریں</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/teacher-academic-quality-scorecard.js"></script>
+</body>
+</html>

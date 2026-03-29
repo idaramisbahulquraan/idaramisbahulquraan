@@ -9,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- PDF Support -->
+    <script src="../../js/pdf-snapshot.js"></script>
     <style>
         .form-grid {
             display: grid;
@@ -262,7 +263,7 @@
                 snapshot.forEach(doc => {
                     const opt = document.createElement('option');
                     opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
+                    opt.innerText = doc.data().name_ur || doc.data().name;
                     select.appendChild(opt);
                 });
             } catch (e) { console.error(e); }
@@ -276,10 +277,17 @@
 
             try {
                 const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                const seen = new Set();
                 snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (!data.name) return;
+                    const label = data.name_ur || data.name;
+                    if (seen.has(label)) return;
+                    seen.add(label);
+
                     const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
+                    opt.value = data.name;
+                    opt.innerText = label;
                     select.appendChild(opt);
                 });
             } catch (e) { console.error(e); }
@@ -301,8 +309,9 @@
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const opt = document.createElement('option');
-                    opt.value = JSON.stringify({ name: data.firstName + ' ' + (data.lastName || ''), detail: data.fatherName || '' });
-                    opt.innerText = data.firstName + ' ' + (data.lastName || '');
+                    const name = data.name_ur || (data.firstName + ' ' + (data.lastName || ''));
+                    opt.value = JSON.stringify({ name: name, detail: data.fatherName || '' });
+                    opt.innerText = name;
                     select.appendChild(opt);
                 });
             } catch (e) { console.error(e); }
@@ -321,7 +330,7 @@
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    const name = data.name || data.firstName || 'Unknown';
+                    const name = data.name_ur || data.name || data.firstName || 'Unknown';
                     const opt = document.createElement('option');
                     opt.value = JSON.stringify({ name: name, detail: data.mobile || data.email || '' });
                     opt.innerText = name;
@@ -407,7 +416,7 @@
             const details = document.getElementById('recipientDetails').value;
             const role = document.getElementById('recipientRole').value;
             const type = document.getElementById('certType').value;
-            const content = document.getElementById('certContent').value; // Raw content
+            const content = document.getElementById('certContent').value;
             const date = document.getElementById('issueDate').value;
 
             if (!name) { alert("Please enter recipient name"); return; }
@@ -418,78 +427,16 @@
             btn.setAttribute('data-i18n', 'processing');
 
             try {
-                // Load images first
-                const logoImg = new Image();
-                logoImg.src = "../../assets/logo.png";
-                const headerImg = new Image();
-                headerImg.src = "../../assets/header-image.png";
+                const preview = document.getElementById('certPreview');
+                const clone = preview.cloneNode(true);
+                clone.style.display = 'block';
+                clone.style.border = 'none'; // Background system adds border
 
-                await Promise.all([
-                    new Promise((resolve) => {
-                        if (logoImg.complete) resolve();
-                        else { logoImg.onload = resolve; logoImg.onerror = resolve; }
-                    }),
-                    new Promise((resolve) => {
-                        if (headerImg.complete) resolve();
-                        else { headerImg.onload = resolve; headerImg.onerror = resolve; }
-                    })
-                ]);
-
-                // 1. Generate PDF
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('l', 'mm', 'a4'); // Landscape
-
-                // Border
-                doc.setLineWidth(1);
-                doc.rect(10, 10, 277, 190);
-                doc.setLineWidth(0.5);
-                doc.rect(15, 15, 267, 180);
-
-                // Header Image
-                try {
-                    doc.addImage(headerImg, 'PNG', 20, 20, 257, 35); // Wide centered header
-                } catch (e) { console.warn("Could not add header image", e); }
-
-                // Logo
-                try {
-                    // Centered below header
-                    doc.addImage(logoImg, 'PNG', 136, 60, 25, 25);
-                } catch (e) { console.warn("Could not add logo", e); }
-
-                // Text Header (Optional - if header image fails or to supplement)
-                // doc.setFont("times", "bold");
-                // doc.setFontSize(30);
-                // doc.text("IDARA MISBAH UL QURAN", 148.5, 40, { align: "center" });
-
-                doc.setFontSize(14);
-                doc.setFont("helvetica", "normal");
-                // doc.text("Bahawalpur, Pakistan", 148.5, 50, { align: "center" });
-
-                // Title
-                doc.setFont("times", "bold");
-                doc.setFontSize(24);
-                doc.setTextColor(0, 51, 102);
-                doc.text(type.toUpperCase(), 148.5, 95, { align: "center" });
-
-                // Body
-                doc.setTextColor(0, 0, 0);
-                doc.setFontSize(16);
-                doc.setFont("times", "normal");
-
-                let finalContent = content.replace('[Name]', name).replace('[Father Name]', details);
-                // Simple word wrap
-                const splitText = doc.splitTextToSize(finalContent, 240);
-                doc.text(splitText, 148.5, 115, { align: "center" });
-
-                // Date
-                doc.text(`Issue Date: ${date}`, 30, 165);
-
-                // Signatures
-                doc.setLineWidth(0.5);
-                doc.line(200, 160, 260, 160);
-                doc.text("Principal Signature", 230, 170, { align: "center" });
-
-                doc.save(`${type}_${name.replace(/\s+/g, '_')}.pdf`);
+                window.PDFSnapshot.generate({
+                    title: type,
+                    content: clone.innerHTML,
+                    orientation: 'landscape'
+                });
 
                 // 2. Save to Firestore
                 await db.collection('certificates').add({

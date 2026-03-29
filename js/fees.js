@@ -16,7 +16,10 @@ function displaySelectedStudent(student) {
     if (!nameDisplay) return;
     if (student) {
         const rollText = student.rollNumber ? `Roll ${student.rollNumber}` : 'Roll N/A';
-        nameDisplay.textContent = `Selected: ${student.firstName} ${student.lastName} (${rollText}, ${student.className || ''})`;
+        const displayClassName = (typeof getClassDisplayName === 'function')
+            ? getClassDisplayName(student.className || '', student.className_ur || '')
+            : (student.className_ur || student.className || '');
+        nameDisplay.textContent = `Selected: ${student.firstName} ${student.lastName} (${rollText}, ${displayClassName})`;
         nameDisplay.style.color = 'var(--primary-color)';
     } else {
         nameDisplay.textContent = '';
@@ -32,23 +35,24 @@ async function loadFeeDepartments(selected = '') {
         let snap = await db.collection('departments')
             .where('tenantId', '==', tenantId)
             .get();
-        let departments = snap.docs.map(d => d.data().name).filter(Boolean);
+        let departments = snap.docs.map(d => ({ name: d.data().name, name_ur: d.data().name_ur || '' })).filter(d => d.name);
         if (!departments.length) {
             snap = await db.collection('departments').get();
-            departments = snap.docs.map(d => d.data().name).filter(Boolean);
+            departments = snap.docs.map(d => ({ name: d.data().name, name_ur: d.data().name_ur || '' })).filter(d => d.name);
         }
         departments.forEach(dep => {
             const opt = document.createElement('option');
-            opt.value = dep;
-            opt.textContent = dep;
+            opt.value = dep.name;
+            opt.textContent = dep.name_ur || dep.name;
             feeDepartmentSelect.appendChild(opt);
         });
         if (selected) {
             feeDepartmentSelect.value = selected;
+            // Handle if selected not in list (legacy)
             if (feeDepartmentSelect.value !== selected) {
                 const opt = document.createElement('option');
                 opt.value = selected;
-                opt.textContent = selected;
+                opt.textContent = (typeof getDepartmentDisplayName === 'function') ? getDepartmentDisplayName(selected) : selected;
                 feeDepartmentSelect.appendChild(opt);
                 feeDepartmentSelect.value = selected;
             }
@@ -76,12 +80,17 @@ async function loadFeeClasses(department, selected = '') {
                 .where('department', '==', department)
                 .get();
         }
+        const seen = new Set();
         snap.forEach(doc => {
             const data = doc.data();
             if (!data.name) return;
+            const label = data.name_ur || data.name;
+            if (seen.has(label)) return;
+            seen.add(label);
+
             const opt = document.createElement('option');
             opt.value = data.name;
-            opt.textContent = data.name;
+            opt.textContent = label;
             feeClassSelect.appendChild(opt);
         });
         if (selected) {
@@ -89,7 +98,7 @@ async function loadFeeClasses(department, selected = '') {
             if (feeClassSelect.value !== selected) {
                 const opt = document.createElement('option');
                 opt.value = selected;
-                opt.textContent = selected;
+                opt.textContent = (typeof getClassDisplayName === 'function') ? getClassDisplayName(selected) : selected;
                 feeClassSelect.appendChild(opt);
                 feeClassSelect.value = selected;
             }
@@ -512,10 +521,10 @@ async function loadFees() {
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>
-                    <div style="font-weight: 500;">${fee.studentName}</div>
-                    <div style="font-size: 0.75rem; color: var(--text-light);">${fee.className}</div>
-                </td>
+                    <td>
+                        <div style="font-weight: 500;">${fee.studentName}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-light);">${(typeof getClassDisplayName === 'function') ? getClassDisplayName(fee.className || '', fee.className_ur || '') : (fee.className_ur || fee.className || '')}</div>
+                    </td>
                 <td>${fee.rollNumber}</td>
                 <td>${fee.month} ${fee.year} <br><span style="font-size: 0.75rem; color: var(--text-light);">${fee.feeType}</span></td>
                 <td style="font-weight: 600;">Rs. ${fee.amount}</td>
@@ -612,7 +621,7 @@ async function loadDefaulters() {
                 <tr>
                     <td>
                         <div style="font-weight: 500;">${fee.studentName}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-light);">${fee.className}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-light);">${(typeof getClassDisplayName === 'function') ? getClassDisplayName(fee.className || '', fee.className_ur || '') : (fee.className_ur || fee.className || '')}</div>
                     </td>
                     <td>${fee.rollNumber}</td>
                     <td>${fee.month} ${fee.year} <br><span style="font-size: 0.75rem; color: var(--text-light);">${fee.feeType}</span></td>

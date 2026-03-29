@@ -1,0 +1,56 @@
+﻿matchStatus,extractedClass,section,rawTeacherName,canonicalTeacherName,teacherExistsInCurrentSeed,teacherAliasApplied,extractedSubject,appClassName,appSubjectNames,appBookNames,notes
+matched,Aaliya Doam,,Muhammad Aamir Sohail,Muhammad Amir Sohail,True,True,Mukhtasar al-Ma'ani,Aliya Year 2,بلاغت,مختصر المعانی,Matched by book title
+matched,Aaliya Doam,,Principal Sahib,Principal Sahib,False,False,Jami' at-Tirmidhi,Alamiya Year 2,حدیث,جامع ترمذی,Subject belongs to Alamiya Year 2 in seeded syllabus
+matched,Aaliya Doam,,Muhammad Mohsin,Muhammad Mohsin,True,False,Hidaya,Aliya Year 2,فقہ,ہدایہ ربع ثالث | ہدایہ ربع ثالث (دوم),Mapped to current seeded Hidaya entries in Aliya Year 2
+matched,Aaliya Doam,,Muhammad Hakim Ali Shah,Muhammad Hakim Ali Shah,True,False,Sahih al-Bukhari,Alamiya Year 2,حدیث,صحیح بخاری,Subject belongs to Alamiya Year 2 in seeded syllabus
+matched,Aaliya Doam,,Muhammad Sabir,Muhammad Sabir,False,False,Mishkat Sharif,Aliya Year 1,متن حدیث,مشکوٰۃ المصابیح,Book-level match
+matched,Aaliya Doam,,Muhammad Hakim Ali Shah,Muhammad Hakim Ali Shah,True,False,Muslim Sharif,Alamiya Year 2,حدیث,صحیح مسلم,Book-level match
+matched,Aaliya Doam,,Muhammad Mohsin,Muhammad Mohsin,True,False,Mustalah al-Hadith,Aliya Year 2,اصول حدیث,مصطلع الحدیث,Subject-level match
+matched,Aaliya Doam,,Ghulam Yaseen,Ghulam Yasin,True,True,Sunan Abi Dawud,Alamiya Year 2,حدیث,ابو داؤد + تعارف آئمۃالحدیث,Closest seeded Abu Dawud item
+matched,Aaliya Doam,,Muhammad Imran,Muhammad Imran,False,False,Tafsir & Usul-e-Tafsir,Aliya Year 2,تفسیر و اصول تفسیر,زبدۃ الاتقان | تفسیر بیضاوی,Mapped to seeded Tafsir & Usul-e-Tafsir group
+matched,Aaliya Doam,,Muhammad Mohsin,Muhammad Mohsin,True,False,Ilm-ur-Rijal,Alamiya Year 1,اسماء الرجال,الرفع والتکمیل فی الجرح وتعدیل,Subject belongs to Alamiya Year 1 in seeded syllabus
+matched,Aaliya Doam,,Muhammad Imran,Muhammad Imran,False,False,Islamic History,Aliya Year 2,تہذیب وثقافت,تاریخ تمدن اسلامی,Book-level match
+matched,Aaliya Awal,,Muhammad Hakim Ali Shah,Muhammad Hakim Ali Shah,True,False,Sharh Ma'ani al-Athar,Alamiya Year 1,حدیث,شرح معانی الآثار,Book-level match
+matched,Aaliya Awal,,Muhammad Aamir Sohail,Muhammad Amir Sohail,True,True,Ilm al-Kalam,Alamiya Year 1,علم الکلام,شرح عقائد النسفی,Mapped by subject family
+matched,Aaliya Awal,,Muhammad Hakim Ali Shah,Muhammad Hakim Ali Shah,True,False,Sharh Nukhbat al-Fikar,Alamiya Year 1,اصول حدیث,شرح نخبۃ الفکر,Book-level match
+matched,Aaliya Awal,,Muhammad Aamir Sohail,Muhammad Amir Sohail,True,True,Hidaya (Rab'e Aakhir),Alamiya Year 1,فقہ,ہدایہ ربع آخر,Book-level match
+matched,Aaliya Awal,,Muhammad Mohsin,Muhammad Mohsin,True,False,Islamic Banking,Alamiya Year 1,اسلامک مالیات/معاشیات,اسلامک بینکنگ کی بنیاد یں,Book-level match
+matched,Aaliya Awal,,Muhammad Mohsin,Muhammad Mohsin,True,False,Ilm-ur-Rijal,Alamiya Year 1,اسماء الرجال,الرفع والتکمیل فی الجرح وتعدیل,Subject belongs to Alamiya Year 1 in seeded syllabus
+matched,Khassa Doam,,Muhammad Imran,Muhammad Imran,False,False,Sharh Jami,Khassa Year 2,نحو,شرح جامی,Exact book match
+matched,Khassa Doam,,Muhammad Imran,Muhammad Imran,False,False,Nur al-Anwar / Al-Wajiz,Khassa Year 2,اصول فقہ,نور الانوار | الو جیر فی اصول الفقہ,Combined seeded books
+matched,Khassa Doam,,Ghulam Yaseen,Ghulam Yasin,True,True,Tafsir Jalalayn / Tarikh Hadith,Khassa Year 2,علوم القرآن,تفسیر جلالین | تاریخ حدیث وتفسیر,Combined seeded books
+matched,Khassa Doam,,Muhammad Sabir,Muhammad Sabir,False,False,Hidaya (Rab'e Awal),Khassa Year 2,فقہ,ہدایہ ربع اول,Exact book match
+matched,Khassa Doam,,Muhammad Ahmed,Muhammad Ahmed,False,False,Computer,Khassa Year 2,کمپیوٹر,Introduction to Computer,Book-level match
+matched,Khassa Doam,,Muhammad Aamir Sohail,Muhammad Amir Sohail,True,True,Balaghat ul Wadhiha,Khassa Year 2,بلاغت,بلاغۃ الواضحہ,Book-level match
+matched,Khassa Awal,,Muhammad Mohsin Bilal,Muhammad Mohsin Bilal,False,False,Fitna Inkar-e-Hadith,Khassa Year 1,ردِانکار حدیث,فتنہ انکار حدیث,Exact book match
+matched,Khassa Awal,,Muhammad Mohsin Bilal,Muhammad Mohsin Bilal,False,False,Radd-e-Ilhad,Khassa Year 1,ردِ الحاد,الحاد کے مسلم اور مغربی معاشروں پر اثرات | جدید الحاد اسباب اور سد باب,Mapped to seeded ilhad titles
+matched,Khassa Awal,,Muhammad Imran,Muhammad Imran,False,False,Al-Aqaid wal Masail,Khassa Year 1,عقائد,العقائد والمسائل,Exact book match
+matched,Khassa Awal,,Muhammad Imran,Muhammad Imran,False,False,Radd-e-Qadiyaniat / Radd-e-Rafziat,Khassa Year 1,ردقادنیت | ردِرافضیت,تبیان القرآن | ردالرفضہ,Mapped to two seeded refutation subjects
+matched,Khassa Awal,,Muhammad Hakim Ali Shah,Muhammad Hakim Ali Shah,True,False,Seerat Rasool Arabi,Khassa Year 1,سیرت,سیرت رسول عربی,Exact book match
+matched,Khassa Awal,,Muhammad Hakim Ali Shah,Muhammad Hakim Ali Shah,True,False,Tarikh-ul-Khulafa,Khassa Year 1,تاریخ,تاریخ الخلفاء,Exact book match
+matched,Aama English A,A,Muhammad Sabir,Muhammad Sabir,False,False,Sharh Miata Amil / Hidaya tun Nahw,Aamma Year 2 (English Language Foundation Course),نحو,شرح مائۃ عامل | ہدایۃ النحو,Combined seeded books
+matched,Aama English A,A,Ali Hasan,Ali Hasan,False,False,Science / Gen. Knowledge / Math II,Aamma Year 2 (English Language Foundation Course),سائنس | جنرل نالج | ریاضی,سائنس | جنرل نالج | ریاضیII,Combined seeded subjects
+matched,Aama English A,A,Muhammad Sadiq,Muhammad Sadiq,False,False,Whispering + Writing,Aamma Year 2 (English Language Foundation Course),انگلش,The Whispering pages | Writing,Combined seeded English books
+matched,Aama English A,A,Muhammad Sadiq,Muhammad Sadiq,False,False,Building Conversation,Aamma Year 2 (English Language Foundation Course),انگلش,Building Conversation,Exact book match
+matched,Aama English A,A,Muhammad Sadiq,Muhammad Sadiq,False,False,Grammar / Foundation Book 1,Aamma Year 2 (English Language Foundation Course),انگلش,Grammar,Grammar matched; Foundation Book 1 not explicit in seeded data
+matched,Aama English A,A,Muhammad Mohsin,Muhammad Mohsin,True,False,Ilm-us-Seegha / Khasiyat-e-Abwab,Aamma Year 2 (English Language Foundation Course),صرف,علم الصیغہ | خاصیات ابواب,Combined seeded books
+matched,Aama English A,A,Muhammad Aamir Sohail,Muhammad Amir Sohail,True,True,Nur al-Idah,Aamma Year 2 (English Language Foundation Course),فقہ,نورالایضاح,Book-level match
+matched,Aama English B,B,Muhammad Sadiq,Muhammad Sadiq,False,False,Grammar / Foundation Book 1,Aamma Year 2 (English Language Foundation Course),انگلش,Grammar,Grammar matched; Foundation Book 1 not explicit in seeded data
+matched,Aama English B,B,Muhammad Sadiq,Muhammad Sadiq,False,False,Whispering + Writing,Aamma Year 2 (English Language Foundation Course),انگلش,The Whispering pages | Writing,Combined seeded English books
+matched,Aama English B,B,Ali Hasan,Ali Hasan,False,False,Nur al-Idah,Aamma Year 2 (English Language Foundation Course),فقہ,نورالایضاح,Book-level match
+matched,Aama English B,B,Ali Hasan,Ali Hasan,False,False,Science / Gen. Knowledge / Math II,Aamma Year 2 (English Language Foundation Course),سائنس | جنرل نالج | ریاضی,سائنس | جنرل نالج | ریاضیII,Combined seeded subjects
+matched,Aama English B,B,Muhammad Sabir,Muhammad Sabir,False,False,Ilm-us-Seegha / Khasiyat-e-Abwab,Aamma Year 2 (English Language Foundation Course),صرف,علم الصیغہ | خاصیات ابواب,Combined seeded books
+matched,Aama English B,B,Muhammad Sabir,Muhammad Sabir,False,False,Sharh Miata Amil / Hidaya tun Nahw,Aamma Year 2 (English Language Foundation Course),نحو,شرح مائۃ عامل | ہدایۃ النحو,Combined seeded books
+matched,Pre-Arabic,,Muhammad Shuaib,Muhammad Shuaib,False,False,English,Pre Arabic,انگلش,انگلش 6th | Navigate Reading,Both English books exist in seeded syllabus
+matched,Pre-Arabic,,Ghulam Yaseen,Ghulam Yasin,True,True,Math,Pre Arabic,ریاضی,ریاضی 6th,Exact book family match
+matched,Pre-Arabic,,Muhammad Shuaib,Muhammad Shuaib,False,False,Urdu,Pre Arabic,اُردو,اُردو 6th,Exact book family match
+matched,Pre-Arabic,,Muhammad Zafar Iqbal,Muhammad Zafar Iqbal,True,False,Farsi Qaida,Pre Arabic,فارسی,فارسی قاعدہ,Exact book match
+matched,Pre-Arabic,,Muhammad Shuaib,Muhammad Shuaib,False,False,Arabic 6th,Pre Arabic,عربی,مطالعۃ العربیہ 6th,Book-level match
+matched,Pre-Arabic,,Ghulam Yaseen,Ghulam Yasin,True,True,Science,Pre Arabic,سائنس,سائنس 6th,Exact book family match
+matched,Aama Arabic - Section 1 & 2,1 & 2,Muhammad Azeem,Muhammad Azeem,True,False,Qurani Arabi,Aamma Year 1 (Arabic Language Foundation Course),قرآنی عربی,قرآنی عربی,Exact book match
+matched,Aama Arabic - Section 1 & 2,1 & 2,Asif Saeedi,Asif Saeedi,False,False,Hadith & Handwriting,Aamma Year 1 (Arabic Language Foundation Course),حدیث | تحسین الخط,حفظ الحدیث | تحسین الخط,Mapped to two seeded subjects
+matched,Aama Arabic - Section 1 & 2,1 & 2,Muhammad Azeem,Muhammad Azeem,True,False,Al-Arabiya lin-Nashi'een,Aamma Year 1 (Arabic Language Foundation Course),عربی,العربیہ للناشین | العربیہ للناشین جلد سوم,Book series match
+matched,Aama Arabic - Section 1 & 2,1 & 2,Asif Saeedi,Asif Saeedi,False,False,Al-Hiwarat al-Mufeeda,Aamma Year 1 (Arabic Language Foundation Course),عربی بول چال,الحوارات المفیدہ,Exact book match
+matched,Aama Arabic - Section 1 & 2,1 & 2,Muhammad Azeem,Muhammad Azeem,True,False,Duroos al-Mufeeda,Aamma Year 1 (Arabic Language Foundation Course),عربی,دروس المفیدہ,Exact book match
+matched,Aama Arabic - Section 1 & 2,1 & 2,Ali Hasan,Ali Hasan,False,False,Math + English,Aamma Year 1 (Arabic Language Foundation Course),ریاضی | انگلش,ریاضی | انگلش,Mapped to two seeded subjects
+matched,Aama Arabic - Section 1 & 2,1 & 2,Asif Saeedi,Asif Saeedi,False,False,Al-Qamoos al-Musawwar,Aamma Year 1 (Arabic Language Foundation Course),عربی,القاموس المصور,Exact book match

@@ -9,8 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <script src="../../js/pdf-snapshot.js"></script>
 </head>
 
 <body class="bg-light">
@@ -51,8 +50,6 @@
                         <h3 data-i18n="student_list">Student List</h3>
                         <div style="display: flex; gap: 0.5rem;">
                             <button class="btn-secondary" onclick="downloadStudentsPDF()" data-i18n="pdf">↓ PDF</button>
-                            <button class="btn-secondary" onclick="openModal('rollModal')"
-                                data-i18n="auto_assign_roll_no">Auto Assign Roll No</button>
                             <button class="btn-primary" onclick="openModal('studentModal')" style="width: auto;"
                                 data-i18n="add_student">+ Add
                                 Student</button>
@@ -102,6 +99,10 @@
                         <input type="text" name="lastName" required>
                     </div>
                     <div class="form-group">
+                        <label>Urdu Name (اردو نام)</label>
+                        <input type="text" name="name_ur">
+                    </div>
+                    <div class="form-group">
                         <label data-i18n="email_login_id">Email (Login ID)</label>
                         <input type="email" name="email" required>
                     </div>
@@ -144,38 +145,7 @@
         </div>
     </div>
 
-    <!-- Generate Roll Modal -->
-    <div id="rollModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 data-i18n="auto_assign_roll_numbers">Auto Assign Roll Numbers</h3>
-                <button class="close-btn" onclick="closeModal('rollModal')">&times;</button>
-            </div>
-            <p style="margin-bottom: 1rem; color: var(--text-light); font-size: 0.9rem;"
-                data-i18n="auto_assign_roll_desc">
-                This will sort all students in the selected class by name (A-Z) and assign roll numbers starting from
-                01.
-            </p>
-            <form onsubmit="handleGenerateRollNumbers(event)">
-                <div class="form-group">
-                    <label data-i18n="department">Department</label>
-                    <select id="rollDept" onchange="updateRollClasses()" required>
-                        <option value="" data-i18n="select_department">Select Department</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label data-i18n="class">Class</label>
-                    <select id="rollClass" name="className" required>
-                        <option value="" data-i18n="select_class">Select Class</option>
-                    </select>
-                </div>
-                <div style="margin-top: 1.5rem; text-align: right;">
-                    <button type="submit" class="btn-primary" style="width: 100%;"
-                        data-i18n="generate_roll_numbers">Generate Roll Numbers</button>
-                </div>
-            </form>
-        </div>
-    </div>
+
 
     <!-- Firebase Compat SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -213,7 +183,7 @@
                 snapshot.forEach(doc => {
                     const opt = document.createElement('option');
                     opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
+                    opt.innerText = doc.data().name_ur || doc.data().name;
                     select.appendChild(opt);
                 });
                 if (currentVal) select.value = currentVal;
@@ -231,10 +201,17 @@
 
             try {
                 const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                const seen = new Set();
                 snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (!data.name) return;
+                    const label = data.name_ur || data.name;
+                    if (seen.has(label)) return;
+                    seen.add(label);
+
                     const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
+                    opt.value = data.name;
+                    opt.innerText = label;
                     classSelect.appendChild(opt);
                 });
             } catch (error) {
@@ -247,8 +224,6 @@
             document.getElementById(id).classList.add('active');
             if (id === 'studentModal') {
                 loadDepartments();
-            } else if (id === 'rollModal') {
-                loadRollDepartments();
             }
         }
 
@@ -271,97 +246,10 @@
             document.querySelector('input[name="password"]').setAttribute('required', 'true');
             document.querySelector('input[name="email"]').removeAttribute('readonly');
 
-            if (document.querySelector('#rollModal form')) document.querySelector('#rollModal form').reset();
+
         }
 
-        // --- Roll Number Generation Logic ---
 
-        async function loadRollDepartments() {
-            const select = document.getElementById('rollDept');
-            select.innerHTML = `<option value="" data-i18n="select_department">${getTrans('select_department')}</option>`;
-            try {
-                const snapshot = await db.collection('departments').orderBy('name').get();
-                snapshot.forEach(doc => {
-                    const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
-                    select.appendChild(opt);
-                });
-            } catch (error) { console.error(error); }
-        }
-
-        async function updateRollClasses() {
-            const dept = document.getElementById('rollDept').value;
-            const select = document.getElementById('rollClass');
-            select.innerHTML = `<option value="" data-i18n="select_class">${getTrans('select_class')}</option>`;
-            if (!dept) return;
-
-            try {
-                const snapshot = await db.collection('classes').where('department', '==', dept).get();
-                snapshot.forEach(doc => {
-                    const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
-                    select.appendChild(opt);
-                });
-            } catch (error) { console.error(error); }
-        }
-
-        async function handleGenerateRollNumbers(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button');
-            const originalText = btn.innerText;
-            btn.innerText = getTrans('processing');
-            btn.disabled = true;
-
-            const className = document.getElementById('rollClass').value;
-            if (!className) return;
-
-            try {
-                // 1. Get all students in class
-                const snapshot = await db.collection('students').where('className', '==', className).get();
-                if (snapshot.empty) {
-                    alert('No students found in this class.');
-                    return;
-                }
-
-                // 2. Sort by Name (First + Last)
-                const students = [];
-                snapshot.forEach(doc => {
-                    students.push({ id: doc.id, ...doc.data() });
-                });
-
-                students.sort((a, b) => {
-                    const nameA = (a.firstName + ' ' + a.lastName).toLowerCase();
-                    const nameB = (b.firstName + ' ' + b.lastName).toLowerCase();
-                    return nameA.localeCompare(nameB);
-                });
-
-                // 3. Update Roll Numbers (Batch)
-                const batch = db.batch();
-                let count = 0;
-
-                students.forEach((student, index) => {
-                    const newRoll = (index + 1).toString().padStart(2, '0');
-                    const ref = db.collection('students').doc(student.id);
-                    batch.update(ref, { rollNumber: newRoll });
-                    count++;
-                });
-
-                await batch.commit();
-
-                alert(`Successfully assigned roll numbers for ${count} students.`);
-                closeModal('rollModal');
-                loadStudents();
-
-            } catch (error) {
-                console.error("Error generating roll numbers:", error);
-                alert("Error: " + error.message);
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
-            }
-        }
 
         // Add Student
         async function handleAddStudent(e) {
@@ -381,16 +269,13 @@
                     await db.collection("students").doc(docId).update({
                         firstName: data.firstName,
                         lastName: data.lastName,
+                        name_ur: data.name_ur || '',
                         // Email cannot be changed easily in Auth without re-auth, so we just update Firestore data if needed or keep it readonly
                         department: data.department,
                         className: data.className,
                         rollNumber: data.rollNumber,
                         parentName: data.parentName,
                         parentPhone: data.parentPhone
-                    });
-                    // Also update users collection if needed (for role/email sync)
-                    await db.collection("users").doc(docId).update({
-                        email: data.email
                     });
 
                     alert('Student updated successfully!');
@@ -412,6 +297,7 @@
                         uid: uid,
                         firstName: data.firstName,
                         lastName: data.lastName,
+                        name_ur: data.name_ur || '',
                         email: data.email,
                         department: data.department,
                         className: data.className,
@@ -419,6 +305,7 @@
                         parentName: data.parentName,
                         parentPhone: data.parentPhone,
                         role: 'student',
+                        tenantId: (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default'),
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
 
@@ -448,6 +335,7 @@
                 form.querySelector('input[name="docId"]').value = uid;
                 form.querySelector('input[name="firstName"]').value = s.firstName;
                 form.querySelector('input[name="lastName"]').value = s.lastName;
+                form.querySelector('input[name="name_ur"]').value = s.name_ur || '';
 
                 const emailInput = form.querySelector('input[name="email"]');
                 emailInput.value = s.email;
@@ -515,9 +403,45 @@
                     const s = doc.data() || {};
                     const firstName = s.firstName || '';
                     const lastName = s.lastName || '';
-                    const name = `${firstName} ${lastName}`.trim() || (s.email || doc.id);
-                    const dept = s.department || '';
-                    const cls = s.className || '';
+                    const name = s.name_ur || `${firstName} ${lastName}`.trim() || (s.email || doc.id);
+
+                    // Prefer Urdu names for class and department
+                    const displayClass = s.className_ur || (function () {
+                        const classUrdu = {
+                            "Aamma Year 1": "عامہ سال اول",
+                            "Aamma Year 2": "عامہ سال دوم",
+                            "Khassa Year 1": "خاصہ سال اول",
+                            "Khassa Year 2": "خاصہ سال دوم",
+                            "Aliya Year 1": "عالیہ سال اول",
+                            "Aliya Year 2": "عالیہ سال دوم",
+                            "Alamiya Year 1": "عالمیہ سال اول",
+                            "Alamiya Year 2": "عالمیہ سال دوم",
+                            "Aamma Year 1 (Arabic Language Foundation Course)": "عامہ سال اول (عریبک لینگوئج کورس)",
+                            "Aamma Year 2 (English Language Foundation Course)": "عامہ سال دوم (انگلش لینگوئج کورس)",
+                            "Hifz Class": "حفظ کلاس",
+                            "Abee Bin Kaab": "ابی بن کعب",
+                            "Zaid Bin Sabit": "زید بن ثابت",
+                            "Abdullah Bin Abbas": "عبداللہ بن عباس",
+                            "Abdullah Bin Masood": "عبداللہ بن مسعود",
+                            "Osman Ghani": "عثمان غنی",
+                            "Musab Bin Omair": "مصعب بن عمیر",
+                            "Abu Bakar Siddique": "ابوبکر صدیق",
+                            "Amer Bin Khatab": "عمر بن خطاب",
+                            "Naseerah Murseed": "نصیرہ مرشد",
+                            "Tajweed Class 1st year": "تجوید کلاس سال اول",
+                            "Tajweed Class 2nd year": "تجوید کلاس سال دوم",
+                            "Class 1st year": "تجوید کلاس سال اول",
+                            "Class 2nd year": "تجوید کلاس سال دوم"
+                        };
+                        return classUrdu[s.className] || s.className || '';
+                    })();
+
+                    const deptUrdu = {
+                        "Dars-e-Nizami Department": "شعبہ درس نظامی",
+                        "Hifz Department": "شعبہ تحفیظ القرآن",
+                        "Tajweed Department": "شعبہ تجوید و قرأت"
+                    };
+                    const displayDept = s.department_ur || deptUrdu[s.department] || s.department || '';
                     const roll = s.rollNumber || '';
                     const parent = s.parentName || '';
 
@@ -525,13 +449,13 @@
                         <tr>
                             <td>${name}</td>
                             <td>${roll}</td>
-                            <td>${cls}</td>
-                            <td>${dept}</td>
+                            <td>${displayClass}</td>
+                            <td>${displayDept}</td>
                             <td>${parent}</td>
                             <td>
                                 <div style="display:flex;gap:0.5rem;">
-                                    <button onclick="editStudent('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="edit">Edit</button>
-                                    <button onclick="deleteStudent('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">Delete</button>
+                                    <button onclick="editStudent('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="edit">${getTrans('edit')}</button>
+                                    <button onclick="deleteStudent('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
                                 </div>
                             </td>
                         </tr>
@@ -551,33 +475,40 @@
         }
 
         async function downloadStudentsPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            const startY = (typeof applyPdfBranding === 'function')
-                ? await applyPdfBranding(doc, { title: 'Students List' })
-                : 30;
-
-            const rows = [];
-            document.querySelectorAll('#studentsTableBody tr').forEach(tr => {
+            const table = document.createElement('table');
+            table.className = 'data-table';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Roll No</th>
+                        <th>Class</th>
+                        <th>Department</th>
+                        <th>Parent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${Array.from(document.querySelectorAll('#studentsTableBody tr')).map(tr => {
                 const tds = tr.querySelectorAll('td');
-                if (tds.length > 1) {
-                    const name = tds[0].innerText.trim();
-                    const roll = tds[1].innerText.trim();
-                    const cls = tds[2].innerText.trim();
-                    const dept = tds[3].innerText.trim();
-                    const parent = tds[4].innerText.trim();
-                    rows.push([name, roll, cls, dept, parent]);
-                }
-            });
+                if (tds.length < 5) return '';
+                return `
+                            <tr>
+                                <td>${tds[0].innerText}</td>
+                                <td>${tds[1].innerText}</td>
+                                <td>${tds[2].innerText}</td>
+                                <td>${tds[3].innerText}</td>
+                                <td>${tds[4].innerText}</td>
+                            </tr>
+                        `;
+            }).join('')}
+                </tbody>
+            `;
 
-            doc.autoTable({
-                head: [['Name', 'Roll No', 'Class', 'Department', 'Parent']],
-                body: rows,
-                startY
+            window.PDFSnapshot.generate({
+                title: getTrans('students_report'),
+                content: table.outerHTML,
+                orientation: 'landscape'
             });
-
-            doc.save('students.pdf');
         }
 
         // Initial Load

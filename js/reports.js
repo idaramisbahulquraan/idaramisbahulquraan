@@ -1,5 +1,5 @@
 
-const { jsPDF } = window.jspdf;
+
 
 let feeTrendChartInstance = null;
 let studentChartInstance = null;
@@ -272,12 +272,40 @@ async function getStudentDistributionData() {
         }
     }
 
+    const classUrdu = {
+        "Aamma Year 1": "عامہ سال اول",
+        "Aamma Year 2": "عامہ سال دوم",
+        "Khassa Year 1": "خاصہ سال اول",
+        "Khassa Year 2": "خاصہ سال دوم",
+        "Aliya Year 1": "عالیہ سال اول",
+        "Aliya Year 2": "عالیہ سال دوم",
+        "Alamiya Year 1": "عالمیہ سال اول",
+        "Alamiya Year 2": "عالمیہ سال دوم",
+        "Aamma Year 1 (Arabic Language Foundation Course)": "عامہ سال اول (عریبک لینگوئج کورس)",
+        "Aamma Year 2 (English Language Foundation Course)": "عامہ سال دوم (انگلش لینگوئج کورس)",
+        "Hifz Class": "حفظ کلاس",
+        "Abee Bin Kaab": "ابی بن کعب",
+        "Zaid Bin Sabit": "زید بن ثابت",
+        "Abdullah Bin Abbas": "عبداللہ بن عباس",
+        "Abdullah Bin Masood": "عبداللہ بن مسعود",
+        "Osman Ghani": "عثمان غنی",
+        "Musab Bin Omair": "مصعب بن عمیر",
+        "Abu Bakar Siddique": "ابوبکر صدیق",
+        "Amer Bin Khatab": "عمر بن خطاب",
+        "Naseerah Murseed": "نصیرہ مرشد",
+        "Tajweed Class 1st year": "تجوید کلاس سال اول",
+        "Tajweed Class 2nd year": "تجوید کلاس سال دوم",
+        "Class 1st year": "تجوید کلاس سال اول",
+        "Class 2nd year": "تجوید کلاس سال دوم"
+    };
+
     const classCounts = {};
     docs.forEach(doc => {
         const s = doc.data() || {};
         if (!isInTenant(s, tenantId)) return;
-        const cls = s.className || s.admissionClass || 'Unknown';
-        classCounts[cls] = (classCounts[cls] || 0) + 1;
+        const clsRaw = s.className || s.admissionClass || 'Unknown';
+        const clsUrduName = s.className_ur || classUrdu[clsRaw] || clsRaw;
+        classCounts[clsUrduName] = (classCounts[clsUrduName] || 0) + 1;
     });
 
     const labels = Object.keys(classCounts).sort((a, b) => a.localeCompare(b));
@@ -456,7 +484,35 @@ async function renderCohortPerformance() {
 
         if (sumTot <= 0) return;
 
-        const className = g.className || 'Unknown';
+        const classUrdu = {
+            "Aamma Year 1": "عامہ سال اول",
+            "Aamma Year 2": "عامہ سال دوم",
+            "Khassa Year 1": "خاصہ سال اول",
+            "Khassa Year 2": "خاصہ سال دوم",
+            "Aliya Year 1": "عالیہ سال اول",
+            "Aliya Year 2": "عالیہ سال دوم",
+            "Alamiya Year 1": "عالمیہ سال اول",
+            "Alamiya Year 2": "عالمیہ سال دوم",
+            "Aamma Year 1 (Arabic Language Foundation Course)": "عامہ سال اول (عریبک لینگوئج کورس)",
+            "Aamma Year 2 (English Language Foundation Course)": "عامہ سال دوم (انگلش لینگوئج کورس)",
+            "Hifz Class": "حفظ کلاس",
+            "Abee Bin Kaab": "ابی بن کعب",
+            "Zaid Bin Sabit": "زید بن ثابت",
+            "Abdullah Bin Abbas": "عبداللہ بن عباس",
+            "Abdullah Bin Masood": "عبداللہ بن مسعود",
+            "Osman Ghani": "عثمان غنی",
+            "Musab Bin Omair": "مصعب بن عمیر",
+            "Abu Bakar Siddique": "ابوبکر صدیق",
+            "Amer Bin Khatab": "عمر بن خطاب",
+            "Naseerah Murseed": "نصیرہ مرشد",
+            "Tajweed Class 1st year": "تجوید کلاس سال اول",
+            "Tajweed Class 2nd year": "تجوید کلاس سال دوم",
+            "Class 1st year": "تجوید کلاس سال اول",
+            "Class 2nd year": "تجوید کلاس سال دوم"
+        };
+        const rawClassName = g.className || 'Unknown';
+        const className = g.className_ur || classUrdu[rawClassName] || rawClassName;
+
         const existing = aggByClass.get(className) || { obtained: 0, total: 0, exams: 0 };
         existing.obtained += sumObt;
         existing.total += sumTot;
@@ -498,7 +554,7 @@ async function renderCohortPerformance() {
 
     if (meta) {
         const top = rows[0];
-        meta.innerText = `Based on up to ${Math.min(200, gradeDocs.length)} grade documents. Top: ${top.className} (${top.pct}%).`;
+        meta.innerText = `Based on up to ${Math.min(200, gradeDocs.length)} grade documents. Top: ${(typeof getClassDisplayName === 'function') ? getClassDisplayName(top.className || '', top.className_ur || '') : (top.className_ur || top.className || '')} (${top.pct}%).`;
     }
 }
 
@@ -738,10 +794,39 @@ async function loadRiskWatchlist() {
 
         const riskScore = (0.55 * arrearsScore) + (0.35 * attendanceScore) + (0.10 * overdueScore);
 
+        const classUrdu = {
+            "Aamma Year 1": "عامہ سال اول",
+            "Aamma Year 2": "عامہ سال دوم",
+            "Khassa Year 1": "خاصہ سال اول",
+            "Khassa Year 2": "خاصہ سال دوم",
+            "Aliya Year 1": "عالیہ سال اول",
+            "Aliya Year 2": "عالیہ سال دوم",
+            "Alamiya Year 1": "عالمیہ سال اول",
+            "Alamiya Year 2": "عالمیہ سال دوم",
+            "Aamma Year 1 (Arabic Language Foundation Course)": "عامہ سال اول (عریبک لینگوئج کورس)",
+            "Aamma Year 2 (English Language Foundation Course)": "عامہ سال دوم (انگلش لینگوئج کورس)",
+            "Hifz Class": "حفظ کلاس",
+            "Abee Bin Kaab": "ابی بن کعب",
+            "Zaid Bin Sabit": "زید بن ثابت",
+            "Abdullah Bin Abbas": "عبداللہ بن عباس",
+            "Abdullah Bin Masood": "عبداللہ بن مسعود",
+            "Osman Ghani": "عثمان غنی",
+            "Musab Bin Omair": "مصعب بن عمیر",
+            "Abu Bakar Siddique": "ابوبکر صدیق",
+            "Amer Bin Khatab": "عمر بن خطاب",
+            "Naseerah Murseed": "نصیرہ مرشد",
+            "Tajweed Class 1st year": "تجوید کلاس سال اول",
+            "Tajweed Class 2nd year": "تجوید کلاس سال دوم",
+            "Class 1st year": "تجوید کلاس سال اول",
+            "Class 2nd year": "تجوید کلاس سال دوم"
+        };
+        const rawCls = s.className || '-';
+        const className = s.className_ur || classUrdu[rawCls] || rawCls;
+
         rows.push({
             sid,
-            name: `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name || sid,
-            className: s.className || '-',
+            name: s.name_ur || `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name || sid,
+            className: className,
             arrears: Math.round(arrears * 100) / 100,
             overdueCount,
             attendanceRate,
@@ -775,7 +860,7 @@ async function loadRiskWatchlist() {
         return `
             <tr>
                 <td>${r.name}</td>
-                <td>${r.className}</td>
+                <td>${(typeof getClassDisplayName === 'function') ? getClassDisplayName(r.className || '', r.className_ur || '') : (r.className_ur || r.className || '')}</td>
                 <td>${r.arrears.toLocaleString()}</td>
                 <td>${r.overdueCount}</td>
                 <td>${attPct}</td>
@@ -851,22 +936,54 @@ async function fetchStudentData() {
     const classFilter = document.getElementById('studentClassFilter').value;
     const snapshot = await db.collection('students').orderBy('firstName').get();
 
+    const classUrdu = {
+        "Aamma Year 1": "عامہ سال اول",
+        "Aamma Year 2": "عامہ سال دوم",
+        "Khassa Year 1": "خاصہ سال اول",
+        "Khassa Year 2": "خاصہ سال دوم",
+        "Aliya Year 1": "عالیہ سال اول",
+        "Aliya Year 2": "عالیہ سال دوم",
+        "Alamiya Year 1": "عالمیہ سال اول",
+        "Alamiya Year 2": "عالمیہ سال دوم",
+        "Aamma Year 1 (Arabic Language Foundation Course)": "عامہ سال اول (عریبک لینگوئج کورس)",
+        "Aamma Year 2 (English Language Foundation Course)": "عامہ سال دوم (انگلش لینگوئج کورس)",
+        "Hifz Class": "حفظ کلاس",
+        "Abee Bin Kaab": "ابی بن کعب",
+        "Zaid Bin Sabit": "زید بن ثابت",
+        "Abdullah Bin Abbas": "عبداللہ بن عباس",
+        "Abdullah Bin Masood": "عبداللہ بن مسعود",
+        "Osman Ghani": "عثمان غنی",
+        "Musab Bin Omair": "مصعب بن عمیر",
+        "Abu Bakar Siddique": "ابوبکر صدیق",
+        "Amer Bin Khatab": "عمر بن خطاب",
+        "Naseerah Murseed": "نصیرہ مرشد",
+        "Tajweed Class 1st year": "تجوید کلاس سال اول",
+        "Tajweed Class 2nd year": "تجوید کلاس سال دوم",
+        "Class 1st year": "تجوید کلاس سال اول",
+        "Class 2nd year": "تجوید کلاس سال دوم"
+    };
+
     const data = [];
     snapshot.forEach(d => {
         const s = d.data();
         if (classFilter && s.className !== classFilter) return;
 
+        const displayClass = s.className_ur || classUrdu[s.className] || s.className || '-';
+
         data.push({
-            'Name': `${s.firstName || ''} ${s.lastName || ''}`.trim(),
+            'Name': s.name_ur || `${s.firstName || ''} ${s.lastName || ''}`.trim(),
             'Roll No': s.rollNumber || '-',
             'Father Name': s.parentName || '-',
-            'Class': s.className || '-',
+            'Class': displayClass,
             'Phone': s.parentPhone || s.phone || '-'
         });
     });
 
     let title = 'Student Report';
-    if (classFilter) title += ` - Class ${classFilter}`;
+    if (classFilter) {
+        const titleClass = classUrdu[classFilter] || classFilter;
+        title += ` - Class ${titleClass}`;
+    }
 
     return {
         data,
@@ -984,121 +1101,30 @@ async function fetchFinanceData() {
 // ==========================================
 
 async function generatePDF(data, columns, title) {
-    const doc = new jsPDF();
+    const tableElement = document.createElement('table');
+    tableElement.className = 'data-table';
 
-    // Header
-    const headerY = await addHeader(doc, title);
-    const startY = (headerY || 45) + 3;
-
-    // Transform data to array of arrays for autoTable
-    const body = data.map(obj => columns.map(col => obj[col]));
-
-    doc.autoTable({
-        startY,
-        head: [columns],
-        body: body,
-        theme: 'striped',
-        styles: { fontSize: 9 },
-        headStyles: { fillColor: (doc.__brandPrimaryRgb || (typeof getBrandPrimaryRgb === 'function' ? getBrandPrimaryRgb() : [44, 62, 80])) },
-        margin: { top: startY }
+    let thead = '<thead><tr>';
+    columns.forEach(col => {
+        thead += `<th>${col}</th>`;
     });
+    thead += '</tr></thead>';
 
-    addFooter(doc);
-    doc.save(`${title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
-}
-
-function generateExcel(data, columns, title) {
-    // data is already an array of objects which SheetJS likes
-    // But we want to ensure column order
-    const orderedData = data.map(obj => {
-        const newObj = {};
-        columns.forEach(col => newObj[col] = obj[col]);
-        return newObj;
-    });
-
-    const worksheet = XLSX.utils.json_to_sheet(orderedData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-
-    XLSX.writeFile(workbook, `${title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
-}
-
-function generateCSV(data, columns, title) {
-    const escapeCsv = (v) => {
-        const s = v === null || v === undefined ? '' : String(v);
-        if (/[",\n\r]/.test(s)) return `"${s.replace(/\"/g, '\"\"')}"`;
-        return s;
-    };
-
-    const lines = [];
-    lines.push(columns.map(escapeCsv).join(','));
-    data.forEach(obj => {
-        lines.push(columns.map(col => escapeCsv(obj[col])).join(','));
-    });
-
-    const csv = '\uFEFF' + lines.join('\n'); // BOM for Excel compatibility
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
-// ==========================================
-// UTILS
-// ==========================================
-
-async function addHeader(doc, title) {
-    try {
-        if (typeof applyPdfBranding === 'function') {
-            return await applyPdfBranding(doc, { title });
-        }
-    } catch (e) { /* ignore */ }
-
-    try {
-        const img = new Image();
-        img.src = '../../assets/logo.png';
-        await new Promise((resolve) => {
-            img.onload = resolve;
-            img.onerror = resolve;
+    let tbody = '<tbody>';
+    data.forEach(item => {
+        tbody += '<tr>';
+        columns.forEach(col => {
+            const val = item[col];
+            tbody += `<td>${val !== null && val !== undefined ? String(val) : ''}</td>`;
         });
-        if (img.naturalWidth > 0) {
-            doc.addImage(img, 'PNG', 14, 10, 20, 20);
-        }
-    } catch (e) { console.warn("Logo error", e); }
+        tbody += '</tr>';
+    });
+    tbody += '</tbody>';
 
-    doc.setFontSize(18);
-    doc.text("Idara Misbah ul Quran", 40, 20);
+    tableElement.innerHTML = thead + tbody;
 
-    doc.setFontSize(12);
-    doc.text(title, 40, 28);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 40, 34);
-
-    doc.setLineWidth(0.5);
-    doc.line(14, 40, 196, 40);
-    return 45;
-}
-
-function addFooter(doc) {
-    const pageCount = doc.internal.getNumberOfPages();
-    let footerLeft = 'Idara Misbah ul Quran - Confidential';
-    try {
-        if (typeof getSchoolBranding === 'function') {
-            const b = getSchoolBranding() || {};
-            const name = String(b.name || '').trim();
-            const extra = String(b.pdfFooterText || '').trim();
-            footerLeft = name ? (extra ? `${name} - ${extra}` : `${name} - Confidential`) : footerLeft;
-        }
-    } catch (e) { /* ignore */ }
-
-    for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(10);
-        doc.text('Page ' + i + ' of ' + pageCount, 196, 290, { align: 'right' });
-        doc.text(footerLeft, 14, 290);
-    }
+    window.PDFSnapshot.generate({
+        title: title,
+        content: tableElement.outerHTML
+    });
 }

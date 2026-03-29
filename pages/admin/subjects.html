@@ -9,8 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <script src="../../js/pdf-snapshot.js"></script>
     <style>
         .page-header {
             display: flex;
@@ -125,7 +124,8 @@
         }
 
         .form-group input,
-        .form-group select {
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid var(--border-color);
@@ -181,7 +181,8 @@
             <div class="dashboard-content">
 
                 <div class="page-header">
-                    <h2 style="font-size: 1.25rem; font-weight: 600;" data-i18n="subjects_teacher_allocation">Subjects &
+                    <h2 style="font-size: 1.25rem; font-weight: 600;" data-i18n="subjects_teacher_allocation">
+                        Subjects &
                         Teacher Allocation</h2>
                     <div style="display: flex; gap: 0.5rem;">
                         <button class="btn-add" onclick="downloadSubjectsPDF()"
@@ -246,13 +247,68 @@
                 </div>
                 <div class="form-group">
                     <label data-i18n="class">Class</label>
-                    <select name="className" id="subjectClassSelect" required>
+                    <select name="className" id="subjectClassSelect" onchange="loadExistingSubjectsForDropdown()"
+                        required>
                         <option value="" data-i18n="select_class">Select Class</option>
                     </select>
+                </div>
+
+                <div class="form-group" id="existingSubjectGroup">
+                    <label data-i18n="existing_subject_optional">Select Existing Subject (Optional)</label>
+                    <select id="existingSubjectSelect" onchange="onExistingSubjectSelect()">
+                        <option value="" data-i18n="new_subject">-- New Subject --</option>
+                    </select>
+                    <small style="color:var(--text-light); display:block; margin-top:2px;"
+                        data-i18n="existing_subject_hint">Select to add parts to an existing subject</small>
                 </div>
                 <div class="form-group">
                     <label data-i18n="subject_name">Subject Name</label>
                     <input type="text" name="name" required placeholder="e.g. Fiqh">
+                </div>
+                <div class="form-group">
+                    <label>Urdu Name (اردو نام)</label>
+                    <input type="text" name="name_ur">
+                </div>
+                <div class="form-group">
+                    <label>Term</label>
+                    <select name="term">
+                        <option value="Annual">Annual</option>
+                        <option value="Foundation Course">Foundation Course</option>
+                        <option value="First Term">First Term</option>
+                        <option value="Second Term">Second Term</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Book</label>
+                    <input type="text" name="book" placeholder="e.g. Al-Hidayah">
+                </div>
+                <div class="form-group">
+                    <label>Author/Publisher</label>
+                    <input type="text" name="authorPublisher" placeholder="e.g. امام ابو حنیفہ / دارالاشاعت">
+                </div>
+                <div class="form-group">
+                    <label>Details</label>
+                    <textarea name="description" rows="3" placeholder="e.g. Selected chapters"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label style="display:flex; align-items:center; cursor:pointer;">
+                        <input type="checkbox" id="hasPartsCheckbox" name="hasParts" onchange="togglePartsSection()"
+                            style="width:auto; margin-right:0.5rem;">
+                        <span data-i18n="has_sub_parts">Has Sub-Parts?</span>
+                    </label>
+                </div>
+
+                <div id="partsSection"
+                    style="display:none; margin-bottom:1rem; padding:1rem; background:#f8fafc; border-radius:0.5rem; border:1px solid var(--border-color);">
+                    <label style="margin-bottom:0.5rem; display:block; font-weight:500;"
+                        data-i18n="sub_parts">Sub-Parts</label>
+                    <div id="partsList">
+                        <!-- Dynamic Inputs -->
+                    </div>
+                    <button type="button" onclick="addPartInput()" class="btn-sm"
+                        style="margin-top:0.5rem; background:var(--secondary-color); color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;"
+                        data-i18n="add_part">+ Add Part</button>
                 </div>
                 <div class="form-group">
                     <label data-i18n="assign_teacher_optional">Assign Teacher (Optional)</label>
@@ -272,468 +328,511 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    }
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
 
-    .modal.active {
-    display: flex;
-    }
+    <script>
+        // Modal Logic
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            if (id === 'subjectModal') {
+                loadDepartmentsForSelect('subjectDepartmentSelect');
+                loadTeachersForSelect();
+            }
+        }
 
-    .modal-content {
-    background-color: var(--white);
-    padding: 2rem;
-    border-radius: 1rem;
-    width: 100%;
-    max-width: 500px;
-    box-shadow: var(--shadow-lg);
-    }
-
-    .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    }
-
-    .close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--text-light);
-    }
-
-    .form-group {
-    margin-bottom: 1rem;
-    }
-
-    .form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    }
-
-    .form-group input,
-    .form-group select {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    }
-
-    .filters {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    }
-
-    .filters select {
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.25rem;
-    background: var(--white);
-    }
-    </style>
-    </head>
-
-    <body class="bg-light">
-        <div class="dashboard-layout">
-            <!-- Sidebar -->
-            <aside class="sidebar">
-                <div class="sidebar-header">
-                    <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
-                    <h2>Idara Misbah ul Quran</h2>
-                </div>
-                <nav class="sidebar-nav" id="sidebarNav">
-                    <!-- Links rendered by JS -->
-                </nav>
-            </aside>
-
-            <!-- Main Content -->
-            <main class="main-content">
-                <header class="header">
-                    <div class="page-title">
-                        <h1 data-i18n="subjects_management">Subjects Management</h1>
-                    </div>
-                    <div class="header-actions">
-                        <div class="user-profile">
-                            <div class="user-info">
-                                <p id="userName" style="font-weight: 600;">User</p>
-                                <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
-                            </div>
-                            <div class="avatar">U</div>
-                        </div>
-                    </div>
-                </header>
-
-                <!-- Page Content -->
-                <div class="dashboard-content">
-
-                    <div class="page-header">
-                        <h2 style="font-size: 1.25rem; font-weight: 600;" data-i18n="subjects_teacher_allocation">
-                            Subjects &
-                            Teacher Allocation</h2>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button class="btn-add" onclick="downloadSubjectsPDF()"
-                                style="background-color: var(--secondary-color); border: none; cursor: pointer;">
-                                <span>↓</span> <span data-i18n="pdf">PDF</span>
-                            </button>
-                            <button onclick="openModal('subjectModal')" class="btn-add">
-                                <span>+</span> <span data-i18n="add_subject">Add Subject</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="filters">
-                        <select id="subjectFilterDept" onchange="updateSubjectFilterClasses()">
-                            <option value="" data-i18n="all_departments">All Departments</option>
-                        </select>
-                        <select id="subjectFilterClass" onchange="loadSubjects()">
-                            <option value="" data-i18n="all_classes">All Classes</option>
-                        </select>
-                    </div>
-
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th data-i18n="subject_name">Subject Name</th>
-                                    <th data-i18n="class">Class</th>
-                                    <th data-i18n="department">Department</th>
-                                    <th data-i18n="assigned_teacher">Assigned Teacher</th>
-                                    <th data-i18n="actions">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="subjectsList">
-                                <tr>
-                                    <td colspan="5" style="text-align:center; padding: 2rem;">Loading...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
-            </main>
-        </div>
-
-        <!-- Modals -->
-
-        <!-- Add Subject Modal -->
-        <div id="subjectModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 id="subjectModalTitle" data-i18n="add_subject_allocate">Add Subject & Allocate Teacher</h3>
-                    <button class="close-btn" onclick="closeModal('subjectModal')">&times;</button>
-                </div>
-                <form id="addSubjectForm">
-                    <input type="hidden" name="docId">
-                    <div class="form-group">
-                        <label data-i18n="department">Department</label>
-                        <select name="departmentId" id="subjectDepartmentSelect" onchange="updateSubjectModalClasses()"
-                            required>
-                            <option value="" data-i18n="select_department">Select Department</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="class">Class</label>
-                        <select name="className" id="subjectClassSelect" required>
-                            <option value="" data-i18n="select_class">Select Class</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="subject_name">Subject Name</label>
-                        <input type="text" name="name" required placeholder="e.g. Fiqh">
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="assign_teacher_optional">Assign Teacher (Optional)</label>
-                        <select name="teacherId" id="subjectTeacherSelect">
-                            <option value="" data-i18n="select_teacher">Select Teacher</option>
-                        </select>
-                    </div>
-                    <div style="text-align: right; margin-top: 1.5rem;">
-                        <button type="submit" class="btn-add" style="border:none;"
-                            data-i18n="save_subject">Save</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Firebase Compat SDK -->
-        <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-        <!-- App Scripts -->
-        <script src="../../js/firebase-config.js"></script>
-        <script src="../../js/translations.js"></script>
-        <script src="../../js/script.js"></script>
-
-        <script>
-            // Modal Logic
-            function openModal(id) {
-                document.getElementById(id).classList.add('active');
-                if (id === 'subjectModal') {
-                    loadDepartmentsForSelect('subjectDepartmentSelect');
-                    loadTeachersForSelect();
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            const form = document.getElementById(id).querySelector('form');
+            if (form) {
+                form.reset();
+                if (form.querySelector('input[name="docId"]')) {
+                    form.querySelector('input[name="docId"]').value = '';
                 }
             }
+            if (id === 'subjectModal') {
+                document.getElementById('subjectModalTitle').textContent = getTrans('add_subject_allocate');
+                document.getElementById('subjectModalTitle').setAttribute('data-i18n', 'add_subject_allocate');
+            }
+        }
 
-            function closeModal(id) {
-                document.getElementById(id).classList.remove('active');
-                const form = document.getElementById(id).querySelector('form');
-                if (form) {
-                    form.reset();
-                    if (form.querySelector('input[name="docId"]')) {
-                        form.querySelector('input[name="docId"]').value = '';
-                    }
-                }
-                if (id === 'subjectModal') {
-                    document.getElementById('subjectModalTitle').textContent = getTrans('add_subject_allocate');
-                    document.getElementById('subjectModalTitle').setAttribute('data-i18n', 'add_subject_allocate');
-                }
+        // --- Subjects ---
+        async function loadSubjects() {
+            const tbody = document.getElementById('subjectsList');
+            const filterDept = document.getElementById('subjectFilterDept').value;
+            const filterClass = document.getElementById('subjectFilterClass').value;
+
+            if (!tbody.innerHTML.trim() || tbody.innerHTML.includes('Loading')) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem;">${getTrans('loading')}...</td></tr>`;
             }
 
-            // --- Subjects ---
-            async function loadSubjects() {
-                const tbody = document.getElementById('subjectsList');
-                const filterDept = document.getElementById('subjectFilterDept').value;
-                const filterClass = document.getElementById('subjectFilterClass').value;
+            try {
+                const snapshot = await db.collection('subjects').orderBy('name').get();
 
-                if (!tbody.innerHTML.trim() || tbody.innerHTML.includes('Loading')) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem;">${getTrans('loading')}...</td></tr>`;
-                }
+                let html = '';
+                let count = 0;
+                const subjects = [];
 
-                try {
-                    const snapshot = await db.collection('subjects').orderBy('name').get();
-
-                    let html = '';
-                    let count = 0;
-
-                    snapshot.forEach(doc => {
-                        const s = doc.data();
-                        if (filterDept && s.department !== filterDept) return;
-                        if (filterClass && s.className !== filterClass) return;
-
-                        count++;
-                        html += `
-                        <tr>
-                            <td style="font-weight: 500;">${s.name}</td>
-                            <td>${s.className}</td>
-                            <td>${s.department}</td>
-                            <td>${s.teacherName || '<span style="color:var(--text-light); font-style:italic;">Unassigned</span>'}</td>
-                            <td>
-                                <button onclick="editSubject('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">${getTrans('edit')}</button>
-                                <button onclick="deleteSubject('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
-                            </td>
-                        </tr>
-                    `;
-                    });
-
-                    if (count === 0) {
-                        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem;">${getTrans('no_subjects_found')}</td></tr>`;
-                    } else {
-                        tbody.innerHTML = html;
-                        updatePageLanguage();
-                    }
-                } catch (error) {
-                    console.error("Error loading subjects:", error);
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error: ${error.message}</td></tr>`;
-                }
-            }
-
-            async function handleAddSubject(e) {
-                e.preventDefault();
-                const btn = e.target.querySelector('button');
-                const originalText = btn.innerText;
-                btn.disabled = true;
-                btn.innerText = getTrans('saving');
-
-                const formData = new FormData(e.target);
-                const name = formData.get('name');
-                const department = formData.get('departmentId');
-                const className = formData.get('className');
-                const teacherId = formData.get('teacherId');
-                const docId = formData.get('docId');
-
-                let teacherName = '';
-                if (teacherId) {
-                    const select = document.getElementById('subjectTeacherSelect');
-                    teacherName = select.options[select.selectedIndex].text;
-                }
-
-                try {
-                    const data = { name, department, className, teacherId, teacherName };
-                    if (docId) {
-                        await db.collection('subjects').doc(docId).update(data);
-                    } else {
-                        data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                        await db.collection('subjects').add(data);
-                    }
-                    closeModal('subjectModal');
-                    loadSubjects();
-                } catch (error) {
-                    alert(error.message);
-                } finally {
-                    btn.disabled = false;
-                    btn.innerText = originalText;
-                }
-            }
-
-            async function editSubject(id) {
-                try {
-                    const doc = await db.collection('subjects').doc(id).get();
-                    if (!doc.exists) return;
+                snapshot.forEach(doc => {
                     const s = doc.data();
+                    if (filterDept && s.department !== filterDept) return;
+                    if (filterClass && s.className !== filterClass) return;
 
-                    document.querySelector('#subjectModal input[name="docId"]').value = id;
-                    document.querySelector('#subjectModal input[name="name"]').value = s.name;
+                    subjects.push({ id: doc.id, ...s });
+                });
 
-                    await loadDepartmentsForSelect('subjectDepartmentSelect');
-                    document.querySelector('#subjectModal select[name="departmentId"]').value = s.department;
+                subjects.sort((a, b) => {
+                    const aLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(a) : (a.name_ur || a.name || '');
+                    const bLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(b) : (b.name_ur || b.name || '');
+                    return aLabel.localeCompare(bLabel);
+                });
 
-                    await updateSubjectModalClasses();
-                    document.querySelector('#subjectModal select[name="className"]').value = s.className;
+                subjects.forEach(s => {
+                    const displayName = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(s) : (s.name_ur || s.name);
+                    const displayClass = s.className_ur || s.className;
+                    const displayDept = s.department_ur || s.department;
+                    const displayTeacher = s.teacherName || '<span style="color:var(--text-light); font-style:italic;">غیر تفویض</span>';
 
-                    await loadTeachersForSelect();
-                    document.querySelector('#subjectModal select[name="teacherId"]').value = s.teacherId || '';
+                    count++;
+                    html += `
+                    <tr>
+                        <td style="font-weight: 500;">${displayName}</td>
+                        <td>${displayClass}</td>
+                        <td>${displayDept}</td>
+                        <td>${displayTeacher}</td>
+                        <td>
+                            <button onclick="editSubject('${s.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">${getTrans('edit')}</button>
+                            <button onclick="deleteSubject('${s.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
+                        </td>
+                    </tr>
+                `;
+                });
 
-                    document.getElementById('subjectModalTitle').textContent = getTrans('edit_subject');
-                    document.getElementById('subjectModalTitle').setAttribute('data-i18n', 'edit_subject');
-                    openModal('subjectModal');
-                } catch (e) {
-                    console.error(e);
+                if (count === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem;">${getTrans('no_subjects_found')}</td></tr>`;
+                } else {
+                    tbody.innerHTML = html;
+                    updatePageLanguage();
                 }
+            } catch (error) {
+                console.error("Error loading subjects:", error);
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error: ${error.message}</td></tr>`;
             }
+        }
 
-            async function deleteSubject(id) {
-                if (!confirm(getTrans('confirm_delete'))) return;
-                try {
-                    await db.collection('subjects').doc(id).delete();
-                    loadSubjects();
-                } catch (error) {
-                    console.error(error);
-                    alert(error.message);
-                }
-            }
+        // Multi-Part Logic
+        function togglePartsSection() {
+            const hasParts = document.getElementById('hasPartsCheckbox').checked;
+            document.getElementById('partsSection').style.display = hasParts ? 'block' : 'none';
+        }
 
-            // --- Helpers ---
-            async function loadDepartmentsForFilter() {
-                const select = document.getElementById('subjectFilterDept');
-                const current = select.value;
-                select.innerHTML = `<option value="" data-i18n="all_departments">${getTrans('all_departments')}</option>`;
+        function addPartInput(value = '') {
+            const container = document.getElementById('partsList');
+            const div = document.createElement('div');
+            div.style.display = 'flex';
+            div.style.marginBottom = '0.5rem';
+            div.style.gap = '0.5rem';
 
-                const snapshot = await db.collection('departments').orderBy('name').get();
-                snapshot.forEach(doc => {
-                    const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
-                    select.appendChild(opt);
-                });
-                select.value = current;
-            }
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'part-input';
+            input.placeholder = 'Part Name (e.g. Hifz)';
+            input.value = value;
+            input.required = true;
+            input.style.flex = '1';
 
-            async function loadDepartmentsForSelect(selectId) {
-                const select = document.getElementById(selectId);
-                const current = select.value;
-                select.innerHTML = `<option value="" data-i18n="select_department">${getTrans('select_department')}</option>`;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.innerText = 'x';
+            btn.style.background = 'var(--danger)';
+            btn.style.color = 'white';
+            btn.style.border = 'none';
+            btn.style.borderRadius = '4px';
+            btn.style.cursor = 'pointer';
+            btn.style.padding = '0 0.5rem';
+            btn.onclick = () => div.remove();
 
-                const snapshot = await db.collection('departments').orderBy('name').get();
-                snapshot.forEach(doc => {
-                    const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
-                    select.appendChild(opt);
-                });
-                if (current) select.value = current;
-            }
+            div.appendChild(input);
+            div.appendChild(btn);
+            container.appendChild(div);
+        }
 
-            async function updateSubjectFilterClasses() {
-                const dept = document.getElementById('subjectFilterDept').value;
-                const select = document.getElementById('subjectFilterClass');
-                select.innerHTML = `<option value="" data-i18n="all_classes">${getTrans('all_classes')}</option>`;
+        async function handleAddSubject(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = getTrans('saving');
 
-                if (!dept) {
-                    loadSubjects();
-                    return;
-                }
+            const formData = new FormData(e.target);
+            const name = formData.get('name');
+            const department = formData.get('departmentId');
+            const className = formData.get('className');
+            const teacherId = formData.get('teacherId');
+            const docId = formData.get('docId');
 
-                const snapshot = await db.collection('classes').where('department', '==', dept).get();
-                snapshot.forEach(doc => {
-                    const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
-                    select.appendChild(opt);
-                });
-                loadSubjects();
-            }
-
-            async function updateSubjectModalClasses() {
-                const dept = document.getElementById('subjectDepartmentSelect').value;
-                const select = document.getElementById('subjectClassSelect');
-                select.innerHTML = `<option value="" data-i18n="select_class">${getTrans('select_class')}</option>`;
-
-                if (!dept) return;
-
-                const snapshot = await db.collection('classes').where('department', '==', dept).get();
-                snapshot.forEach(doc => {
-                    const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
-                    select.appendChild(opt);
-                });
-            }
-
-            async function loadTeachersForSelect() {
+            let teacherName = '';
+            if (teacherId) {
                 const select = document.getElementById('subjectTeacherSelect');
-                const current = select.value;
-                select.innerHTML = `<option value="" data-i18n="select_teacher">${getTrans('select_teacher')}</option>`;
-
-                const snapshot = await db.collection('teachers').orderBy('firstName').get();
-                snapshot.forEach(doc => {
-                    const t = doc.data();
-                    const opt = document.createElement('option');
-                    opt.value = doc.id;
-                    opt.innerText = `${t.firstName} ${t.lastName} (${t.subject})`;
-                    select.appendChild(opt);
-                });
-                if (current) select.value = current;
+                teacherName = select.options[select.selectedIndex].text;
             }
 
-            async function downloadSubjectsPDF() {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                const startY = (typeof applyPdfBranding === 'function') ? await applyPdfBranding(doc, { title: 'Subjects List' }) : 30;
+            try {
+                const hasParts = document.getElementById('hasPartsCheckbox').checked;
+                let parts = [];
+                if (hasParts) {
+                    document.querySelectorAll('.part-input').forEach(input => {
+                        if (input.value.trim()) parts.push(input.value.trim());
+                    });
+                }
 
-                const rows = [];
-                document.querySelectorAll('#subjectsList tr').forEach(tr => {
-                    const tds = tr.querySelectorAll('td');
-                    if (tds.length >= 4 && !tds[0].innerText.includes('Loading')) {
-                        rows.push([tds[0].innerText, tds[1].innerText, tds[2].innerText, tds[3].innerText]);
-                    }
-                });
-
-                doc.autoTable({
-                    head: [['Subject', 'Class', 'Department', 'Teacher']],
-                    body: rows,
-                    startY: startY,
-                });
-                doc.save('subjects.pdf');
-            }
-
-            // Initial Load
-            document.addEventListener('DOMContentLoaded', () => {
-                loadDepartmentsForFilter();
+                const data = {
+                    name,
+                    name_ur: formData.get('name_ur') || '',
+                    department,
+                    className,
+                    teacherId,
+                    teacherName,
+                    hasParts,
+                    parts,
+                    term: formData.get('term') || 'Annual',
+                    book: formData.get('book') || '',
+                    authorPublisher: formData.get('authorPublisher') || '',
+                    description: formData.get('description') || ''
+                };
+                if (docId) {
+                    await db.collection('subjects').doc(docId).update(data);
+                } else {
+                    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    data.tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                    await db.collection('subjects').add(data);
+                }
+                closeModal('subjectModal');
                 loadSubjects();
-                document.getElementById('addSubjectForm').addEventListener('submit', handleAddSubject);
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }
+
+        async function editSubject(id) {
+            try {
+                const doc = await db.collection('subjects').doc(id).get();
+                if (!doc.exists) return;
+                const s = doc.data();
+
+                document.querySelector('#subjectModal input[name="docId"]').value = id;
+                document.querySelector('#subjectModal input[name="name"]').value = s.name;
+                document.querySelector('#subjectModal input[name="name_ur"]').value = s.name_ur || '';
+                document.querySelector('#subjectModal select[name="term"]').value = s.term || 'Annual';
+                document.querySelector('#subjectModal input[name="book"]').value = s.book || '';
+                document.querySelector('#subjectModal input[name="authorPublisher"]').value = s.authorPublisher || '';
+                document.querySelector('#subjectModal textarea[name="description"]').value = s.description || '';
+
+                await loadDepartmentsForSelect('subjectDepartmentSelect');
+                document.querySelector('#subjectModal select[name="departmentId"]').value = s.department;
+
+                await updateSubjectModalClasses();
+                document.querySelector('#subjectModal select[name="className"]').value = s.className;
+
+                await loadTeachersForSelect();
+                document.querySelector('#subjectModal select[name="teacherId"]').value = s.teacherId || '';
+
+                // Reset Parts
+                document.getElementById('hasPartsCheckbox').checked = false;
+                document.getElementById('partsList').innerHTML = '';
+                togglePartsSection();
+
+                if (s.hasParts && Array.isArray(s.parts)) {
+                    document.getElementById('hasPartsCheckbox').checked = true;
+                    togglePartsSection();
+                    s.parts.forEach(p => addPartInput(p));
+                }
+
+                document.getElementById('subjectModalTitle').textContent = getTrans('edit_subject');
+                document.getElementById('subjectModalTitle').setAttribute('data-i18n', 'edit_subject');
+                openModal('subjectModal');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function deleteSubject(id) {
+            if (!confirm(getTrans('confirm_delete'))) return;
+            try {
+                await db.collection('subjects').doc(id).delete();
+                loadSubjects();
+            } catch (error) {
+                console.error(error);
+                alert(error.message);
+            }
+        }
+
+        // --- Helpers ---
+        async function loadDepartmentsForFilter() {
+            const select = document.getElementById('subjectFilterDept');
+            const current = select.value;
+            select.innerHTML = `<option value="" data-i18n="all_departments">${getTrans('all_departments')}</option>`;
+
+            const snapshot = await db.collection('departments').orderBy('name').get();
+            snapshot.forEach(doc => {
+                const opt = document.createElement('option');
+                opt.value = doc.data().name;
+                opt.innerText = doc.data().name_ur || doc.data().name;
+                select.appendChild(opt);
+            });
+            select.value = current;
+        }
+
+        async function loadDepartmentsForSelect(selectId) {
+            const select = document.getElementById(selectId);
+            const current = select.value;
+            select.innerHTML = `<option value="" data-i18n="select_department">${getTrans('select_department')}</option>`;
+
+            const snapshot = await db.collection('departments').orderBy('name').get();
+            snapshot.forEach(doc => {
+                const opt = document.createElement('option');
+                opt.value = doc.data().name;
+                opt.innerText = doc.data().name_ur || doc.data().name;
+                select.appendChild(opt);
+            });
+            if (current) select.value = current;
+        }
+
+        async function updateSubjectFilterClasses() {
+            const dept = document.getElementById('subjectFilterDept').value;
+            const select = document.getElementById('subjectFilterClass');
+            select.innerHTML = `<option value="" data-i18n="all_classes">${getTrans('all_classes')}</option>`;
+
+            if (!dept) {
+                loadSubjects();
+                return;
+            }
+
+            const snapshot = await db.collection('classes').where('department', '==', dept).get();
+            const seen = new Set();
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (!data.name) return;
+                const label = data.name_ur || data.name;
+                if (seen.has(label)) return;
+                seen.add(label);
+
+                const opt = document.createElement('option');
+                opt.value = data.name;
+                opt.innerText = label;
+                select.appendChild(opt);
+            });
+            loadSubjects();
+        }
+
+        async function updateSubjectModalClasses() {
+            const dept = document.getElementById('subjectDepartmentSelect').value;
+            const select = document.getElementById('subjectClassSelect');
+            select.innerHTML = `<option value="" data-i18n="select_class">${getTrans('select_class')}</option>`;
+
+            if (!dept) return;
+
+            const snapshot = await db.collection('classes').where('department', '==', dept).get();
+            const seen = new Set();
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (!data.name) return;
+                const label = data.name_ur || data.name;
+                if (seen.has(label)) return;
+                seen.add(label);
+
+                const opt = document.createElement('option');
+                opt.value = data.name;
+                opt.innerText = label;
+                select.appendChild(opt);
             });
 
-        </script>
-    </body>
+            // Trigger load for existing subjects immediately upon department change
+            if (typeof loadExistingSubjectsForDropdown === 'function') {
+                loadExistingSubjectsForDropdown();
+            }
+        }
+
+        async function loadExistingSubjectsForDropdown() {
+            const dept = document.getElementById('subjectDepartmentSelect').value;
+            const className = document.getElementById('subjectClassSelect').value;
+            const select = document.getElementById('existingSubjectSelect');
+
+            if (!select) return; // Safety check
+
+            select.innerHTML = '<option value="" data-i18n="new_subject">-- New Subject --</option>';
+
+            if (!dept) return;
+
+            try {
+                // FETCH ALL strategy to avoid index/query issues (Robust Fallback)
+                const snapshot = await db.collection('subjects').get();
+
+                const subjects = [];
+                snapshot.forEach(doc => {
+                    const s = doc.data();
+
+                    // Robust Matching (Trim whitespace)
+                    const sDept = (s.department || '').trim();
+                    const tDept = dept.trim();
+
+                    if (sDept !== tDept) return; // Strict department match
+
+                    // Optional Class Match (if class is selected)
+                    if (className) {
+                        const sClass = (s.className || '').trim();
+                        const tClass = className.trim();
+                        if (sClass !== tClass) return;
+                    }
+
+                    subjects.push({ id: doc.id, ...s });
+                });
+
+                subjects.sort((a, b) => {
+                    const aLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(a) : (a.name_ur || a.name || '');
+                    const bLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(b) : (b.name_ur || b.name || '');
+                    return aLabel.localeCompare(bLabel);
+                });
+
+                subjects.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.innerText = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(s) : (s.name_ur || s.name);
+                    opt.dataset.json = JSON.stringify(s);
+                    select.appendChild(opt);
+                });
+
+                if (typeof updatePageLanguage === 'function') updatePageLanguage(); // Translate newly added option if needed
+
+                if (subjects.length > 0) {
+                    console.log(`Loaded ${subjects.length} existing subjects for selection.`);
+                }
+
+            } catch (e) {
+                console.error("Error loading existing subjects", e);
+            }
+        }
+
+        function onExistingSubjectSelect() {
+            const select = document.getElementById('existingSubjectSelect');
+            const docId = select.value;
+            const form = document.getElementById('addSubjectForm');
+
+            if (!docId) {
+                // Reset to "New" mode
+                // Save current selections
+                const dept = document.getElementById('subjectDepartmentSelect').value;
+                const cls = document.getElementById('subjectClassSelect').value;
+
+                form.reset();
+                form.querySelector('input[name="docId"]').value = '';
+
+                // Restore selections
+                document.getElementById('subjectDepartmentSelect').value = dept;
+                document.getElementById('subjectClassSelect').value = cls;
+
+                // Clear parts
+                document.getElementById('hasPartsCheckbox').checked = false;
+                togglePartsSection();
+                document.getElementById('partsList').innerHTML = '';
+
+                return;
+            }
+
+            // Populate Form from selection
+            const opt = select.selectedOptions[0];
+            if (!opt || !opt.dataset.json) return;
+
+            const s = JSON.parse(opt.dataset.json);
+
+            form.querySelector('input[name="docId"]').value = docId;
+            form.querySelector('input[name="name"]').value = s.name;
+            form.querySelector('select[name="teacherId"]').value = s.teacherId || '';
+            form.querySelector('input[name="name_ur"]').value = s.name_ur || '';
+            form.querySelector('select[name="term"]').value = s.term || 'Annual';
+            form.querySelector('input[name="book"]').value = s.book || '';
+            form.querySelector('input[name="authorPublisher"]').value = s.authorPublisher || '';
+            form.querySelector('textarea[name="description"]').value = s.description || '';
+
+            // Handle Parts
+            document.getElementById('hasPartsCheckbox').checked = false;
+            togglePartsSection();
+            document.getElementById('partsList').innerHTML = '';
+
+            if (s.hasParts && Array.isArray(s.parts)) {
+                document.getElementById('hasPartsCheckbox').checked = true;
+                togglePartsSection();
+                s.parts.forEach(p => addPartInput(p));
+            }
+        }
+
+
+
+
+
+        async function loadTeachersForSelect() {
+            const select = document.getElementById('subjectTeacherSelect');
+            const current = select.value;
+            select.innerHTML = `<option value="" data-i18n="select_teacher">${getTrans('select_teacher')}</option>`;
+
+            const snapshot = await db.collection('teachers').orderBy('firstName').get();
+            snapshot.forEach(doc => {
+                const t = doc.data();
+                const opt = document.createElement('option');
+                opt.value = doc.id;
+                opt.innerText = `${t.firstName} ${t.lastName} (${t.subject})`;
+                select.appendChild(opt);
+            });
+            if (current) select.value = current;
+        }
+
+        async function downloadSubjectsPDF() {
+            const table = document.createElement('table');
+            table.className = 'data-table';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Class</th>
+                        <th>Department</th>
+                        <th>Teacher</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${Array.from(document.querySelectorAll('#subjectsList tr')).map(tr => {
+                const tds = tr.querySelectorAll('td');
+                if (tds.length < 4) return '';
+                return `
+                            <tr>
+                                <td>${tds[0].innerText}</td>
+                                <td>${tds[1].innerText}</td>
+                                <td>${tds[2].innerText}</td>
+                                <td>${tds[3].innerText}</td>
+                            </tr>
+                        `;
+            }).join('')}
+                </tbody>
+            `;
+
+            window.PDFSnapshot.generate({
+                title: getTrans('subjects'),
+                content: table.outerHTML
+            });
+        }
+
+        // Initial Load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDepartmentsForFilter();
+            loadSubjects();
+            document.getElementById('addSubjectForm').addEventListener('submit', handleAddSubject);
+        });
+
+    </script>
+</body>
 
 </html>

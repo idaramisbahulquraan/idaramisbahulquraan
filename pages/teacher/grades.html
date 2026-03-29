@@ -24,7 +24,8 @@
             font-weight: 500;
         }
 
-        .form-group input, .form-group select {
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid var(--border-color);
@@ -44,7 +45,8 @@
             min-width: 600px;
         }
 
-        th, td {
+        th,
+        td {
             padding: 1rem 1.5rem;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
@@ -110,9 +112,6 @@
                             <label>Department</label>
                             <select id="department" onchange="updateClasses()" required>
                                 <option value="" data-i18n="select_department">Select Department</option>
-                                <option value="Dars-e-Nizami">Dars-e-Nizami</option>
-                                <option value="Hifz">Hifz</option>
-                                <option value="Tajweed">Tajweed</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -135,11 +134,12 @@
                 </div>
 
                 <div class="stat-card" id="gradingCard" style="display: none; margin-top: 2rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h3 id="gradingTitle">Grading Sheet</h3>
                         <button class="btn-primary" onclick="saveGrades()" style="width: auto;">Save Grades</button>
                     </div>
-                    
+
                     <div class="table-container">
                         <table>
                             <thead>
@@ -151,7 +151,9 @@
                                 </tr>
                             </thead>
                             <tbody id="gradingList">
-                                <tr><td colspan="4" style="text-align: center;">Loading...</td></tr>
+                                <tr>
+                                    <td colspan="4" style="text-align: center;">Loading...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -171,41 +173,79 @@
     <script src="../../js/script.js"></script>
 
     <script>
-        // Data for dropdowns
-        const DARS_CLASSES = ['Mutwasta','Aama Arzbic (A)','Aama Arabic (B)','Aama English','Khasa - I','Khasa - II','Matric','Intermediate (IX)','Aalia - I (X)','Aalia - II (XI)','Aalamia - I (XII)','Almia - II (XI)'];
-        const HIFZ_CLASSES = ['Amer Bin Khatab','Abdullah Bin Masood','Zaid Bin Sabit','Musab Bin Omair','Abdullah Bin Abbas','Osman Ghani','Abee Bin Kaab','Abu Bakar Siddique','Ali-ul-Murtazi','Naseerah Murseed'];
-        const TAJWEED_CLASSES = ['Class 1st year','Class IInd year'];
+        async function loadDepartments() {
+            const select = document.getElementById('department');
+            const currentVal = select.value;
+            select.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
+            if (typeof updatePageLanguage === 'function') updatePageLanguage();
+
+            try {
+                const snapshot = await db.collection('departments').orderBy('name').get();
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (!data?.name) return;
+                    const opt = document.createElement('option');
+                    opt.value = data.name;
+                    opt.innerText = (typeof getDepartmentDisplayName === 'function') ? getDepartmentDisplayName(data.name, data.name_ur || data.name) : (data.name_ur || data.name);
+                    select.appendChild(opt);
+                });
+                if (currentVal) select.value = currentVal;
+            } catch (error) {
+                console.error("Error loading departments:", error);
+            }
+        }
 
         function updateClasses() {
             const dept = document.getElementById('department').value;
             const classSelect = document.getElementById('className');
+            const currentVal = classSelect.value;
             classSelect.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
             if (typeof updatePageLanguage === 'function') updatePageLanguage();
-            
-            let classes = [];
-            if(dept === 'Dars-e-Nizami') classes = DARS_CLASSES;
-            else if(dept === 'Hifz') classes = HIFZ_CLASSES;
-            else if(dept === 'Tajweed') classes = TAJWEED_CLASSES;
+            if (!dept) return;
 
-            classes.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c;
-                opt.innerText = c;
-                classSelect.appendChild(opt);
-            });
-            
+            db.collection('classes').where('department', '==', dept).get()
+                .then(snapshot => {
+                    const classes = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (data?.name) classes.push({ name: data.name, name_ur: data.name_ur || '' });
+                    });
+                    classes.sort((a, b) => {
+                        const aLabel = (typeof getClassDisplayName === 'function') ? getClassDisplayName(a.name, a.name_ur || a.name) : (a.name_ur || a.name);
+                        const bLabel = (typeof getClassDisplayName === 'function') ? getClassDisplayName(b.name, b.name_ur || b.name) : (b.name_ur || b.name);
+                        return aLabel.localeCompare(bLabel);
+                    });
+                    classes.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.name;
+                        opt.innerText = (typeof getClassDisplayName === 'function') ? getClassDisplayName(c.name, c.name_ur || c.name) : (c.name_ur || c.name);
+                        classSelect.appendChild(opt);
+                    });
+                    if (currentVal) classSelect.value = currentVal;
+                })
+                .catch(error => {
+                    console.error("Error loading classes:", error);
+                });
+
             // Reset Exam Select
             document.getElementById('examSelect').innerHTML = '<option value="" data-i18n="select_class_first">Select Class First</option>';
             if (typeof updatePageLanguage === 'function') updatePageLanguage();
             document.getElementById('gradingCard').style.display = 'none';
         }
 
+        loadDepartments();
+        window.addEventListener('language-changed', () => {
+            loadDepartments()
+                .then(() => updateClasses())
+                .catch(() => {});
+        });
+
         async function loadExams() {
             const dept = document.getElementById('department').value;
             const className = document.getElementById('className').value;
             const examSelect = document.getElementById('examSelect');
 
-            if(!dept || !className) return;
+            if (!dept || !className) return;
 
             examSelect.innerHTML = '<option value="">Loading...</option>';
 
@@ -216,7 +256,7 @@
                     .where('className', '==', className)
                     .get();
 
-                if(snapshot.empty) {
+                if (snapshot.empty) {
                     examSelect.innerHTML = '<option value="">No exams found</option>';
                     return;
                 }
@@ -226,7 +266,8 @@
                     const exam = doc.data();
                     const opt = document.createElement('option');
                     opt.value = doc.id;
-                    opt.innerText = `${exam.examName} - ${exam.subject} (${new Date(exam.date).toLocaleDateString()})`;
+                    const displaySubject = exam.subject_ur || exam.subject || '';
+                    opt.innerText = `${exam.examName} - ${displaySubject} (${new Date(exam.date).toLocaleDateString()})`;
                     // Store full exam object in dataset if needed, but we'll fetch it again or just use basic info
                     examSelect.appendChild(opt);
                 });
@@ -239,14 +280,14 @@
 
         async function loadGradingSheet() {
             const examId = document.getElementById('examSelect').value;
-            if(!examId) {
+            if (!examId) {
                 document.getElementById('gradingCard').style.display = 'none';
                 return;
             }
 
             const dept = document.getElementById('department').value;
             const className = document.getElementById('className').value;
-            
+
             document.getElementById('gradingCard').style.display = 'block';
             const tbody = document.getElementById('gradingList');
             tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading students and existing grades...</td></tr>';
@@ -255,7 +296,7 @@
                 // 1. Fetch Exam Details (to get subject, etc.)
                 const examDoc = await db.collection('exams').doc(examId).get();
                 const examData = examDoc.data();
-                document.getElementById('gradingTitle').innerText = `Grading: ${examData.examName} - ${examData.subject}`;
+                document.getElementById('gradingTitle').innerText = `Grading: ${examData.examName} - ${examData.subject_ur || examData.subject}`;
 
                 // 2. Fetch Students
                 const studentsSnapshot = await db.collection('students')
@@ -264,7 +305,7 @@
                     .orderBy('rollNumber')
                     .get();
 
-                if(studentsSnapshot.empty) {
+                if (studentsSnapshot.empty) {
                     tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No students found in this class.</td></tr>';
                     return;
                 }
@@ -272,7 +313,7 @@
                 // 3. Fetch Existing Grades
                 let existingGrades = {};
                 const gradesDoc = await db.collection('grades').doc(examId).get();
-                if(gradesDoc.exists) {
+                if (gradesDoc.exists) {
                     gradesDoc.data().records.forEach(r => {
                         existingGrades[r.uid] = r;
                     });
@@ -287,7 +328,7 @@
                 studentsSnapshot.forEach(doc => {
                     const s = doc.data();
                     const existing = existingGrades[s.uid] || {};
-                    
+
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${s.rollNumber}</td>
@@ -312,8 +353,8 @@
             const examId = document.getElementById('examSelect').value;
             const dept = document.getElementById('department').value;
             const className = document.getElementById('className').value;
-            
-            if(!examId) return;
+
+            if (!examId) return;
 
             const btn = document.querySelector('button[onclick="saveGrades()"]');
             btn.innerText = 'Saving...';
@@ -330,8 +371,8 @@
                 rows.forEach(tr => {
                     const obtainedInput = tr.querySelector('.obtained');
                     const totalInput = tr.querySelector('.total');
-                    
-                    if(obtainedInput) {
+
+                    if (obtainedInput) {
                         records.push({
                             uid: obtainedInput.dataset.uid,
                             name: obtainedInput.dataset.name,
@@ -346,6 +387,7 @@
                     examId: examId,
                     examName: examData.examName,
                     subject: examData.subject,
+                    subject_ur: examData.subject_ur || examData.subject,
                     date: examData.date,
                     department: dept,
                     className: className,

@@ -22,8 +22,8 @@
             </div>
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label for="email" data-i18n="email_address">Email Address</label>
-                    <input type="email" id="email" placeholder="admin@example.com" required>
+                    <label for="email" data-i18n="login_id">Username / Email</label>
+                    <input type="text" id="email" placeholder="username or admin@example.com" required>
                 </div>
                 <div class="form-group">
                     <label for="password" data-i18n="password">Password</label>
@@ -34,6 +34,8 @@
                     <select id="role" required>
                         <option value="admin" data-i18n="admin">Admin</option>
                         <option value="teacher" data-i18n="teacher">Teacher</option>
+                        <option value="nazim_e_taleemaat" data-i18n="nazim_e_taleemaat">Nazim e Taleemaat</option>
+                        <option value="hifz_supervisor" data-i18n="hifz_supervisor">Hifz Supervisor</option>
                         <option value="student" data-i18n="student">Student</option>
                     </select>
                 </div>

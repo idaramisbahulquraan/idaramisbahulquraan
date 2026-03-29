@@ -1,0 +1,1521 @@
+{
+  "Tajweed Class 1st year": [
+    {
+      "subject": "انگلش",
+      "term": "First Term",
+      "book": "Navigate Reading",
+      "books": [
+        {
+          "name": "Navigate Reading",
+          "totalPages": 128,
+          "teachingDays": 90.0,
+          "dailyPages": "ڈیڑھ صفحہ",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 26,
+            "May 2026": 26,
+            "June 2026": 26,
+            "July 2026": 25,
+            "August 2026": 25
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 26,
+        "May 2026": 26,
+        "June 2026": 26,
+        "July 2026": 25,
+        "August 2026": 25
+      },
+      "totalPages": 128
+    },
+    {
+      "subject": "ریاضی",
+      "term": "First Term",
+      "book": "ریاضی",
+      "books": [
+        {
+          "name": "ریاضی",
+          "totalPages": 128,
+          "teachingDays": 90.0,
+          "dailyPages": "ایک صفحہ",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 26,
+            "May 2026": 26,
+            "June 2026": 26,
+            "July 2026": 25,
+            "August 2026": 25
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 26,
+        "May 2026": 26,
+        "June 2026": 26,
+        "July 2026": 25,
+        "August 2026": 25
+      },
+      "totalPages": 128
+    },
+    {
+      "subject": "اُردو",
+      "term": "First Term",
+      "book": "گلزار اُردو",
+      "books": [
+        {
+          "name": "گلزار اُردو",
+          "totalPages": 129,
+          "teachingDays": 90.0,
+          "dailyPages": "1.5صفحہ",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 26,
+            "May 2026": 26,
+            "June 2026": 26,
+            "July 2026": 26,
+            "August 2026": 25
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 26,
+        "May 2026": 26,
+        "June 2026": 26,
+        "July 2026": 26,
+        "August 2026": 25
+      },
+      "totalPages": 129
+    }
+  ],
+  "Tajweed Class 2nd year": [
+    {
+      "subject": "اُردو",
+      "term": "First Term",
+      "book": "اُردو6th",
+      "books": [
+        {
+          "name": "اُردو6th",
+          "totalPages": 0,
+          "teachingDays": 0,
+          "dailyPages": "",
+          "monthlyPages": 0,
+          "monthlyTargets": {}
+        }
+      ],
+      "monthlyTargets": {},
+      "totalPages": 0
+    },
+    {
+      "subject": "انگلش",
+      "term": "First Term",
+      "book": "انگلش 6th",
+      "books": [
+        {
+          "name": "انگلش 6th",
+          "totalPages": 0,
+          "teachingDays": 0,
+          "dailyPages": "",
+          "monthlyPages": 0,
+          "monthlyTargets": {}
+        }
+      ],
+      "monthlyTargets": {},
+      "totalPages": 0
+    },
+    {
+      "subject": "ریاضی",
+      "term": "First Term",
+      "book": "ریاضی 6th",
+      "books": [
+        {
+          "name": "ریاضی 6th",
+          "totalPages": 0,
+          "teachingDays": 0,
+          "dailyPages": "",
+          "monthlyPages": 0,
+          "monthlyTargets": {}
+        }
+      ],
+      "monthlyTargets": {},
+      "totalPages": 0
+    }
+  ],
+  "Pre Arabic": [
+    {
+      "subject": "ریاضی",
+      "term": "First Term",
+      "book": "ریاضی 6th",
+      "books": [
+        {
+          "name": "ریاضی 6th",
+          "totalPages": 90,
+          "teachingDays": 90.0,
+          "dailyPages": "ایک صفحہ",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 18,
+            "May 2026": 18,
+            "June 2026": 18,
+            "July 2026": 18,
+            "August 2026": 18
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 18,
+        "May 2026": 18,
+        "June 2026": 18,
+        "July 2026": 18,
+        "August 2026": 18
+      },
+      "totalPages": 90
+    },
+    {
+      "subject": "دو ماہ تجوید ،مدنی قاعدہ",
+      "term": "First Term",
+      "book": "دو ماہ تجوید ،مدنی قاعدہ",
+      "books": [
+        {
+          "name": "دو ماہ تجوید ،مدنی قاعدہ",
+          "totalPages": 48,
+          "teachingDays": 45.0,
+          "dailyPages": "ایک صفحہ",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 10,
+            "May 2026": 10,
+            "June 2026": 10,
+            "July 2026": 9,
+            "August 2026": 9
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 10,
+        "May 2026": 10,
+        "June 2026": 10,
+        "July 2026": 9,
+        "August 2026": 9
+      },
+      "totalPages": 48
+    },
+    {
+      "subject": "سائنس",
+      "term": "First Term",
+      "book": "سائنس 6th",
+      "books": [
+        {
+          "name": "سائنس 6th",
+          "totalPages": 70,
+          "teachingDays": 90.0,
+          "dailyPages": "ایک صفحہ",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 14,
+            "May 2026": 14,
+            "June 2026": 14,
+            "July 2026": 14,
+            "August 2026": 14
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 14,
+        "May 2026": 14,
+        "June 2026": 14,
+        "July 2026": 14,
+        "August 2026": 14
+      },
+      "totalPages": 70
+    },
+    {
+      "subject": "انگلش",
+      "term": "First Term",
+      "book": "انگلش 6th",
+      "books": [
+        {
+          "name": "انگلش 6th",
+          "totalPages": 128,
+          "teachingDays": 90.0,
+          "dailyPages": "1.15صفحے",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 26,
+            "May 2026": 26,
+            "June 2026": 26,
+            "July 2026": 25,
+            "August 2026": 25
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 26,
+        "May 2026": 26,
+        "June 2026": 26,
+        "July 2026": 25,
+        "August 2026": 25
+      },
+      "totalPages": 128
+    },
+    {
+      "subject": "فارسی",
+      "term": "First Term",
+      "book": "فارسی قاعدہ",
+      "books": [
+        {
+          "name": "فارسی قاعدہ",
+          "totalPages": 26,
+          "teachingDays": 25.0,
+          "dailyPages": "ایک صفحہ",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 6,
+            "May 2026": 5,
+            "June 2026": 5,
+            "July 2026": 5,
+            "August 2026": 5
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 6,
+        "May 2026": 5,
+        "June 2026": 5,
+        "July 2026": 5,
+        "August 2026": 5
+      },
+      "totalPages": 26
+    },
+    {
+      "subject": "عربی",
+      "term": "First Term",
+      "book": "مطالعۃ العربیہ 6th",
+      "books": [
+        {
+          "name": "مطالعۃ العربیہ 6th",
+          "totalPages": 108,
+          "teachingDays": 90.0,
+          "dailyPages": "1.25صفحے",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 22,
+            "May 2026": 22,
+            "June 2026": 22,
+            "July 2026": 21,
+            "August 2026": 21
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 22,
+        "May 2026": 22,
+        "June 2026": 22,
+        "July 2026": 21,
+        "August 2026": 21
+      },
+      "totalPages": 108
+    }
+  ],
+  "Aamma Year 1 (Arabic Language Foundation Course)": [
+    {
+      "subject": "حدیث",
+      "term": "First Term",
+      "book": "حفظ الحدیث",
+      "books": [
+        {
+          "name": "حفظ الحدیث",
+          "totalPages": 22,
+          "teachingDays": 30.0,
+          "dailyPages": "0.73",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 5,
+            "May 2026": 5,
+            "June 2026": 4,
+            "July 2026": 4,
+            "August 2026": 4
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 5,
+        "May 2026": 5,
+        "June 2026": 4,
+        "July 2026": 4,
+        "August 2026": 4
+      },
+      "totalPages": 22
+    },
+    {
+      "subject": "تحسین الخط",
+      "term": "First Term",
+      "book": "تحسین الخط",
+      "books": [
+        {
+          "name": "تحسین الخط",
+          "totalPages": 104,
+          "teachingDays": 45.0,
+          "dailyPages": "3",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 21,
+            "May 2026": 21,
+            "June 2026": 21,
+            "July 2026": 21,
+            "August 2026": 20
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 21,
+        "May 2026": 21,
+        "June 2026": 21,
+        "July 2026": 21,
+        "August 2026": 20
+      },
+      "totalPages": 104
+    },
+    {
+      "subject": "عربی",
+      "term": "First Term",
+      "book": "القاموس المصور",
+      "books": [
+        {
+          "name": "القاموس المصور",
+          "totalPages": 132,
+          "teachingDays": 90.0,
+          "dailyPages": "1.5",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 27,
+            "May 2026": 27,
+            "June 2026": 26,
+            "July 2026": 26,
+            "August 2026": 26
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 27,
+        "May 2026": 27,
+        "June 2026": 26,
+        "July 2026": 26,
+        "August 2026": 26
+      },
+      "totalPages": 132
+    },
+    {
+      "subject": "قرآنی عربی",
+      "term": "First Term",
+      "book": "قرآنی عربی",
+      "books": [
+        {
+          "name": "قرآنی عربی",
+          "totalPages": 228,
+          "teachingDays": 90.0,
+          "dailyPages": "2.53",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 46,
+            "May 2026": 46,
+            "June 2026": 46,
+            "July 2026": 45,
+            "August 2026": 45
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 46,
+        "May 2026": 46,
+        "June 2026": 46,
+        "July 2026": 45,
+        "August 2026": 45
+      },
+      "totalPages": 228
+    },
+    {
+      "subject": "عربی بول چال",
+      "term": "First Term",
+      "book": "الحوارات المفیدہ",
+      "books": [
+        {
+          "name": "الحوارات المفیدہ",
+          "totalPages": 130,
+          "teachingDays": 90.0,
+          "dailyPages": "1.5",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 26,
+            "May 2026": 26,
+            "June 2026": 26,
+            "July 2026": 26,
+            "August 2026": 26
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 26,
+        "May 2026": 26,
+        "June 2026": 26,
+        "July 2026": 26,
+        "August 2026": 26
+      },
+      "totalPages": 130
+    },
+    {
+      "subject": "عربی",
+      "term": "First Term",
+      "book": "دروس المفیدہ",
+      "books": [
+        {
+          "name": "دروس المفیدہ",
+          "totalPages": 168,
+          "teachingDays": 90.0,
+          "dailyPages": "2.2",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 34,
+            "May 2026": 34,
+            "June 2026": 34,
+            "July 2026": 33,
+            "August 2026": 33
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 34,
+        "May 2026": 34,
+        "June 2026": 34,
+        "July 2026": 33,
+        "August 2026": 33
+      },
+      "totalPages": 168
+    },
+    {
+      "subject": "نحو",
+      "term": "First Term",
+      "book": "نعیم التحریر",
+      "books": [
+        {
+          "name": "نعیم التحریر",
+          "totalPages": 38,
+          "teachingDays": 40.0,
+          "dailyPages": "2",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 8,
+            "May 2026": 8,
+            "June 2026": 8,
+            "July 2026": 7,
+            "August 2026": 7
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 8,
+        "May 2026": 8,
+        "June 2026": 8,
+        "July 2026": 7,
+        "August 2026": 7
+      },
+      "totalPages": 38
+    },
+    {
+      "subject": "صرف",
+      "term": "First Term",
+      "book": "اساس الصرف",
+      "books": [
+        {
+          "name": "اساس الصرف",
+          "totalPages": 203,
+          "teachingDays": 90.0,
+          "dailyPages": "2.25",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 41,
+            "May 2026": 41,
+            "June 2026": 41,
+            "July 2026": 40,
+            "August 2026": 40
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 41,
+        "May 2026": 41,
+        "June 2026": 41,
+        "July 2026": 40,
+        "August 2026": 40
+      },
+      "totalPages": 203
+    },
+    {
+      "subject": "عربی",
+      "term": "Second Term",
+      "book": "العربیہ للناشین جلد سوم",
+      "books": [
+        {
+          "name": "العربیہ للناشین جلد سوم",
+          "totalPages": 252,
+          "teachingDays": 90.0,
+          "dailyPages": "2.8",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "September 2026": 51,
+            "October 2026": 51,
+            "November 2026": 50,
+            "December 2026": 50,
+            "January 2027": 50
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "September 2026": 51,
+        "October 2026": 51,
+        "November 2026": 50,
+        "December 2026": 50,
+        "January 2027": 50
+      },
+      "totalPages": 252
+    }
+  ],
+  "Aamma Year 2 (English Language Foundation Course)": [
+    {
+      "subject": "فقہ",
+      "term": "First Term",
+      "book": "نورالایضاح",
+      "books": [
+        {
+          "name": "نورالایضاح",
+          "totalPages": 225,
+          "teachingDays": 90.0,
+          "dailyPages": "2.5",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 45,
+            "May 2026": 45,
+            "June 2026": 45,
+            "July 2026": 45,
+            "August 2026": 45
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 45,
+        "May 2026": 45,
+        "June 2026": 45,
+        "July 2026": 45,
+        "August 2026": 45
+      },
+      "totalPages": 225
+    },
+    {
+      "subject": "نحو",
+      "term": "First Term",
+      "book": "شرح مائۃ عامل",
+      "books": [
+        {
+          "name": "شرح مائۃ عامل",
+          "totalPages": 135,
+          "teachingDays": 90.0,
+          "dailyPages": "1.5",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 27,
+            "May 2026": 27,
+            "June 2026": 27,
+            "July 2026": 27,
+            "August 2026": 27
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 27,
+        "May 2026": 27,
+        "June 2026": 27,
+        "July 2026": 27,
+        "August 2026": 27
+      },
+      "totalPages": 135
+    },
+    {
+      "subject": "ریاضی",
+      "term": "First Term",
+      "book": "ریاضیII",
+      "books": [
+        {
+          "name": "ریاضیII",
+          "totalPages": 89,
+          "teachingDays": 45.0,
+          "dailyPages": "2.5",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 18,
+            "May 2026": 18,
+            "June 2026": 18,
+            "July 2026": 18,
+            "August 2026": 17
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 18,
+        "May 2026": 18,
+        "June 2026": 18,
+        "July 2026": 18,
+        "August 2026": 17
+      },
+      "totalPages": 89
+    },
+    {
+      "subject": "سائنس",
+      "term": "First Term",
+      "book": "سائنس",
+      "books": [
+        {
+          "name": "سائنس",
+          "totalPages": 70,
+          "teachingDays": 30.0,
+          "dailyPages": "2.5",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 14,
+            "May 2026": 14,
+            "June 2026": 14,
+            "July 2026": 14,
+            "August 2026": 14
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 14,
+        "May 2026": 14,
+        "June 2026": 14,
+        "July 2026": 14,
+        "August 2026": 14
+      },
+      "totalPages": 70
+    },
+    {
+      "subject": "جنرل نالج",
+      "term": "First Term",
+      "book": "جنرل نالج",
+      "books": [
+        {
+          "name": "جنرل نالج",
+          "totalPages": 97,
+          "teachingDays": 15.0,
+          "dailyPages": "2.5",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 20,
+            "May 2026": 20,
+            "June 2026": 19,
+            "July 2026": 19,
+            "August 2026": 19
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 20,
+        "May 2026": 20,
+        "June 2026": 19,
+        "July 2026": 19,
+        "August 2026": 19
+      },
+      "totalPages": 97
+    },
+    {
+      "subject": "صرف",
+      "term": "First Term",
+      "book": "خاصیات ابواب",
+      "books": [
+        {
+          "name": "خاصیات ابواب",
+          "totalPages": 113,
+          "teachingDays": 90.0,
+          "dailyPages": "1.5",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 23,
+            "May 2026": 23,
+            "June 2026": 23,
+            "July 2026": 22,
+            "August 2026": 22
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 23,
+        "May 2026": 23,
+        "June 2026": 23,
+        "July 2026": 22,
+        "August 2026": 22
+      },
+      "totalPages": 113
+    },
+    {
+      "subject": "انگلش",
+      "term": "Second Term",
+      "book": "Listening +(انگلش فاؤنڈیشن بکI I)",
+      "books": [
+        {
+          "name": "Listening +(انگلش فاؤنڈیشن بکI I)",
+          "totalPages": 0,
+          "teachingDays": 0,
+          "dailyPages": "",
+          "monthlyPages": 0,
+          "monthlyTargets": {}
+        }
+      ],
+      "monthlyTargets": {},
+      "totalPages": 0
+    }
+  ],
+  "Khassa Year 1": [
+    {
+      "subject": "فقہ (مطالعہ فقہ اسلامی )",
+      "term": "First Term",
+      "book": "مختصرقدوری",
+      "books": [
+        {
+          "name": "مختصرقدوری",
+          "totalPages": 298,
+          "teachingDays": 60.0,
+          "dailyPages": "5",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 60,
+            "May 2026": 60,
+            "June 2026": 60,
+            "July 2026": 59,
+            "August 2026": 59
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 60,
+        "May 2026": 60,
+        "June 2026": 60,
+        "July 2026": 59,
+        "August 2026": 59
+      },
+      "totalPages": 298
+    },
+    {
+      "subject": "اصول فقہ",
+      "term": "First Term",
+      "book": "اصول الشاشی مکمل",
+      "books": [
+        {
+          "name": "اصول الشاشی مکمل",
+          "totalPages": 291,
+          "teachingDays": 60.0,
+          "dailyPages": "5",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 59,
+            "May 2026": 58,
+            "June 2026": 58,
+            "July 2026": 58,
+            "August 2026": 58
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 59,
+        "May 2026": 58,
+        "June 2026": 58,
+        "July 2026": 58,
+        "August 2026": 58
+      },
+      "totalPages": 291
+    },
+    {
+      "subject": "نحو",
+      "term": "First Term",
+      "book": "کافیہ",
+      "books": [
+        {
+          "name": "کافیہ",
+          "totalPages": 50,
+          "teachingDays": 60.0,
+          "dailyPages": "1",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 10,
+            "May 2026": 10,
+            "June 2026": 10,
+            "July 2026": 10,
+            "August 2026": 10
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 10,
+        "May 2026": 10,
+        "June 2026": 10,
+        "July 2026": 10,
+        "August 2026": 10
+      },
+      "totalPages": 50
+    },
+    {
+      "subject": "نحو",
+      "term": "First Term",
+      "book": "النحو الواضح دوسرا +تیسرا حصہ",
+      "books": [
+        {
+          "name": "النحو الواضح دوسرا +تیسرا حصہ",
+          "totalPages": 343,
+          "teachingDays": 60.0,
+          "dailyPages": "5",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 69,
+            "May 2026": 69,
+            "June 2026": 69,
+            "July 2026": 68,
+            "August 2026": 68
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 69,
+        "May 2026": 69,
+        "June 2026": 69,
+        "July 2026": 68,
+        "August 2026": 68
+      },
+      "totalPages": 343
+    },
+    {
+      "subject": "بلاغت",
+      "term": "First Term",
+      "book": "دروس البلاغہ",
+      "books": [
+        {
+          "name": "دروس البلاغہ",
+          "totalPages": 227,
+          "teachingDays": 60.0,
+          "dailyPages": "3.75",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 46,
+            "May 2026": 46,
+            "June 2026": 45,
+            "July 2026": 45,
+            "August 2026": 45
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 46,
+        "May 2026": 46,
+        "June 2026": 45,
+        "July 2026": 45,
+        "August 2026": 45
+      },
+      "totalPages": 227
+    },
+    {
+      "subject": "علوم الحدیث",
+      "term": "First Term",
+      "book": "علوم الحدیث",
+      "books": [
+        {
+          "name": "علوم الحدیث",
+          "totalPages": 0,
+          "teachingDays": 0,
+          "dailyPages": "",
+          "monthlyPages": 0,
+          "monthlyTargets": {}
+        }
+      ],
+      "monthlyTargets": {},
+      "totalPages": 0
+    },
+    {
+      "subject": "کمپیوٹر",
+      "term": "First Term",
+      "book": "Introduction to Computer",
+      "books": [
+        {
+          "name": "Introduction to Computer",
+          "totalPages": 0,
+          "teachingDays": 0,
+          "dailyPages": "",
+          "monthlyPages": 0,
+          "monthlyTargets": {}
+        }
+      ],
+      "monthlyTargets": {},
+      "totalPages": 0
+    }
+  ],
+  "Khassa Year 2": [
+    {
+      "subject": "علوم القرآن",
+      "term": "First Term",
+      "book": "تفسیر جلالین",
+      "books": [
+        {
+          "name": "تفسیر جلالین",
+          "totalPages": 0,
+          "teachingDays": 0,
+          "dailyPages": "2.75\n3.25",
+          "monthlyPages": 0,
+          "monthlyTargets": {}
+        }
+      ],
+      "monthlyTargets": {},
+      "totalPages": 0
+    },
+    {
+      "subject": "اصول فقہ",
+      "term": "First Term",
+      "book": "نور الانوار",
+      "books": [
+        {
+          "name": "نور الانوار",
+          "totalPages": 635,
+          "teachingDays": 70.0,
+          "dailyPages": "9",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 127,
+            "May 2026": 127,
+            "June 2026": 127,
+            "July 2026": 127,
+            "August 2026": 127
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 127,
+        "May 2026": 127,
+        "June 2026": 127,
+        "July 2026": 127,
+        "August 2026": 127
+      },
+      "totalPages": 635
+    },
+    {
+      "subject": "بلاغت",
+      "term": "First Term",
+      "book": "بلاغۃ الواضحہ",
+      "books": [
+        {
+          "name": "بلاغۃ الواضحہ",
+          "totalPages": 300,
+          "teachingDays": 70.0,
+          "dailyPages": "4.25",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 60,
+            "May 2026": 60,
+            "June 2026": 60,
+            "July 2026": 60,
+            "August 2026": 60
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 60,
+        "May 2026": 60,
+        "June 2026": 60,
+        "July 2026": 60,
+        "August 2026": 60
+      },
+      "totalPages": 300
+    },
+    {
+      "subject": "فقہ",
+      "term": "First Term",
+      "book": "ہدیہ ربع اول",
+      "books": [
+        {
+          "name": "ہدیہ ربع اول",
+          "totalPages": 146,
+          "teachingDays": 70.0,
+          "dailyPages": "2.14",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 30,
+            "May 2026": 29,
+            "June 2026": 29,
+            "July 2026": 29,
+            "August 2026": 29
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 30,
+        "May 2026": 29,
+        "June 2026": 29,
+        "July 2026": 29,
+        "August 2026": 29
+      },
+      "totalPages": 146
+    },
+    {
+      "subject": "نحو",
+      "term": "First Term",
+      "book": "شرح جامی",
+      "books": [
+        {
+          "name": "شرح جامی",
+          "totalPages": 150,
+          "teachingDays": 70.0,
+          "dailyPages": "2.14",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 30,
+            "May 2026": 30,
+            "June 2026": 30,
+            "July 2026": 30,
+            "August 2026": 30
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 30,
+        "May 2026": 30,
+        "June 2026": 30,
+        "July 2026": 30,
+        "August 2026": 30
+      },
+      "totalPages": 150
+    },
+    {
+      "subject": "کمپیوٹر",
+      "term": "First Term",
+      "book": "Introduction to Computer",
+      "books": [
+        {
+          "name": "Introduction to Computer",
+          "totalPages": 0,
+          "teachingDays": 0,
+          "dailyPages": "",
+          "monthlyPages": 0,
+          "monthlyTargets": {}
+        }
+      ],
+      "monthlyTargets": {},
+      "totalPages": 0
+    }
+  ],
+  "Aliya Year 1": [
+    {
+      "subject": "علوم القرآن",
+      "term": "First Term",
+      "book": "الفوز الکبیر",
+      "books": [
+        {
+          "name": "الفوز الکبیر",
+          "totalPages": 220,
+          "teachingDays": 90.0,
+          "dailyPages": "2.44",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 44,
+            "May 2026": 44,
+            "June 2026": 44,
+            "July 2026": 44,
+            "August 2026": 44
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 44,
+        "May 2026": 44,
+        "June 2026": 44,
+        "July 2026": 44,
+        "August 2026": 44
+      },
+      "totalPages": 220
+    },
+    {
+      "subject": "فقہ",
+      "term": "First Term",
+      "book": "ہدایہ ربع ثانی",
+      "books": [
+        {
+          "name": "ہدایہ ربع ثانی",
+          "totalPages": 126,
+          "teachingDays": 90.0,
+          "dailyPages": "1.5",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 26,
+            "May 2026": 25,
+            "June 2026": 25,
+            "July 2026": 25,
+            "August 2026": 25
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 26,
+        "May 2026": 25,
+        "June 2026": 25,
+        "July 2026": 25,
+        "August 2026": 25
+      },
+      "totalPages": 126
+    },
+    {
+      "subject": "متن حدیث",
+      "term": "First Term",
+      "book": "مشکوٰۃ المصابیح",
+      "books": [
+        {
+          "name": "مشکوٰۃ المصابیح",
+          "totalPages": 67,
+          "teachingDays": 90.0,
+          "dailyPages": "1",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 14,
+            "May 2026": 14,
+            "June 2026": 13,
+            "July 2026": 13,
+            "August 2026": 13
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 14,
+        "May 2026": 14,
+        "June 2026": 13,
+        "July 2026": 13,
+        "August 2026": 13
+      },
+      "totalPages": 67
+    }
+  ],
+  "Aliya Year 2": [
+    {
+      "subject": "بلاغت",
+      "term": "First Term",
+      "book": "مختصر المعانی",
+      "books": [
+        {
+          "name": "مختصر المعانی",
+          "totalPages": 240,
+          "teachingDays": 90.0,
+          "dailyPages": "2.66",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 48,
+            "May 2026": 48,
+            "June 2026": 48,
+            "July 2026": 48,
+            "August 2026": 48
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 48,
+        "May 2026": 48,
+        "June 2026": 48,
+        "July 2026": 48,
+        "August 2026": 48
+      },
+      "totalPages": 240
+    },
+    {
+      "subject": "فقہ",
+      "term": "First Term",
+      "book": "ہدایہ ربع ثالث",
+      "books": [
+        {
+          "name": "ہدایہ ربع ثالث",
+          "totalPages": 166,
+          "teachingDays": 90.0,
+          "dailyPages": "1.84",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 34,
+            "May 2026": 33,
+            "June 2026": 33,
+            "July 2026": 33,
+            "August 2026": 33
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 34,
+        "May 2026": 33,
+        "June 2026": 33,
+        "July 2026": 33,
+        "August 2026": 33
+      },
+      "totalPages": 166
+    },
+    {
+      "subject": "حدیث",
+      "term": "First Term",
+      "book": "مشکوٰۃ المصابیح",
+      "books": [
+        {
+          "name": "مشکوٰۃ المصابیح",
+          "totalPages": 82,
+          "teachingDays": 90.0,
+          "dailyPages": "1",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 17,
+            "May 2026": 17,
+            "June 2026": 16,
+            "July 2026": 16,
+            "August 2026": 16
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 17,
+        "May 2026": 17,
+        "June 2026": 16,
+        "July 2026": 16,
+        "August 2026": 16
+      },
+      "totalPages": 82
+    },
+    {
+      "subject": "تفسیر و اصول تفسیر",
+      "term": "First Term",
+      "book": "زبدۃ الاتقان",
+      "books": [
+        {
+          "name": "زبدۃ الاتقان",
+          "totalPages": 180,
+          "teachingDays": 90.0,
+          "dailyPages": "6",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 36,
+            "May 2026": 36,
+            "June 2026": 36,
+            "July 2026": 36,
+            "August 2026": 36
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 36,
+        "May 2026": 36,
+        "June 2026": 36,
+        "July 2026": 36,
+        "August 2026": 36
+      },
+      "totalPages": 180
+    },
+    {
+      "subject": "تفسیر و اصول تفسیر",
+      "term": "First Term",
+      "book": "تفسیر بیضاوی",
+      "books": [
+        {
+          "name": "تفسیر بیضاوی",
+          "totalPages": 134,
+          "teachingDays": 90.0,
+          "dailyPages": "2.25",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 27,
+            "May 2026": 27,
+            "June 2026": 27,
+            "July 2026": 27,
+            "August 2026": 26
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 27,
+        "May 2026": 27,
+        "June 2026": 27,
+        "July 2026": 27,
+        "August 2026": 26
+      },
+      "totalPages": 134
+    }
+  ],
+  "Alamiya Year 1": [
+    {
+      "subject": "حدیث",
+      "term": "First Term",
+      "book": "شرح معانی الآثار",
+      "books": [
+        {
+          "name": "شرح معانی الآثار",
+          "totalPages": 191,
+          "teachingDays": 90.0,
+          "dailyPages": "2.18",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 39,
+            "May 2026": 38,
+            "June 2026": 38,
+            "July 2026": 38,
+            "August 2026": 38
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 39,
+        "May 2026": 38,
+        "June 2026": 38,
+        "July 2026": 38,
+        "August 2026": 38
+      },
+      "totalPages": 191
+    },
+    {
+      "subject": "اصول حدیث",
+      "term": "First Term",
+      "book": "شرح نخبۃ الفکر",
+      "books": [
+        {
+          "name": "شرح نخبۃ الفکر",
+          "totalPages": 0,
+          "teachingDays": 0,
+          "dailyPages": "",
+          "monthlyPages": 0,
+          "monthlyTargets": {}
+        }
+      ],
+      "monthlyTargets": {},
+      "totalPages": 0
+    },
+    {
+      "subject": "فقہ",
+      "term": "First Term",
+      "book": "ہدایہ ربع آخر",
+      "books": [
+        {
+          "name": "ہدایہ ربع آخر",
+          "totalPages": 200,
+          "teachingDays": 90.0,
+          "dailyPages": "4.1",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "April 2026": 40,
+            "May 2026": 40,
+            "June 2026": 40,
+            "July 2026": 40,
+            "August 2026": 40
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "April 2026": 40,
+        "May 2026": 40,
+        "June 2026": 40,
+        "July 2026": 40,
+        "August 2026": 40
+      },
+      "totalPages": 200
+    },
+    {
+      "subject": "اسماء الرجال",
+      "term": "Second Term",
+      "book": "الرفع والتکمیل فی الجرح وتعدیل",
+      "books": [
+        {
+          "name": "الرفع والتکمیل فی الجرح وتعدیل",
+          "totalPages": 0,
+          "teachingDays": 0,
+          "dailyPages": "",
+          "monthlyPages": 0,
+          "monthlyTargets": {}
+        }
+      ],
+      "monthlyTargets": {},
+      "totalPages": 0
+    },
+    {
+      "subject": "علم الکلام",
+      "term": "First Term",
+      "book": "شرح عقائد النسفی",
+      "books": [
+        {
+          "name": "شرح عقائد النسفی",
+          "totalPages": 0,
+          "teachingDays": 0,
+          "dailyPages": "",
+          "monthlyPages": 0,
+          "monthlyTargets": {}
+        }
+      ],
+      "monthlyTargets": {},
+      "totalPages": 0
+    }
+  ],
+  "Alamiya Year 2": [
+    {
+      "subject": "حدیث",
+      "term": "Second Term",
+      "book": "صحیح بخاری",
+      "books": [
+        {
+          "name": "صحیح بخاری",
+          "totalPages": 190,
+          "teachingDays": 90.0,
+          "dailyPages": "2.17",
+          "monthlyPages": 0,
+          "monthlyTargets": {
+            "September 2026": 38,
+            "October 2026": 38,
+            "November 2026": 38,
+            "December 2026": 38,
+            "January 2027": 38
+          }
+        }
+      ],
+      "monthlyTargets": {
+        "September 2026": 38,
+        "October 2026": 38,
+        "November 2026": 38,
+        "December 2026": 38,
+        "January 2027": 38
+      },
+      "totalPages": 190
+    },
+    {
+      "subject": "حدیث",
+      "term": "First Term",
+      "book": "صحیح بخاری",
+      "books": [
+        {
+          "name": "صحیح بخاری",
+          "totalPages": 0,
+          "teachingDays": 0,
+          "dailyPages": "",
+          "monthlyPages": 0,
+          "monthlyTargets": {}
+        }
+      ],
+      "monthlyTargets": {},
+      "totalPages": 0
+    },
+    {
+      "subject": "حدیث",
+      "term": "First Term",
+      "book": "جامع ترمذی",
+      "books": [
+        {
+          "name": "جامع ترمذی",
+          "totalPages": 0,
+          "teachingDays": 0,
+          "dailyPages": "",
+          "monthlyPages": 0,
+          "monthlyTargets": {}
+        }
+      ],
+      "monthlyTargets": {},
+      "totalPages": 0
+    }
+  ]
+}

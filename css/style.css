@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700&display=swap');
 
 :root {
     --primary-color: #4f46e5;
@@ -26,9 +25,20 @@
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', 'Noto Nastaliq Urdu', sans-serif;
     color: var(--text-dark);
     line-height: 1.5;
+}
+
+input,
+select,
+textarea,
+button {
+    font-family: inherit;
+}
+
+.urdu-text {
+    font-family: 'Noto Nastaliq Urdu', serif !important;
 }
 
 [lang="ur"],
@@ -36,6 +46,7 @@ body {
 .rtl-mode {
     font-family: 'Noto Nastaliq Urdu', serif;
     line-height: 1.8;
+    font-size: 100%;
 }
 
 .bg-light {
@@ -217,18 +228,6 @@ body {
 
 .nav-icon {
     margin-right: 0.75rem;
-}
-
-.rtl-mode .sidebar {
-    font-size: 0.95rem;
-    line-height: 1.6;
-}
-.rtl-mode .sidebar-header h2 {
-    font-size: 1rem;
-    line-height: 1.4;
-}
-.rtl-mode .nav-item {
-    line-height: 1.6;
 }
 
 .main-content {
@@ -500,20 +499,30 @@ body {
     text-align: right;
 }
 
-.rtl-mode .sidebar {
-    overflow-y: auto;
-    overflow-x: hidden;
-    font-family: 'Noto Sans Arabic', 'Noto Nastaliq Urdu', serif;
+.rtl-mode .sidebar-header h2 {
+    font-size: 1rem;
+    line-height: 1.4;
 }
-.rtl-mode .sidebar-header {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+
 .rtl-mode .nav-item {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.rtl-mode .page-title h1,
+.rtl-mode h1 {
+    font-size: 1.6rem;
+    line-height: 1.6;
+}
+
+.rtl-mode h2 {
+    font-size: 1.25rem;
+    line-height: 1.6;
+}
+
+.rtl-mode h3 {
+    font-size: 1.1rem;
+    line-height: 1.6;
 }
 
 .rtl-mode .sidebar {
@@ -595,10 +604,6 @@ body {
 
     .rtl-mode .sidebar {
         transform: translateX(100%);
-        width: 250px;
-        max-width: 80vw;
-        overflow-y: auto;
-        overflow-x: hidden;
     }
 
     .rtl-mode .sidebar.open {

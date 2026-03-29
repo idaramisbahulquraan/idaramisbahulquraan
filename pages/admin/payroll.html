@@ -215,11 +215,16 @@
 
             <div class="dashboard-content">
                 <div class="tabs">
-                    <button class="tab-btn active" onclick="switchTab('generate')" data-i18n="generate_payroll">Generate Payroll</button>
-                    <button class="tab-btn" onclick="switchTab('history')" data-i18n="salary_history">Salary History</button>
-                    <button class="tab-btn" onclick="switchTab('leaves')" data-i18n="leave_management">Leave Management</button>
-                    <button class="tab-btn" onclick="switchTab('structures')" data-i18n="salary_structures">Salary Structures</button>
-                    <button class="tab-btn" onclick="switchTab('advances')" data-i18n="advances_loans">Advances/Loans</button>
+                    <button class="tab-btn active" onclick="switchTab('generate')" data-i18n="generate_payroll">Generate
+                        Payroll</button>
+                    <button class="tab-btn" onclick="switchTab('history')" data-i18n="salary_history">Salary
+                        History</button>
+                    <button class="tab-btn" onclick="switchTab('leaves')" data-i18n="leave_management">Leave
+                        Management</button>
+                    <button class="tab-btn" onclick="switchTab('structures')" data-i18n="salary_structures">Salary
+                        Structures</button>
+                    <button class="tab-btn" onclick="switchTab('advances')"
+                        data-i18n="advances_loans">Advances/Loans</button>
                     <button class="tab-btn" onclick="switchTab('bank')" data-i18n="bank_export">Bank Export</button>
                 </div>
 
@@ -243,7 +248,8 @@
                         <select id="genYear">
                             <!-- Populated by JS -->
                         </select>
-                        <button class="btn-action btn-primary" onclick="loadStaffForPayroll()" data-i18n="fetch_staff">Fetch Staff</button>
+                        <button class="btn-action btn-primary" onclick="loadStaffForPayroll()"
+                            data-i18n="fetch_staff">Fetch Staff</button>
                     </div>
 
                     <div class="table-container">
@@ -258,7 +264,9 @@
                             </thead>
                             <tbody id="staffList">
                                 <tr>
-                                    <td colspan="4" style="text-align: center; padding: 2rem;" data-i18n="select_month_year_fetch">Select month/year and click Fetch Staff.</td>
+                                    <td colspan="4" style="text-align: center; padding: 2rem;"
+                                        data-i18n="select_month_year_fetch">Select month/year and click Fetch Staff.
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -311,7 +319,8 @@
                 <!-- Leave Management Tab -->
                 <div id="leavesTab" style="display: none;">
                     <div class="filters">
-                        <button class="btn-action btn-primary" onclick="openLeaveModal()" data-i18n="record_leave">Record Leave</button>
+                        <button class="btn-action btn-primary" onclick="openLeaveModal()"
+                            data-i18n="record_leave">Record Leave</button>
                     </div>
                     <div class="table-container">
                         <table id="leavesTable">
@@ -326,7 +335,9 @@
                                 </tr>
                             </thead>
                             <tbody id="leavesList">
-                                <tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 2rem;">Loading...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -335,7 +346,8 @@
                 <!-- Salary Structures Tab -->
                 <div id="structuresTab" style="display: none;">
                     <div class="filters">
-                        <button class="btn-action btn-primary" onclick="loadSalaryStructures()" data-i18n="refresh">Refresh</button>
+                        <button class="btn-action btn-primary" onclick="loadSalaryStructures()"
+                            data-i18n="refresh">Refresh</button>
                     </div>
                     <div class="table-container">
                         <table id="structuresTable">
@@ -362,8 +374,10 @@
                 <!-- Advances/Loans Tab -->
                 <div id="advancesTab" style="display: none;">
                     <div class="filters">
-                        <button class="btn-action btn-primary" onclick="openAdvanceModal()" data-i18n="new_advance">New Advance/Loan</button>
-                        <button class="btn-action btn-secondary" onclick="loadAdvances()" data-i18n="refresh">Refresh</button>
+                        <button class="btn-action btn-primary" onclick="openAdvanceModal()" data-i18n="new_advance">New
+                            Advance/Loan</button>
+                        <button class="btn-action btn-secondary" onclick="loadAdvances()"
+                            data-i18n="refresh">Refresh</button>
                     </div>
                     <div class="table-container">
                         <table id="advancesTable">
@@ -407,7 +421,8 @@
                         <select id="bankYear" onchange="loadBankPreview()">
                             <!-- Populated by JS -->
                         </select>
-                        <button class="btn-action btn-primary" onclick="exportBankCSV()" data-i18n="export_csv">Export CSV</button>
+                        <button class="btn-action btn-primary" onclick="exportBankCSV()" data-i18n="export_csv">Export
+                            CSV</button>
                     </div>
 
                     <div class="table-container">
@@ -421,14 +436,16 @@
                             </thead>
                             <tbody id="bankList">
                                 <tr>
-                                    <td colspan="3" style="text-align: center; padding: 2rem;">Select month/year to preview.</td>
+                                    <td colspan="3" style="text-align: center; padding: 2rem;">Select month/year to
+                                        preview.</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
                     <p style="margin-top: 0.75rem; color: var(--text-light); font-size: 0.85rem;">
-                        Exports paid payroll records for the selected month/year as a CSV file (staff name, bank details, net salary).
+                        Exports paid payroll records for the selected month/year as a CSV file (staff name, bank
+                        details, net salary).
                     </p>
                 </div>
             </div>
@@ -510,10 +527,11 @@
                     </div>
                     <div class="form-group">
                         <label data-i18n="net_salary">Net Salary</label>
-                        <input type="number" name="netSalary" id="netSalary" readonly style="background-color: #f8fafc;">
+                        <input type="number" name="netSalary" id="netSalary" readonly
+                            style="background-color: #f8fafc;">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label data-i18n="remarks">Remarks</label>
                     <input type="text" name="remarks" placeholder="Optional notes">
@@ -521,12 +539,14 @@
 
                 <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
                     <input type="checkbox" id="recordExpense" name="recordExpense" checked style="width: auto;">
-                    <label for="recordExpense" style="margin: 0; display: inline;" data-i18n="record_as_expense">Record as
+                    <label for="recordExpense" style="margin: 0; display: inline;" data-i18n="record_as_expense">Record
+                        as
                         expense (Salaries)</label>
                 </div>
 
                 <div style="margin-top: 1.5rem; text-align: right;">
-                    <button type="button" class="btn-action btn-secondary" onclick="closeModal()" data-i18n="cancel">Cancel</button>
+                    <button type="button" class="btn-action btn-secondary" onclick="closeModal()"
+                        data-i18n="cancel">Cancel</button>
                     <button type="submit" class="btn-action btn-primary" data-i18n="save_payment">Save Payment</button>
                 </div>
             </form>
@@ -648,11 +668,13 @@
 
                 <div class="form-group">
                     <label data-i18n="staff_member">Staff Member</label>
-                    <input type="text" name="staffName" id="repaymentStaffName" readonly style="background-color: #f8fafc;">
+                    <input type="text" name="staffName" id="repaymentStaffName" readonly
+                        style="background-color: #f8fafc;">
                 </div>
                 <div class="form-group">
                     <label data-i18n="balance">Outstanding Balance</label>
-                    <input type="number" name="balance" id="repaymentBalance" readonly style="background-color: #f8fafc;">
+                    <input type="number" name="balance" id="repaymentBalance" readonly
+                        style="background-color: #f8fafc;">
                 </div>
 
                 <div class="form-grid">
@@ -735,14 +757,17 @@
                 </div>
                 <div class="form-group">
                     <label data-i18n="reason">Reason</label>
-                    <textarea name="reason" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem;"></textarea>
+                    <textarea name="reason" rows="3"
+                        style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem;"></textarea>
                 </div>
                 <div style="margin-top: 1.5rem; text-align: right;">
-                    <button type="button" class="btn-action btn-secondary" onclick="closeLeaveModal()" data-i18n="cancel">Cancel</button>
+                    <button type="button" class="btn-action btn-secondary" onclick="closeLeaveModal()"
+                        data-i18n="cancel">Cancel</button>
                     <button type="submit" class="btn-action btn-primary" data-i18n="save">Save</button>
                 </div>
             </form>
         </div>
     </div>
 </body>
+
 </html>

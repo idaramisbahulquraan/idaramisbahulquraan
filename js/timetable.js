@@ -71,8 +71,8 @@ async function loadDepartmentsForTimetable() {
         if (typeof updatePageLanguage === 'function') updatePageLanguage();
         items.forEach(dep => {
             const opt = document.createElement('option');
-            opt.value = dep;
-            opt.textContent = dep;
+            opt.value = dep.name || dep;
+            opt.textContent = dep.name_ur || dep.name || dep;
             selectEl.appendChild(opt);
         });
     };
@@ -81,11 +81,11 @@ async function loadDepartmentsForTimetable() {
         let depsSnap = await db.collection('departments')
             .where('tenantId', '==', tenantId)
             .get();
-        let departments = depsSnap.docs.map(d => d.data().name).filter(Boolean);
+        let departments = depsSnap.docs.map(d => ({ name: d.data().name, name_ur: d.data().name_ur })).filter(d => d.name);
         if (!departments.length) {
             // Backward compatibility for departments without tenantId
             depsSnap = await db.collection('departments').get();
-            departments = depsSnap.docs.map(d => d.data().name).filter(Boolean);
+            departments = depsSnap.docs.map(d => ({ name: d.data().name, name_ur: d.data().name_ur })).filter(d => d.name);
         }
 
         // Fallback: derive unique departments from classes if departments collection is empty
@@ -96,12 +96,12 @@ async function loadDepartmentsForTimetable() {
             if (!classesSnap.size) {
                 classesSnap = await db.collection('classes').get();
             }
-            const set = new Set();
+            const set = new Map();
             classesSnap.forEach(doc => {
                 const dep = doc.data().department;
-                if (dep) set.add(dep);
+                if (dep && !set.has(dep)) set.set(dep, { name: dep, name_ur: '' });
             });
-            departments = Array.from(set);
+            departments = Array.from(set.values());
         }
 
         setOptions(filterDept, departments);
@@ -129,12 +129,17 @@ async function loadClassesForDepartment(selectId, department) {
                 .where('department', '==', department)
                 .get();
         }
+        const seen = new Set();
         classesSnap.forEach(doc => {
             const data = doc.data();
             if (!data.name) return;
+            const label = data.name_ur || data.name;
+            if (seen.has(label)) return;
+            seen.add(label);
+
             const opt = document.createElement('option');
             opt.value = data.name;
-            opt.textContent = data.name;
+            opt.textContent = label;
             select.appendChild(opt);
         });
         // Keep previously selected class if provided
@@ -319,8 +324,8 @@ async function loadTimetable() {
 	                        ${items.length === 0 ? '<div class="empty-slot">No periods</div>' : items.map(p => `
 	                            <div class="period-card">
 	                                <div class="period-time">${p.startTime || ''} - ${p.endTime || ''}</div>
-	                                <div class="period-subject">${p.subject || ''}</div>
-	                                <div class="period-teacher">${p.teacherName || ''}</div>
+	                                <div class="period-subject">${p.subject_ur || p.subject || ''}</div>
+	                                <div class="period-teacher">${p.teacherName_ur || p.teacherName || ''}</div>
 	                                ${p.roomName ? `<div class="muted">Room: ${escapeHtml(p.roomName)}</div>` : ''}
 	                                <div class="period-actions">
 	                                    <button title="Edit" onclick="openModal('${p.id}')">Edit</button>
@@ -506,7 +511,7 @@ async function loadTeachersIntoSelect() {
 
         const teachers = snap.docs.map(doc => {
             const data = doc.data() || {};
-            const name = `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.email || 'Teacher';
+            const name = data.name_ur || `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.email || 'Teacher';
             return { id: doc.id, name, email: data.email || '', tenantId: data.tenantId || '' };
         }).filter(t => !t.tenantId || t.tenantId === tenantId);
 
@@ -713,6 +718,7 @@ async function fetchSubjectsForClass(department, className) {
             subjects.push({
                 id: doc.id,
                 name: d.name || '',
+                name_ur: d.name_ur || d.name,
                 teacherId: d.teacherId || '',
                 teacherName: d.teacherName || '',
                 tenantId: d.tenantId || ''
@@ -723,7 +729,11 @@ async function fetchSubjectsForClass(department, className) {
     }
 
     const filtered = subjects.filter(s => !s.tenantId || s.tenantId === tenantId).filter(s => !!s.name);
-    filtered.sort((a, b) => a.name.localeCompare(b.name));
+    filtered.sort((a, b) => {
+        const aLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(a) : (a.name_ur || a.name || '');
+        const bLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(b) : (b.name_ur || b.name || '');
+        return aLabel.localeCompare(bLabel);
+    });
     return filtered;
 }
 
@@ -739,7 +749,7 @@ async function loadSubjectsForClass(department, className, preselect = '') {
         subjects.forEach(s => {
             const opt = document.createElement('option');
             opt.value = s.name;
-            opt.textContent = s.name;
+            opt.textContent = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(s) : (s.name_ur || s.name);
             subjectSelect.appendChild(opt);
         });
         if (preselect) {
@@ -805,6 +815,10 @@ async function handleAddPeriod(event) {
 
     try {
         const roomName = roomId ? (document.querySelector('#roomSelect option:checked')?.textContent || '') : '';
+        const selectedSubject = Array.isArray(SUBJECT_CACHE) ? SUBJECT_CACHE.find(s => s.name === subject) : null;
+        const subjectDisplayName = (typeof getSubjectDisplayName === 'function')
+            ? getSubjectDisplayName(selectedSubject || { name: subject, name_ur: subject })
+            : ((selectedSubject && (selectedSubject.name_ur || selectedSubject.name)) || subject);
         if (docId) {
             await db.collection('timetable').doc(docId).set({
                 department,
@@ -813,6 +827,7 @@ async function handleAddPeriod(event) {
                 startTime,
                 endTime,
                 subject,
+                subject_ur: subjectDisplayName,
                 teacherId,
                 teacherName: document.querySelector('#teacherSelect option:checked')?.textContent || '',
                 roomId: roomId || '',
@@ -830,6 +845,7 @@ async function handleAddPeriod(event) {
                 startTime,
                 endTime,
                 subject,
+                subject_ur: subjectDisplayName,
                 teacherId,
                 teacherName: document.querySelector('#teacherSelect option:checked')?.textContent || '',
                 roomId: roomId || '',
@@ -889,6 +905,42 @@ async function downloadTimetablePDF() {
             return;
         }
 
+        const classUrdu = {
+            "Aamma Year 1": "عامہ سال اول",
+            "Aamma Year 2": "عامہ سال دوم",
+            "Khassa Year 1": "خاصہ سال اول",
+            "Khassa Year 2": "خاصہ سال دوم",
+            "Aliya Year 1": "عالیہ سال اول",
+            "Aliya Year 2": "عالیہ سال دوم",
+            "Alamiya Year 1": "عالمیہ سال اول",
+            "Alamiya Year 2": "عالمیہ سال دوم",
+            "Aamma Year 1 (Arabic Language Foundation Course)": "عامہ سال اول (عریبک لینگوئج کورس)",
+            "Aamma Year 2 (English Language Foundation Course)": "عامہ سال دوم (انگلش لینگوئج کورس)",
+            "Hifz Class": "حفظ کلاس",
+            "Abee Bin Kaab": "ابی بن کعب",
+            "Zaid Bin Sabit": "زید بن ثابت",
+            "Abdullah Bin Abbas": "عبداللہ بن عباس",
+            "Abdullah Bin Masood": "عبداللہ بن مسعود",
+            "Osman Ghani": "عثمان غنی",
+            "Musab Bin Omair": "مصعب بن عمیر",
+            "Abu Bakar Siddique": "ابوبکر صدیق",
+            "Amer Bin Khatab": "عمر بن خطاب",
+            "Naseerah Murseed": "نصیرہ مرشد",
+            "Tajweed Class 1st year": "تجوید کلاس سال اول",
+            "Tajweed Class 2nd year": "تجوید کلاس سال دوم",
+            "Class 1st year": "تجوید کلاس سال اول",
+            "Class 2nd year": "تجوید کلاس سال دوم"
+        };
+        const deptUrdu = {
+            "Dars-e-Nizami Department": "شعبہ درس نظامی",
+            "Hifz Department": "شعبہ تحفیظ القرآن",
+            "Tajweed Department": "شعبہ تجوید و قرأت"
+        };
+
+        const displayDept = deptUrdu[ctx.department] || ctx.department;
+        const displayClass = classUrdu[ctx.className] || ctx.className;
+
+        // Sort periods
         const dayIndex = DAY_ORDER.reduce((acc, d, i) => ({ ...acc, [d]: i }), {});
         periods.sort((a, b) => {
             const da = dayIndex[a.day] ?? 999;
@@ -897,44 +949,40 @@ async function downloadTimetablePDF() {
             return (a.startTime || '').localeCompare(b.startTime || '');
         });
 
-        const jsPdfLib = window.jspdf || window.jspdf?.jsPDF ? window.jspdf : null;
-        const jsPDF = jsPdfLib?.jsPDF || jsPdfLib?.default || window.jspdf?.jsPDF;
-        if (!jsPDF) {
-            alert('PDF library not loaded.');
-            return;
-        }
+        const table = document.createElement('table');
+        table.className = 'data-table';
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Subject</th>
+                    <th>Teacher</th>
+                    <th>Room</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${periods.map(p => `
+                    <tr>
+                        <td>${p.day || ''}</td>
+                        <td style="text-align:center;">${p.startTime || ''} - ${p.endTime || ''}</td>
+                        <td>${p.subject_ur || p.subject || ''}</td>
+                        <td>${p.teacherName_ur || p.teacherName || ''}</td>
+                        <td>${p.roomName || ''}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        `;
 
-        const doc = new jsPDF();
-        const startY = (typeof applyPdfBranding === 'function')
-            ? await applyPdfBranding(doc, { title: `Timetable - ${ctx.department} / ${ctx.className}` })
-            : 30;
-
-        const rows = periods.map(p => ([
-            p.day || '',
-            `${p.startTime || ''} - ${p.endTime || ''}`.trim(),
-            p.subject || '',
-            p.teacherName || '',
-            p.roomName || ''
-        ]));
-
-        if (typeof doc.autoTable !== 'function') {
-            alert('PDF table plugin not loaded.');
-            return;
-        }
-
-        doc.autoTable({
-            head: [['Day', 'Time', 'Subject', 'Teacher', 'Room']],
-            body: rows,
-            startY,
-            styles: { fontSize: 9 },
-            headStyles: { fillColor: doc.__brandPrimaryRgb || [79, 70, 229] }
+        window.PDFSnapshot.generate({
+            title: getTrans('class_schedules'),
+            subtitle: `${displayDept} | ${displayClass}`,
+            content: table.outerHTML
         });
 
-        const safeName = `timetable_${ctx.department}_${ctx.className}`.replace(/[^a-zA-Z0-9_-]+/g, '_');
-        doc.save(`${safeName}.pdf`);
-    } catch (err) {
-        console.error(err);
-        alert('Failed to generate PDF: ' + (err.message || err));
+    } catch (e) {
+        console.error(e);
+        alert("Error generating PDF: " + e.message);
     }
 }
 
@@ -1038,11 +1086,13 @@ function renderGeneratorPreview(preview) {
     });
     Object.keys(byDay).forEach(day => byDay[day].sort((a, b) => toMinutes(a.startTime) - toMinutes(b.startTime)));
 
-    const conflictCount = preview.periods.reduce((sum, p) => sum + (p.issues?.length ? 1 : 0), 0);
+    const displayDept = (typeof DEPT_NAME_MAP !== 'undefined' ? DEPT_NAME_MAP[preview.department] : null) || preview.department;
+    const displayClass = (typeof CLASS_NAME_MAP !== 'undefined' ? CLASS_NAME_MAP[preview.className] : null) || preview.className;
+
     let html = `
         <div style="padding:0.85rem;border:1px solid var(--border-color);border-radius:0.75rem;background:#f8fafc;">
-            <div style="font-weight:700;">Preview: ${escapeHtml(preview.department)} / ${escapeHtml(preview.className)}</div>
-            <div class="muted">Periods: ${preview.periods.length} • Issues: ${conflictCount}</div>
+            <div style="font-weight:700;">${getTrans('preview')}: ${escapeHtml(displayDept)} / ${escapeHtml(displayClass)}</div>
+            <div class="muted">${getTrans('periods')}: ${preview.periods.length} • ${getTrans('issues')}: ${conflictCount}</div>
         </div>
     `;
 
@@ -1056,19 +1106,19 @@ function renderGeneratorPreview(preview) {
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Time</th>
-                                <th>Subject</th>
-                                <th>Teacher</th>
-                                <th>Room</th>
-                                <th>Issues</th>
+                                <th>${getTrans('time')}</th>
+                                <th>${getTrans('subject')}</th>
+                                <th>${getTrans('teacher')}</th>
+                                <th>${getTrans('room')}</th>
+                                <th>${getTrans('issues')}</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${periods.map(p => `
                                 <tr style="${p.issues?.length ? 'background:#fff1f2;' : ''}">
                                     <td>${escapeHtml(`${p.startTime} - ${p.endTime}`)}</td>
-                                    <td>${escapeHtml(p.subject || '')}</td>
-                                    <td>${escapeHtml(p.teacherName || '-')}${p.teacherId ? '' : ' (missing)'}</td>
+                                    <td>${escapeHtml(p.subject_ur || p.subject || '')}</td>
+                                    <td>${escapeHtml(p.teacherName_ur || p.teacherName || '-')}${p.teacherId ? '' : ` (${getTrans('missing')})`}</td>
                                     <td>${escapeHtml(p.roomName || '-')}</td>
                                     <td>${p.issues?.length ? escapeHtml(p.issues.join(' | ')) : '<span class=\"muted\">-</span>'}</td>
                                 </tr>
@@ -1172,8 +1222,10 @@ async function previewGenerateTimetable() {
                 startTime: slot.startTime,
                 endTime: slot.endTime,
                 subject: subject.name,
+                subject_ur: (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(subject) : (subject.name_ur || subject.name),
                 teacherId,
                 teacherName,
+                teacherName_ur: teacherName, // Already preferred Urdu in teacherNameById or loadTeachersIntoSelect
                 roomId,
                 roomName,
                 issues
@@ -1621,15 +1673,24 @@ async function startAutoOptimize() {
         const teachersSnap = await db.collection('teachers')
             .where('tenantId', '==', tenantId)
             .get();
-        const teachers = teachersSnap.docs.map(d => ({ id: d.id, name: `${d.data().firstName} ${d.data().lastName}` }));
+        const teachers = teachersSnap.docs.map(d => ({
+            id: d.id,
+            name: d.data().name_ur || `${d.data().firstName} ${d.data().lastName}`.trim()
+        }));
+
+        const subjectsList = await fetchSubjectsForClass(department, className);
+        const subjectNames = subjectsList
+            .map(s => (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(s) : (s.name_ur || s.name))
+            .join(', ');
 
         const prompt = `
         I need to generate a class timetable for Class "${className}" (Department: ${department}).
+        Prefer Urdu names for display.
 
-        Available Teachers:
+        Available Teachers (Urdu names):
         ${JSON.stringify(teachers)}
 
-        Standard Subjects: Math, Science, English, History, Geography, Art, Physical Education, Computer Science, Islamic Studies.
+        Subjects for this class: ${subjectNames || 'General Studies'}
 
         Constraints:
         - School days: Monday to Friday.
@@ -1646,9 +1707,9 @@ async function startAutoOptimize() {
                 "day": "Monday",
                 "startTime": "08:00",
                 "endTime": "08:45",
-                "subject": "Math",
+                "subject": "Urdu Subject Name",
                 "teacherId": "ID_FROM_LIST",
-                "teacherName": "NAME_FROM_LIST"
+                "teacherName": "Urdu Name from List"
             }
         ]
 

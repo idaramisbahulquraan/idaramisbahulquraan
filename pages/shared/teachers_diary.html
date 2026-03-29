@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ٹیچرز ڈائری - ادارہ مصباح القرآن</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .diary-shell {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding-bottom: 6rem;
+        }
+
+        .diary-toolbar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .diary-global-grid {
+            display: grid;
+            grid-template-columns: minmax(260px, 1.25fr) minmax(260px, 1fr) auto auto;
+            gap: 1rem;
+            align-items: end;
+            margin-top: 1rem;
+        }
+
+        .diary-global-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .diary-chip-row,
+        .diary-chip-stack {
+            display: flex;
+            gap: 0.45rem;
+            flex-wrap: wrap;
+        }
+
+        .diary-chip-stack {
+            min-width: 240px;
+        }
+
+        .diary-chip {
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            background: #fff;
+            color: var(--text-dark);
+            padding: 0.35rem 0.75rem;
+            font-size: 0.82rem;
+            line-height: 1.2;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .diary-chip.is-selected {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        .diary-chip.is-muted {
+            background: #f8fafc;
+            color: var(--text-light);
+        }
+
+        .diary-grid-wrap {
+            overflow: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            background: #fff;
+        }
+
+        .diary-grid {
+            width: 100%;
+            min-width: 1580px;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .diary-grid th,
+        .diary-grid td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+            background: #fff;
+        }
+
+        .diary-grid thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: #f8fafc;
+            font-weight: 700;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .diary-grid tbody tr.needs-help-row td {
+            background: #fff1f2;
+        }
+
+        .diary-grid tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .diary-student-name {
+            font-weight: 700;
+            min-width: 180px;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .diary-student-meta {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 0.2rem;
+        }
+
+        .diary-cell-input,
+        .diary-notes,
+        .diary-select {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 0.65rem;
+            padding: 0.65rem 0.75rem;
+            font-size: 0.92rem;
+            background: #fff;
+        }
+
+        .diary-notes {
+            min-height: 88px;
+            resize: vertical;
+        }
+
+        .diary-segment {
+            display: inline-flex;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .diary-segment-btn {
+            border: 0;
+            background: transparent;
+            color: var(--text-light);
+            padding: 0.45rem 0.7rem;
+            cursor: pointer;
+            font-size: 0.82rem;
+        }
+
+        .diary-segment-btn.is-selected {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .diary-flag-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            min-width: 220px;
+        }
+
+        .diary-flag-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .diary-sticky-bar {
+            position: sticky;
+            bottom: 0;
+            z-index: 3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 0.9rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+        }
+
+        .diary-summary {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .diary-summary strong {
+            color: var(--text-dark);
+        }
+
+        .diary-state-note {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .diary-empty {
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        .access-card {
+            padding: 1.75rem;
+            text-align: center;
+        }
+
+        @media (max-width: 1100px) {
+            .diary-global-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .diary-sticky-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>ٹیچرز ڈائری</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight:600;">User</p>
+                            <p id="userRole" style="font-size:0.75rem; color:var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content diary-shell">
+                <div class="stat-card" id="teachersDiaryAccessDenied" style="display:none;">
+                    <div class="access-card">
+                        <h3>رسائی نہیں</h3>
+                        <p>یہ صفحہ طلبہ کے علاوہ عملہ کے لیے دستیاب ہے۔</p>
+                    </div>
+                </div>
+
+                <div id="teachersDiaryContent" style="display:none;">
+                    <div class="stat-card">
+                        <h3 style="margin-bottom:1rem;">کلاس، سیکشن اور مضمون منتخب کریں</h3>
+                        <div class="diary-toolbar">
+                            <div class="form-group">
+                                <label>شعبہ</label>
+                                <select id="diaryDepartment" class="diary-select"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>کلاس</label>
+                                <select id="diaryClass" class="diary-select"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>سیکشن</label>
+                                <select id="diarySection" class="diary-select"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>مضمون</label>
+                                <select id="diarySubject" class="diary-select"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>تاریخ</label>
+                                <input type="date" id="diaryDate" class="diary-cell-input">
+                            </div>
+                            <div class="form-group" style="display:flex; align-items:flex-end;">
+                                <button type="button" class="btn-primary" id="loadTeachersDiaryBtn">شیٹ لوڈ کریں</button>
+                            </div>
+                        </div>
+
+                        <div class="diary-global-grid">
+                            <div class="form-group">
+                                <label>آج کے سبق کا ہدف</label>
+                                <input type="text" id="globalLessonGoal" class="diary-cell-input" placeholder="آج طلبہ نے کیا سیکھنا ہے؟">
+                            </div>
+                            <div class="form-group">
+                                <label>استعمال شدہ وسائل</label>
+                                <div class="diary-chip-stack" id="globalResourceChips"></div>
+                            </div>
+                            <div class="diary-global-actions">
+                                <button type="button" class="btn-secondary" id="applyGoalToAllBtn">سبق کا ہدف سب پر لگائیں</button>
+                                <button type="button" class="btn-secondary" id="applyResourcesToAllBtn">وسائل سب پر لگائیں</button>
+                            </div>
+                            <div class="form-group">
+                                <label>فلٹر</label>
+                                <select id="diaryRowFilter" class="diary-select">
+                                    <option value="all">تمام ریکارڈز</option>
+                                    <option value="needs_help">صرف مدد درکار</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+                            <div>
+                                <h3 id="teachersDiarySheetTitle" style="margin:0;">کلاس ڈائری</h3>
+                                <p id="teachersDiarySheetMeta" class="diary-state-note" style="margin:0.35rem 0 0;">شیٹ لوڈ کریں تاکہ طلبہ کی فہرست ظاہر ہو۔</p>
+                            </div>
+                            <div class="diary-summary" id="teachersDiaryQuickSummary">
+                                <span><strong>0</strong> طلبہ</span>
+                                <span><strong>0</strong> مدد درکار</span>
+                            </div>
+                        </div>
+
+                        <div class="diary-grid-wrap">
+                            <table class="diary-grid" id="teachersDiaryGrid">
+                                <thead>
+                                    <tr>
+                                        <th>نمبر شمار</th>
+                                        <th>طالب علم کا نام</th>
+                                        <th>کلاس</th>
+                                        <th>تاریخ</th>
+                                        <th>آج کے سبق کا ہدف</th>
+                                        <th>استعمال شدہ وسائل</th>
+                                        <th>طلبہ کی فعالیت</th>
+                                        <th>فہم کا ثبوت</th>
+                                        <th>مزید مدد درکار ہے؟</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teachersDiaryGridBody">
+                                    <tr>
+                                        <td colspan="9" class="diary-empty">کلاس، سیکشن، مضمون اور تاریخ منتخب کر کے شیٹ لوڈ کریں۔</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="diary-sticky-bar">
+                        <div class="diary-summary" id="teachersDiaryFooterSummary">
+                            <span><strong>0</strong> اندراجات</span>
+                            <span><strong>0</strong> مدد درکار</span>
+                            <span><strong>0</strong> جزوی مکمل</span>
+                        </div>
+                        <button type="button" class="btn-primary" id="saveTeachersDiaryBtn">تمام اندراجات محفوظ کریں</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/teachers-diary.js"></script>
+</body>
+</html>

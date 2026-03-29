@@ -176,7 +176,14 @@
                     return;
                 }
 
-                classInfoEl.innerText = `${department} - ${className}`;
+                const displayDepartment = (typeof getDepartmentDisplayName === 'function')
+                    ? getDepartmentDisplayName(department, studentData.department_ur || '')
+                    : (studentData.department_ur || department);
+                const displayClassName = (typeof getClassDisplayName === 'function')
+                    ? getClassDisplayName(className, studentData.className_ur || '')
+                    : (studentData.className_ur || className);
+
+                classInfoEl.innerText = `${displayDepartment} - ${displayClassName}`;
 
                 // 2. Fetch Timetable
                 const snapshot = await db.collection("timetable")
@@ -208,7 +215,7 @@
                     tr.innerHTML = `
                         <td>${p.day}</td>
                         <td>${formatTime(p.startTime)} - ${formatTime(p.endTime)}</td>
-                        <td>${p.subject}</td>
+                        <td>${p.subject_ur || p.subject}</td>
                         <td>${p.teacherName || '-'}</td>
                     `;
                     tbody.appendChild(tr);

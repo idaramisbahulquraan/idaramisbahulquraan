@@ -55,7 +55,11 @@ const APP_SCHEMA = {
         fields: {
             name: { type: "string", required: true },
             code: { type: "string" },
-            department: { type: "string" }
+            department: { type: "string" },
+            term: { type: "string", enum: ["Foundation Course", "First Term", "Second Term", "Annual"] },
+            book: { type: "string" },
+            authorPublisher: { type: "string" },
+            description: { type: "string" }
         }
     },
     attendance: {

@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v24';
 const APP_CACHE = `sms-app-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `sms-runtime-${CACHE_VERSION}`;
 const OFFLINE_URL = 'offline.html';
@@ -15,11 +15,25 @@ const PRECACHE_URLS = [
   'pages/teacher/attendance.html',
   'pages/teacher/grades.html',
   'pages/teacher/attendance-report.html',
+  'pages/shared/teachers_diary.html',
+  'pages/shared/model_lesson_plan.html',
+  'pages/shared/assembly_responsibility.html',
+  'pages/shared/daily_assembly_performance.html',
+  'pages/shared/teacher_academic_quality_scorecard.html',
+  'pages/shared/student_feedback.html',
+  'pages/shared/hifz_progress_forms.html',
   OFFLINE_URL,
   'css/style.css',
   'js/firebase-config.js',
   'js/translations.js',
   'js/script.js',
+  'js/teachers-diary.js',
+  'js/model-lesson-plan.js',
+  'js/assembly-responsibility.js',
+  'js/daily-assembly-performance.js',
+  'js/teacher-academic-quality-scorecard.js',
+  'js/student-feedback.js',
+  'js/hifz-progress-forms.js',
   'js/support.js',
   'manifest.json',
   'manifest.teacher.json',

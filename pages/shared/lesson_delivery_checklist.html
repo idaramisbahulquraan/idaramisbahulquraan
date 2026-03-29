@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لیسن ڈلیوری چیک لسٹ - ادارہ مصباح القرآن</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .ldc-shell { display: flex; flex-direction: column; gap: 1.5rem; padding-bottom: 7rem; }
+        .ldc-hero {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.97), rgba(79, 70, 229, 0.94));
+            color: #fff;
+            border-radius: 1.35rem;
+            padding: 1.55rem 1.6rem;
+            box-shadow: 0 18px 35px rgba(37, 99, 235, 0.18);
+        }
+        .ldc-hero::after {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            bottom: -4rem;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+        }
+        .ldc-hero h2 { margin: 0 0 0.4rem; color: #fff; font-size: 1.8rem; }
+        .ldc-hero p { margin: 0; max-width: 760px; opacity: 0.94; }
+        .ldc-hero-chips { display: flex; gap: 0.65rem; flex-wrap: wrap; margin-top: 1rem; }
+        .ldc-chip {
+            border: 1px solid rgba(255,255,255,0.24);
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            border-radius: 999px;
+            padding: 0.38rem 0.85rem;
+            font-size: 0.86rem;
+        }
+        .ldc-card {
+            background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 1.2rem;
+            padding: 1.35rem;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        }
+        .ldc-card.section { position: relative; }
+        .ldc-card.section::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 4px;
+            border-radius: 1.2rem 1.2rem 0 0;
+            background: linear-gradient(90deg, #16a34a, #3b82f6 40%, #4f46e5);
+        }
+        .ldc-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+        }
+        .ldc-head-main { display: flex; align-items: center; gap: 0.9rem; }
+        .ldc-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.4rem;
+            height: 2.4rem;
+            padding: 0 0.55rem;
+            border-radius: 0.85rem;
+            background: linear-gradient(135deg, #dbeafe, #ede9fe);
+            color: #3730a3;
+            font-weight: 700;
+            box-shadow: inset 0 0 0 1px rgba(79,70,229,0.12);
+        }
+        .ldc-title { margin: 0; font-size: 1.14rem; color: #0f172a; }
+        .ldc-subtitle { margin: 0.2rem 0 0; color: var(--text-light); font-size: 0.92rem; }
+        .ldc-note {
+            color: var(--text-light);
+            font-size: 0.84rem;
+            background: #f8fafc;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            padding: 0.45rem 0.7rem;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .ldc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; }
+        .ldc-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+        .ldc-grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+        .ldc-card .form-group { margin-bottom: 0; }
+        .ldc-card label,
+        .ldc-card .form-group label { color: #334155; font-weight: 700; font-size: 0.88rem; margin-bottom: 0.45rem; }
+        .ldc-input, .ldc-select, .ldc-textarea {
+            width: 100%;
+            min-height: 50px;
+            padding: 0.82rem 0.92rem;
+            border: 1px solid rgba(148, 163, 184, 0.32);
+            border-radius: 0.9rem;
+            background: #fff;
+            font-size: 0.95rem;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+        }
+        .ldc-textarea { min-height: 96px; resize: vertical; }
+        .ldc-input:focus, .ldc-select:focus, .ldc-textarea:focus {
+            outline: none;
+            border-color: rgba(79,70,229,0.52);
+            box-shadow: 0 0 0 4px rgba(79,70,229,0.08);
+        }
+        .ldc-loadbar {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px dashed rgba(148,163,184,0.32);
+        }
+        .ldc-state { color: var(--text-light); font-size: 0.9rem; }
+        .ldc-table-shell {
+            border: 1px solid rgba(148,163,184,0.22);
+            border-radius: 1rem;
+            overflow: hidden;
+            background: #fff;
+        }
+        .ldc-table-wrap { overflow: auto; }
+        .ldc-table { width: 100%; border-collapse: collapse; min-width: 760px; }
+        .ldc-table th, .ldc-table td {
+            padding: 0.8rem;
+            border-bottom: 1px solid rgba(148,163,184,0.16);
+            vertical-align: middle;
+            text-align: right;
+        }
+        .ldc-table thead th {
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+            color: #334155;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .ldc-table tr:last-child td { border-bottom: 0; }
+        .ldc-criterion { min-width: 320px; line-height: 1.9; }
+        .ldc-scale-group { display: flex; justify-content: center; gap: 0.45rem; flex-wrap: wrap; }
+        .ldc-choice {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ldc-choice input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .ldc-choice span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 3rem;
+            min-height: 2.15rem;
+            padding: 0.35rem 0.65rem;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.24);
+            background: #fff;
+            color: #334155;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+        .ldc-choice input:checked + span {
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 8px 18px rgba(79,70,229,0.22);
+        }
+        .ldc-choice span.ldc-score { min-width: 2.5rem; }
+        .ldc-row-note { min-width: 220px; }
+        .ldc-summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+        .ldc-stat {
+            border: 1px solid rgba(148,163,184,0.2);
+            border-radius: 1rem;
+            padding: 1rem;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        }
+        .ldc-stat-label { color: var(--text-light); font-size: 0.86rem; margin-bottom: 0.35rem; }
+        .ldc-stat-value { font-size: 1.45rem; font-weight: 700; color: #0f172a; }
+        .ldc-grade-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .ldc-grade-table th, .ldc-grade-table td {
+            border: 1px solid rgba(148,163,184,0.18);
+            padding: 0.75rem 0.9rem;
+            text-align: right;
+        }
+        .ldc-grade-table th { background: #f8fafc; color: #475569; }
+        .ldc-highlight {
+            background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 100%);
+            border-color: rgba(79,70,229,0.24);
+        }
+        .ldc-sticky {
+            position: sticky;
+            bottom: 1rem;
+            z-index: 4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.1rem;
+            border: 1px solid rgba(148,163,184,0.22);
+            border-radius: 1.1rem;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 16px 35px rgba(15, 23, 42, 0.1);
+        }
+        .ldc-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        .ldc-actions .btn-primary, .ldc-actions .btn-secondary { min-width: 150px; border-radius: 0.85rem; }
+        .ldc-access { padding: 1.75rem; text-align: center; }
+        @media (max-width: 980px) {
+            .ldc-grid-2, .ldc-grid-4, .ldc-summary-grid { grid-template-columns: 1fr; }
+            .ldc-head, .ldc-sticky { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title"><h1>لیسن ڈلیوری چیک لسٹ</h1></div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight:600;">User</p>
+                            <p id="userRole" style="font-size:0.75rem; color:var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+            <div class="dashboard-content ldc-shell">
+                <div class="ldc-card" id="lessonChecklistAccessDenied" style="display:none;">
+                    <div class="ldc-access">
+                        <h3>رسائی نہیں</h3>
+                        <p>یہ صفحہ طلبہ اور والدین کے علاوہ عملہ کے لیے دستیاب ہے۔</p>
+                    </div>
+                </div>
+                <div id="lessonChecklistContent" style="display:none;">
+                    <div class="ldc-hero">
+                        <h2>تفصیلی لیسن ڈلیوری چیک لسٹ</h2>
+                        <p>سبق کی تیاری، آغاز، تدریس، فہم، اختتام اور نظم و ضبط کا منظم جائزہ ایک ہی جگہ درج کریں۔</p>
+                        <div class="ldc-hero-chips">
+                            <span class="ldc-chip">معیار کے مطابق جانچ</span>
+                            <span class="ldc-chip">خودکار اسکورنگ</span>
+                            <span class="ldc-chip">پرنٹ کے لیے موزوں</span>
+                        </div>
+                    </div>
+
+                    <div class="ldc-card">
+                        <div class="ldc-head">
+                            <div class="ldc-head-main">
+                                <span class="ldc-badge">ا</span>
+                                <div>
+                                    <h3 class="ldc-title">عمومی معلومات</h3>
+                                    <p class="ldc-subtitle">کلاس، مضمون، استاد، مبصر، تاریخ اور وقت درج کر کے موجودہ چیک لسٹ لوڈ کریں۔</p>
+                                </div>
+                            </div>
+                            <span class="ldc-note">ہر سیاق کے لیے ایک محفوظ ریکارڈ</span>
+                        </div>
+                        <div class="ldc-grid">
+                            <div class="form-group"><label>شعبہ</label><select id="ldcDepartment" class="ldc-select"></select></div>
+                            <div class="form-group"><label>کلاس</label><select id="ldcClass" class="ldc-select"></select></div>
+                            <div class="form-group"><label>سیکشن</label><select id="ldcSection" class="ldc-select"></select></div>
+                            <div class="form-group"><label>مضمون</label><select id="ldcSubject" class="ldc-select"></select></div>
+                            <div class="form-group"><label>کتاب</label><input id="ldcBook" class="ldc-input" type="text"></div>
+                            <div class="form-group"><label>استاد</label><select id="ldcTeacher" class="ldc-select"></select></div>
+                            <div class="form-group"><label>تاریخ</label><input id="ldcDate" class="ldc-input" type="date"></div>
+                            <div class="form-group"><label>وقت</label><input id="ldcTime" class="ldc-input" type="time"></div>
+                            <div class="form-group"><label>مبصر / نگران</label><input id="ldcObserver" class="ldc-input" type="text" placeholder="نام درج کریں"></div>
+                        </div>
+                        <div class="ldc-loadbar">
+                            <button type="button" class="btn-secondary" id="ldcLoadBtn">چیک لسٹ لوڈ کریں</button>
+                            <span class="ldc-state" id="ldcLoadState">کلاس، مضمون، استاد اور تاریخ منتخب کر کے موجودہ ریکارڈ لوڈ کریں۔</span>
+                        </div>
+                    </div>
+
+                    <div id="ldcSections"></div>
+
+                    <div class="ldc-card section">
+                        <div class="ldc-head">
+                            <div class="ldc-head-main">
+                                <span class="ldc-badge">خ</span>
+                                <div>
+                                    <h3 class="ldc-title">مجموعی اسکورنگ</h3>
+                                    <p class="ldc-subtitle">ہاں = 2، جزوی = 1، نہیں = 0 جبکہ 4 پوائنٹس والی جدول میں منتخب عدد کے مطابق اسکور شمار ہوگا۔</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ldc-summary-grid">
+                            <div class="ldc-stat"><div class="ldc-stat-label">کل حاصل شدہ اسکور</div><div class="ldc-stat-value" id="ldcTotalPoints">0</div></div>
+                            <div class="ldc-stat"><div class="ldc-stat-label">زیادہ سے زیادہ اسکور</div><div class="ldc-stat-value" id="ldcMaxPoints">0</div></div>
+                            <div class="ldc-stat"><div class="ldc-stat-label">فیصد</div><div class="ldc-stat-value" id="ldcPercent">0%</div></div>
+                            <div class="ldc-stat ldc-highlight"><div class="ldc-stat-label">درجہ / ایکشن</div><div class="ldc-stat-value" id="ldcGrade">-</div><div class="ldc-state" id="ldcActionText">-</div></div>
+                        </div>
+                        <table class="ldc-grade-table">
+                            <thead>
+                                <tr>
+                                    <th>اسکور %</th>
+                                    <th>درجہ</th>
+                                    <th>ایکشن</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>%85+</td><td>ممتاز</td><td>Recognition</td></tr>
+                                <tr><td>%70-84</td><td>بہتر</td><td>معمولی بہتری</td></tr>
+                                <tr><td>%50-69</td><td>قابل اصلاح</td><td>Coaching Plan</td></tr>
+                                <tr><td>%50 سے کم</td><td>فوری مداخلت</td><td>Intensive Monitoring</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="ldc-sticky">
+                        <span class="ldc-state">سبق کی جانچ مکمل ہونے پر محفوظ کریں یا پرنٹ نکالیں۔</span>
+                        <div class="ldc-actions">
+                            <button type="button" class="btn-secondary" id="ldcPrintBtn">پرنٹ / PDF</button>
+                            <button type="button" class="btn-primary" id="ldcSaveBtn">چیک لسٹ محفوظ کریں</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/lesson-delivery-checklist.js"></script>
+</body>
+</html>

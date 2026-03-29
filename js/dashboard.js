@@ -12,7 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initDashboardView(user) {
-    const role = user.role.toLowerCase();
+    const roles = Array.isArray(user.roles) && user.roles.length
+        ? user.roles.map(role => String(role || '').toLowerCase())
+        : [String(user.role || 'student').toLowerCase()];
+    const role = roles[0] || 'student';
     
     // Hide all first
     document.getElementById('admin-dashboard').style.display = 'none';
@@ -22,7 +25,7 @@ function initDashboardView(user) {
     // Load common data (Events)
     loadCommonEvents(role);
 
-    if (role === 'admin') {
+    if (role === 'admin' || role === 'nazim_e_taleemaat' || role === 'hifz_supervisor') {
         document.getElementById('admin-dashboard').style.display = 'block';
         loadAdminStats();
         initCharts();
@@ -294,11 +297,14 @@ async function loadTeacherStats(email) {
         let html = '';
         timetableSnap.forEach(doc => {
             const t = doc.data();
+            const displayClassName = (typeof getClassDisplayName === 'function')
+                ? getClassDisplayName(t.className || '', t.className_ur || '')
+                : (t.className_ur || t.className || '');
             html += `
                 <div class="card" style="margin-bottom: 1rem; border: 1px solid #eee; padding: 1rem;">
                     <h4 style="margin:0 0 0.5rem 0;">${t.subject}</h4>
                     <div style="font-size: 0.9rem; color: var(--text-light);">
-                        <span style="font-weight: 600;">Class:</span> ${t.className} <br>
+                        <span style="font-weight: 600;">Class:</span> ${displayClassName} <br>
                         <span style="font-weight: 600;">Time:</span> ${t.startTime} - ${t.endTime}
                     </div>
                 </div>

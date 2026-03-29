@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اسٹوڈنٹ پروفائل - ادارہ مصباح القرآن</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .sp-shell { display:flex; flex-direction:column; gap:1.5rem; padding-bottom:7rem; }
+        .sp-hero {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(30,64,175,0.97), rgba(79,70,229,0.94));
+            color:#fff;
+            border-radius:1.35rem;
+            padding:1.55rem 1.65rem;
+            box-shadow:0 18px 35px rgba(37,99,235,0.18);
+        }
+        .sp-hero::after {
+            content:'';
+            position:absolute;
+            left:-2rem;
+            bottom:-4.25rem;
+            width:220px;
+            height:220px;
+            border-radius:50%;
+            background:rgba(255,255,255,0.08);
+        }
+        .sp-hero h2 { margin:0 0 0.35rem; color:#fff; font-size:1.78rem; }
+        .sp-hero p { margin:0; max-width:760px; opacity:0.94; }
+        .sp-hero-chips { display:flex; gap:0.65rem; flex-wrap:wrap; margin-top:1rem; }
+        .sp-chip { border:1px solid rgba(255,255,255,0.24); background:rgba(255,255,255,0.12); color:#fff; border-radius:999px; padding:0.38rem 0.85rem; font-size:0.86rem; }
+        .sp-card {
+            background:linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+            border:1px solid rgba(148,163,184,0.22);
+            border-radius:1.2rem;
+            padding:1.35rem;
+            box-shadow:0 10px 24px rgba(15,23,42,0.05);
+        }
+        .sp-card.section { position:relative; }
+        .sp-card.section::before {
+            content:'';
+            position:absolute;
+            inset:0 0 auto 0;
+            height:4px;
+            border-radius:1.2rem 1.2rem 0 0;
+            background:linear-gradient(90deg, #16a34a, #3b82f6 40%, #4f46e5);
+        }
+        .sp-head {
+            display:flex;
+            align-items:flex-start;
+            justify-content:space-between;
+            gap:1rem;
+            margin-bottom:1rem;
+            padding-bottom:0.85rem;
+            border-bottom:1px solid rgba(148,163,184,0.18);
+        }
+        .sp-head-main { display:flex; align-items:center; gap:0.9rem; }
+        .sp-badge {
+            display:inline-flex; align-items:center; justify-content:center;
+            min-width:2.4rem; height:2.4rem; padding:0 0.55rem;
+            border-radius:0.85rem; background:linear-gradient(135deg, #dbeafe, #ede9fe);
+            color:#3730a3; font-weight:700; box-shadow:inset 0 0 0 1px rgba(79,70,229,0.12);
+        }
+        .sp-title { margin:0; font-size:1.14rem; color:#0f172a; }
+        .sp-subtitle { margin:0.2rem 0 0; color:var(--text-light); font-size:0.92rem; }
+        .sp-note { color:var(--text-light); font-size:0.84rem; background:#f8fafc; border:1px solid rgba(148,163,184,0.18); padding:0.45rem 0.7rem; border-radius:999px; white-space:nowrap; }
+        .sp-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:1rem; }
+        .sp-grid-2 { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:1rem; }
+        .sp-grid-3 { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:1rem; }
+        .sp-grid-4 { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:1rem; }
+        .sp-card .form-group { margin-bottom:0; }
+        .sp-card label,
+        .sp-card .form-group label { color:#334155; font-weight:700; font-size:0.88rem; margin-bottom:0.45rem; }
+        .sp-input, .sp-select, .sp-textarea {
+            width:100%; min-height:50px; padding:0.82rem 0.92rem; border:1px solid rgba(148,163,184,0.32);
+            border-radius:0.9rem; background:#fff; font-size:0.95rem; transition:border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .sp-textarea { min-height:96px; resize:vertical; }
+        .sp-input:focus, .sp-select:focus, .sp-textarea:focus {
+            outline:none; border-color:rgba(79,70,229,0.52); box-shadow:0 0 0 4px rgba(79,70,229,0.08);
+        }
+        .sp-loadbar { display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:1rem; align-items:center; padding-top:1rem; border-top:1px dashed rgba(148,163,184,0.32); }
+        .sp-state { color:var(--text-light); font-size:0.9rem; }
+        .sp-summary-grid { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:1rem; }
+        .sp-stat {
+            border:1px solid rgba(148,163,184,0.2); border-radius:1rem; padding:1rem;
+            background:linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        }
+        .sp-stat-label { color:var(--text-light); font-size:0.86rem; margin-bottom:0.35rem; }
+        .sp-stat-value { font-size:1.45rem; font-weight:700; color:#0f172a; }
+        .sp-stat-meta { margin-top:0.35rem; color:var(--text-light); font-size:0.84rem; }
+        .sp-info-strip {
+            display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:0.8rem;
+            margin-top:1rem;
+        }
+        .sp-info-item { border:1px solid rgba(148,163,184,0.2); border-radius:0.95rem; padding:0.9rem; background:#fff; }
+        .sp-info-label { color:var(--text-light); font-size:0.82rem; margin-bottom:0.25rem; }
+        .sp-info-value { color:#0f172a; font-weight:700; }
+        .sp-rating-row { display:flex; gap:0.55rem; flex-wrap:wrap; }
+        .sp-rating-option { position:relative; display:inline-flex; }
+        .sp-rating-option input { position:absolute; opacity:0; pointer-events:none; }
+        .sp-rating-option span {
+            display:inline-flex; align-items:center; justify-content:center; min-width:4.1rem; min-height:2.3rem;
+            padding:0.4rem 0.85rem; border:1px solid rgba(148,163,184,0.22); border-radius:999px; background:#fff; cursor:pointer;
+            transition:all 0.18s ease; color:#334155; font-size:0.88rem;
+        }
+        .sp-rating-option input:checked + span { background:linear-gradient(135deg, #4f46e5, #4338ca); color:#fff; border-color:transparent; box-shadow:0 8px 18px rgba(79,70,229,0.22); }
+        .sp-category-card { border:1px solid rgba(148,163,184,0.2); border-radius:1rem; padding:1rem; background:#fff; }
+        .sp-category-title { margin:0 0 0.8rem; color:#1e3a8a; font-size:1rem; }
+        .sp-auto-note { background:#eef2ff; border:1px solid rgba(79,70,229,0.16); color:#3730a3; border-radius:0.95rem; padding:0.85rem 1rem; font-size:0.9rem; }
+        .sp-sticky {
+            position:sticky; bottom:1rem; z-index:4; display:flex; justify-content:space-between; align-items:center; gap:1rem;
+            padding:1rem 1.1rem; border:1px solid rgba(148,163,184,0.22); border-radius:1.1rem;
+            background:rgba(255,255,255,0.96); backdrop-filter:blur(10px); box-shadow:0 16px 35px rgba(15,23,42,0.1);
+        }
+        .sp-actions { display:flex; gap:0.75rem; flex-wrap:wrap; }
+        .sp-actions .btn-primary, .sp-actions .btn-secondary { min-width:150px; border-radius:0.85rem; }
+        .sp-access { padding:1.75rem; text-align:center; }
+        @media (max-width: 980px) {
+            .sp-grid-2, .sp-grid-3, .sp-grid-4, .sp-summary-grid, .sp-info-strip { grid-template-columns:1fr; }
+            .sp-head, .sp-sticky { flex-direction:column; align-items:stretch; }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title"><h1>اسٹوڈنٹ پروفائل</h1></div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight:600;">User</p>
+                            <p id="userRole" style="font-size:0.75rem; color:var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+            <div class="dashboard-content sp-shell">
+                <div class="sp-card" id="studentProfileAccessDenied" style="display:none;">
+                    <div class="sp-access">
+                        <h3>رسائی نہیں</h3>
+                        <p>یہ صفحہ طلبہ کے علاوہ دیگر پروفائلز کے لیے دستیاب ہے۔</p>
+                    </div>
+                </div>
+                <div id="studentProfileContent" style="display:none;">
+                    <div class="sp-hero">
+                        <h2>اسٹوڈنٹ پروفائل</h2>
+                        <p>تعلیمی کارکردگی کے خودکار اشاریے اور استاد کی مشاہداتی آراء ایک ہی پروفائل میں جمع کریں۔</p>
+                        <div class="sp-hero-chips">
+                            <span class="sp-chip">نتائج خودکار</span>
+                            <span class="sp-chip">استاد کی رائے</span>
+                            <span class="sp-chip">ناظم / ایڈمن ویو</span>
+                        </div>
+                    </div>
+
+                    <div class="sp-card">
+                        <div class="sp-head">
+                            <div class="sp-head-main">
+                                <span class="sp-badge">ا</span>
+                                <div>
+                                    <h3 class="sp-title">طالب علم منتخب کریں</h3>
+                                    <p class="sp-subtitle">شعبہ، کلاس اور طالب علم منتخب کر کے موجودہ پروفائل لوڈ کریں۔</p>
+                                </div>
+                            </div>
+                            <span class="sp-note" id="studentProfileModeNote">عملے کے لیے قابل تدوین</span>
+                        </div>
+                        <div id="studentProfileSelectors" class="sp-grid">
+                            <div class="form-group"><label>شعبہ</label><select id="spDepartment" class="sp-select"></select></div>
+                            <div class="form-group"><label>کلاس</label><select id="spClass" class="sp-select"></select></div>
+                            <div class="form-group"><label>طالب علم</label><select id="spStudent" class="sp-select"></select></div>
+                            <div class="form-group"><label>جائزہ ماہ</label><input id="spReviewMonth" class="sp-input" type="month"></div>
+                        </div>
+                        <div class="sp-loadbar">
+                            <button type="button" class="btn-secondary" id="spLoadBtn">پروفائل لوڈ کریں</button>
+                            <span id="spLoadState" class="sp-state">طالب علم منتخب کر کے پروفائل لوڈ کریں۔</span>
+                        </div>
+                        <div id="spParentLinkedBox" class="sp-auto-note" style="display:none; margin-top:1rem;"></div>
+                    </div>
+
+                    <div class="sp-card section">
+                        <div class="sp-head">
+                            <div class="sp-head-main">
+                                <span class="sp-badge">1</span>
+                                <div>
+                                    <h3 class="sp-title">خودکار تعلیمی اشاریے</h3>
+                                    <p class="sp-subtitle">یہ اعداد و شمار موجودہ ریکارڈز سے خودکار طور پر نکالے جاتے ہیں۔</p>
+                                </div>
+                            </div>
+                            <span class="sp-note">نتائج + ہوم ورک + کوئز</span>
+                        </div>
+                        <div class="sp-summary-grid">
+                            <div class="sp-stat"><div class="sp-stat-label">ماہانہ تحریری ٹیسٹ</div><div class="sp-stat-value" id="spMetricMonthly">0%</div><div class="sp-stat-meta" id="spMetricMonthlyMeta">-</div></div>
+                            <div class="sp-stat"><div class="sp-stat-label">مڈ ٹرم</div><div class="sp-stat-value" id="spMetricMidterm">0%</div><div class="sp-stat-meta" id="spMetricMidtermMeta">-</div></div>
+                            <div class="sp-stat"><div class="sp-stat-label">فائنل ٹرم</div><div class="sp-stat-value" id="spMetricFinal">0%</div><div class="sp-stat-meta" id="spMetricFinalMeta">-</div></div>
+                            <div class="sp-stat"><div class="sp-stat-label">ہوم ورک</div><div class="sp-stat-value" id="spMetricHomework">0%</div><div class="sp-stat-meta" id="spMetricHomeworkMeta">-</div></div>
+                            <div class="sp-stat"><div class="sp-stat-label">کوئز</div><div class="sp-stat-value" id="spMetricQuiz">0%</div><div class="sp-stat-meta" id="spMetricQuizMeta">-</div></div>
+                        </div>
+                        <div class="sp-info-strip">
+                            <div class="sp-info-item"><div class="sp-info-label">طالب علم</div><div class="sp-info-value" id="spStudentNameDisplay">-</div></div>
+                            <div class="sp-info-item"><div class="sp-info-label">رول نمبر</div><div class="sp-info-value" id="spRollNoDisplay">-</div></div>
+                            <div class="sp-info-item"><div class="sp-info-label">کلاس</div><div class="sp-info-value" id="spClassDisplay">-</div></div>
+                            <div class="sp-info-item"><div class="sp-info-label">والدین</div><div class="sp-info-value" id="spParentDisplay">-</div></div>
+                        </div>
+                    </div>
+
+                    <div class="sp-card section">
+                        <div class="sp-head">
+                            <div class="sp-head-main">
+                                <span class="sp-badge">2</span>
+                                <div>
+                                    <h3 class="sp-title">استاد کی مشاہداتی رائے</h3>
+                                    <p class="sp-subtitle">یہ حصے استاد یا عملہ دستی طور پر بھرے گا۔</p>
+                                </div>
+                            </div>
+                            <span class="sp-note">درجہ + مختصر نوٹ</span>
+                        </div>
+                        <div class="sp-grid-3" id="spManualCards"></div>
+                    </div>
+
+                    <div class="sp-card section">
+                        <div class="sp-head">
+                            <div class="sp-head-main">
+                                <span class="sp-badge">3</span>
+                                <div>
+                                    <h3 class="sp-title">مجموعی رائے</h3>
+                                    <p class="sp-subtitle">طالب علم کی مجموعی پیش رفت، بہتری کے پہلو اور آئندہ توجہ کے نکات۔</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sp-grid-2">
+                            <div class="form-group">
+                                <label>اہم مشاہدہ</label>
+                                <textarea id="spOverallObservation" class="sp-textarea" placeholder="طالب علم کے بارے میں مختصر مجموعی رائے"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>اگلے اقدامات / بہتری</label>
+                                <textarea id="spImprovementPlan" class="sp-textarea" placeholder="بہتری کے لیے آئندہ رہنمائی"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sp-sticky">
+                        <span class="sp-state">خودکار اشاریے لوڈ ہونے کے بعد دستی حصے محفوظ کریں۔</span>
+                        <div class="sp-actions">
+                            <button type="button" class="btn-secondary" id="spPrintBtn">پرنٹ / PDF</button>
+                            <button type="button" class="btn-primary" id="spSaveBtn">پروفائل محفوظ کریں</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/student-profile.js"></script>
+</body>
+</html>

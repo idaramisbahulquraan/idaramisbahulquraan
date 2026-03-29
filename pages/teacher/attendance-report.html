@@ -123,9 +123,10 @@
             try {
                 const snapshot = await db.collection('departments').orderBy('name').get();
                 snapshot.forEach(doc => {
+                    const data = doc.data();
                     const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
+                    opt.value = data.name;
+                    opt.innerText = (typeof getDepartmentDisplayName === 'function') ? getDepartmentDisplayName(data.name, data.name_ur || data.name) : (data.name_ur || data.name);
                     select.appendChild(opt);
                 });
                 if (currentVal) select.value = currentVal;
@@ -141,6 +142,7 @@
         async function updateClasses() {
             const dept = document.getElementById('department').value;
             const classSelect = document.getElementById('className');
+            const currentVal = classSelect.value;
             classSelect.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
             document.getElementById('subject').innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
             if (typeof updatePageLanguage === 'function') updatePageLanguage();
@@ -150,11 +152,13 @@
             try {
                 const snapshot = await db.collection('classes').where('department', '==', dept).get();
                 snapshot.forEach(doc => {
+                    const data = doc.data();
                     const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
+                    opt.value = data.name;
+                    opt.innerText = (typeof getClassDisplayName === 'function') ? getClassDisplayName(data.name, data.name_ur || data.name) : (data.name_ur || data.name);
                     classSelect.appendChild(opt);
                 });
+                if (currentVal) classSelect.value = currentVal;
             } catch (error) {
                 console.error("Error loading classes:", error);
             }
@@ -164,6 +168,7 @@
             const dept = document.getElementById('department').value;
             const className = document.getElementById('className').value;
             const subjectSelect = document.getElementById('subject');
+            const currentVal = subjectSelect.value;
             subjectSelect.innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
             if (typeof updatePageLanguage === 'function') updatePageLanguage();
 
@@ -176,19 +181,34 @@
                     .get();
 
                 const subjects = [];
-                snapshot.forEach(doc => subjects.push(doc.data().name));
-                subjects.sort(); // Sort alphabetically
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    subjects.push({ name: data.name, name_ur: data.name_ur || '', book: data.book || '', term: data.term || '' });
+                });
+                subjects.sort((a, b) => {
+                    const aLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(a) : ((typeof getLocalizedName === 'function') ? getLocalizedName(a) : (a.name_ur || a.name));
+                    const bLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(b) : ((typeof getLocalizedName === 'function') ? getLocalizedName(b) : (b.name_ur || b.name));
+                    return aLabel.localeCompare(bLabel);
+                });
 
-                subjects.forEach(name => {
+                subjects.forEach(s => {
                     const opt = document.createElement('option');
-                    opt.value = name;
-                    opt.innerText = name;
+                    opt.value = s.name;
+                    opt.innerText = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(s) : ((typeof getLocalizedName === 'function') ? getLocalizedName(s) : (s.name_ur || s.name));
                     subjectSelect.appendChild(opt);
                 });
+                if (currentVal) subjectSelect.value = currentVal;
             } catch (error) {
                 console.error("Error loading subjects:", error);
             }
         }
+
+        window.addEventListener('language-changed', () => {
+            loadDepartments()
+                .then(() => updateClasses())
+                .then(() => updateSubjects())
+                .catch(() => {});
+        });
 
         async function loadReport() {
             const dept = document.getElementById('department').value;
@@ -288,6 +308,9 @@
                 const className = document.getElementById('className').value;
                 const subject = document.getElementById('subject').value;
                 const monthVal = document.getElementById('reportMonth').value;
+                const displayClassName = (typeof getClassDisplayName === 'function')
+                    ? getClassDisplayName(className)
+                    : className;
 
                 let startY = 60;
                 if (typeof applyPdfBranding === 'function') {
@@ -298,7 +321,7 @@
                 }
 
                 doc.setFontSize(11);
-                doc.text(`Class: ${className} | Subject: ${subject}`, 14, startY - 5);
+                doc.text(`Class: ${displayClassName} | Subject: ${subject}`, 14, startY - 5);
 
                 doc.autoTable({
                     html: '#reportTable',

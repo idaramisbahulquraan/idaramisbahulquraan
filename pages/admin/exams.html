@@ -9,8 +9,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    <!-- PDFMake for Urdu Support (Method 2: Dynamic) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/vfs_fonts.js"></script>
+    <script src="../../js/pdf-manager.js"></script>
     <style>
         .page-header {
             display: flex;
@@ -242,8 +244,15 @@
                 </div>
                 <div class="form-group">
                     <label data-i18n="subject">Subject</label>
-                    <select id="subject" required>
+                    <select id="subject" required onchange="checkSubjectParts(this.value)">
                         <option value="" data-i18n="select_subject">Select Subject</option>
+                    </select>
+                </div>
+                <!-- Subject Part Selection -->
+                <div class="form-group" id="subjectPartGroup" style="display:none;">
+                    <label data-i18n="subject_part">Subject Part / Sub-Subject</label>
+                    <select id="subjectPart">
+                        <option value="" data-i18n="select_part">Select Part</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -270,6 +279,7 @@
     <!-- App Scripts -->
     <script src="../../js/firebase-config.js"></script>
     <script src="../../js/translations.js"></script>
+    <script src="../../js/pdf-snapshot.js"></script>
     <script src="../../js/script.js"></script>
 
     <script>
@@ -300,7 +310,7 @@
                     snapshot.forEach(doc => {
                         const opt = document.createElement('option');
                         opt.value = doc.data().name;
-                        opt.innerText = doc.data().name;
+                        opt.innerText = doc.data().name_ur || doc.data().name;
                         select.appendChild(opt);
                     });
                 }
@@ -331,10 +341,17 @@
 
             try {
                 const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                const seen = new Set();
                 snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (!data.name) return;
+                    const label = data.name_ur || data.name;
+                    if (seen.has(label)) return;
+                    seen.add(label);
+
                     const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name;
+                    opt.value = data.name;
+                    opt.innerText = label;
                     classSelect.appendChild(opt);
                 });
                 if (prefillClass) {
@@ -355,41 +372,102 @@
             loadSubjects(dept, classSelect.value);
         }
 
-        async function loadSubjects(department, className, preselect = '') {
+        // Cache subjects to avoid extra reads
+        let currentSubjectsCache = [];
+
+        async function loadSubjects(department, className, preselect = '', preselectPart = '') {
             const subjectSelect = document.getElementById('subject');
+            const partSelect = document.getElementById('subjectPart');
+            const partGroup = document.getElementById('subjectPartGroup');
+
             subjectSelect.innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
+            partSelect.innerHTML = '<option value="" data-i18n="select_part">Select Part</option>';
+            partGroup.style.display = 'none';
+            currentSubjectsCache = []; // Reset
+
             if (!department || !className) return;
             try {
                 let snap = await db.collection('subjects')
                     .where('department', '==', department)
                     .where('className', '==', className)
                     .get();
-                const names = [];
+
+                const subjects = [];
                 snap.forEach(doc => {
                     const data = doc.data();
-                    if (data.name) names.push(data.name);
+                    currentSubjectsCache.push(data);
+                    if (data.name) subjects.push(data);
                 });
-                names.sort();
-                names.forEach(n => {
+
+                subjects.sort((a, b) => {
+                    const aLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(a) : (a.name_ur || a.name || '');
+                    const bLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(b) : (b.name_ur || b.name || '');
+                    return aLabel.localeCompare(bLabel);
+                });
+
+                subjects.forEach(data => {
                     const opt = document.createElement('option');
-                    opt.value = n;
-                    opt.innerText = n;
+                    opt.value = data.name;
+                    opt.innerText = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(data) : (data.name_ur || data.name);
                     subjectSelect.appendChild(opt);
                 });
-                const target = preselect || '';
-                if (target) {
-                    subjectSelect.value = target;
-                    if (subjectSelect.value !== target) {
+
+                // Helper to set value safely
+                const setVal = (sel, val) => {
+                    if (!val) return;
+                    sel.value = val;
+                    if (sel.value !== val) {
                         const opt = document.createElement('option');
-                        opt.value = target;
-                        opt.innerText = target;
-                        subjectSelect.appendChild(opt);
-                        subjectSelect.value = target;
+                        opt.value = val;
+                        opt.innerText = val;
+                        sel.appendChild(opt);
+                        sel.value = val;
                     }
+                };
+
+                if (preselect) {
+                    setVal(subjectSelect, preselect);
+                    // Trigger part check manually if preselected
+                    checkSubjectParts(preselect, preselectPart);
                 }
+
                 if (typeof updatePageLanguage === 'function') updatePageLanguage();
             } catch (error) {
                 console.error('Error loading subjects:', error);
+            }
+        }
+
+        function checkSubjectParts(subjectName, preselectPart = '') {
+            const partGroup = document.getElementById('subjectPartGroup');
+            const partSelect = document.getElementById('subjectPart');
+            partSelect.innerHTML = '<option value="" data-i18n="select_part">Select Part</option>';
+            partGroup.style.display = 'none';
+            partSelect.removeAttribute('required');
+
+            const subject = currentSubjectsCache.find(s => s.name === subjectName);
+
+            if (subject && subject.hasParts && Array.isArray(subject.parts) && subject.parts.length > 0) {
+                partGroup.style.display = 'block';
+                partSelect.setAttribute('required', 'true');
+
+                subject.parts.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p;
+                    opt.innerText = p;
+                    partSelect.appendChild(opt);
+                });
+
+                if (preselectPart) {
+                    partSelect.value = preselectPart;
+                    // Handle case if part name changed/removed but still in exam record
+                    if (partSelect.value !== preselectPart) {
+                        const opt = document.createElement('option');
+                        opt.value = preselectPart;
+                        opt.innerText = preselectPart;
+                        partSelect.appendChild(opt);
+                        partSelect.value = preselectPart;
+                    }
+                }
             }
         }
 
@@ -438,17 +516,47 @@
                     const exam = doc.data();
                     const date = exam.date ? new Date(exam.date).toLocaleDateString() : 'N/A';
 
+                    // Class name Urdu mapping
+                    const classUrdu = {
+                        "Aamma Year 1": "عامہ سال اول",
+                        "Aamma Year 2": "عامہ سال دوم",
+                        "Khassa Year 1": "خاصہ سال اول",
+                        "Khassa Year 2": "خاصہ سال دوم",
+                        "Aliya Year 1": "عالیہ سال اول",
+                        "Aliya Year 2": "عالیہ سال دوم",
+                        "Alamiya Year 1": "عالمیہ سال اول",
+                        "Alamiya Year 2": "عالمیہ سال دوم",
+                        "Aamma Year 1 (Arabic Language Foundation Course)": "عامہ سال اول (عریبک لینگوئج کورس)",
+                        "Aamma Year 2 (English Language Foundation Course)": "عامہ سال دوم (انگلش لینگوئج کورس)",
+                        "Hifz Class": "حفظ کلاس",
+                        "Abee Bin Kaab": "ابی بن کعب",
+                        "Zaid Bin Sabit": "زید بن ثابت",
+                        "Abdullah Bin Abbas": "عبداللہ بن عباس",
+                        "Abdullah Bin Masood": "عبداللہ بن مسعود",
+                        "Osman Ghani": "عثمان غنی",
+                        "Musab Bin Omair": "مصعب بن عمیر",
+                        "Abu Bakar Siddique": "ابوبکر صدیق",
+                        "Amer Bin Khatab": "عمر بن خطاب",
+                        "Naseerah Murseed": "نصیرہ مرشد",
+                        "Tajweed Class 1st year": "تجوید کلاس سال اول",
+                        "Tajweed Class 2nd year": "تجوید کلاس سال دوم",
+                        "Class 1st year": "تجوید کلاس سال اول",
+                        "Class 2nd year": "تجوید کلاس سال دوم"
+                    };
+                    const displayClass = exam.className_ur || classUrdu[exam.className] || exam.className || '';
+                    const displaySubject = exam.subject_ur || exam.subject || '';
+
                     html += `
                         <tr>
                             <td>
                                 <div style="font-weight: 500;">${exam.examName}</div>
                             </td>
-                            <td>${exam.className}</td>
-                            <td>${exam.subject}</td>
+                            <td>${displayClass}</td>
+                            <td>${displaySubject}</td>
                             <td>${date}</td>
                             <td>
-                                <button onclick="editExam('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">Edit</button>
-                                <button onclick="deleteExam('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">Delete</button>
+                                <button onclick="editExam('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">${getTrans('edit')}</button>
+                                <button onclick="deleteExam('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
                             </td>
                         </tr>
                     `;
@@ -476,6 +584,7 @@
             const examName = document.getElementById('examName').value;
             const className = document.getElementById('className').value;
             const subject = document.getElementById('subject').value;
+            const subjectPart = document.getElementById('subjectPart').value; // New Field
             const examDate = document.getElementById('examDate').value;
             const department = document.getElementById('department').value;
 
@@ -484,6 +593,8 @@
                 className,
                 department,
                 subject,
+                subject_ur: document.querySelector('#subject option:checked')?.textContent || subject,
+                subjectPart: subjectPart || null, // Optional if no part
                 date: examDate
             };
 
@@ -518,7 +629,9 @@
                 document.getElementById('department').value = e.department || '';
                 await updateClasses(e.className);
                 document.getElementById('className').value = e.className;
-                await loadSubjects(e.department, e.className, e.subject);
+
+                // Load subjects and preselect subject + part
+                await loadSubjects(e.department, e.className, e.subject, e.subjectPart || '');
                 document.getElementById('examName').value = e.examName;
                 document.getElementById('examDate').value = e.date;
 
@@ -547,28 +660,32 @@
         }
 
         async function downloadExamsPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            const tbody = document.getElementById('examsList');
+            const tableClone = document.createElement('table');
+            tableClone.className = 'data-table';
+            tableClone.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>${getTrans('exam_name')}</th>
+                        <th>${getTrans('class')}</th>
+                        <th>${getTrans('subject')}</th>
+                        <th>${getTrans('date')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tbody.innerHTML}
+                </tbody>
+            `;
 
-            const startY = (typeof applyPdfBranding === 'function')
-                ? await applyPdfBranding(doc, { title: 'Exam Schedule' })
-                : 30;
-
-            const rows = [];
-            document.querySelectorAll('#examsList tr').forEach(tr => {
-                const tds = tr.querySelectorAll('td');
-                if (tds.length >= 4 && !tds[0].innerText.includes('Loading')) {
-                    rows.push([tds[0].innerText.trim(), tds[1].innerText, tds[2].innerText, tds[3].innerText]);
-                }
+            // Remove actions column from clone
+            tableClone.querySelectorAll('tr').forEach(tr => {
+                if (tr.lastElementChild) tr.lastElementChild.remove();
             });
 
-            doc.autoTable({
-                head: [['Exam Name', 'Class', 'Subject', 'Date']],
-                body: rows,
-                startY: startY
+            window.PDFSnapshot.generate({
+                title: getTrans('exam_schedule'),
+                content: tableClone.outerHTML
             });
-
-            doc.save('exams.pdf');
         }
 
         // Initial Load
