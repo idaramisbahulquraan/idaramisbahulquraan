@@ -186,9 +186,8 @@ function bindLessonChecklistEvents() {
   });
 
   document.getElementById('ldcSection')?.addEventListener('change', updateChecklistSubjects);
-  document.getElementById('ldcTeacher')?.addEventListener('change', async () => {
+  document.getElementById('ldcTeacher')?.addEventListener('change', () => {
     updateChecklistSelectedTeacher();
-    await updateChecklistSubjects();
   });
   document.getElementById('ldcSubject')?.addEventListener('change', () => {
     lessonChecklistState.selectedSubjectDoc = lessonChecklistState.subjects.find(item => item.id === document.getElementById('ldcSubject').value) || null;
@@ -224,8 +223,8 @@ function renderChecklistSections() {
               <tr>
                 <th class="ldc-criterion">معیار</th>
                 ${section.scale === 'quad'
-                  ? '<th>1 کمزور</th><th>2</th><th>3</th><th>4 بہترین</th>'
-                  : '<th>ہاں</th><th>جزوی</th><th>نہیں</th>'}
+      ? '<th>1 کمزور</th><th>2</th><th>3</th><th>4 بہترین</th>'
+      : '<th>ہاں</th><th>جزوی</th><th>نہیں</th>'}
                 <th>مختصر نوٹ</th>
               </tr>
             </thead>
@@ -246,16 +245,16 @@ function renderChecklistSections() {
 function renderChecklistRow(section, item) {
   const choices = section.scale === 'quad'
     ? [
-        { key: '1', label: '1', scoreClass: true },
-        { key: '2', label: '2', scoreClass: true },
-        { key: '3', label: '3', scoreClass: true },
-        { key: '4', label: '4', scoreClass: true }
-      ]
+      { key: '1', label: '1', scoreClass: true },
+      { key: '2', label: '2', scoreClass: true },
+      { key: '3', label: '3', scoreClass: true },
+      { key: '4', label: '4', scoreClass: true }
+    ]
     : [
-        { key: 'yes', label: 'ہاں' },
-        { key: 'partial', label: 'جزوی' },
-        { key: 'no', label: 'نہیں' }
-      ];
+      { key: 'yes', label: 'ہاں' },
+      { key: 'partial', label: 'جزوی' },
+      { key: 'no', label: 'نہیں' }
+    ];
 
   return `
     <tr>
@@ -405,7 +404,7 @@ async function updateChecklistSubjects() {
     const subjectSections = normalizeChecklistSections(subject.sections || subject.section);
     const matchesSection = !section || !subjectSections.length || subjectSections.includes(section);
     const matchesTeacher = elevated
-      ? (!selectedTeacherId ? true : subject.teacherId === selectedTeacherId || (Array.isArray(subject.teacherIds) && subject.teacherIds.includes(selectedTeacherId)) || (selectedTeacherName && String(subject.teacherName || '').trim() === selectedTeacherName) || (Array.isArray(subject.teacherNames) && subject.teacherNames.map(name => String(name || '').trim()).includes(selectedTeacherName)))
+      ? true
       : matchChecklistSubjectTeacher(subject, lessonChecklistState.currentUser);
 
     if (matchesSection && matchesTeacher) lessonChecklistState.subjects.push(subject);
@@ -538,6 +537,7 @@ async function saveLessonChecklistRecord() {
     lessonChecklistState.currentDocId = docId;
     lessonChecklistState.currentDoc = { id: docId, ...payload };
     if (stateLabel) stateLabel.innerText = 'چیک لسٹ کامیابی سے محفوظ ہو گئی۔';
+    alert('چیک لسٹ کامیابی سے محفوظ ہو گئی ہے۔ نئے استاد کا ریکارڈ شروع کرنے کے لیے اوپر سے استاد بدلیں اور تفاصیل درج کریں۔');
   } catch (error) {
     console.error('Error saving lesson delivery checklist:', error);
     if (stateLabel) stateLabel.innerText = 'چیک لسٹ محفوظ نہ ہو سکی۔';

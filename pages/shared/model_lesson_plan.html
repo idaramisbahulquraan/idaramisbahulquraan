@@ -1,23 +1,31 @@
 <!DOCTYPE html>
 <html lang="ur" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ماڈل لیسن پلان - ادارہ مصباح القرآن</title>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        .simple-plan-shell { display:flex; flex-direction:column; gap:1.5rem; padding-bottom:7rem; }
+        .simple-plan-shell {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding-bottom: 7rem;
+        }
+
         .plan-hero {
             position: relative;
             overflow: hidden;
             background:
                 linear-gradient(135deg, rgba(30, 64, 175, 0.97), rgba(79, 70, 229, 0.94)),
-                linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0));
+                linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
             color: #fff;
             border-radius: 1.35rem;
             padding: 1.5rem 1.6rem;
             box-shadow: 0 18px 35px rgba(37, 99, 235, 0.18);
         }
+
         .plan-hero::after {
             content: '';
             position: absolute;
@@ -27,23 +35,27 @@
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.08);
         }
+
         .plan-hero h2 {
             margin: 0 0 0.35rem;
             font-size: 1.75rem;
             color: #fff;
         }
+
         .plan-hero p {
             margin: 0;
             font-size: 0.98rem;
             opacity: 0.92;
             max-width: 720px;
         }
+
         .hero-chips {
             display: flex;
             gap: 0.65rem;
             flex-wrap: wrap;
             margin-top: 1rem;
         }
+
         .hero-chip {
             border: 1px solid rgba(255, 255, 255, 0.24);
             background: rgba(255, 255, 255, 0.12);
@@ -52,6 +64,7 @@
             padding: 0.38rem 0.8rem;
             font-size: 0.86rem;
         }
+
         .paper-card {
             background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
             border: 1px solid rgba(148, 163, 184, 0.22);
@@ -59,10 +72,12 @@
             padding: 1.35rem;
             box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
         }
+
         .paper-card.form-section {
             position: relative;
             padding-top: 1.15rem;
         }
+
         .paper-card.form-section::before {
             content: '';
             position: absolute;
@@ -71,6 +86,7 @@
             border-radius: 1.2rem 1.2rem 0 0;
             background: linear-gradient(90deg, #16a34a, #3b82f6 40%, #4f46e5);
         }
+
         .section-head {
             display: flex;
             align-items: flex-start;
@@ -80,7 +96,13 @@
             padding-bottom: 0.9rem;
             border-bottom: 1px solid rgba(148, 163, 184, 0.18);
         }
-        .section-head-main { display: flex; align-items: center; gap: 0.9rem; }
+
+        .section-head-main {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+        }
+
         .section-badge {
             display: inline-flex;
             align-items: center;
@@ -94,8 +116,19 @@
             font-size: 1rem;
             box-shadow: inset 0 0 0 1px rgba(79, 70, 229, 0.12);
         }
-        .paper-title { margin: 0; font-size: 1.16rem; color: #0f172a; }
-        .paper-subtitle { margin: 0.2rem 0 0; color: var(--text-light); font-size: 0.92rem; }
+
+        .paper-title {
+            margin: 0;
+            font-size: 1.16rem;
+            color: #0f172a;
+        }
+
+        .paper-subtitle {
+            margin: 0.2rem 0 0;
+            color: var(--text-light);
+            font-size: 0.92rem;
+        }
+
         .section-mini-note {
             color: var(--text-light);
             font-size: 0.84rem;
@@ -105,10 +138,29 @@
             border-radius: 999px;
             white-space: nowrap;
         }
-        .paper-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:1rem; }
-        .paper-grid-2 { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:1rem; }
-        .paper-grid-3 { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:1rem; }
-        .paper-card .form-group { margin-bottom: 0; }
+
+        .paper-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 1rem;
+        }
+
+        .paper-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .paper-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .paper-card .form-group {
+            margin-bottom: 0;
+        }
+
         .paper-card label,
         .paper-card .form-group label {
             color: #334155;
@@ -116,39 +168,65 @@
             font-size: 0.88rem;
             margin-bottom: 0.45rem;
         }
-        .paper-input, .paper-select, .paper-textarea {
-            width:100%;
-            padding:0.82rem 0.92rem;
-            border:1px solid rgba(148, 163, 184, 0.32);
-            border-radius:0.9rem;
-            background:#fefefe;
-            font-size:0.95rem;
+
+        .paper-input,
+        .paper-select,
+        .paper-textarea {
+            width: 100%;
+            padding: 0.82rem 0.92rem;
+            border: 1px solid rgba(148, 163, 184, 0.32);
+            border-radius: 0.9rem;
+            background: #fefefe;
+            font-size: 0.95rem;
             transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
         }
+
         .paper-input,
-        .paper-select { min-height: 50px; }
-        .paper-input:focus, .paper-select:focus, .paper-textarea:focus {
+        .paper-select {
+            min-height: 50px;
+        }
+
+        .paper-input:focus,
+        .paper-select:focus,
+        .paper-textarea:focus {
             outline: none;
             border-color: rgba(79, 70, 229, 0.52);
             box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
             background: #fff;
         }
-        .paper-textarea { min-height:120px; resize:vertical; }
-        .paper-textarea.small { min-height:92px; }
-        .paper-check-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.85rem; }
+
+        .paper-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .paper-textarea.small {
+            min-height: 92px;
+        }
+
+        .paper-check-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.85rem;
+        }
+
         .paper-check {
-            display:flex;
-            align-items:flex-start;
-            gap:0.65rem;
-            border:1px solid rgba(148, 163, 184, 0.22);
-            border-radius:1rem;
-            padding:0.85rem 0.9rem;
-            background:#fff;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.65rem;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 1rem;
+            padding: 0.85rem 0.9rem;
+            background: #fff;
             transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
         }
+
         .paper-check input,
         .strategy-item input,
-        .option-pill input { accent-color: var(--primary-color); }
+        .option-pill input {
+            accent-color: var(--primary-color);
+        }
+
         .paper-check:has(input:checked),
         .strategy-item:has(input:checked),
         .option-pill:has(input:checked) {
@@ -156,103 +234,186 @@
             background: linear-gradient(180deg, #f8faff 0%, #eef2ff 100%);
             box-shadow: inset 0 0 0 1px rgba(79, 70, 229, 0.06);
         }
-        .paper-line-list { display:grid; gap:0.8rem; }
-        .paper-line-item { display:flex; align-items:center; gap:0.75rem; }
-        .paper-line-label {
-            min-width:3.3rem;
-            color:#475569;
-            font-weight:700;
-            font-size:0.9rem;
+
+        .paper-line-list {
+            display: grid;
+            gap: 0.8rem;
         }
+
+        .paper-line-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .paper-line-label {
+            min-width: 3.3rem;
+            color: #475569;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
         .table-shell {
             border: 1px solid rgba(148, 163, 184, 0.22);
             border-radius: 1rem;
             overflow: hidden;
             background: #fff;
         }
-        .paper-table-wrap { overflow:auto; }
-        .paper-table { width:100%; border-collapse:collapse; min-width:760px; }
-        .paper-table th, .paper-table td {
-            border-bottom:1px solid rgba(148, 163, 184, 0.16);
-            padding:0.85rem;
-            vertical-align:top;
-            text-align:right;
+
+        .paper-table-wrap {
+            overflow: auto;
         }
+
+        .paper-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 760px;
+        }
+
+        .paper-table th,
+        .paper-table td {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+            padding: 0.85rem;
+            vertical-align: top;
+            text-align: right;
+        }
+
         .paper-table thead th {
             background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
             color: #334155;
             font-weight: 700;
-            white-space:nowrap;
+            white-space: nowrap;
         }
-        .paper-table tr:last-child td { border-bottom:0; }
-        .strategy-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:1rem; }
+
+        .paper-table tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
         .strategy-col {
-            border:1px solid rgba(148, 163, 184, 0.22);
-            border-radius:1rem;
-            padding:1rem;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 1rem;
+            padding: 1rem;
             background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
         }
+
         .strategy-col h4 {
-            margin:0 0 0.85rem;
-            font-size:1rem;
+            margin: 0 0 0.85rem;
+            font-size: 1rem;
             color: #1e3a8a;
             padding-bottom: 0.6rem;
             border-bottom: 1px dashed rgba(148, 163, 184, 0.35);
         }
-        .strategy-list { display:grid; gap:0.65rem; }
-        .strategy-item, .option-pill {
-            display:flex;
-            gap:0.55rem;
-            align-items:flex-start;
+
+        .strategy-list {
+            display: grid;
+            gap: 0.65rem;
+        }
+
+        .strategy-item,
+        .option-pill {
+            display: flex;
+            gap: 0.55rem;
+            align-items: flex-start;
             border: 1px solid rgba(148, 163, 184, 0.22);
             border-radius: 0.95rem;
             padding: 0.55rem 0.75rem;
             background: #fff;
             transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
         }
-        .selected-activities { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:1rem; }
-        .option-row { display:flex; gap:0.75rem; flex-wrap:wrap; }
+
+        .selected-activities {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .option-row {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
         .load-bar {
-            display:flex;
-            gap:0.75rem;
-            flex-wrap:wrap;
-            margin-top:1rem;
-            align-items:center;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            align-items: center;
             padding-top: 1rem;
             border-top: 1px dashed rgba(148, 163, 184, 0.32);
         }
+
         .sticky-actions {
-            position:sticky;
-            bottom:1rem;
-            z-index:4;
-            display:flex;
-            justify-content:space-between;
-            gap:1rem;
-            align-items:center;
-            padding:1rem 1.1rem;
-            border:1px solid rgba(148, 163, 184, 0.22);
-            border-radius:1.1rem;
-            background:rgba(255,255,255,0.96);
-            backdrop-filter:blur(10px);
-            box-shadow:0 16px 35px rgba(15, 23, 42, 0.1);
+            position: sticky;
+            bottom: 1rem;
+            z-index: 4;
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: center;
+            padding: 1rem 1.1rem;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 1.1rem;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 16px 35px rgba(15, 23, 42, 0.1);
         }
-        .action-group { display:flex; gap:0.75rem; flex-wrap:wrap; }
+
+        .action-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
         .action-group .btn-secondary,
         .action-group .btn-primary {
             min-width: 150px;
             border-radius: 0.85rem;
             padding-inline: 1.25rem;
         }
-        .state-note { color:var(--text-light); font-size:0.9rem; }
-        .access-card { padding:1.75rem; text-align:center; }
+
+        .state-note {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .access-card {
+            padding: 1.75rem;
+            text-align: center;
+        }
+
         @media (max-width: 960px) {
-            .paper-grid-2, .paper-grid-3, .strategy-grid, .selected-activities { grid-template-columns:1fr; }
-            .section-head { flex-direction: column; align-items: stretch; }
-            .sticky-actions { flex-direction:column; align-items:stretch; }
-            .plan-hero h2 { font-size: 1.45rem; }
+
+            .paper-grid-2,
+            .paper-grid-3,
+            .strategy-grid,
+            .selected-activities {
+                grid-template-columns: 1fr;
+            }
+
+            .section-head {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .sticky-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .plan-hero h2 {
+                font-size: 1.45rem;
+            }
         }
     </style>
 </head>
+
 <body class="bg-light">
     <div class="dashboard-layout">
         <aside class="sidebar">
@@ -264,7 +425,9 @@
         </aside>
         <main class="main-content">
             <header class="header">
-                <div class="page-title"><h1>ماڈل لیسن پلان</h1></div>
+                <div class="page-title">
+                    <h1>ماڈل لیسن پلان</h1>
+                </div>
                 <div class="header-actions">
                     <div class="user-profile">
                         <div class="user-info">
@@ -285,7 +448,8 @@
                 <div id="simpleLessonContent" style="display:none;">
                     <div class="plan-hero">
                         <h2>ماڈل لیسن پلان</h2>
-                        <p>سادہ، صاف اور کاغذی فارم کے قریب لے آؤٹ تاکہ استاد کم وقت میں منصوبہ درج کر سکے، محفوظ کر سکے اور پرنٹ بھی نکال سکے۔</p>
+                        <p>سادہ، صاف اور کاغذی فارم کے قریب لے آؤٹ تاکہ استاد کم وقت میں منصوبہ درج کر سکے، محفوظ کر سکے
+                            اور پرنٹ بھی نکال سکے۔</p>
                         <div class="hero-chips">
                             <span class="hero-chip">یک صفحہ انداز</span>
                             <span class="hero-chip">واضح سیکشن بندی</span>
@@ -305,18 +469,31 @@
                             <span class="section-mini-note">سب سے پہلے یہ حصہ مکمل کریں</span>
                         </div>
                         <div class="paper-grid">
-                            <div class="form-group"><label>شعبہ</label><select id="slpDepartment" class="paper-select"></select></div>
-                            <div class="form-group"><label>مضمون</label><select id="slpSubject" class="paper-select"></select></div>
-                            <div class="form-group"><label>سبق / باب</label><input id="slpLessonTitle" class="paper-input" type="text"></div>
-                            <div class="form-group"><label>تاریخ</label><input id="slpDate" class="paper-input" type="date"></div>
-                            <div class="form-group"><label>کتاب</label><input id="slpBook" class="paper-input" type="text"></div>
-                            <div class="form-group"><label>کلاس</label><select id="slpClass" class="paper-select"></select></div>
-                            <div class="form-group"><label>سیکشن / باب</label><select id="slpSection" class="paper-select"></select></div>
-                            <div class="form-group"><label>ذرائع / وسائل</label><input id="slpResources" class="paper-input" type="text" placeholder="مثلاً کتاب، وائٹ بورڈ"></div>
+                            <div class="form-group"><label>شعبہ</label><select id="slpDepartment"
+                                    class="paper-select"></select></div>
+                            <div class="form-group"><label>کلاس</label><select id="slpClass"
+                                    class="paper-select"></select></div>
+                            <div class="form-group"><label>سیکشن / باب</label><select id="slpSection"
+                                    class="paper-select"></select></div>
+                            <div class="form-group"><label>استاد</label><select id="slpTeacher"
+                                    class="paper-select"></select></div>
+                            <div class="form-group"><label>مضمون</label><select id="slpSubject"
+                                    class="paper-select"></select></div>
+                            <div class="form-group"><label>سبق / باب</label><input id="slpLessonTitle"
+                                    class="paper-input" type="text"></div>
+                            <div class="form-group"><label>تاریخ</label><input id="slpDate" class="paper-input"
+                                    type="date"></div>
+                            <div class="form-group"><label>کتاب</label><input id="slpBook" class="paper-input"
+                                    type="text"></div>
+                            <div class="form-group"><label>تاریخ</label><input id="slpDate" class="paper-input"
+                                    type="date"></div>
+                            <div class="form-group"><label>ذرائع / وسائل</label><input id="slpResources"
+                                    class="paper-input" type="text" placeholder="مثلاً کتاب، وائٹ بورڈ"></div>
                         </div>
                         <div class="load-bar">
                             <button type="button" class="btn-secondary" id="slpLoadBtn">منصوبہ لوڈ کریں</button>
-                            <span id="slpLoadState" class="state-note">منتخب سیاق کے مطابق نیا یا موجودہ منصوبہ لوڈ کریں۔</span>
+                            <span id="slpLoadState" class="state-note">منتخب سیاق کے مطابق نیا یا موجودہ منصوبہ لوڈ
+                                کریں۔</span>
                         </div>
                     </div>
 
@@ -326,14 +503,17 @@
                                 <span class="section-badge">1</span>
                                 <div>
                                     <h3 class="paper-title">سبق کے مقاصد</h3>
-                                    <p class="paper-subtitle">وہ بنیادی نتائج منتخب کریں جو سبق کے اختتام تک طلبہ سے متوقع ہیں۔</p>
+                                    <p class="paper-subtitle">وہ بنیادی نتائج منتخب کریں جو سبق کے اختتام تک طلبہ سے
+                                        متوقع ہیں۔</p>
                                 </div>
                             </div>
                         </div>
                         <div class="paper-check-grid" id="slpObjectivesBox"></div>
                         <div class="paper-line-list" style="margin-top:1rem;">
-                            <div class="paper-line-item"><span class="paper-line-label">دیگر</span><input id="slpOtherObjective1" class="paper-input" type="text"></div>
-                            <div class="paper-line-item"><span class="paper-line-label">مقصد</span><input id="slpOtherObjective2" class="paper-input" type="text"></div>
+                            <div class="paper-line-item"><span class="paper-line-label">دیگر</span><input
+                                    id="slpOtherObjective1" class="paper-input" type="text"></div>
+                            <div class="paper-line-item"><span class="paper-line-label">مقصد</span><input
+                                    id="slpOtherObjective2" class="paper-input" type="text"></div>
                         </div>
                     </div>
 
@@ -343,7 +523,8 @@
                                 <span class="section-badge">2</span>
                                 <div>
                                     <h3 class="paper-title">کلیدی اصطلاحات</h3>
-                                    <p class="paper-subtitle">اہم الفاظ یا اصطلاحات کو واضح اور مختصر انداز میں درج کریں۔</p>
+                                    <p class="paper-subtitle">اہم الفاظ یا اصطلاحات کو واضح اور مختصر انداز میں درج
+                                        کریں۔</p>
                                 </div>
                             </div>
                         </div>
@@ -365,7 +546,8 @@
                                 <span class="section-badge">3</span>
                                 <div>
                                     <h3 class="paper-title">سبق کا تعارف</h3>
-                                    <p class="paper-subtitle">طلبہ کی توجہ حاصل کرنے کے لیے مناسب طریقہ منتخب کریں اور مختصر تعارف لکھیں۔</p>
+                                    <p class="paper-subtitle">طلبہ کی توجہ حاصل کرنے کے لیے مناسب طریقہ منتخب کریں اور
+                                        مختصر تعارف لکھیں۔</p>
                                 </div>
                             </div>
                         </div>
@@ -382,23 +564,24 @@
                                 <span class="section-badge">4</span>
                                 <div>
                                     <h3 class="paper-title">تدریسی مراحل</h3>
-                                    <p class="paper-subtitle">ہر مرحلے میں استاد اور طلبہ کی سرگرمی الگ الگ درج کریں۔</p>
+                                    <p class="paper-subtitle">ہر مرحلے میں استاد اور طلبہ کی سرگرمی الگ الگ درج کریں۔
+                                    </p>
                                 </div>
                             </div>
                         </div>
                         <div class="table-shell">
-                        <div class="paper-table-wrap">
-                            <table class="paper-table">
-                                <thead>
-                                    <tr>
-                                        <th>طلبہ کی سرگرمی</th>
-                                        <th>استاد کی سرگرمی</th>
-                                        <th>مرحلہ</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="slpTeachingStepsBody"></tbody>
-                            </table>
-                        </div>
+                            <div class="paper-table-wrap">
+                                <table class="paper-table">
+                                    <thead>
+                                        <tr>
+                                            <th>طلبہ کی سرگرمی</th>
+                                            <th>استاد کی سرگرمی</th>
+                                            <th>مرحلہ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="slpTeachingStepsBody"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
@@ -408,7 +591,8 @@
                                 <span class="section-badge">5</span>
                                 <div>
                                     <h3 class="paper-title">فعال تدریسی حکمتِ عملیاں</h3>
-                                    <p class="paper-subtitle">زیادہ سے زیادہ تین سرگرمیاں منتخب کریں تاکہ سبق مرکوز اور واضح رہے۔</p>
+                                    <p class="paper-subtitle">زیادہ سے زیادہ تین سرگرمیاں منتخب کریں تاکہ سبق مرکوز اور
+                                        واضح رہے۔</p>
                                 </div>
                             </div>
                             <span class="section-mini-note">حد: 3 انتخاب</span>
@@ -443,7 +627,8 @@
                                 </div>
                             </div>
                         </div>
-                        <textarea id="slpApplication" class="paper-textarea" placeholder="سبق عملی زندگی میں کیسے استعمال کیا جا سکتا ہے؟"></textarea>
+                        <textarea id="slpApplication" class="paper-textarea"
+                            placeholder="سبق عملی زندگی میں کیسے استعمال کیا جا سکتا ہے؟"></textarea>
                     </div>
 
                     <div class="paper-card form-section">
@@ -452,7 +637,8 @@
                                 <span class="section-badge">8</span>
                                 <div>
                                     <h3 class="paper-title">تشخیصی سوالات</h3>
-                                    <p class="paper-subtitle">دو فہمی اور دو تطبیقی سوالات درج کریں تاکہ سبق کی جانچ آسان رہے۔</p>
+                                    <p class="paper-subtitle">دو فہمی اور دو تطبیقی سوالات درج کریں تاکہ سبق کی جانچ
+                                        آسان رہے۔</p>
                                 </div>
                             </div>
                         </div>
@@ -480,7 +666,8 @@
                                 <span class="section-badge">9</span>
                                 <div>
                                     <h3 class="paper-title">سبق کا خلاصہ</h3>
-                                    <p class="paper-subtitle">اختتامی انداز منتخب کریں اور ضرورت ہو تو مختصر وضاحت شامل کریں۔</p>
+                                    <p class="paper-subtitle">اختتامی انداز منتخب کریں اور ضرورت ہو تو مختصر وضاحت شامل
+                                        کریں۔</p>
                                 </div>
                             </div>
                         </div>
@@ -497,7 +684,8 @@
                                 <span class="section-badge">10</span>
                                 <div>
                                     <h3 class="paper-title">ہوم ورک</h3>
-                                    <p class="paper-subtitle">گھر کے کام کو واضح، مختصر اور قابلِ عمل انداز میں لکھیں۔</p>
+                                    <p class="paper-subtitle">گھر کے کام کو واضح، مختصر اور قابلِ عمل انداز میں لکھیں۔
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -510,13 +698,15 @@
                                 <span class="section-badge">11</span>
                                 <div>
                                     <h3 class="paper-title">استاد کی خود احتسابی</h3>
-                                    <p class="paper-subtitle">سبق کے بعد حاصل شدہ نتائج اور آئندہ بہتری کے نکات درج کریں۔</p>
+                                    <p class="paper-subtitle">سبق کے بعد حاصل شدہ نتائج اور آئندہ بہتری کے نکات درج
+                                        کریں۔</p>
                                 </div>
                             </div>
                         </div>
                         <div class="paper-grid-2">
                             <div>
-                                <label style="display:block; margin-bottom:0.6rem;">کیا سبق کے مقاصد حاصل ہو گئے؟</label>
+                                <label style="display:block; margin-bottom:0.6rem;">کیا سبق کے مقاصد حاصل ہو
+                                    گئے؟</label>
                                 <div class="option-row" id="slpObjectiveStatus"></div>
                             </div>
                             <div>
@@ -549,4 +739,5 @@
     <script src="../../js/script.js"></script>
     <script src="../../js/model-lesson-plan.js"></script>
 </body>
+
 </html>

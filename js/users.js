@@ -222,6 +222,57 @@ async function downloadUsersPDF() {
     doc.save('users_report.pdf');
 }
 
+async function downloadUserCredentialsTXT() {
+    try {
+        const snapshot = await db.collection('users').orderBy('name').get();
+        const lines = [];
+        lines.push('Idara Misbah ul Quran - User Credentials');
+        lines.push(`Generated: ${new Date().toLocaleString()}`);
+        lines.push('');
+
+        if (snapshot.empty) {
+            lines.push('No users found.');
+        } else {
+            snapshot.forEach((doc, index) => {
+                const user = doc.data() || {};
+                const roles = (typeof getUserRoles === 'function' ? getUserRoles(user) : [String(user.role || '').trim().toLowerCase()])
+                    .filter(Boolean)
+                    .map(role => (typeof formatRoleLabel === 'function' ? formatRoleLabel(role) : role))
+                    .join(', ') || '-';
+                const username = String(
+                    user.username
+                    || (user.email ? String(user.email).split('@')[0] : '')
+                    || ''
+                ).trim();
+                const password = String(user.localPassword || '').trim() || 'N/A';
+                const name = String(user.name || '-').trim() || '-';
+                const email = String(user.email || '-').trim() || '-';
+
+                lines.push(`${index + 1}. ${name}`);
+                lines.push(`Username: ${username || '-'}`);
+                lines.push(`Password: ${password}`);
+                lines.push(`Email: ${email}`);
+                lines.push(`Roles: ${roles}`);
+                lines.push('');
+            });
+        }
+
+        const content = lines.join('\r\n');
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `user_credentials_${new Date().toISOString().slice(0, 10)}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Failed to export credentials TXT:', error);
+        alert('User credentials TXT export failed: ' + (error?.message || error));
+    }
+}
+
 async function resetPassword(email) {
     const modal = document.getElementById('resetPasswordModal');
     if (!modal) return;

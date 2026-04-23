@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v24';
+const CACHE_VERSION = 'v25';
 const APP_CACHE = `sms-app-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `sms-runtime-${CACHE_VERSION}`;
 const OFFLINE_URL = 'offline.html';

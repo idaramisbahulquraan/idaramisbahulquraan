@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   bindSimpleLessonEvents();
   renderSimpleLessonStaticUi();
-  await loadSimpleLessonDepartments();
+  await Promise.all([loadSimpleLessonDepartments(), loadSimpleLessonTeachers()]);
 });
 
 function bindSimpleLessonEvents() {
@@ -164,7 +164,7 @@ function renderStrategies() {
 
 function renderSelectedActivities() {
   const values = simpleLessonPlanState.selectedStrategies.slice(0, 3);
-  ['slpSelectedActivity1','slpSelectedActivity2','slpSelectedActivity3'].forEach((id, index) => {
+  ['slpSelectedActivity1', 'slpSelectedActivity2', 'slpSelectedActivity3'].forEach((id, index) => {
     const input = document.getElementById(id);
     if (input) input.value = values[index] || '';
   });
@@ -186,6 +186,48 @@ async function loadSimpleLessonDepartments() {
   resetSimpleClassSelect();
   resetSimpleSectionSelect();
   resetSimpleSubjectSelect();
+}
+
+async function loadSimpleLessonTeachers() {
+  const select = document.getElementById('slpTeacher');
+  if (!select) return;
+  select.innerHTML = '<option value="">استاد منتخب کریں</option>';
+  simpleLessonPlanState.teachers = [];
+  let snapshot;
+  try {
+    snapshot = await db.collection('teachers').orderBy('firstName').get();
+  } catch (_) {
+    snapshot = await db.collection('teachers').get();
+  }
+  snapshot.forEach(doc => simpleLessonPlanState.teachers.push({ id: doc.id, ...(doc.data() || {}) }));
+  simpleLessonPlanState.teachers.forEach((teacher) => {
+    const option = document.createElement('option');
+    option.value = teacher.id;
+    option.innerText = typeof getTeacherDisplayName === 'function' ? getTeacherDisplayName(teacher) : String(teacher.name || `${teacher.firstName || ''} ${teacher.lastName || ''}` || teacher.fullName || '').trim();
+    select.appendChild(option);
+  });
+
+  const roles = getUserRoles(simpleLessonPlanState.currentUser);
+  const elevated = roles.some(role => ['admin', 'owner', 'principal', 'nazim_e_taleemaat', 'hifz_supervisor'].includes(role));
+  const currentUid = simpleLessonPlanState.currentUser?.uid || '';
+  const currentName = String(simpleLessonPlanState.currentUser?.name || simpleLessonPlanState.currentUser?.displayName || '').trim();
+  const currentTeacher = simpleLessonPlanState.teachers.find(item => item.id === currentUid);
+
+  if (!elevated && currentTeacher) {
+    select.value = currentTeacher.id;
+  } else if (!elevated && currentUid && currentName) {
+    const option = document.createElement('option');
+    option.value = currentUid;
+    option.innerText = currentName;
+    select.appendChild(option);
+    select.value = currentUid;
+  } else {
+    select.value = '';
+  }
+
+  if (!elevated && roles.includes('teacher')) {
+    select.disabled = true;
+  }
 }
 
 async function updateSimpleLessonClasses() {
@@ -268,8 +310,8 @@ function autoFillBookFromSubject() {
 
 async function loadSimpleLessonPlan() {
   const context = getSimpleLessonContext();
-  if (!context.department || !context.className || !context.subjectId || !context.planDate) {
-    alert('شعبہ، کلاس، مضمون اور تاریخ منتخب کریں۔');
+  if (!context.department || !context.className || !context.subjectId || !context.teacherId || !context.planDate) {
+    alert('شعبہ، کلاس، مضمون، استاد اور تاریخ منتخب کریں۔');
     return;
   }
   simpleLessonPlanState.selectedClassDoc = simpleLessonPlanState.classes.find(item => item.name === context.className) || null;
@@ -366,8 +408,8 @@ function populateSimpleLessonPlan(doc) {
 
 function saveSimpleLessonPlan() {
   const data = collectSimpleLessonPlanData();
-  if (!data.department || !data.className || !data.subjectId || !data.planDate) {
-    alert('شعبہ، کلاس، مضمون اور تاریخ منتخب کریں۔');
+  if (!data.department || !data.className || !data.subjectId || !data.teacherId || !data.planDate) {
+    alert('شعبہ، کلاس، مضمون، استاد اور تاریخ منتخب کریں۔');
     return;
   }
   const btn = document.getElementById('slpSaveBtn');
@@ -377,8 +419,8 @@ function saveSimpleLessonPlan() {
   const ref = db.collection('model_lesson_plans').doc(docId);
   const payload = {
     ...data,
-    teacherId: simpleLessonPlanState.currentUser?.uid || '',
-    teacherName: simpleLessonPlanState.currentUser?.name || simpleLessonPlanState.currentUser?.displayName || '',
+    teacherId: data.teacherId || simpleLessonPlanState.currentUser?.uid || '',
+    teacherName: data.teacherName || simpleLessonPlanState.currentUser?.name || simpleLessonPlanState.currentUser?.displayName || '',
     tenantId: typeof getCurrentTenant === 'function' ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default'),
     updatedByUid: simpleLessonPlanState.currentUser?.uid || '',
     updatedByName: simpleLessonPlanState.currentUser?.name || simpleLessonPlanState.currentUser?.displayName || '',
@@ -448,17 +490,20 @@ function syncSimpleTeachingSteps() {
 }
 
 function getSimpleLessonContext() {
+  const teacherSelect = document.getElementById('slpTeacher');
   return {
     department: document.getElementById('slpDepartment')?.value || '',
     className: document.getElementById('slpClass')?.value || '',
     section: document.getElementById('slpSection')?.value || '',
     subjectId: document.getElementById('slpSubject')?.value || '',
+    teacherId: teacherSelect?.value || '',
+    teacherName: teacherSelect && teacherSelect.options[teacherSelect.selectedIndex] ? teacherSelect.options[teacherSelect.selectedIndex].text : '',
     planDate: document.getElementById('slpDate')?.value || ''
   };
 }
 
 function buildSimpleLessonDocId(context) {
-  return [context.planDate, context.department, context.className, context.section || 'common', context.subjectId]
+  return [context.planDate, context.department, context.className, context.section || 'common', context.subjectId, context.teacherId]
     .map((value) => String(value || '').trim().replace(/[\/\\?#%\*:|"<>]/g, '-').replace(/\s+/g, '_'))
     .filter(Boolean)
     .join('__');
