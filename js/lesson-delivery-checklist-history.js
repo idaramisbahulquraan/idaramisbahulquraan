@@ -138,6 +138,14 @@ const checklistHistoryState = {
   ]
 };
 
+function getHistoryTenantId() {
+  return checklistHistoryState.currentUser?.tenantId 
+    || (typeof getCurrentTenant === 'function' ? getCurrentTenant() : null)
+    || localStorage.getItem('tenant_id') 
+    || localStorage.getItem('tenantId') 
+    || 'default';
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   if (!document.getElementById('ldchMainContent')) return;
 
@@ -173,7 +181,7 @@ async function loadHistoryDepartments() {
   if (!select) return;
   select.innerHTML = '<option value="">تمام شعبہ جات</option>';
   
-  const tenantId = checklistHistoryState.currentUser?.tenantId || localStorage.getItem('tenantId') || '';
+  const tenantId = getHistoryTenantId();
   let snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
   if (snapshot.empty) {
     snapshot = await db.collection('departments').get();
@@ -202,7 +210,7 @@ async function loadHistoryTeachers() {
   if (!select) return;
   select.innerHTML = '<option value="">استاد منتخب کریں</option>';
   
-  const tenantId = checklistHistoryState.currentUser?.tenantId || localStorage.getItem('tenantId') || '';
+  const tenantId = getHistoryTenantId();
   let snapshot = await db.collection('teachers').where('tenantId', '==', tenantId).get();
   if (snapshot.empty) {
     try {
@@ -234,7 +242,7 @@ async function loadHistoryClasses() {
   select.innerHTML = '<option value="">تمام کلاسز</option>';
   
   const dept = document.getElementById('ldchDepartment')?.value || '';
-  const tenantId = checklistHistoryState.currentUser?.tenantId || localStorage.getItem('tenantId') || '';
+  const tenantId = getHistoryTenantId();
   
   let query = db.collection('classes').where('tenantId', '==', tenantId);
   if (dept) query = query.where('department', '==', dept);
@@ -275,7 +283,7 @@ async function fetchHistoricalChecklists() {
   const className = document.getElementById('ldchClass')?.value || '';
   const dateFrom = document.getElementById('ldchDateFrom')?.value || '';
   const dateTo = document.getElementById('ldchDateTo')?.value || '';
-  const tenantId = checklistHistoryState.currentUser?.tenantId || localStorage.getItem('tenantId') || '';
+  const tenantId = getHistoryTenantId();
 
   const tableBody = document.getElementById('ldchHistoryTableBody');
   tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:2rem;">معلومات تلاش کی جا رہی ہیں...</td></tr>`;
