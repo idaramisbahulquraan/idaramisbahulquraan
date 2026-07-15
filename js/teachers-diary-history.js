@@ -197,7 +197,7 @@ async function fetchHistoryLogs() {
         renderHistoryGrid();
     } catch (err) {
         console.error('Error querying history:', err);
-        tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding:3rem; color:red;">رپورٹ تلاش کرنے میں مسئلہ پیش آیا۔</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding:3rem; color:red;">رپورٹ تلاش کرنے میں مسئلہ پیش آیا۔</td></tr>`;
     }
 }
 
@@ -209,7 +209,7 @@ function renderHistoryGrid() {
     if (historyState.entries.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="11" style="text-align:center; padding:3rem; color:#64748b; font-size:0.95rem;">
+                <td colspan="13" style="text-align:center; padding:3rem; color:#64748b; font-size:0.95rem;">
                     منتخب کردہ فلٹرز کے مطابق کوئی ریکارڈ نہیں ملا۔
                 </td>
             </tr>
@@ -226,7 +226,9 @@ function renderHistoryGrid() {
                 <td style="font-weight:600; white-space:nowrap;">${formattedDate}</td>
                 <td style="font-weight:600;">${escapeHtml(entry.teacherName || '')}</td>
                 <td style="font-weight:600;">${escapeHtml(entry.className || '')}</td>
+                <td style="font-weight:600;">${escapeHtml(entry.subjectName || '')}</td>
                 <td>${escapeHtml(entry.book || '')}</td>
+                <td style="text-align:center; font-weight:700;">${escapeHtml(entry.pageNo || '')}</td>
                 <td>${escapeHtml(entry.whatStudentsRead || '')}</td>
                 <td>${escapeHtml(entry.activityUsed || '')}</td>
                 <td style="text-align:center; font-weight:700;">${escapeHtml(entry.studentsParticipated || '')}</td>

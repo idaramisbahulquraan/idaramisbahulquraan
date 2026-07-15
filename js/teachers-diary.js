@@ -2,7 +2,7 @@ const diaryState = {
     currentUser: null,
     tenantId: '',
     classes: [],
-    books: [],
+    subjects: [], // Loaded once on init
     entries: [], // Active list of diary entries for the selected date
     isSaving: false
 };
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Load static resources
-            await Promise.all([loadDiaryClasses(), loadDiaryBooks()]);
+            await Promise.all([loadDiaryClasses(), loadDiarySubjects()]);
 
             // Bind Event Listeners
             bindDiaryEvents();
@@ -62,9 +62,12 @@ function bindDiaryEvents() {
 // Load all classes under this tenant
 async function loadDiaryClasses() {
     try {
-        const snapshot = await db.collection('classes')
+        let snapshot = await db.collection('classes')
             .where('tenantId', '==', diaryState.tenantId)
             .get();
+        if (snapshot.empty) {
+            snapshot = await db.collection('classes').get();
+        }
         
         diaryState.classes = [];
         snapshot.forEach(doc => {
@@ -79,30 +82,23 @@ async function loadDiaryClasses() {
     }
 }
 
-// Load all unique books from subjects collection
-async function loadDiaryBooks() {
+// Load all subjects under this tenant once
+async function loadDiarySubjects() {
     try {
-        const snapshot = await db.collection('subjects')
+        let snapshot = await db.collection('subjects')
             .where('tenantId', '==', diaryState.tenantId)
             .get();
+        if (snapshot.empty) {
+            snapshot = await db.collection('subjects').get();
+        }
 
-        const booksSet = new Set();
+        diaryState.subjects = [];
         snapshot.forEach(doc => {
             const data = doc.data();
-            if (data.book) booksSet.add(data.book);
-            if (data.bookName) booksSet.add(data.bookName);
-            if (data.name) booksSet.add(data.name); // Fallback to subject name
+            diaryState.subjects.push({ id: doc.id, ...data });
         });
-
-        diaryState.books = Array.from(booksSet).sort();
-
-        // Populate datalist options
-        const datalist = document.getElementById('booksAutocompleteList');
-        if (datalist) {
-            datalist.innerHTML = diaryState.books.map(book => `<option value="${escapeHtml(book)}"></option>`).join('');
-        }
     } catch (err) {
-        console.error('Error loading diary books:', err);
+        console.error('Error loading diary subjects:', err);
     }
 }
 
@@ -152,7 +148,7 @@ function renderDiaryGrid() {
     if (diaryState.entries.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="10" style="text-align:center; padding:3rem; color:#64748b; font-size:0.95rem;">
+                <td colspan="13" style="text-align:center; padding:3rem; color:#64748b; font-size:0.95rem;">
                     آج کی تاریخ کے لیے کوئی اندراج نہیں ملا۔ نیا ریکارڈ داخل کرنے کے لیے <strong>'نیا ریکارڈ شامل کریں'</strong> بٹن پر کلک کریں۔
                 </td>
             </tr>
@@ -165,24 +161,46 @@ function renderDiaryGrid() {
 
     tbody.innerHTML = diaryState.entries.map((entry, index) => {
         // Build Class Dropdown
-        const classSelectOptions = `<option value="">منتخب کریں</option>` + diaryState.classes.map(cls => {
+        const classSelectOptions = `<option value="">کلاس منتخب کریں</option>` + diaryState.classes.map(cls => {
             const isSelected = cls.name === entry.className ? 'selected' : '';
             const displayName = typeof getClassDisplayName === 'function' ? getClassDisplayName(cls.name, cls.name_ur || '') : (cls.name_ur || cls.name || '');
             return `<option value="${escapeHtml(cls.name)}" ${isSelected}>${escapeHtml(displayName)}</option>`;
+        }).join('');
+
+        // Filter subjects for selected class
+        const classSubjects = entry.className 
+            ? diaryState.subjects.filter(sub => sub.className === entry.className)
+            : [];
+
+        // Build Subject Dropdown
+        const subjectSelectOptions = `<option value="">مضمون منتخب کریں</option>` + classSubjects.map(sub => {
+            const isSelected = sub.id === entry.subjectId || sub.name === entry.subjectName ? 'selected' : '';
+            const displayName = sub.name_ur || sub.name || '';
+            return `<option value="${escapeHtml(sub.id)}" ${isSelected}>${escapeHtml(displayName)}</option>`;
         }).join('');
 
         return `
             <tr data-index="${index}">
                 <td style="text-align:center; font-weight:700;">${index + 1}</td>
                 <td>
-                    <select class="diary-select-cell" onchange="updateEntryLocalField(${index}, 'className', this.value)">
+                    <select class="diary-select-cell" onchange="handleClassChange(${index}, this.value)">
                         ${classSelectOptions}
                     </select>
                 </td>
                 <td>
-                    <input type="text" class="diary-input-cell" list="booksAutocompleteList" 
-                        value="${escapeHtml(entry.book || '')}" placeholder="کتاب اور صفحہ نمبر" 
+                    <select class="diary-select-cell" id="subject-select-${index}" onchange="handleSubjectChange(${index}, this.value)">
+                        ${subjectSelectOptions}
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="diary-input-cell" id="book-input-${index}" 
+                        value="${escapeHtml(entry.book || '')}" placeholder="کتاب" 
                         oninput="updateEntryLocalField(${index}, 'book', this.value)">
+                </td>
+                <td>
+                    <input type="text" class="diary-input-cell" style="text-align:center;" 
+                        value="${escapeHtml(entry.pageNo || '')}" placeholder="صفحہ نمبر" 
+                        oninput="updateEntryLocalField(${index}, 'pageNo', this.value)">
                 </td>
                 <td>
                     <textarea class="diary-textarea-cell" placeholder="طلبہ نے آج کیا پڑھا؟" 
@@ -225,7 +243,10 @@ function renderDiaryGrid() {
 function addNewDiaryRow() {
     diaryState.entries.push({
         className: '',
+        subjectId: '',
+        subjectName: '',
         book: '',
+        pageNo: '',
         whatStudentsRead: '',
         activityUsed: '',
         studentsParticipated: '',
@@ -235,6 +256,40 @@ function addNewDiaryRow() {
     });
     renderDiaryGrid();
 }
+
+// Handle class selection change per row
+window.handleClassChange = function(index, className) {
+    if (diaryState.entries[index]) {
+        diaryState.entries[index].className = className;
+        diaryState.entries[index].subjectId = '';
+        diaryState.entries[index].subjectName = '';
+        diaryState.entries[index].book = '';
+        diaryState.entries[index].pageNo = '';
+        
+        // Dynamic re-render to update the subject dropdown for this class
+        renderDiaryGrid();
+    }
+};
+
+// Handle subject selection change per row
+window.handleSubjectChange = function(index, subjectId) {
+    if (diaryState.entries[index]) {
+        const subject = diaryState.subjects.find(s => s.id === subjectId);
+        if (subject) {
+            diaryState.entries[index].subjectId = subject.id;
+            diaryState.entries[index].subjectName = subject.name || '';
+            diaryState.entries[index].book = subject.book || subject.bookName || subject.name || '';
+        } else {
+            diaryState.entries[index].subjectId = '';
+            diaryState.entries[index].subjectName = '';
+            diaryState.entries[index].book = '';
+        }
+        
+        // Update DOM cells directly without full render to preserve user cursors
+        const bookInput = document.getElementById(`book-input-${index}`);
+        if (bookInput) bookInput.value = diaryState.entries[index].book;
+    }
+};
 
 // Update field values locally on keypress/input
 window.updateEntryLocalField = function(index, field, value) {
@@ -297,6 +352,13 @@ async function saveDiaryEntries() {
             if (saveStateLabel) saveStateLabel.innerText = '';
             return;
         }
+        if (!e.subjectId && !e.subjectName) {
+            alert(`نمبر شمار ${i + 1} کے لیے مضمون منتخب کرنا لازمی ہے۔`);
+            diaryState.isSaving = false;
+            if (saveBtn) saveBtn.disabled = false;
+            if (saveStateLabel) saveStateLabel.innerText = '';
+            return;
+        }
     }
 
     try {
@@ -311,7 +373,10 @@ async function saveDiaryEntries() {
                 tenantId: diaryState.tenantId,
                 date: selectedDate,
                 className: entry.className,
+                subjectId: entry.subjectId || '',
+                subjectName: entry.subjectName || '',
                 book: entry.book || '',
+                pageNo: entry.pageNo || '',
                 whatStudentsRead: entry.whatStudentsRead || '',
                 activityUsed: entry.activityUsed || '',
                 studentsParticipated: entry.studentsParticipated || '',
