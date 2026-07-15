@@ -7,14 +7,6 @@ const assemblyState = {
   editorStudents: [],
   assignments: [],
   canEdit: false,
-  days: [
-    { key: 'sat', label: 'ہفتہ' },
-    { key: 'sun', label: 'اتوار' },
-    { key: 'mon', label: 'پیر' },
-    { key: 'tue', label: 'منگل' },
-    { key: 'wed', label: 'بدھ' },
-    { key: 'thu', label: 'جمعرات' }
-  ],
   tasks: [
     { key: 'tilawat', label: 'تلاوت' },
     { key: 'tarjama', label: 'ترجمہ و تشریح' },
@@ -32,6 +24,17 @@ const assemblyState = {
   ]
 };
 
+const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+const DAY_LABELS = {
+  'sat': 'ہفتہ',
+  'sun': 'اتوار',
+  'mon': 'پیر',
+  'tue': 'منگل',
+  'wed': 'بدھ',
+  'thu': 'جمعرات',
+  'fri': 'جمعہ'
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
   if (!document.getElementById('assemblyBoardBody')) return;
 
@@ -42,8 +45,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const roles = getUserRoles(currentUser);
   assemblyState.canEdit = roles.some((role) => ['teacher', 'admin', 'owner', 'principal', 'nazim_e_taleemaat'].includes(role));
 
-  const weekInput = document.getElementById('assemblyWeekStart');
-  if (weekInput && !weekInput.value) weekInput.value = getSaturdayOfCurrentWeek();
+  // Set default values to today's date
+  const today = new Date().toLocaleDateString('sv-SE');
+  const dateInput = document.getElementById('assemblyDate');
+  const assignDateInput = document.getElementById('assemblyAssignDate');
+  if (dateInput && !dateInput.value) dateInput.value = today;
+  if (assignDateInput && !assignDateInput.value) assignDateInput.value = today;
 
   updateAssemblyModeUi();
   renderAssemblyStaticControls();
@@ -71,14 +78,10 @@ function updateAssemblyModeUi() {
 }
 
 function renderAssemblyStaticControls() {
-  const daySelect = document.getElementById('assemblyDay');
   const taskSelect = document.getElementById('assemblyTask');
   const typeSelect = document.getElementById('assemblyAssigneeType');
   const boardHead = document.getElementById('assemblyBoardHead');
 
-  if (daySelect) {
-    daySelect.innerHTML = assemblyState.days.map((day) => `<option value="${day.key}">${day.label}</option>`).join('');
-  }
   if (taskSelect) {
     taskSelect.innerHTML = assemblyState.tasks.map((task) => `<option value="${task.key}">${task.label}</option>`).join('');
   }
@@ -91,8 +94,15 @@ function renderAssemblyStaticControls() {
   if (filterSection) filterSection.innerHTML = '<option value="">تمام سیکشنز</option>';
   const assigneeSelect = document.getElementById('assemblyAssigneeSelect');
   if (assigneeSelect) assigneeSelect.innerHTML = '<option value="">مسئول منتخب کریں</option>';
+  
   if (boardHead) {
-    boardHead.innerHTML = `<th class="task-title-cell">ذمہ داری</th>${assemblyState.days.map((day) => `<th>${day.label}</th>`).join('')}`;
+    boardHead.innerHTML = `
+      <th style="width: 20%;">ٹاسک / ذمہ داری</th>
+      <th style="width: 25%;">نام مسئول (Assignee)</th>
+      <th style="width: 20%;">کلاس / شعبہ</th>
+      <th style="width: 20%;">عنوان اور نوٹ (Topic & Notes)</th>
+      <th style="width: 15%;">اقدامات (Actions)</th>
+    `;
   }
 }
 
@@ -118,10 +128,18 @@ function bindAssemblyEvents() {
     await loadAssemblyAssignments();
   });
   document.getElementById('assemblyFilterSection')?.addEventListener('change', loadAssemblyAssignments);
-  document.getElementById('assemblyWeekStart')?.addEventListener('change', loadAssemblyAssignments);
+  
+  // Date selection listeners
+  document.getElementById('assemblyDate')?.addEventListener('change', (e) => {
+    // Sync assign date selector for user convenience
+    const assignDateInput = document.getElementById('assemblyAssignDate');
+    if (assignDateInput) assignDateInput.value = e.target.value;
+    loadAssemblyAssignments();
+  });
   document.getElementById('assemblyRefreshBtn')?.addEventListener('click', loadAssemblyAssignments);
   document.getElementById('assemblySaveBtn')?.addEventListener('click', saveAssemblyAssignment);
   document.getElementById('assemblyResetBtn')?.addEventListener('click', resetAssemblyForm);
+  
   document.getElementById('assemblyBoardBody')?.addEventListener('click', async (event) => {
     const editBtn = event.target.closest('[data-edit-assignment]');
     const deleteBtn = event.target.closest('[data-delete-assignment]');
@@ -368,19 +386,26 @@ async function loadAssemblyStudents({ department, className, section }) {
   });
 }
 
+// Load by Date index
 async function loadAssemblyAssignments() {
-  const weekStart = document.getElementById('assemblyWeekStart')?.value || '';
-  if (!weekStart) {
-    setAssemblyState('ہفتہ منتخب کریں۔');
+  const selectedDate = document.getElementById('assemblyDate')?.value || '';
+  if (!selectedDate) {
+    setAssemblyState('تاریخ منتخب کریں۔');
     renderAssemblyBoard([]);
     return;
   }
 
+  // Derive weekStart and dayKey from selectedDate for index-free backward compatibility
+  const weekStart = getSaturdayOfDate(selectedDate);
+  const dayIndex = new Date(selectedDate).getDay();
+  const dayKey = DAY_KEYS[dayIndex];
+
   setAssemblyState('ذمہ داریاں لوڈ ہو رہی ہیں...');
   try {
     const tenantId = assemblyState.currentUser?.tenantId || localStorage.getItem('tenantId') || '';
-    let query = db.collection('assembly_responsibilities').where('weekStart', '==', weekStart);
+    let query = db.collection('assembly_responsibilities').where('weekStart', '==', weekStart).where('dayKey', '==', dayKey);
     if (tenantId) query = query.where('tenantId', '==', tenantId);
+    
     const snapshot = await query.get();
     let assignments = [];
     snapshot.forEach((doc) => assignments.push({ id: doc.id, ...(doc.data() || {}) }));
@@ -407,7 +432,7 @@ async function loadAssemblyAssignments() {
     assemblyState.assignments = assignments;
     renderAssemblyBoard(assignments);
     updateAssemblyStats(assignments);
-    setAssemblyState(assignments.length ? 'ذمہ داریاں لوڈ ہو گئیں۔' : 'اس ہفتے کے لیے کوئی ذمہ داری موجود نہیں۔');
+    setAssemblyState(assignments.length ? 'ذمہ داریاں لوڈ ہو گئیں۔' : 'اس تاریخ کے لیے کوئی ذمہ داری موجود نہیں۔');
     if (typeof renderAssemblyDragDropScheduler === 'function') {
       renderAssemblyDragDropScheduler();
     }
@@ -421,26 +446,50 @@ async function loadAssemblyAssignments() {
 function renderAssemblyBoard(assignments) {
   const tbody = document.getElementById('assemblyBoardBody');
   if (!tbody) return;
-  tbody.innerHTML = assemblyState.tasks.map((task) => {
-    const cells = assemblyState.days.map((day) => renderAssignmentCell(task.key, day.key, assignments));
-    return `<tr><td class="task-title-cell">${escapeAssemblyHtml(task.label)}</td>${cells.join('')}</tr>`;
-  }).join('');
-}
 
-function renderAssignmentCell(taskKey, dayKey, assignments) {
-  const matches = assignments.filter((item) => item.taskKey === taskKey && item.dayKey === dayKey);
-  if (!matches.length) {
-    return '<td><div class="assignment-empty">کوئی ذمہ داری نہیں</div></td>';
-  }
-  return `<td>${matches.map((item) => `
-    <div class="assignment-card">
-      <div class="assignment-main">${escapeAssemblyHtml(item.assigneeName || '-')}</div>
-      <div class="assignment-class">${escapeAssemblyHtml([item.className_ur || item.className || item.department_ur || item.department || '', item.section ? `سیکشن ${item.section}` : ''].filter(Boolean).join(' • '))}</div>
-      <div class="assignment-meta">${escapeAssemblyHtml(getAssigneeTypeLabel(item.assigneeType))}${item.itemTitle ? ` • ${escapeAssemblyHtml(item.itemTitle)}` : ''}</div>
-      <div class="assignment-notes">${escapeAssemblyHtml(item.notes || '—')}</div>
-      ${assemblyState.canEdit ? `<div class="assignment-actions"><button class="btn-secondary" type="button" data-edit-assignment="${item.id}">ترمیم</button><button class="btn-secondary" type="button" data-delete-assignment="${item.id}">حذف</button></div>` : ''}
-    </div>
-  `).join('')}</td>`;
+  tbody.innerHTML = assemblyState.tasks.map((task) => {
+    const matches = assignments.filter((item) => item.taskKey === task.key);
+    
+    let cellContent = '<div class="assignment-empty">کوئی ذمہ داری نہیں</div>';
+    if (matches.length > 0) {
+      cellContent = matches.map((item) => `
+        <div class="assignment-card" style="min-height: auto; margin-bottom: 0.5rem;">
+          <div class="assignment-main" style="display:flex; justify-content:space-between; align-items:center;">
+             <span>${escapeAssemblyHtml(item.assigneeName || '-')}</span>
+             <span style="font-size:0.75rem; background:#e0f2fe; color:#0369a1; padding:0.1rem 0.4rem; border-radius:0.25rem;">${escapeAssemblyHtml(getAssigneeTypeLabel(item.assigneeType))}</span>
+          </div>
+          <div class="assignment-class" style="font-size:0.82rem; margin-top:0.2rem;">${escapeAssemblyHtml([item.className_ur || item.className || item.department_ur || item.department || '', item.section ? `سیکشن ${item.section}` : ''].filter(Boolean).join(' • '))}</div>
+          <div class="assignment-meta" style="font-size:0.8rem; font-weight:600;">${item.itemTitle ? `موضوع: ${escapeAssemblyHtml(item.itemTitle)}` : ''}</div>
+          <div class="assignment-notes" style="font-size:0.8rem; background:#f8fafc; border-radius:0.25rem; padding:0.2rem 0.5rem; margin-top:0.25rem;">${escapeAssemblyHtml(item.notes || 'نوٹ: —')}</div>
+          ${assemblyState.canEdit ? `
+             <div class="assignment-actions" style="margin-top:0.5rem; display:flex; gap:0.25rem;">
+                 <button class="btn-secondary" type="button" data-edit-assignment="${item.id}" style="padding:0.25rem 0.5rem; font-size:0.78rem;">ترمیم</button>
+                 <button class="btn-secondary" type="button" data-delete-assignment="${item.id}" style="padding:0.25rem 0.5rem; font-size:0.78rem;">حذف</button>
+             </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    const firstMatch = matches[0] || {};
+
+    return `
+      <tr>
+        <td style="font-weight:700; color:#1e293b; vertical-align:middle;">${escapeAssemblyHtml(task.label)}</td>
+        <td style="vertical-align:middle;">${matches.length > 0 ? matches.map(m => escapeAssemblyHtml(m.assigneeName)).join('، ') : cellContent}</td>
+        <td style="vertical-align:middle;">${matches.length > 0 ? matches.map(m => escapeAssemblyHtml([m.className_ur || m.className || '', m.section ? `سیکشن ${m.section}` : ''].filter(Boolean).join(' • '))).join('<br>') : '—'}</td>
+        <td style="vertical-align:middle;">${matches.length > 0 ? matches.map(m => escapeAssemblyHtml([m.itemTitle, m.notes].filter(Boolean).join(' | ')) || '—').join('<br>') : '—'}</td>
+        <td style="vertical-align:middle;">
+          ${assemblyState.canEdit && matches.length > 0 ? matches.map(m => `
+             <div style="display:flex; gap:0.25rem; margin-bottom:0.25rem;">
+                <button class="btn-secondary" type="button" data-edit-assignment="${m.id}" style="padding:0.25rem 0.5rem; font-size:0.75rem;">ترمیم</button>
+                <button class="btn-secondary" type="button" data-delete-assignment="${m.id}" style="padding:0.25rem 0.5rem; font-size:0.75rem; background:#fee2e2; color:#b91c1c; border-color:#fee2e2;">حذف</button>
+             </div>
+          `).join('') : '—'}
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 function updateAssemblyStats(assignments) {
@@ -450,25 +499,24 @@ function updateAssemblyStats(assignments) {
   const filterSection = document.getElementById('assemblyFilterSection')?.selectedOptions?.[0]?.textContent || '';
   document.getElementById('assemblyStatFilter').innerText = [filterClass || filterDepartment, filterSection && filterSection !== 'تمام سیکشنز' ? filterSection : ''].filter(Boolean).join(' • ') || 'تمام';
 
-  const counts = new Map();
-  assignments.forEach((item) => counts.set(item.dayKey, (counts.get(item.dayKey) || 0) + 1));
-  let busiest = '-';
-  let max = 0;
-  assemblyState.days.forEach((day) => {
-    const count = counts.get(day.key) || 0;
-    if (count > max) {
-      max = count;
-      busiest = day.label;
-    }
-  });
-  document.getElementById('assemblyStatDay').innerText = busiest;
+  document.getElementById('assemblyStatDay').innerText = document.getElementById('assemblyDate')?.value || '-';
 }
 
 async function saveAssemblyAssignment() {
   if (!assemblyState.canEdit) return;
 
-  const weekStart = document.getElementById('assemblyWeekStart')?.value || '';
-  const dayKey = document.getElementById('assemblyDay')?.value || '';
+  const assignDate = document.getElementById('assemblyAssignDate')?.value || '';
+  if (!assignDate) {
+    alert('براہ کرم تاریخ منتخب کریں۔');
+    return;
+  }
+
+  // Derive weekStart and dayKey
+  const weekStart = getSaturdayOfDate(assignDate);
+  const dayIndex = new Date(assignDate).getDay();
+  const dayKey = DAY_KEYS[dayIndex];
+  const dayLabel = DAY_LABELS[dayKey] || 'دن';
+
   const taskKey = document.getElementById('assemblyTask')?.value || '';
   const department = document.getElementById('assemblyDepartment')?.value || '';
   const className = document.getElementById('assemblyClass')?.value || '';
@@ -486,13 +534,12 @@ async function saveAssemblyAssignment() {
     ? assigneeCustom
     : (selectedAssignee?.dataset?.name || selectedAssignee?.textContent || '').trim();
 
-  if (!weekStart || !dayKey || !taskKey || !department || !className || !assigneeName) {
-    alert('ہفتہ، دن، ٹاسک، شعبہ، کلاس اور مسئول لازماً منتخب کریں۔');
+  if (!taskKey || !department || !className || !assigneeName) {
+    alert('ٹاسک، شعبہ، کلاس اور مسئول لازماً منتخب کریں۔');
     return;
   }
 
   const taskLabel = assemblyState.tasks.find((item) => item.key === taskKey)?.label || taskKey;
-  const dayLabel = assemblyState.days.find((item) => item.key === dayKey)?.label || dayKey;
 
   // Conflict Checking
   const allWeek = window.allWeekAssignmentsCache || [];
@@ -514,7 +561,9 @@ async function saveAssemblyAssignment() {
   const departmentUr = getDepartmentDisplayNameSafe(department);
   const classUr = getClassDisplayNameSafe(className);
   const classDoc = assemblyState.classes.find((item) => item.name === className) || null;
+  
   const payload = {
+    date: assignDate,
     weekStart,
     dayKey,
     dayLabel,
@@ -563,8 +612,11 @@ async function saveAssemblyAssignment() {
 async function loadAssignmentIntoForm(id) {
   const item = assemblyState.assignments.find((entry) => entry.id === id);
   if (!item) return;
+  
+  const docDate = item.date || getDateFromWeekStartAndDay(item.weekStart, item.dayKey);
+  
   document.getElementById('assemblyDocId').value = item.id || '';
-  document.getElementById('assemblyDay').value = item.dayKey || '';
+  document.getElementById('assemblyAssignDate').value = docDate;
   document.getElementById('assemblyTask').value = item.taskKey || '';
   document.getElementById('assemblyDepartment').value = item.department || '';
   await updateAssemblyFormClasses();
@@ -601,7 +653,8 @@ async function deleteAssemblyAssignment(id) {
 
 function resetAssemblyForm() {
   document.getElementById('assemblyDocId').value = '';
-  document.getElementById('assemblyDay').selectedIndex = 0;
+  const today = new Date().toLocaleDateString('sv-SE');
+  document.getElementById('assemblyAssignDate').value = today;
   document.getElementById('assemblyTask').selectedIndex = 0;
   document.getElementById('assemblyDepartment').value = '';
   document.getElementById('assemblyClass').innerHTML = '<option value="">کلاس منتخب کریں</option>';
@@ -669,6 +722,31 @@ function extractAssemblyStudentSections(student) {
     student.admissionSection_ur,
     student.sectionLabel
   ].map(normalizeAssemblyToken).filter(Boolean)));
+}
+
+function getSaturdayOfDate(dateStr) {
+  const d = new Date(dateStr);
+  const day = d.getDay(); // 0: Sun, 1: Mon, ..., 6: Sat
+  const diff = day === 6 ? 0 : -(day + 1);
+  const saturday = new Date(d);
+  saturday.setDate(d.getDate() + diff);
+  return saturday.toISOString().split('T')[0];
+}
+
+function getDateFromWeekStartAndDay(weekStartStr, dayKey) {
+  const d = new Date(weekStartStr);
+  const dayOffset = {
+    'sat': 0,
+    'sun': 1,
+    'mon': 2,
+    'tue': 3,
+    'wed': 4,
+    'thu': 5,
+    'fri': 6
+  };
+  const offset = dayOffset[dayKey] || 0;
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().split('T')[0];
 }
 
 function getSaturdayOfCurrentWeek() {
@@ -746,46 +824,57 @@ window.renderAssemblyDragDropScheduler = function() {
     }
   }
 
-  // 2. Render Columns Grid of Drop Zones
+  // 2. Render Single Column Dropzone for the selected date
   const grid = document.getElementById('assemblyDropGrid');
   if (grid) {
-    grid.innerHTML = assemblyState.days.map(day => {
-      const slotsHtml = assemblyState.tasks.map(task => {
-        const section = document.getElementById('assemblySection')?.value || '';
-        const assignment = assemblyState.assignments.find(item => 
-          item.dayKey === day.key && 
-          item.taskKey === task.key && 
-          item.className === className &&
-          normalizeAssemblyToken(item.section || '') === normalizeAssemblyToken(section)
-        );
+    const selectedDate = document.getElementById('assemblyDate')?.value || '';
+    if (!selectedDate) {
+      grid.innerHTML = '<div style="color:var(--text-light); font-size:0.85rem; text-align:center; padding:1rem; width:100%;">براہ کرم تاریخ منتخب کریں۔</div>';
+      return;
+    }
 
-        let assigneeHtml = '<div class="slot-assignee-empty">خالی (کوئی نہیں)</div>';
-        if (assignment) {
-          assigneeHtml = `
-            <div class="slot-assignee-card">
-              <span>${assignment.assigneeName}</span>
-              <button type="button" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1rem; line-height:1; padding:0 0.25rem; font-weight:bold;" onclick="removeAssemblyAssignmentDirect('${assignment.id}')" title="حذف کریں">&times;</button>
-            </div>
-          `;
-        }
+    const dayIndex = new Date(selectedDate).getDay();
+    const dayKey = DAY_KEYS[dayIndex];
+    const dayLabel = DAY_LABELS[dayKey] || 'دن';
 
-        return `
-          <div class="drop-task-slot" data-day-key="${day.key}" data-task-key="${task.key}" ondragover="handleAssemblyDragOver(event)" ondragleave="handleAssemblyDragLeave(event)" ondrop="handleAssemblyDrop(event)">
-            <div class="slot-header">
-              <span>${task.label}</span>
-            </div>
-            ${assigneeHtml}
+    const slotsHtml = assemblyState.tasks.map(task => {
+      const section = document.getElementById('assemblySection')?.value || '';
+      const assignment = assemblyState.assignments.find(item => 
+        item.taskKey === task.key && 
+        item.className === className &&
+        normalizeAssemblyToken(item.section || '') === normalizeAssemblyToken(section)
+      );
+
+      let assigneeHtml = '<div class="slot-assignee-empty">خالی (کوئی نہیں)</div>';
+      if (assignment) {
+        assigneeHtml = `
+          <div class="slot-assignee-card">
+            <span>${assignment.assigneeName}</span>
+            <button type="button" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1rem; line-height:1; padding:0 0.25rem; font-weight:bold;" onclick="removeAssemblyAssignmentDirect('${assignment.id}')" title="حذف کریں">&times;</button>
           </div>
         `;
-      }).join('');
+      }
 
       return `
-        <div class="drop-day-column" style="background:#f1f5f9; padding: 0.75rem; border-radius:0.75rem; border:1px solid #cbd5e1; display:flex; flex-direction:column; gap:0.5rem;">
-          <h5 style="margin:0 0 0.25rem 0; text-align:center; font-weight:700; color:#334155; border-bottom:2px solid #cbd5e1; padding-bottom:0.25rem;">${day.label}</h5>
-          ${slotsHtml}
+        <div class="drop-task-slot" data-day-key="${dayKey}" data-task-key="${task.key}" ondragover="handleAssemblyDragOver(event)" ondragleave="handleAssemblyDragLeave(event)" ondrop="handleAssemblyDrop(event)">
+          <div class="slot-header">
+            <span>${task.label}</span>
+          </div>
+          ${assigneeHtml}
         </div>
       `;
     }).join('');
+
+    grid.innerHTML = `
+      <div class="drop-day-column" style="background:#f1f5f9; padding: 0.75rem; border-radius:0.75rem; border:1px solid #cbd5e1; display:flex; flex-direction:column; gap:0.5rem; width:100%;">
+        <h5 style="margin:0 0 0.25rem 0; text-align:center; font-weight:700; color:#334155; border-bottom:2px solid #cbd5e1; padding-bottom:0.25rem; font-size:0.9rem;">
+            ذمہ داریوں کی تفویض (${dayLabel} - ${selectedDate.split('-').reverse().join('/')})
+        </h5>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.75rem;">
+           ${slotsHtml}
+        </div>
+      </div>
+    `;
   }
 };
 
@@ -817,12 +906,12 @@ window.handleAssemblyDrop = async function(event) {
 
 async function assignStudentViaDragDrop(studentId, dayKey, taskKey) {
   if (!assemblyState.canEdit) return;
-  const weekStart = document.getElementById('assemblyWeekStart')?.value || '';
+  const assignDate = document.getElementById('assemblyAssignDate')?.value || '';
   const department = document.getElementById('assemblyDepartment')?.value || '';
   const className = document.getElementById('assemblyClass')?.value || '';
   const section = document.getElementById('assemblySection')?.value || '';
-  if (!weekStart || !department || !className) {
-    alert('براہ کرم ڈریگ اینڈ ڈراپ سے پہلے ہفتہ، شعبہ اور کلاس منتخب کریں۔');
+  if (!assignDate || !department || !className) {
+    alert('براہ کرم ڈریگ اینڈ ڈراپ سے پہلے تاریخ، شعبہ اور کلاس منتخب کریں۔');
     return;
   }
   const student = assemblyState.editorStudents.find(s => s.id === studentId);
@@ -831,7 +920,9 @@ async function assignStudentViaDragDrop(studentId, dayKey, taskKey) {
   const assigneeName = getAssemblyStudentName(student);
   const taskObj = assemblyState.tasks.find(t => t.key === taskKey);
   const taskLabelStr = taskObj ? taskObj.label : taskKey;
-  const dayLabelStr = assemblyState.days.find(d => d.key === dayKey)?.label || dayKey;
+  
+  const weekStart = getSaturdayOfDate(assignDate);
+  const dayLabelStr = DAY_LABELS[dayKey] || 'دن';
 
   // Conflict checking
   const allWeek = window.allWeekAssignmentsCache || [];
@@ -851,6 +942,7 @@ async function assignStudentViaDragDrop(studentId, dayKey, taskKey) {
   const classDoc = assemblyState.classes.find((item) => item.name === className) || null;
 
   const payload = {
+    date: assignDate,
     weekStart,
     dayKey,
     dayLabel: dayLabelStr,
