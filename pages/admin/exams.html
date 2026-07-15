@@ -451,18 +451,15 @@
             
             const dept = document.getElementById('examDept')?.value || '';
             try {
-                let query = db.collection('classes').where('tenantId', '==', examState.tenantId);
-                if (dept) query = query.where('department', '==', dept);
-                
-                let snapshot = await query.get();
-                if (snapshot.empty && !dept) {
+                let snapshot = await db.collection('classes').where('tenantId', '==', examState.tenantId).get();
+                if (snapshot.empty) {
                     snapshot = await db.collection('classes').get();
                 }
 
                 examState.classes = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    if (!data.tenantId || data.tenantId === examState.tenantId) {
+                    if (!data.tenantId || data.tenantId === examState.tenantId || data.tenantId === 'default') {
                         if (!dept || data.department === dept) {
                             examState.classes.push({ id: doc.id, ...data });
                         }
@@ -497,8 +494,6 @@
             try {
                 let snapshot = await db.collection('subjects')
                     .where('tenantId', '==', examState.tenantId)
-                    .where('department', '==', dept)
-                    .where('className', '==', className)
                     .get();
                 if (snapshot.empty) {
                     snapshot = await db.collection('subjects').get();
@@ -507,7 +502,7 @@
                 examState.subjects = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    if (!data.tenantId || data.tenantId === examState.tenantId) {
+                    if (!data.tenantId || data.tenantId === examState.tenantId || data.tenantId === 'default') {
                         if (data.department === dept && data.className === className) {
                             examState.subjects.push({ id: doc.id, ...data });
                         }
@@ -570,19 +565,18 @@
                 // 1. Fetch Students
                 let snapStudents = await db.collection('students')
                     .where('tenantId', '==', examState.tenantId)
-                    .where('className', '==', className)
                     .get();
                 if (snapStudents.empty) {
-                    snapStudents = await db.collection('students')
-                        .where('className', '==', className)
-                        .get();
+                    snapStudents = await db.collection('students').get();
                 }
 
                 examState.students = [];
                 snapStudents.forEach(doc => {
                     const data = doc.data();
-                    if (!data.tenantId || data.tenantId === examState.tenantId) {
-                        examState.students.push({ id: doc.id, ...data });
+                    if (!data.tenantId || data.tenantId === examState.tenantId || data.tenantId === 'default') {
+                        if (data.className === className) {
+                            examState.students.push({ id: doc.id, ...data });
+                        }
                     }
                 });
 
