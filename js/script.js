@@ -2073,6 +2073,17 @@ function renderSidebar(userOrRole) {
         });
     }
 
+    const canAccessChecklistHistory = (roles.length ? roles : [normalizedRole]).some(role => ['admin', 'owner', 'principal', 'nazim_e_taleemaat'].includes(role));
+    const lessonDeliveryChecklistHistoryHref = basePath + 'pages/shared/lesson_delivery_checklist_history.html';
+    const hasLessonDeliveryChecklistHistoryLink = resolvedRoleLinks.some(link => (link.href || '') === lessonDeliveryChecklistHistoryHref);
+    if (canAccessChecklistHistory && !hasLessonDeliveryChecklistHistoryLink) {
+        resolvedRoleLinks.push({
+            name: getTrans('lesson_delivery_checklist_history') !== 'lesson_delivery_checklist_history' ? getTrans('lesson_delivery_checklist_history') : 'Checklist History',
+            icon: '📜',
+            href: lessonDeliveryChecklistHistoryHref
+        });
+    }
+
     const studentProfileHref = basePath + 'pages/shared/student_profile.html';
     const hasStudentProfileLink = resolvedRoleLinks.some(link => (link.href || '') === studentProfileHref);
     const canAccessStudentProfile = (roles.length ? roles : [normalizedRole]).some(role => role !== 'student');

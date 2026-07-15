@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ڈلیوری چیک لسٹ ہسٹری - ادارہ مصباح القرآن</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .ldch-shell { display: flex; flex-direction: column; gap: 1.5rem; padding-bottom: 7rem; }
+        .ldch-hero {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.96), rgba(124, 58, 237, 0.92));
+            color: #fff;
+            border-radius: 1.35rem;
+            padding: 1.55rem 1.6rem;
+            box-shadow: 0 18px 35px rgba(124, 58, 237, 0.15);
+        }
+        .ldch-hero::after {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            bottom: -4rem;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+        }
+        .ldch-hero h2 { margin: 0 0 0.4rem; color: #fff; font-size: 1.8rem; }
+        .ldch-hero p { margin: 0; max-width: 760px; opacity: 0.94; }
+        .ldch-card {
+            background: #ffffff;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 1.2rem;
+            padding: 1.35rem;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+        }
+        .ldch-control-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        .ldch-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+        }
+        .ldch-metric-card {
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 1rem;
+            padding: 1.2rem;
+            background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .ldch-metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        }
+        .ldch-metric-icon {
+            font-size: 2rem;
+            background: #eff6ff;
+            color: #3b82f6;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ldch-metric-card.accent .ldch-metric-icon {
+            background: #faf5ff;
+            color: #a855f7;
+        }
+        .ldch-metric-card.success .ldch-metric-icon {
+            background: #f0fdf4;
+            color: #22c55e;
+        }
+        .ldch-metric-info h4 { margin: 0 0 0.25rem; font-size: 0.85rem; color: var(--text-light); }
+        .ldch-metric-value { font-size: 1.5rem; font-weight: 800; color: #0f172a; }
+        .ldch-chart-container {
+            position: relative;
+            height: 320px;
+            width: 100%;
+        }
+        .ldch-table-wrap {
+            overflow-x: auto;
+            margin-top: 0.5rem;
+        }
+        .ldch-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 0.92rem;
+        }
+        .ldch-table th, .ldch-table td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+            white-space: nowrap;
+        }
+        .ldch-table th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+        }
+        .ldch-table tr:hover { background-color: #fcfdff; }
+        .ldch-badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .ldch-badge.excellent { background: #dcfce7; color: #15803d; }
+        .ldch-badge.good { background: #dbeafe; color: #1d4ed8; }
+        .ldch-badge.coaching { background: #fef3c7; color: #b45309; }
+        .ldch-badge.intervention { background: #fee2e2; color: #b91c1c; }
+        
+        /* Modal Style */
+        .ldch-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+        .ldch-modal-content {
+            background: #ffffff;
+            border-radius: 1.35rem;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: modalFadeIn 0.25s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .ldch-modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ldch-modal-body {
+            padding: 1.5rem;
+        }
+        .ldch-modal-title { margin: 0; font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: color 0.15s ease;
+        }
+        .btn-close:hover { color: #ef4444; }
+        
+        .ldch-detail-section {
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            border-radius: 0.95rem;
+            margin-bottom: 1.25rem;
+            padding: 1.15rem;
+            background: #f8fafc;
+        }
+        .ldch-detail-section-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #1e3a8a;
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .ldch-detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+        .ldch-detail-table td {
+            padding: 0.55rem 0.75rem;
+            border-bottom: 1px dashed rgba(148, 163, 184, 0.14);
+            background: #fff;
+        }
+        .ldch-detail-table tr:last-child td { border-bottom: none; }
+        
+        /* PRINT MODE */
+        @media print {
+            body { background: #fff; color: #000; font-size: 10pt; }
+            .sidebar, .header, .ldch-hero, .ldch-card:first-of-type, .ldch-chart-card, .ldch-modal, .sticky-actions {
+                display: none !important;
+            }
+            .main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            .ldch-modal.active {
+                display: block !important;
+                position: relative !important;
+                background: none !important;
+                backdrop-filter: none !important;
+                padding: 0 !important;
+                z-index: auto !important;
+            }
+            .ldch-modal-content {
+                box-shadow: none !important;
+                max-height: none !important;
+                overflow-y: visible !important;
+                border: none !important;
+            }
+            .ldch-modal-header { display: none !important; }
+            .ldch-detail-section {
+                background: #fff !important;
+                border: 1px solid #ccc !important;
+                page-break-inside: avoid;
+            }
+            .ldch-detail-table td { background: #fff !important; }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>لیسن ڈلیوری چیک لسٹ ہسٹری</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight:600;">User</p>
+                            <p id="userRole" style="font-size:0.75rem; color:var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content ldch-shell">
+                <div class="ldch-card" id="ldchAccessDenied" style="display:none;">
+                    <div style="padding:2rem; text-align:center;">
+                        <h3>رسائی مسترد کر دی گئی</h3>
+                        <p>صرف ناظم تعلیمات اور ایڈمن ہی لیسن ڈلیوری چیک لسٹ کی تاریخ دیکھنے کے مجاز ہیں۔</p>
+                    </div>
+                </div>
+
+                <div id="ldchMainContent" style="display:none;">
+                    <!-- Hero header -->
+                    <div class="ldch-hero">
+                        <h2>استاد تعلیمی نگرانی اور تاریخی جائزہ</h2>
+                        <p>منتخب اساتذہ کی کلاسز کا نگرانوں کی جانب سے لیے گئے تاریخی مشاہدات اور لیسن ڈلیوری رپورٹس کا تقابلی جائزہ یہاں دیکھیں۔</p>
+                    </div>
+
+                    <!-- Filter Control Bar -->
+                    <div class="ldch-card">
+                        <div class="ldch-control-bar">
+                            <div class="form-group">
+                                <label>شعبہ</label>
+                                <select id="ldchDepartment" class="ldc-select">
+                                    <option value="">تمام شعبہ جات</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>استاد</label>
+                                <select id="ldchTeacher" class="ldc-select">
+                                    <option value="">استاد منتخب کریں</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>کلاس</label>
+                                <select id="ldchClass" class="ldc-select">
+                                    <option value="">تمام کلاسز</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>تاریخ سے</label>
+                                <input type="date" id="ldchDateFrom" class="ldc-input">
+                            </div>
+                            <div class="form-group">
+                                <label>تاریخ تک</label>
+                                <input type="date" id="ldchDateTo" class="ldc-input">
+                            </div>
+                            <button type="button" class="btn-primary" id="ldchFetchBtn" style="height:50px;">رپورٹ لوڈ کریں</button>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Grid -->
+                    <div class="ldch-metrics-grid" id="ldchMetricsArea" style="display:none;">
+                        <div class="ldch-metric-card">
+                            <div class="ldch-metric-icon">📋</div>
+                            <div class="ldch-metric-info">
+                                <h4>کل مشاہدات (Observations)</h4>
+                                <div class="ldch-metric-value" id="ldchMetricCount">0</div>
+                            </div>
+                        </div>
+                        <div class="ldch-metric-card accent">
+                            <div class="ldch-metric-icon">📈</div>
+                            <div class="ldch-metric-info">
+                                <h4>اوسط تعلیمی معیار اسکور</h4>
+                                <div class="ldch-metric-value" id="ldchMetricAverage">0%</div>
+                            </div>
+                        </div>
+                        <div class="ldch-metric-card success" id="ldchMetricGradeCard">
+                            <div class="ldch-metric-icon">🏅</div>
+                            <div class="ldch-metric-info">
+                                <h4>حالیہ حاصل کردہ درجہ</h4>
+                                <div class="ldch-metric-value" id="ldchMetricLatestGrade">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progression Graph Card -->
+                    <div class="ldch-card ldch-chart-card" id="ldchChartCard" style="display:none;">
+                        <h3 class="ldc-title" style="margin-bottom:1rem;">تعلیمی ترقی کا گراف (Progression Trend)</h3>
+                        <div class="ldch-chart-container">
+                            <canvas id="ldchHistoryChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- History Table Card -->
+                    <div class="ldch-card" id="ldchTableCard" style="display:none;">
+                        <h3 class="ldc-title" style="margin-bottom:1rem;">تاریخ وار جائزہ شیٹ</h3>
+                        <div class="ldch-table-wrap">
+                            <table class="ldch-table" id="ldchHistoryTable">
+                                <thead>
+                                    <tr>
+                                        <th>تاریخ</th>
+                                        <th>کلاس</th>
+                                        <th>مضمون</th>
+                                        <th>مبصر / نگران</th>
+                                        <th>حاصل شدہ اسکور</th>
+                                        <th>فیصد</th>
+                                        <th>درجہ / ایکشن</th>
+                                        <th>اقدامات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ldchHistoryTableBody">
+                                    <tr>
+                                        <td colspan="8" style="text-align:center; padding:2rem; color:var(--text-light);">ریکارڈ لوڈ کرنے کے لیے اوپر سے استاد منتخب کریں۔</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal View Details -->
+    <div class="ldch-modal" id="ldchDetailModal">
+        <div class="ldch-modal-content">
+            <div class="ldch-modal-header">
+                <h3 class="ldch-modal-title" id="ldchModalTitle">مشاہدہ شیٹ کی تفصیلات</h3>
+                <button type="button" class="btn-close" id="ldchModalClose">&times;</button>
+            </div>
+            <div class="ldch-modal-body">
+                <!-- Header details -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px dashed #ccc;">
+                    <div><strong>استاد: </strong><span id="ldchDetailTeacher">-</span></div>
+                    <div><strong>مبصر / نگران: </strong><span id="ldchDetailObserver">-</span></div>
+                    <div><strong>تاریخ: </strong><span id="ldchDetailDate">-</span></div>
+                    <div><strong>کلاس / شعبہ: </strong><span id="ldchDetailClass">-</span></div>
+                    <div><strong>مضمون / کتاب: </strong><span id="ldchDetailSubject">-</span></div>
+                    <div><strong>حاصل شدہ اسکور: </strong><span id="ldchDetailScore">-</span></div>
+                </div>
+
+                <!-- Dyn injected checklist items -->
+                <div id="ldchDetailItemsContainer"></div>
+
+                <div class="sticky-actions" style="margin-top:1.5rem; display:flex; justify-content:flex-end; gap:0.75rem;">
+                    <button type="button" class="btn-secondary" onclick="window.print()">پرنٹ / PDF ڈاؤن لوڈ کریں</button>
+                    <button type="button" class="btn-primary" id="ldchDetailModalCloseBtn">بند کریں</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase & ChartJS dependencies -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/lesson-delivery-checklist-history.js"></script>
+</body>
+</html>
