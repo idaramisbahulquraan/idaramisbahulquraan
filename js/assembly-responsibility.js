@@ -331,6 +331,9 @@ async function updateAssemblyAssigneeOptions() {
     option.innerText = `${student.rollNumber ? `${student.rollNumber} - ` : ''}${getAssemblyStudentName(student)}`;
     select.appendChild(option);
   });
+  if (typeof renderAssemblyDragDropScheduler === 'function') {
+    renderAssemblyDragDropScheduler();
+  }
 }
 
 async function loadAssemblyStudents({ department, className, section }) {
@@ -405,6 +408,9 @@ async function loadAssemblyAssignments() {
     renderAssemblyBoard(assignments);
     updateAssemblyStats(assignments);
     setAssemblyState(assignments.length ? 'ذمہ داریاں لوڈ ہو گئیں۔' : 'اس ہفتے کے لیے کوئی ذمہ داری موجود نہیں۔');
+    if (typeof renderAssemblyDragDropScheduler === 'function') {
+      renderAssemblyDragDropScheduler();
+    }
   } catch (error) {
     console.error('Error loading assembly responsibilities:', error);
     setAssemblyState('ذمہ داریاں لوڈ نہ ہو سکیں۔');
@@ -701,3 +707,195 @@ function escapeAssemblyHtml(value) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+
+// --- Drag-and-Drop Duty Scheduler Implementation ---
+window.renderAssemblyDragDropScheduler = function() {
+  const dragDropCard = document.getElementById('assemblyDragDropCard');
+  if (!dragDropCard) return;
+
+  if (!assemblyState.canEdit) {
+    dragDropCard.style.display = 'none';
+    return;
+  }
+  
+  const department = document.getElementById('assemblyDepartment')?.value || '';
+  const className = document.getElementById('assemblyClass')?.value || '';
+  if (!department || !className) {
+    dragDropCard.style.display = 'none';
+    return;
+  }
+
+  dragDropCard.style.display = 'block';
+
+  // 1. Render Student Cards in Deck
+  const deck = document.getElementById('assemblyStudentDeck');
+  if (deck) {
+    if (assemblyState.editorStudents.length === 0) {
+      deck.innerHTML = '<div style="color:var(--text-light); font-size:0.85rem; width:100%; text-align:center; padding:1rem;">اس کلاس میں کوئی طالب علم نہیں ملا۔</div>';
+    } else {
+      deck.innerHTML = assemblyState.editorStudents.map(student => {
+        const name = getAssemblyStudentName(student);
+        const rollStr = student.rollNumber ? `<span style="background:var(--primary-color); color:#fff; border-radius:0.25rem; padding:0.15rem 0.35rem; font-size:0.75rem; margin-left:0.25rem;">${student.rollNumber}</span>` : '';
+        return `
+          <div class="drag-student" draggable="true" data-student-id="${student.id}" ondragstart="handleAssemblyDragStart(event)">
+            ${rollStr}
+            <span>${name}</span>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // 2. Render Columns Grid of Drop Zones
+  const grid = document.getElementById('assemblyDropGrid');
+  if (grid) {
+    grid.innerHTML = assemblyState.days.map(day => {
+      const slotsHtml = assemblyState.tasks.map(task => {
+        const section = document.getElementById('assemblySection')?.value || '';
+        const assignment = assemblyState.assignments.find(item => 
+          item.dayKey === day.key && 
+          item.taskKey === task.key && 
+          item.className === className &&
+          normalizeAssemblyToken(item.section || '') === normalizeAssemblyToken(section)
+        );
+
+        let assigneeHtml = '<div class="slot-assignee-empty">خالی (کوئی نہیں)</div>';
+        if (assignment) {
+          assigneeHtml = `
+            <div class="slot-assignee-card">
+              <span>${assignment.assigneeName}</span>
+              <button type="button" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1rem; line-height:1; padding:0 0.25rem; font-weight:bold;" onclick="removeAssemblyAssignmentDirect('${assignment.id}')" title="حذف کریں">&times;</button>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="drop-task-slot" data-day-key="${day.key}" data-task-key="${task.key}" ondragover="handleAssemblyDragOver(event)" ondragleave="handleAssemblyDragLeave(event)" ondrop="handleAssemblyDrop(event)">
+            <div class="slot-header">
+              <span>${task.label}</span>
+            </div>
+            ${assigneeHtml}
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="drop-day-column" style="background:#f1f5f9; padding: 0.75rem; border-radius:0.75rem; border:1px solid #cbd5e1; display:flex; flex-direction:column; gap:0.5rem;">
+          <h5 style="margin:0 0 0.25rem 0; text-align:center; font-weight:700; color:#334155; border-bottom:2px solid #cbd5e1; padding-bottom:0.25rem;">${day.label}</h5>
+          ${slotsHtml}
+        </div>
+      `;
+    }).join('');
+  }
+};
+
+window.handleAssemblyDragStart = function(event) {
+  event.dataTransfer.setData('text/plain', event.currentTarget.dataset.studentId);
+  event.dataTransfer.effectAllowed = 'move';
+};
+
+window.handleAssemblyDragOver = function(event) {
+  event.preventDefault();
+  event.currentTarget.classList.add('drag-over');
+};
+
+window.handleAssemblyDragLeave = function(event) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag-over');
+};
+
+window.handleAssemblyDrop = async function(event) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag-over');
+  const studentId = event.dataTransfer.getData('text/plain');
+  const dayKey = event.currentTarget.dataset.dayKey;
+  const taskKey = event.currentTarget.dataset.taskKey;
+  if (studentId && dayKey && taskKey) {
+    await assignStudentViaDragDrop(studentId, dayKey, taskKey);
+  }
+};
+
+async function assignStudentViaDragDrop(studentId, dayKey, taskKey) {
+  if (!assemblyState.canEdit) return;
+  const weekStart = document.getElementById('assemblyWeekStart')?.value || '';
+  const department = document.getElementById('assemblyDepartment')?.value || '';
+  const className = document.getElementById('assemblyClass')?.value || '';
+  const section = document.getElementById('assemblySection')?.value || '';
+  if (!weekStart || !department || !className) {
+    alert('براہ کرم ڈریگ اینڈ ڈراپ سے پہلے ہفتہ، شعبہ اور کلاس منتخب کریں۔');
+    return;
+  }
+  const student = assemblyState.editorStudents.find(s => s.id === studentId);
+  if (!student) return;
+  
+  const assigneeName = getAssemblyStudentName(student);
+  const taskObj = assemblyState.tasks.find(t => t.key === taskKey);
+  const taskLabelStr = taskObj ? taskObj.label : taskKey;
+  const dayLabelStr = assemblyState.days.find(d => d.key === dayKey)?.label || dayKey;
+
+  // Conflict checking
+  const allWeek = window.allWeekAssignmentsCache || [];
+  const conflict = allWeek.find(item => 
+      item.dayKey === dayKey && 
+      item.assigneeId === studentId && 
+      item.assigneeType === 'student'
+  );
+  if (conflict) {
+      if (!confirm(`تنبيه: یہ طالب علم (${assigneeName}) پہلے ہی اس دن (${dayLabelStr}) ٹاسک "${conflict.taskLabel}" کے لیے تفویض شدہ ہے۔ کیا آپ پھر بھی تفویض کرنا چاہتے ہیں؟`)) {
+          return;
+      }
+  }
+
+  const departmentUr = getDepartmentDisplayNameSafe(department);
+  const classUr = getClassDisplayNameSafe(className);
+  const classDoc = assemblyState.classes.find((item) => item.name === className) || null;
+
+  const payload = {
+    weekStart,
+    dayKey,
+    dayLabel: dayLabelStr,
+    taskKey,
+    taskLabel: taskLabelStr,
+    department,
+    department_ur: departmentUr,
+    className,
+    className_ur: classUr,
+    classId: classDoc?.id || '',
+    section,
+    sectionLabel: section ? `سیکشن ${section}` : 'عمومی',
+    assigneeType: 'student',
+    assigneeId: studentId,
+    assigneeName,
+    itemTitle: '',
+    notes: '',
+    tenantId: assemblyState.currentUser?.tenantId || localStorage.getItem('tenantId') || '',
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedByUid: assemblyState.currentUser?.uid || '',
+    updatedByName: assemblyState.currentUser?.name || assemblyState.currentUser?.displayName || '',
+    studentId,
+    rollNumber: student.rollNumber || ''
+  };
+
+  const refId = buildAssemblyDocId({ weekStart, dayKey, taskKey, section, assigneeId: studentId, assigneeName });
+  try {
+    setAssemblyState('ذمہ داری تفویض ہو رہی ہے...');
+    await db.collection('assembly_responsibilities').doc(refId).set(payload, { merge: true });
+    await loadAssemblyAssignments();
+  } catch (error) {
+    console.error('Failed to assign student:', error);
+    alert(`ذمہ داری محفوظ کرنے میں خرابی: ${error.message}`);
+  }
+}
+
+window.removeAssemblyAssignmentDirect = async function(assignmentId) {
+  if (!assemblyState.canEdit) return;
+  if (!confirm('کیا آپ اس ذمہ داری کو حذف کرنا چاہتے ہیں؟')) return;
+  try {
+    setAssemblyState('ذمہ داری حذف ہو رہی ہے...');
+    await db.collection('assembly_responsibilities').doc(assignmentId).delete();
+    await loadAssemblyAssignments();
+  } catch (error) {
+    console.error('Failed to delete assignment:', error);
+    alert(`ذمہ داری حذف کرنے میں خرابی: ${error.message}`);
+  }
+};

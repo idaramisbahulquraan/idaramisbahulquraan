@@ -1126,10 +1126,12 @@
                 const monthGrid = section.querySelector(`#grid_${index}`);
                 termMonths.forEach(m => {
                     const savedVal = bookTargets[m] || '';
+                    const maxLimit = Math.max(100, Math.ceil(parseFloat(savedVal) * 2) || 100);
                     monthGrid.innerHTML += `
-                        <div class="month-card">
-                            <label>${m}</label>
-                            <input type="number" class="target-input book-${index}" name="${m}" value="${savedVal}" placeholder="${tr('pages', 'Pages')}" data-book-index="${index}" oninput="manualOverride(${index})">
+                        <div class="month-card" style="display: flex; flex-direction: column; gap: 0.25rem; background: #fafafa; padding: 0.5rem; border-radius: 0.5rem;">
+                            <label style="margin-bottom:0.25rem; font-weight:600;">${m}</label>
+                            <input type="number" class="target-input book-${index}" name="${m}" value="${savedVal}" placeholder="${tr('pages', 'Pages')}" data-book-index="${index}" oninput="syncSliderFromInput(this, ${index})" style="width:100%;">
+                            <input type="range" class="target-slider book-slider-${index}" name="slider_${m}" value="${savedVal || 0}" min="0" max="${maxLimit}" data-book-index="${index}" style="width: 100%; margin-top: 0.25rem; cursor: pointer;" oninput="syncInputFromSlider(this, ${index})">
                         </div>
                     `;
                 });
@@ -1190,9 +1192,45 @@
                 });
             }
 
+            // Sync range sliders
+            inputs.forEach(input => {
+                const monthCard = input.closest('.month-card');
+                const slider = monthCard ? monthCard.querySelector('input[type="range"]') : null;
+                if (slider) {
+                    const val = parseFloat(input.value) || 0;
+                    if (val > parseFloat(slider.max)) {
+                        slider.max = Math.ceil(val * 1.5) || 100;
+                    }
+                    slider.value = val;
+                }
+            });
+
             document.getElementById(`dist_msg_${bookIndex}`).innerText = trf('auto_distributed_pages_months', 'Auto-distributed {pages} pages across {months} months', { pages: total, months: count });
             document.getElementById(`dist_msg_${bookIndex}`).style.color = '';
             updateTotalPlanSum();
+        }
+
+        function syncSliderFromInput(inputEl, bookIndex) {
+            const val = parseFloat(inputEl.value) || 0;
+            const monthCard = inputEl.closest('.month-card');
+            const slider = monthCard ? monthCard.querySelector('input[type="range"]') : null;
+            if (slider) {
+                if (val > parseFloat(slider.max)) {
+                    slider.max = Math.ceil(val * 1.5) || 100;
+                }
+                slider.value = val;
+            }
+            manualOverride(bookIndex);
+        }
+
+        function syncInputFromSlider(sliderEl, bookIndex) {
+            const val = sliderEl.value;
+            const monthCard = sliderEl.closest('.month-card');
+            const input = monthCard ? monthCard.querySelector('input[type="number"]') : null;
+            if (input) {
+                input.value = val;
+            }
+            manualOverride(bookIndex);
         }
 
         function manualOverride(bookIndex) {

@@ -172,6 +172,107 @@
                     </div>
                 </div>
 
+                <!-- Drag-and-Drop Duty Scheduler -->
+                <div class="assembly-card editor-only" id="assemblyDragDropCard" style="display:none; margin-top: 1.5rem;">
+                    <style>
+                        .drag-student {
+                            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+                            border: 1px solid #cbd5e1;
+                            border-radius: 0.5rem;
+                            padding: 0.4rem 0.75rem;
+                            font-size: 0.88rem;
+                            font-weight: 600;
+                            color: #1e293b;
+                            cursor: grab;
+                            user-select: none;
+                            transition: all 0.15s ease;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 0.25rem;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+                        }
+                        .drag-student:hover {
+                            background: #e0e7ff;
+                            border-color: #818cf8;
+                            transform: translateY(-1px);
+                            box-shadow: 0 4px 6px rgba(0,0,0,0.06);
+                        }
+                        .drag-student:active {
+                            cursor: grabbing;
+                        }
+                        .drop-task-slot {
+                            background: #f8fafc;
+                            border: 1px dashed #cbd5e1;
+                            padding: 0.6rem;
+                            border-radius: 0.6rem;
+                            min-height: 85px;
+                            transition: all 0.2s ease;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.35rem;
+                        }
+                        .drop-task-slot.drag-over {
+                            background: #eef2ff;
+                            border-color: var(--primary-color);
+                            border-style: solid;
+                            box-shadow: inset 0 0 0 1px var(--primary-color);
+                        }
+                        .slot-header {
+                            display: flex;
+                            justify-content: space-between;
+                            font-size: 0.76rem;
+                            color: var(--text-light);
+                            font-weight: 700;
+                            border-bottom: 1px solid rgba(148,163,184,0.08);
+                            padding-bottom: 0.2rem;
+                        }
+                        .slot-assignee-card {
+                            background: #ecfdf5;
+                            border: 1px solid #a7f3d0;
+                            border-radius: 0.35rem;
+                            padding: 0.25rem 0.5rem;
+                            font-size: 0.8rem;
+                            font-weight: 700;
+                            color: #065f46;
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                        }
+                        .slot-assignee-empty {
+                            color: #94a3b8;
+                            font-size: 0.78rem;
+                            font-style: italic;
+                            text-align: center;
+                            margin: auto 0;
+                        }
+                    </style>
+                    <div class="assembly-head">
+                        <div class="assembly-head-main">
+                            <span class="assembly-badge"><i class="fas fa-hand-pointer"></i></span>
+                            <div>
+                                <h3 class="assembly-title">ڈریگ اینڈ ڈراپ ڈیوٹی شیڈولر</h3>
+                                <p class="assembly-subtitle">طالب علم کارڈ کو ڈریگ کر کے مخصوص دن اور ٹاسک کے خانے میں چھوڑیں۔</p>
+                            </div>
+                        </div>
+                        <span class="assembly-note" style="background:#e0f2fe; border-color:#bae6fd; color:#0369a1;">ڈریگ اینڈ ڈراپ موڈ</span>
+                    </div>
+                    
+                    <div class="drag-drop-scheduler-panel">
+                        <!-- Student Deck -->
+                        <div style="background:#f8fafc; border:1px dashed rgba(148,163,184,0.3); padding:1rem; border-radius:1rem; margin-bottom:1.5rem;">
+                            <h4 style="margin:0 0 0.75rem 0; font-size:0.9rem; color:var(--primary-color); font-weight:700;">طالب علم کارڈز (ڈریگ کرنے کے لیے کلک کر کے کھینچیں)</h4>
+                            <div id="assemblyStudentDeck" style="display:flex; flex-wrap:wrap; gap:0.5rem; min-height:60px; padding:0.5rem; background:#fff; border-radius:0.75rem; border:1px solid rgba(148,163,184,0.12);">
+                                <div style="color:var(--text-light); font-size:0.85rem; width:100%; text-align:center; padding:1rem;">شعبہ اور کلاس منتخب کرنے پر طلبہ یہاں نظر آئیں گے</div>
+                            </div>
+                        </div>
+
+                        <!-- Drop Zones Grid -->
+                        <div class="drop-zones-grid" id="assemblyDropGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; overflow-x:auto;">
+                            <!-- Drop day columns dynamically rendered -->
+                        </div>
+                    </div>
+                </div>
+
                 <div class="assembly-card">
                     <div class="assembly-head">
                         <div class="assembly-head-main">

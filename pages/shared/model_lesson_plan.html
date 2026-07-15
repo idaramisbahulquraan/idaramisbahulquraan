@@ -411,6 +411,90 @@
                 font-size: 1.45rem;
             }
         }
+
+        /* Wizard & Pills Custom styles */
+        .lesson-plan-workspace {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        @media (min-width: 992px) {
+            .lesson-plan-workspace {
+                grid-template-columns: 3fr 1.1fr;
+            }
+        }
+
+        .step-indicator.active .step-num {
+            background: var(--primary-color) !important;
+            color: #fff !important;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+        }
+        .step-indicator.active div {
+            color: var(--primary-color) !important;
+            font-weight: 700 !important;
+        }
+
+        .pills-panel {
+            position: sticky;
+            top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1.25rem;
+            background: #fff;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 1.2rem;
+            box-shadow: var(--shadow-sm);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .pills-category {
+            margin-bottom: 0.5rem;
+        }
+        .pills-category-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(148,163,184,0.1);
+            padding-bottom: 0.25rem;
+        }
+        .pills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+        }
+        .text-pill {
+            background: #f1f5f9;
+            color: #334155;
+            padding: 0.35rem 0.6rem;
+            border-radius: 0.5rem;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .text-pill:hover {
+            background: var(--accent-glow);
+            color: var(--primary-color);
+            border-color: rgba(79, 70, 229, 0.2);
+            transform: translateY(-1px);
+        }
+        .text-pill:active {
+            transform: translateY(0);
+        }
+        .wizard-nav-btns {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
     </style>
 </head>
 
@@ -448,8 +532,7 @@
                 <div id="simpleLessonContent" style="display:none;">
                     <div class="plan-hero">
                         <h2>ماڈل لیسن پلان</h2>
-                        <p>سادہ، صاف اور کاغذی فارم کے قریب لے آؤٹ تاکہ استاد کم وقت میں منصوبہ درج کر سکے، محفوظ کر سکے
-                            اور پرنٹ بھی نکال سکے۔</p>
+                        <p>سادہ، صاف اور کاغذی فارم کے قریب لے آؤٹ تاکہ استاد کم وقت میں منصوبہ درج کر سکے، محفوظ کر سکے اور پرنٹ بھی نکال سکے۔</p>
                         <div class="hero-chips">
                             <span class="hero-chip">یک صفحہ انداز</span>
                             <span class="hero-chip">واضح سیکشن بندی</span>
@@ -457,266 +540,380 @@
                         </div>
                     </div>
 
-                    <div class="paper-card">
-                        <div class="section-head">
-                            <div class="section-head-main">
-                                <span class="section-badge">ا</span>
-                                <div>
-                                    <h3 class="paper-title">عمومی معلومات</h3>
-                                    <p class="paper-subtitle">سبق، کلاس، مضمون اور دیگر بنیادی تفصیل یہاں درج کریں۔</p>
-                                </div>
-                            </div>
-                            <span class="section-mini-note">سب سے پہلے یہ حصہ مکمل کریں</span>
+                    <!-- Stepper Progress Bar -->
+                    <div class="stepper-wizard" style="display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0; background: var(--white); padding: 1.2rem; border-radius: 1rem; box-shadow: var(--shadow-sm); border: 1px solid rgba(148,163,184,0.15);">
+                        <div class="step-indicator active" id="step-ind-1" onclick="goToWizardStep(1)" style="cursor:pointer; text-align:center; flex:1; transition: all 0.3s;">
+                            <span class="step-num" style="display:inline-flex; width:2.2rem; height:2.2rem; border-radius:50%; background:var(--primary-color); color:#fff; align-items:center; justify-content:center; font-weight:700; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);">۱</span>
+                            <div style="font-size:0.85rem; margin-top:0.4rem; font-weight:700; color:var(--primary-color);">معلومات و اصطلاحات</div>
                         </div>
-                        <div class="paper-grid">
-                            <div class="form-group"><label>شعبہ</label><select id="slpDepartment"
-                                    class="paper-select"></select></div>
-                            <div class="form-group"><label>کلاس</label><select id="slpClass"
-                                    class="paper-select"></select></div>
-                            <div class="form-group"><label>سیکشن / باب</label><select id="slpSection"
-                                    class="paper-select"></select></div>
-                            <div class="form-group"><label>استاد</label><select id="slpTeacher"
-                                    class="paper-select"></select></div>
-                            <div class="form-group"><label>مضمون</label><select id="slpSubject"
-                                    class="paper-select"></select></div>
-                            <div class="form-group"><label>سبق / باب</label><input id="slpLessonTitle"
-                                    class="paper-input" type="text"></div>
-                            <div class="form-group"><label>تاریخ</label><input id="slpDate" class="paper-input"
-                                    type="date"></div>
-                            <div class="form-group"><label>کتاب</label><input id="slpBook" class="paper-input"
-                                    type="text"></div>
-                            <div class="form-group"><label>تاریخ</label><input id="slpDate" class="paper-input"
-                                    type="date"></div>
-                            <div class="form-group"><label>ذرائع / وسائل</label><input id="slpResources"
-                                    class="paper-input" type="text" placeholder="مثلاً کتاب، وائٹ بورڈ"></div>
+                        <div style="flex:1; height:3px; background:var(--border-color); margin: 0 0.5rem; margin-bottom:1.5rem;" id="step-line-1"></div>
+                        <div class="step-indicator" id="step-ind-2" onclick="goToWizardStep(2)" style="cursor:pointer; text-align:center; flex:1; transition: all 0.3s;">
+                            <span class="step-num" style="display:inline-flex; width:2.2rem; height:2.2rem; border-radius:50%; background:var(--border-color); color:var(--text-muted); align-items:center; justify-content:center; font-weight:700;">۲</span>
+                            <div style="font-size:0.85rem; margin-top:0.4rem; font-weight:600; color:var(--text-muted);">تعارف و مقاصد</div>
                         </div>
-                        <div class="load-bar">
-                            <button type="button" class="btn-secondary" id="slpLoadBtn">منصوبہ لوڈ کریں</button>
-                            <span id="slpLoadState" class="state-note">منتخب سیاق کے مطابق نیا یا موجودہ منصوبہ لوڈ
-                                کریں۔</span>
+                        <div style="flex:1; height:3px; background:var(--border-color); margin: 0 0.5rem; margin-bottom:1.5rem;" id="step-line-2"></div>
+                        <div class="step-indicator" id="step-ind-3" onclick="goToWizardStep(3)" style="cursor:pointer; text-align:center; flex:1; transition: all 0.3s;">
+                            <span class="step-num" style="display:inline-flex; width:2.2rem; height:2.2rem; border-radius:50%; background:var(--border-color); color:var(--text-muted); align-items:center; justify-content:center; font-weight:700;">۳</span>
+                            <div style="font-size:0.85rem; margin-top:0.4rem; font-weight:600; color:var(--text-muted);">مراحل و حکمتِ عملیاں</div>
+                        </div>
+                        <div style="flex:1; height:3px; background:var(--border-color); margin: 0 0.5rem; margin-bottom:1.5rem;" id="step-line-3"></div>
+                        <div class="step-indicator" id="step-ind-4" onclick="goToWizardStep(4)" style="cursor:pointer; text-align:center; flex:1; transition: all 0.3s;">
+                            <span class="step-num" style="display:inline-flex; width:2.2rem; height:2.2rem; border-radius:50%; background:var(--border-color); color:var(--text-muted); align-items:center; justify-content:center; font-weight:700;">۴</span>
+                            <div style="font-size:0.85rem; margin-top:0.4rem; font-weight:600; color:var(--text-muted);">اطلاق و سوالات</div>
+                        </div>
+                        <div style="flex:1; height:3px; background:var(--border-color); margin: 0 0.5rem; margin-bottom:1.5rem;" id="step-line-4"></div>
+                        <div class="step-indicator" id="step-ind-5" onclick="goToWizardStep(5)" style="cursor:pointer; text-align:center; flex:1; transition: all 0.3s;">
+                            <span class="step-num" style="display:inline-flex; width:2.2rem; height:2.2rem; border-radius:50%; background:var(--border-color); color:var(--text-muted); align-items:center; justify-content:center; font-weight:700;">۵</span>
+                            <div style="font-size:0.85rem; margin-top:0.4rem; font-weight:600; color:var(--text-muted);">خلاصہ و ہوم ورک</div>
                         </div>
                     </div>
 
-                    <div class="paper-card form-section">
-                        <div class="section-head">
-                            <div class="section-head-main">
-                                <span class="section-badge">1</span>
-                                <div>
-                                    <h3 class="paper-title">سبق کے مقاصد</h3>
-                                    <p class="paper-subtitle">وہ بنیادی نتائج منتخب کریں جو سبق کے اختتام تک طلبہ سے
-                                        متوقع ہیں۔</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="paper-check-grid" id="slpObjectivesBox"></div>
-                        <div class="paper-line-list" style="margin-top:1rem;">
-                            <div class="paper-line-item"><span class="paper-line-label">دیگر</span><input
-                                    id="slpOtherObjective1" class="paper-input" type="text"></div>
-                            <div class="paper-line-item"><span class="paper-line-label">مقصد</span><input
-                                    id="slpOtherObjective2" class="paper-input" type="text"></div>
-                        </div>
-                    </div>
+                    <!-- 2-Column Workspace -->
+                    <div class="lesson-plan-workspace">
+                        <!-- Left Column: Steps -->
+                        <div class="wizard-steps-container">
 
-                    <div class="paper-card form-section">
-                        <div class="section-head">
-                            <div class="section-head-main">
-                                <span class="section-badge">2</span>
-                                <div>
-                                    <h3 class="paper-title">کلیدی اصطلاحات</h3>
-                                    <p class="paper-subtitle">اہم الفاظ یا اصطلاحات کو واضح اور مختصر انداز میں درج
-                                        کریں۔</p>
+                            <!-- STEP 1: General Info & Key Terms -->
+                            <div class="wizard-step-content" id="wiz-step-1">
+                                <div class="paper-card">
+                                    <div class="section-head">
+                                        <div class="section-head-main">
+                                            <span class="section-badge">ا</span>
+                                            <div>
+                                                <h3 class="paper-title">عمومی معلومات</h3>
+                                                <p class="paper-subtitle">سبق، کلاس، مضمون اور دیگر بنیادی تفصیل یہاں درج کریں۔</p>
+                                            </div>
+                                        </div>
+                                        <span class="section-mini-note">سب سے پہلے یہ حصہ مکمل کریں</span>
+                                    </div>
+                                    <div class="paper-grid">
+                                        <div class="form-group"><label>شعبہ</label><select id="slpDepartment" class="paper-select"></select></div>
+                                        <div class="form-group"><label>کلاس</label><select id="slpClass" class="paper-select"></select></div>
+                                        <div class="form-group"><label>سیکشن / باب</label><select id="slpSection" class="paper-select"></select></div>
+                                        <div class="form-group"><label>استاد</label><select id="slpTeacher" class="paper-select"></select></div>
+                                        <div class="form-group"><label>مضمون</label><select id="slpSubject" class="paper-select"></select></div>
+                                        <div class="form-group"><label>سبق / باب</label><input id="slpLessonTitle" class="paper-input" type="text"></div>
+                                        <div class="form-group"><label>تاریخ</label><input id="slpDate" class="paper-input" type="date"></div>
+                                        <div class="form-group"><label>کتاب</label><input id="slpBook" class="paper-input" type="text"></div>
+                                        <div class="form-group"><label>ذرائع / وسائل</label><input id="slpResources" class="paper-input" type="text" placeholder="مثلاً کتاب، وائٹ بورڈ"></div>
+                                    </div>
+                                    <div class="load-bar" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                        <button type="button" class="btn-secondary" id="slpLoadBtn">منصوبہ لوڈ کریں</button>
+                                        <button type="button" class="btn-secondary" id="slpCopyPrevBtn" style="background:#059669; color:white; border:none;" onclick="copyPreviousLessonPlan()">سابقہ سے کاپی کریں</button>
+                                        <span id="slpLoadState" class="state-note">منتخب سیاق کے مطابق نیا یا موجودہ منصوبہ لوڈ کریں۔</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="paper-grid-3">
-                            <input class="paper-input slp-key-term" type="text" data-index="1" placeholder="1">
-                            <input class="paper-input slp-key-term" type="text" data-index="2" placeholder="2">
-                            <input class="paper-input slp-key-term" type="text" data-index="3" placeholder="3">
-                            <input class="paper-input slp-key-term" type="text" data-index="4" placeholder="4">
-                            <input class="paper-input slp-key-term" type="text" data-index="5" placeholder="5">
-                            <input class="paper-input slp-key-term" type="text" data-index="6" placeholder="6">
-                            <input class="paper-input slp-key-term" type="text" data-index="7" placeholder="7">
-                            <input class="paper-input slp-key-term" type="text" data-index="8" placeholder="8">
-                        </div>
-                    </div>
 
-                    <div class="paper-card form-section">
-                        <div class="section-head">
-                            <div class="section-head-main">
-                                <span class="section-badge">3</span>
-                                <div>
-                                    <h3 class="paper-title">سبق کا تعارف</h3>
-                                    <p class="paper-subtitle">طلبہ کی توجہ حاصل کرنے کے لیے مناسب طریقہ منتخب کریں اور
-                                        مختصر تعارف لکھیں۔</p>
+                                <div class="paper-card form-section" style="margin-top: 1.5rem;">
+                                    <div class="section-head">
+                                        <div class="section-head-main">
+                                            <span class="section-badge">۲</span>
+                                            <div>
+                                                <h3 class="paper-title">کلیدی اصطلاحات</h3>
+                                                <p class="paper-subtitle">اہم الفاظ یا اصطلاحات کو واضح اور مختصر انداز میں درج کریں۔</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="paper-grid-3">
+                                        <input class="paper-input slp-key-term" type="text" data-index="1" placeholder="1">
+                                        <input class="paper-input slp-key-term" type="text" data-index="2" placeholder="2">
+                                        <input class="paper-input slp-key-term" type="text" data-index="3" placeholder="3">
+                                        <input class="paper-input slp-key-term" type="text" data-index="4" placeholder="4">
+                                        <input class="paper-input slp-key-term" type="text" data-index="5" placeholder="5">
+                                        <input class="paper-input slp-key-term" type="text" data-index="6" placeholder="6">
+                                        <input class="paper-input slp-key-term" type="text" data-index="7" placeholder="7">
+                                        <input class="paper-input slp-key-term" type="text" data-index="8" placeholder="8">
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="option-row" id="slpIntroMethods"></div>
-                        <div class="form-group" style="margin-top:1rem;">
-                            <label>تعارف / سوال</label>
-                            <textarea id="slpIntroductionNotes" class="paper-textarea small"></textarea>
-                        </div>
-                    </div>
 
-                    <div class="paper-card form-section">
-                        <div class="section-head">
-                            <div class="section-head-main">
-                                <span class="section-badge">4</span>
-                                <div>
-                                    <h3 class="paper-title">تدریسی مراحل</h3>
-                                    <p class="paper-subtitle">ہر مرحلے میں استاد اور طلبہ کی سرگرمی الگ الگ درج کریں۔
-                                    </p>
+                                <div class="wizard-nav-btns">
+                                    <span></span>
+                                    <button type="button" class="btn-primary" onclick="goToWizardStep(2)">اگلا مرحلہ &larr;</button>
                                 </div>
                             </div>
-                        </div>
-                        <div class="table-shell">
-                            <div class="paper-table-wrap">
-                                <table class="paper-table">
-                                    <thead>
-                                        <tr>
-                                            <th>طلبہ کی سرگرمی</th>
-                                            <th>استاد کی سرگرمی</th>
-                                            <th>مرحلہ</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="slpTeachingStepsBody"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="paper-card form-section">
-                        <div class="section-head">
-                            <div class="section-head-main">
-                                <span class="section-badge">5</span>
-                                <div>
-                                    <h3 class="paper-title">فعال تدریسی حکمتِ عملیاں</h3>
-                                    <p class="paper-subtitle">زیادہ سے زیادہ تین سرگرمیاں منتخب کریں تاکہ سبق مرکوز اور
-                                        واضح رہے۔</p>
+                            <!-- STEP 2: Objectives & Introduction -->
+                            <div class="wizard-step-content" id="wiz-step-2" style="display:none;">
+                                <div class="paper-card form-section">
+                                    <div class="section-head">
+                                        <div class="section-head-main">
+                                            <span class="section-badge">۱</span>
+                                            <div>
+                                                <h3 class="paper-title">سبق کے مقاصد</h3>
+                                                <p class="paper-subtitle">وہ بنیادی نتائج منتخب کریں جو سبق کے اختتام تک طلبہ سے متوقع ہیں۔</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="paper-check-grid" id="slpObjectivesBox"></div>
+                                    <div class="paper-line-list" style="margin-top:1rem;">
+                                        <div class="paper-line-item"><span class="paper-line-label">دیگر</span><input id="slpOtherObjective1" class="paper-input" type="text"></div>
+                                        <div class="paper-line-item"><span class="paper-line-label">مقصد</span><input id="slpOtherObjective2" class="paper-input" type="text"></div>
+                                    </div>
                                 </div>
-                            </div>
-                            <span class="section-mini-note">حد: 3 انتخاب</span>
-                        </div>
-                        <div class="strategy-grid" id="slpStrategiesGrid"></div>
-                    </div>
 
-                    <div class="paper-card form-section">
-                        <div class="section-head">
-                            <div class="section-head-main">
-                                <span class="section-badge">6</span>
-                                <div>
-                                    <h3 class="paper-title">منتخب سرگرمیاں</h3>
-                                    <p class="paper-subtitle">منتخب شدہ تین سرگرمیاں یہاں خودکار طور پر ظاہر ہوں گی۔</p>
+                                <div class="paper-card form-section" style="margin-top: 1.5rem;">
+                                    <div class="section-head">
+                                        <div class="section-head-main">
+                                            <span class="section-badge">۳</span>
+                                            <div>
+                                                <h3 class="paper-title">سبق کا تعارف</h3>
+                                                <p class="paper-subtitle">طلبہ کی توجہ حاصل کرنے کے لیے مناسب طریقہ منتخب کریں اور مختصر تعارف لکھیں۔</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="option-row" id="slpIntroMethods"></div>
+                                    <div class="form-group" style="margin-top:1rem;">
+                                        <label>تعارف / سوال</label>
+                                        <textarea id="slpIntroductionNotes" class="paper-textarea small" placeholder="مثلاً: سبق کا آغاز کیسے ہو گا؟"></textarea>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="selected-activities">
-                            <input id="slpSelectedActivity1" class="paper-input" type="text" readonly placeholder="1">
-                            <input id="slpSelectedActivity2" class="paper-input" type="text" readonly placeholder="2">
-                            <input id="slpSelectedActivity3" class="paper-input" type="text" readonly placeholder="3">
-                        </div>
-                    </div>
 
-                    <div class="paper-card form-section">
-                        <div class="section-head">
-                            <div class="section-head-main">
-                                <span class="section-badge">7</span>
-                                <div>
-                                    <h3 class="paper-title">سبق کا اطلاق</h3>
-                                    <p class="paper-subtitle">سبق کو عملی زندگی، معاشرت یا روزمرہ مثالوں سے جوڑیں۔</p>
+                                <div class="wizard-nav-btns">
+                                    <button type="button" class="btn-secondary" onclick="goToWizardStep(1)">&rarr; پچھلا مرحلہ</button>
+                                    <button type="button" class="btn-primary" onclick="goToWizardStep(3)">اگلا مرحلہ &larr;</button>
                                 </div>
                             </div>
-                        </div>
-                        <textarea id="slpApplication" class="paper-textarea"
-                            placeholder="سبق عملی زندگی میں کیسے استعمال کیا جا سکتا ہے؟"></textarea>
-                    </div>
 
-                    <div class="paper-card form-section">
-                        <div class="section-head">
-                            <div class="section-head-main">
-                                <span class="section-badge">8</span>
-                                <div>
-                                    <h3 class="paper-title">تشخیصی سوالات</h3>
-                                    <p class="paper-subtitle">دو فہمی اور دو تطبیقی سوالات درج کریں تاکہ سبق کی جانچ
-                                        آسان رہے۔</p>
+                            <!-- STEP 3: Teaching Steps & Strategies -->
+                            <div class="wizard-step-content" id="wiz-step-3" style="display:none;">
+                                <div class="paper-card form-section">
+                                    <div class="section-head">
+                                        <div class="section-head-main">
+                                            <span class="section-badge">۴</span>
+                                            <div>
+                                                <h3 class="paper-title">تدریسی مراحل</h3>
+                                                <p class="paper-subtitle">ہر مرحلے میں استاد اور طلبہ کی سرگرمی الگ الگ درج کریں۔</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="table-shell">
+                                        <div class="paper-table-wrap">
+                                            <table class="paper-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>طلبہ کی سرگرمی</th>
+                                                        <th>استاد کی سرگرمی</th>
+                                                        <th>مرحلہ</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="slpTeachingStepsBody"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="paper-grid-2">
-                            <div>
-                                <label>فہم کے سوالات</label>
-                                <div class="paper-line-list" style="margin-top:0.75rem;">
-                                    <input id="slpUnderstandingQ1" class="paper-input" type="text" placeholder="1">
-                                    <input id="slpUnderstandingQ2" class="paper-input" type="text" placeholder="2">
-                                </div>
-                            </div>
-                            <div>
-                                <label>تطبیقی سوالات</label>
-                                <div class="paper-line-list" style="margin-top:0.75rem;">
-                                    <input id="slpAppliedQ1" class="paper-input" type="text" placeholder="1">
-                                    <input id="slpAppliedQ2" class="paper-input" type="text" placeholder="2">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="paper-card form-section">
-                        <div class="section-head">
-                            <div class="section-head-main">
-                                <span class="section-badge">9</span>
-                                <div>
-                                    <h3 class="paper-title">سبق کا خلاصہ</h3>
-                                    <p class="paper-subtitle">اختتامی انداز منتخب کریں اور ضرورت ہو تو مختصر وضاحت شامل
-                                        کریں۔</p>
+                                <div class="paper-card form-section" style="margin-top: 1.5rem;">
+                                    <div class="section-head">
+                                        <div class="section-head-main">
+                                            <span class="section-badge">۵</span>
+                                            <div>
+                                                <h3 class="paper-title">فعال تدریسی حکمتِ عملیاں</h3>
+                                                <p class="paper-subtitle">زیادہ سے زیادہ تین سرگرمیاں منتخب کریں تاکہ سبق مرکوز اور واضح رہے۔</p>
+                                            </div>
+                                        </div>
+                                        <span class="section-mini-note">حد: 3 انتخاب</span>
+                                    </div>
+                                    <div class="strategy-grid" id="slpStrategiesGrid"></div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="option-row" id="slpSummaryOptions"></div>
-                        <div class="form-group" style="margin-top:1rem;">
-                            <label>تفصیل</label>
-                            <textarea id="slpSummaryDetails" class="paper-textarea small"></textarea>
-                        </div>
-                    </div>
 
-                    <div class="paper-card form-section">
-                        <div class="section-head">
-                            <div class="section-head-main">
-                                <span class="section-badge">10</span>
-                                <div>
-                                    <h3 class="paper-title">ہوم ورک</h3>
-                                    <p class="paper-subtitle">گھر کے کام کو واضح، مختصر اور قابلِ عمل انداز میں لکھیں۔
-                                    </p>
+                                <div class="paper-card form-section" style="margin-top: 1.5rem;">
+                                    <div class="section-head">
+                                        <div class="section-head-main">
+                                            <span class="section-badge">۶</span>
+                                            <div>
+                                                <h3 class="paper-title">منتخب سرگرمیاں</h3>
+                                                <p class="paper-subtitle">منتخب شدہ تین سرگرمیاں یہاں خودکار طور پر ظاہر ہوں گی۔</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="selected-activities">
+                                        <input id="slpSelectedActivity1" class="paper-input" type="text" readonly placeholder="1">
+                                        <input id="slpSelectedActivity2" class="paper-input" type="text" readonly placeholder="2">
+                                        <input id="slpSelectedActivity3" class="paper-input" type="text" readonly placeholder="3">
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <textarea id="slpHomework" class="paper-textarea small"></textarea>
-                    </div>
 
-                    <div class="paper-card form-section">
-                        <div class="section-head">
-                            <div class="section-head-main">
-                                <span class="section-badge">11</span>
-                                <div>
-                                    <h3 class="paper-title">استاد کی خود احتسابی</h3>
-                                    <p class="paper-subtitle">سبق کے بعد حاصل شدہ نتائج اور آئندہ بہتری کے نکات درج
-                                        کریں۔</p>
+                                <div class="wizard-nav-btns">
+                                    <button type="button" class="btn-secondary" onclick="goToWizardStep(2)">&rarr; پچھلا مرحلہ</button>
+                                    <button type="button" class="btn-primary" onclick="goToWizardStep(4)">اگلا مرحلہ &larr;</button>
+                                </div>
+                            </div>
+
+                            <!-- STEP 4: Application & Questions -->
+                            <div class="wizard-step-content" id="wiz-step-4" style="display:none;">
+                                <div class="paper-card form-section">
+                                    <div class="section-head">
+                                        <div class="section-head-main">
+                                            <span class="section-badge">۷</span>
+                                            <div>
+                                                <h3 class="paper-title">سبق کا اطلاق</h3>
+                                                <p class="paper-subtitle">سبق کو عملی زندگی، معاشرت یا روزمرہ مثالوں سے جوڑیں۔</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <textarea id="slpApplication" class="paper-textarea" placeholder="سبق عملی زندگی میں کیسے استعمال کیا جا سکتا ہے؟"></textarea>
+                                </div>
+
+                                <div class="paper-card form-section" style="margin-top: 1.5rem;">
+                                    <div class="section-head">
+                                        <div class="section-head-main">
+                                            <span class="section-badge">۸</span>
+                                            <div>
+                                                <h3 class="paper-title">تشخیصی سوالات</h3>
+                                                <p class="paper-subtitle">دو فہمی اور دو تطبیقی سوالات درج کریں تاکہ سبق کی جانچ آسان رہے۔</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="paper-grid-2">
+                                        <div>
+                                            <label>فہم کے سوالات</label>
+                                            <div class="paper-line-list" style="margin-top:0.75rem;">
+                                                <input id="slpUnderstandingQ1" class="paper-input" type="text" placeholder="1">
+                                                <input id="slpUnderstandingQ2" class="paper-input" type="text" placeholder="2">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label>تطبیقی سوالات</label>
+                                            <div class="paper-line-list" style="margin-top:0.75rem;">
+                                                <input id="slpAppliedQ1" class="paper-input" type="text" placeholder="1">
+                                                <input id="slpAppliedQ2" class="paper-input" type="text" placeholder="2">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="wizard-nav-btns">
+                                    <button type="button" class="btn-secondary" onclick="goToWizardStep(3)">&rarr; پچھلا مرحلہ</button>
+                                    <button type="button" class="btn-primary" onclick="goToWizardStep(5)">اگلا مرحلہ &larr;</button>
+                                </div>
+                            </div>
+
+                            <!-- STEP 5: Summary, Homework & Self-reflection -->
+                            <div class="wizard-step-content" id="wiz-step-5" style="display:none;">
+                                <div class="paper-card form-section">
+                                    <div class="section-head">
+                                        <div class="section-head-main">
+                                            <span class="section-badge">۹</span>
+                                            <div>
+                                                <h3 class="paper-title">سبق کا خلاصہ</h3>
+                                                <p class="paper-subtitle">اختتامی انداز منتخب کریں اور ضرورت ہو تو مختصر وضاحت شامل کریں۔</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="option-row" id="slpSummaryOptions"></div>
+                                    <div class="form-group" style="margin-top:1rem;">
+                                        <label>تفصیل</label>
+                                        <textarea id="slpSummaryDetails" class="paper-textarea small"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="paper-card form-section" style="margin-top: 1.5rem;">
+                                    <div class="section-head">
+                                        <div class="section-head-main">
+                                            <span class="section-badge">۱۰</span>
+                                            <div>
+                                                <h3 class="paper-title">ہوم ورک</h3>
+                                                <p class="paper-subtitle">گھر کے کام کو واضح، مختصر اور قابلِ عمل انداز میں لکھیں۔</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <textarea id="slpHomework" class="paper-textarea small" placeholder="مثلاً: تلاوت کی مشق یا تحریری کام۔"></textarea>
+                                </div>
+
+                                <div class="paper-card form-section" style="margin-top: 1.5rem;">
+                                    <div class="section-head">
+                                        <div class="section-head-main">
+                                            <span class="section-badge">۱۱</span>
+                                            <div>
+                                                <h3 class="paper-title">استاد کی خود احتسابی</h3>
+                                                <p class="paper-subtitle">سبق کے بعد حاصل شدہ نتائج اور آئندہ بہتری کے نکات درج کریں۔</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="paper-grid-2">
+                                        <div>
+                                            <label style="display:block; margin-bottom:0.6rem;">کیا سبق کے مقاصد حاصل ہو گئے؟</label>
+                                            <div class="option-row" id="slpObjectiveStatus"></div>
+                                        </div>
+                                        <div>
+                                            <label style="display:block; margin-bottom:0.6rem;">طلبہ کی شرکت</label>
+                                            <div class="option-row" id="slpParticipation"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="margin-top:1rem;">
+                                        <label>بہتری کے لیے آئندہ</label>
+                                        <textarea id="slpReflectionNotes" class="paper-textarea small"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="wizard-nav-btns">
+                                    <button type="button" class="btn-secondary" onclick="goToWizardStep(4)">&rarr; پچھلا مرحلہ</button>
+                                    <span></span>
                                 </div>
                             </div>
                         </div>
-                        <div class="paper-grid-2">
-                            <div>
-                                <label style="display:block; margin-bottom:0.6rem;">کیا سبق کے مقاصد حاصل ہو
-                                    گئے؟</label>
-                                <div class="option-row" id="slpObjectiveStatus"></div>
+
+                        <!-- Right Column: Quick Text Pills Helper -->
+                        <div class="pills-panel">
+                            <h3 style="margin:0 0 0.5rem; font-size:1rem; border-bottom:2px solid var(--primary-color); padding-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+                                <span>فوری مددگار پینل</span>
+                                <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">کلک کر کے ٹیکسٹ بھریں</span>
+                            </h3>
+                            
+                            <div class="pills-category">
+                                <div class="pills-category-title">عمومی مقاصد (Objectives)</div>
+                                <div class="pills-list">
+                                    <span class="text-pill" onclick="insertPillText('قرآن مجید کی درست مخارج اور تجوید کے ساتھ تلاوت کرنا')">تلاوت و تجوید</span>
+                                    <span class="text-pill" onclick="insertPillText('نون ساکن اور تنوین کے قواعد کا نفاذ کرنا')">نون ساکن قواعد</span>
+                                    <span class="text-pill" onclick="insertPillText('سبق کا بنیادی مفہوم اپنے الفاظ میں بیان کرنا')">خلاصہ سبق</span>
+                                    <span class="text-pill" onclick="insertPillText('اخلاقی اسباق کا عملی زندگی میں نفاذ کرنا')">اخلاقی اطلاق</span>
+                                </div>
                             </div>
-                            <div>
-                                <label style="display:block; margin-bottom:0.6rem;">طلبہ کی شرکت</label>
-                                <div class="option-row" id="slpParticipation"></div>
+
+                            <div class="pills-category">
+                                <div class="pills-category-title">ذرائع / وسائل (Resources)</div>
+                                <div class="pills-list">
+                                    <span class="text-pill" onclick="insertPillText('درسی کتاب، تختہ تحریر، وائٹ بورڈ مارکر')">کتاب اور تختہ تحریر</span>
+                                    <span class="text-pill" onclick="insertPillText('مخارج کا چارٹ، فلیش کارڈز')">تجوید چارٹ</span>
+                                    <span class="text-pill" onclick="insertPillText('آڈیو ریکارڈر، موبائل اسپیکر')">آڈیو وسائل</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group" style="margin-top:1rem;">
-                            <label>بہتری کے لیے آئندہ</label>
-                            <textarea id="slpReflectionNotes" class="paper-textarea small"></textarea>
+
+                            <div class="pills-category">
+                                <div class="pills-category-title">سبق کا تعارف (Introduction)</div>
+                                <div class="pills-list">
+                                    <span class="text-pill" onclick="insertPillText('سابقہ سبق سے متعلق ۳ آسان سوالات پوچھنا')">سابقہ سبق ربط</span>
+                                    <span class="text-pill" onclick="insertPillText('سبق کا تعارف ایک عملی مثال یا قرآنی تمثیل سے کروانا')">قرآنی تمثیل تعارف</span>
+                                    <span class="text-pill" onclick="insertPillText('تلاوت کا مختصر آڈیو کلپ سنا کر طلبہ کی توجہ مبذول کروانا')">آڈیو توجہ تعارف</span>
+                                </div>
+                            </div>
+
+                            <div class="pills-category">
+                                <div class="pills-category-title">اطلاق (Application)</div>
+                                <div class="pills-list">
+                                    <span class="text-pill" onclick="insertPillText('پانچ وقتہ نمازوں میں تلفظ کی درستی کا خیال رکھنا')">تلفظ نماز</span>
+                                    <span class="text-pill" onclick="insertPillText('گھر جا کر والدین یا بہن بھائیوں کے سامنے تلاوت دہرانا')">گھر پر دہرانا</span>
+                                    <span class="text-pill" onclick="insertPillText('روزمرہ قرآنی دعاؤں کو تجوید سے پڑھنا')">دعاؤں میں تجوید</span>
+                                </div>
+                            </div>
+
+                            <div class="pills-category">
+                                <div class="pills-category-title">تشخیصی سوالات (Evaluation)</div>
+                                <div class="pills-list">
+                                    <span class="text-pill" onclick="insertPillText('آج کے سبق کا بنیادی قاعدہ کیا تھا؟')">بنیادی قاعدہ</span>
+                                    <span class="text-pill" onclick="insertPillText('دی گئی آیت میں ادغام کی نشاندہی کریں اور وجہ بتائیں')">ادغام نشاندہی</span>
+                                    <span class="text-pill" onclick="insertPillText('اس اصطلاح کی تعریف ایک واضح مثال سے کریں')">اصطلاح تعریف</span>
+                                </div>
+                            </div>
+
+                            <div class="pills-category">
+                                <div class="pills-category-title">ہوم ورک (Homework)</div>
+                                <div class="pills-list">
+                                    <span class="text-pill" onclick="insertPillText('آج پڑھائے گئے سبق کی تلاوت کم از کم ۵ مرتبہ دہرائیں')">تلاوت دہرائیں</span>
+                                    <span class="text-pill" onclick="insertPillText('سبق کے قواعد کی ۳ نئی مثالیں قرآن پاک سے تلاش کر کے لکھیں')">مثالیں تلاش کریں</span>
+                                    <span class="text-pill" onclick="insertPillText('آیات کا حفظ ترجمہ کے ساتھ پختہ یاد کریں')">حفظ مع ترجمہ</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -727,6 +924,7 @@
                             <button type="button" class="btn-primary" id="slpSaveBtn">منصوبہ محفوظ کریں</button>
                         </div>
                     </div>
+                </div>
                 </div>
             </div>
         </main>

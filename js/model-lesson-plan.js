@@ -654,3 +654,124 @@ function cssEscapeSimple(value) {
   if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') return CSS.escape(value);
   return String(value || '').replace(/"/g, '\\"');
 }
+
+// --- Wizard Stepper, Text Pills & Clone Previous Logic ---
+window.goToWizardStep = function(stepNum) {
+  // Hide all step contents
+  for (let i = 1; i <= 5; i++) {
+    const content = document.getElementById(`wiz-step-${i}`);
+    if (content) content.style.display = 'none';
+    
+    const indicator = document.getElementById(`step-ind-${i}`);
+    if (indicator) {
+      indicator.classList.remove('active');
+      const numSpan = indicator.querySelector('.step-num');
+      const textLabel = indicator.querySelector('div');
+      if (numSpan) {
+        numSpan.style.background = 'var(--border-color)';
+        numSpan.style.color = 'var(--text-muted)';
+        numSpan.style.boxShadow = 'none';
+      }
+      if (textLabel) {
+        textLabel.style.color = 'var(--text-muted)';
+        textLabel.style.fontWeight = '600';
+      }
+    }
+  }
+
+  // Show active step
+  const activeContent = document.getElementById(`wiz-step-${stepNum}`);
+  if (activeContent) activeContent.style.display = 'block';
+
+  const activeIndicator = document.getElementById(`step-ind-${stepNum}`);
+  if (activeIndicator) {
+    activeIndicator.classList.add('active');
+    const numSpan = activeIndicator.querySelector('.step-num');
+    const textLabel = activeIndicator.querySelector('div');
+    if (numSpan) {
+      numSpan.style.background = 'var(--primary-color)';
+      numSpan.style.color = '#fff';
+      numSpan.style.boxShadow = '0 0 0 4px rgba(79, 70, 229, 0.15)';
+    }
+    if (textLabel) {
+      textLabel.style.color = 'var(--primary-color)';
+      textLabel.style.fontWeight = '700';
+    }
+  }
+};
+
+let slpLastFocusedInputEl = null;
+document.addEventListener('focusin', (e) => {
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') && !e.target.readOnly) {
+    slpLastFocusedInputEl = e.target;
+  }
+});
+
+window.insertPillText = function(text) {
+  if (!slpLastFocusedInputEl) {
+    // Fallback: search for first visible textarea or input inside active wizard step
+    const activeStep = document.querySelector('.wizard-step-content:not([style*="display: none"])');
+    if (activeStep) {
+      const visibleInputs = Array.from(activeStep.querySelectorAll('textarea, input:not([readonly])'));
+      if (visibleInputs.length > 0) {
+        slpLastFocusedInputEl = visibleInputs[0];
+      }
+    }
+  }
+  if (slpLastFocusedInputEl) {
+    const currentVal = slpLastFocusedInputEl.value.trim();
+    if (currentVal) {
+      slpLastFocusedInputEl.value = currentVal + '، ' + text;
+    } else {
+      slpLastFocusedInputEl.value = text;
+    }
+    slpLastFocusedInputEl.dispatchEvent(new Event('input', { bubbles: true }));
+    slpLastFocusedInputEl.focus();
+  }
+};
+
+window.copyPreviousLessonPlan = async function() {
+  const context = getSimpleLessonContext();
+  if (!context.department || !context.className || !context.subjectId || !context.teacherId) {
+    alert('شعبہ، کلاس، مضمون اور استاد منتخب کریں۔');
+    return;
+  }
+  const stateLabel = document.getElementById('slpLoadState');
+  if (stateLabel) stateLabel.innerText = 'سابقہ منصوبہ تلاش کیا جا رہا ہے...';
+
+  try {
+    const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+    let q = db.collection('model_lesson_plans')
+      .where('tenantId', '==', tenantId)
+      .where('department', '==', context.department)
+      .where('className', '==', context.className)
+      .where('subjectId', '==', context.subjectId)
+      .orderBy('planDate', 'desc')
+      .limit(1);
+
+    let snap = await q.get();
+    if (snap.empty) {
+      // Fallback without tenantId
+      q = db.collection('model_lesson_plans')
+        .where('department', '==', context.department)
+        .where('className', '==', context.className)
+        .where('subjectId', '==', context.subjectId)
+        .orderBy('planDate', 'desc')
+        .limit(1);
+      snap = await q.get();
+    }
+
+    if (snap.empty) {
+      alert('کوئی سابقہ منصوبہ نہیں ملا۔');
+      if (stateLabel) stateLabel.innerText = 'کوئی سابقہ منصوبہ نہیں ملا۔';
+      return;
+    }
+
+    const previousDoc = snap.docs[0].data();
+    populateSimpleLessonPlan(previousDoc);
+    if (stateLabel) stateLabel.innerText = 'سابقہ سبق کا ڈیٹا کاپی کر لیا گیا ہے۔ محفوظ کرنے کے لیے "منصوبہ محفوظ کریں" پر کلک کریں۔';
+  } catch (error) {
+    console.error('Failed to copy previous lesson plan:', error);
+    alert(`ڈیٹا کاپی کرنے میں خرابی: ${error.message}`);
+  }
+};
