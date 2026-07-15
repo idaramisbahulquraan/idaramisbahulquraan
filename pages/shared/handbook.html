@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صارف گائیڈ اور ہینڈ بک - ادارہ مصباح القرآن</title>
+    <title>صارف گائیڈ اور تعلیمی ہینڈ بک - ادارہ مصباح القرآن</title>
     <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #1e40af 0%, #4f46e5 100%);
             --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            --border-color: rgba(148, 163, 184, 0.18);
         }
         body {
             font-family: 'Inter', 'Noto Nastaliq Urdu', system-ui, -apple-system, sans-serif;
@@ -25,7 +27,7 @@
         }
         @media (min-width: 992px) {
             .handbook-layout {
-                grid-template-columns: 280px 1fr;
+                grid-template-columns: 290px 1fr;
             }
         }
         /* Sticky Navigation Sidebar */
@@ -33,7 +35,7 @@
             position: sticky;
             top: 2rem;
             background: #ffffff;
-            border: 1px solid rgba(148, 163, 184, 0.2);
+            border: 1px solid var(--border-color);
             border-radius: 1.2rem;
             padding: 1.5rem;
             box-shadow: var(--card-shadow);
@@ -45,7 +47,7 @@
             font-weight: 800;
             color: #0f172a;
             margin-top: 0;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
             border-bottom: 2px solid #3b82f6;
             padding-bottom: 0.5rem;
             display: flex;
@@ -63,7 +65,7 @@
         .chapter-item a {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
             padding: 0.65rem 0.85rem;
             color: #475569;
             text-decoration: none;
@@ -75,7 +77,7 @@
         .chapter-item a:hover {
             background-color: #f1f5f9;
             color: #2563eb;
-            transform: translateX(-3px);
+            transform: translateX(-4px);
         }
         .chapter-item.active a {
             background: #eff6ff;
@@ -85,15 +87,15 @@
         /* Main Handbook Content */
         .handbook-content {
             background: #ffffff;
-            border: 1px solid rgba(148, 163, 184, 0.2);
+            border: 1px solid var(--border-color);
             border-radius: 1.2rem;
-            padding: 2rem;
+            padding: 2.2rem;
             box-shadow: var(--card-shadow);
         }
         .handbook-hero {
             background: var(--primary-gradient);
             color: #ffffff;
-            padding: 2rem;
+            padding: 2.5rem;
             border-radius: 1rem;
             margin-bottom: 2.5rem;
             position: relative;
@@ -111,27 +113,28 @@
             background: rgba(255, 255, 255, 0.08);
         }
         .handbook-hero h1 {
-            margin: 0 0 0.5rem;
-            font-size: 2.2rem;
+            margin: 0 0 0.75rem;
+            font-size: 2.3rem;
             font-weight: 900;
         }
         .handbook-hero p {
             margin: 0;
-            font-size: 1.05rem;
-            opacity: 0.92;
+            font-size: 1.08rem;
+            opacity: 0.94;
             max-width: 800px;
+            line-height: 1.8;
         }
         .print-btn-container {
             display: flex;
             justify-content: flex-end;
-            margin-top: 1.2rem;
+            margin-top: 1.5rem;
         }
         .btn-print {
             background: #ffffff;
             color: #1e3a8a;
             border: none;
             border-radius: 0.75rem;
-            padding: 0.6rem 1.2rem;
+            padding: 0.65rem 1.4rem;
             font-weight: 700;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -147,8 +150,8 @@
         /* Chapter styling */
         .chapter-section {
             border-bottom: 2px dashed #f1f5f9;
-            padding-bottom: 2.5rem;
-            margin-bottom: 2.5rem;
+            padding-bottom: 3rem;
+            margin-bottom: 3rem;
             scroll-margin-top: 2rem;
         }
         .chapter-section:last-child {
@@ -160,52 +163,52 @@
             display: inline-block;
             background: #dbeafe;
             color: #1e40af;
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             font-weight: 800;
-            padding: 0.25rem 0.75rem;
+            padding: 0.3rem 0.85rem;
             border-radius: 9999px;
-            margin-bottom: 0.75rem;
-            text-transform: uppercase;
+            margin-bottom: 0.85rem;
         }
         .chapter-title {
-            font-size: 1.6rem;
+            font-size: 1.7rem;
             font-weight: 800;
             color: #0f172a;
             margin-top: 0;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
         }
         .sub-section {
-            margin-top: 1.5rem;
+            margin-top: 1.75rem;
             background: #f8fafc;
             border-radius: 0.85rem;
-            padding: 1.2rem 1.5rem;
+            padding: 1.35rem 1.65rem;
             border-right: 4px solid #3b82f6;
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.01);
         }
         .sub-section-title {
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: #1e293b;
             margin-top: 0;
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.75rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
         }
         /* Tables */
         .info-table-wrap {
             overflow-x: auto;
-            margin: 1rem 0;
+            margin: 1.2rem 0;
             border: 1px solid #e2e8f0;
-            border-radius: 0.75rem;
+            border-radius: 0.85rem;
             background: #fff;
         }
         .info-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.9rem;
+            font-size: 0.92rem;
         }
         .info-table th, .info-table td {
-            padding: 0.75rem 1rem;
+            padding: 0.85rem 1.15rem;
             text-align: right;
             border-bottom: 1px solid #e2e8f0;
         }
@@ -219,13 +222,13 @@
         }
         /* Alert boxes */
         .alert-box {
-            border-radius: 0.75rem;
-            padding: 1rem 1.25rem;
-            margin: 1.25rem 0;
+            border-radius: 0.85rem;
+            padding: 1.15rem 1.4rem;
+            margin: 1.35rem 0;
             display: flex;
             align-items: flex-start;
-            gap: 0.75rem;
-            font-size: 0.9rem;
+            gap: 0.85rem;
+            font-size: 0.92rem;
         }
         .alert-box.important {
             background: #eff6ff;
@@ -244,6 +247,17 @@
             border: 1px solid #a7f3d0;
             color: #065f46;
             border-right: 4px solid #059669;
+        }
+        /* Step Badge */
+        .step-pill {
+            background: #3b82f6;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 0.15rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-left: 0.5rem;
+            display: inline-block;
         }
 
         /* PRINT STYLING */
@@ -342,12 +356,14 @@
                     <h3 class="sidebar-title"><i class="fas fa-book-reader"></i> ابواب کی فہرست</h3>
                     <ul class="chapter-list">
                         <li class="chapter-item"><a href="#ch1">باب 1: تعارف اور لاگ ان</a></li>
-                        <li class="chapter-item"><a href="#ch2">باب 2: بنیادی انتظام</a></li>
+                        <li class="chapter-item"><a href="#ch2">باب 2: انتظامیہ اور داخلہ جات</a></li>
                         <li class="chapter-item"><a href="#ch3">باب 3: تعلیمی منصوبہ بندی</a></li>
-                        <li class="chapter-item"><a href="#ch4">باب 4: تعلیمی کارکردگی و امتحانات</a></li>
-                        <li class="chapter-item"><a href="#ch5">باب 5: حاضری، اسمبلی و ذمہ داریاں</a></li>
-                        <li class="chapter-item"><a href="#ch6">باب 6: مانیٹرنگ اور تعلیمی معیار</a></li>
-                        <li class="chapter-item"><a href="#ch7">باب 7: فنانس اور معاون سہولیات</a></li>
+                        <li class="chapter-item"><a href="#ch4">باب 4: ماڈل لیسن پلانر</a></li>
+                        <li class="chapter-item"><a href="#ch5">باب 5: زبانی و تحریری امتحانات</a></li>
+                        <li class="chapter-item"><a href="#ch6">باب 6: حاضری اور ڈائری پورٹل</a></li>
+                        <li class="chapter-item"><a href="#ch7">باب 7: اسمبلی اور ذمہ داریاں</a></li>
+                        <li class="chapter-item"><a href="#ch8">باب 8: تعلیمی نگرانی اور کوالٹی</a></li>
+                        <li class="chapter-item"><a href="#ch9">باب 9: فنانس اور اکاؤنٹس لیجر</a></li>
                     </ul>
                 </aside>
 
@@ -355,7 +371,7 @@
                 <div class="handbook-content">
                     <div class="handbook-hero">
                         <h1>صارف گائیڈ اور تعلیمی ہینڈ بک</h1>
-                        <p>ادارہ مصباح القرآن کے جدید سکول مینجمنٹ سسٹم کو چلانے کے لیے ایک جامع کتابچہ۔ یہ ہینڈ بک تمام ایڈمنز، ناظمین اور اساتذہ کو ہر ایک ماڈیول کی تفصیل, ڈیٹا انٹری کا طریقہ کار اور رپورٹس نکالنے کا آسان طریقہ بتائے گی۔</p>
+                        <p>ادارہ مصباح القرآن کے جدید تعلیمی پورٹل کو چلانے کے لیے ایک مفصل گائیڈ بک۔ یہ کتابچہ تمام اساتذہ، ناظمین تعلیمات اور ایڈمنز کو تعلیمی منصوبہ بندی، حاضری، نمبرات کے اندراج، کوالٹی مانیٹرنگ اور فنانس ماڈیول کو استعمال کرنے کا مکمل طریقہ کار سکھاتا ہے۔</p>
                         <div class="print-btn-container">
                             <button type="button" class="btn-print" onclick="window.print()">
                                 <i class="fas fa-file-pdf"></i> پرنٹ گائیڈ / PDF بنائیں
@@ -366,40 +382,35 @@
                     <!-- CHAPTER 1 -->
                     <section class="chapter-section" id="ch1">
                         <span class="chapter-badge">باب اول</span>
-                        <h2 class="chapter-title">باب 1: تعارف اور لاگ ان (Roles & Dashboard)</h2>
-                        <p>یہ ویب ایپلی کیشن ادارہ مصباح القرآن کی تعلیمی و انتظامی سرگرمیوں کو سنبھالنے کے لیے بنائی گئی ہے۔ سسٹم کو مختلف صارفین کے کردار (Roles) کے مطابق تقسیم کیا گیا ہے تاکہ ہر فرد اپنے دائرہ کار میں رہ کر کام کر سکے۔</p>
+                        <h2 class="chapter-title">باب 1: تعارف، کردار اور سیشن سیکیورٹی</h2>
+                        <p>یہ سسٹم کلاؤڈ فائر بیس ڈیٹا بیس کے ساتھ ریئل ٹائم کام کرتا ہے۔ ہر صارف کو ان کے اختیارات کے مطابق مینو اور فنکشنز الاٹ کیے گئے ہیں۔</p>
                         
                         <div class="sub-section">
                             <h4 class="sub-section-title">صارفین کے کردار (System Roles)</h4>
-                            <p>سسٹم کے اندر داخل ہوتے ہی صارف کو اس کے کردار کے مطابق مینو اور اختیارات نظر آتے ہیں:</p>
                             <div class="info-table-wrap">
                                 <table class="info-table">
                                     <thead>
                                         <tr>
-                                            <th>کردار (Role)</th>
+                                            <th>صارف کا کردار</th>
                                             <th>بنیادی کام اور اختیارات</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td><strong>ایڈمن (Admin)</strong></td>
-                                            <td>پورے سسٹم پر مکمل کنٹرول، اساتذہ و طلبہ کا اندراج، فنانس، سیٹنگز، اور ڈیٹا کا بیک اپ لینا۔</td>
+                                            <td>سسٹم سیٹنگز، کلاس انچارج تفویض کرنا، فیس جمع کرنا، اساتذہ کا اندراج، اور امتحانات شیڈول کرنا۔</td>
                                         </tr>
                                         <tr>
                                             <td><strong>ناظم تعلیمات (Nazim)</strong></td>
-                                            <td>سلیبس مانیٹرنگ، زبانی امتحان کے نمبرات کا اندراج، طلبہ کی تعلیمی پیش رفت کا مشاہدہ۔</td>
+                                            <td>کوالٹی چیک لسٹ بھرنا، اساتذہ کی مانیٹرنگ، زبانی امتحانات کے نمبرات درج کرنا، اور رپورٹ کارڈ کا معائنہ۔</td>
                                         </tr>
                                         <tr>
                                             <td><strong>استاد (Teacher)</strong></td>
-                                            <td>روزانہ حاضری، ڈائری لکھنا، ماڈل سبق کی منصوبہ بندی (Lesson Plan)، اور اپنے مضمون کا ٹائم ٹیبل دیکھنا۔</td>
+                                            <td>روزانہ حاضری، سبق کی لیسن پلاننگ، روزمرہ ڈائری درج کرنا، اور اپنے تفویض کردہ طلبہ کا انتظام۔</td>
                                         </tr>
                                         <tr>
-                                            <td><strong>حفظ سپروائزر</strong></td>
-                                            <td>حفظ کے طلبہ کا ریکارڈ، روزانہ منزل، سبقی اور سبکی کا اندراج اور ٹریکنگ۔</td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>کیشیئر / محاسب</strong></td>
-                                            <td>طلبہ کی فیس وصول کرنا، فیس کی رسیدیں جاری کرنا، اور آمدنی و اخراجات کا اندراج۔</td>
+                                            <td><strong>طالب علم (Student)</strong></td>
+                                            <td>اپنا تعلیمی رزلٹ اور پروگریس چارٹ دیکھنا، اور اسمبلی کی روزانہ ذمہ داریاں تفویض کرنا۔</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -407,62 +418,65 @@
                         </div>
 
                         <div class="sub-section">
-                            <h4 class="sub-section-title">لاگ ان اور سیشن سیکیورٹی</h4>
-                            <p>لاگ ان کرنے کے لیے اپنی مخصوص ای میل آئی ڈی اور پاس ورڈ استعمال کریں۔ سسٹم کے اندر <strong>سیشن پروٹیکشن</strong> کا خاص خیال رکھا گیا ہے، اگر انٹرنیٹ منقطع ہو جائے تو آف لائن بینر ظاہر ہوگا اور آپ کا سیشن خراب ہوئے بغیر دوبارہ بحال ہو جائے گا۔</p>
+                            <h4 class="sub-section-title">مستحکم سیشن اور سیکیورٹی</h4>
+                            <p>اگر آپ کا انٹرنیٹ منقطع ہو جائے یا سیشن ٹائم آؤٹ ہو، تو سسٹم بغیر لاگ آؤٹ کیے فائر بیس پروفائل سے خودکار طور پر ڈیٹا دوبارہ حاصل کر لیتا ہے۔ تمام سیکیورٹی رولز سیکیورٹی ٹوکن (Tenant ID) پر مبنی ہیں، جس سے ایک ادارے کا ریکارڈ دوسرے ادارے سے مکمل پوشیدہ رہتا ہے۔</p>
                         </div>
                     </section>
 
                     <!-- CHAPTER 2 -->
                     <section class="chapter-section" id="ch2">
                         <span class="chapter-badge">باب دوم</span>
-                        <h2 class="chapter-title">باب 2: بنیادی انتظام (Administrative Setup)</h2>
-                        <p>انتظامی انتظام کے تحت ادارے کے بنیادی ڈھانچے جیسے اساتذہ، طلبہ، کلاسز اور مضامین کو سیٹ کیا جاتا ہے۔ یہ کام عموماً تعلیمی سال کے آغاز پر ایڈمن کے ذریعے کیا جاتا ہے۔</p>
+                        <h2 class="chapter-title">باب 2: کلاس انچارج اور طلبہ کا انتظام</h2>
+                        <p>انتظامی ماڈیول میں کلاس انچارج بنانے اور اساتذہ کو اپنے سیکشن کے طلباء کا سلیٹ سنبھالنے کا باقاعدہ فلو موجود ہے۔</p>
 
                         <div class="sub-section">
-                            <h4 class="sub-section-title">طلبہ کا نیا داخلہ (Admissions)</h4>
+                            <h4 class="sub-section-title">کلاس انچارج ٹیچر کا تقرر</h4>
+                            <p>صرف ایڈمن اور ناظم تعلیمات کلاس انچارج مقرر کر سکتے ہیں:</p>
                             <ol>
-                                <li>مینو سے <strong>داخلہ (Admissions)</strong> منتخب کریں۔</li>
-                                <li>طالب علم کی بنیادی معلومات، والد کا نام، فون نمبر، داخلہ کلاس اور سیشن منتخب کریں۔</li>
-                                <li><strong>محفوظ کریں</strong> کے بٹن پر کلک کریں۔ طالب علم کو سسٹم خود بخود ایک منفرد آئی ڈی الاٹ کر دے گا۔</li>
+                                <li>مینو سے <strong>Classes (کلاسز)</strong> کھولیں۔</li>
+                                <li>کلاس بناتے وقت یا ترمیم کرتے وقت **کلاس انچارج استاد (Class Incharge Teacher)** کے ڈراپ ڈاؤن میں سے متعلقہ ٹیچر کا نام منتخب کریں۔</li>
+                                <li>محفوظ کریں۔ یہ استاد اب اس کلاس کا انچارج بن چکا ہے اور طلبہ کی فہرست مینیج کر سکتا ہے۔</li>
                             </ol>
-                            <div class="alert-box tip">
-                                <strong>ترکیب (Tip):</strong> آپ طلبہ کی فہرست کو سکرین پر موجود بٹن کے ذریعے براہِ راست PDF کی صورت میں ڈاؤن لوڈ بھی کر سکتے ہیں۔
-                            </div>
                         </div>
 
                         <div class="sub-section">
-                            <h4 class="sub-section-title">کلاسز، شعبہ جات اور مضامین</h4>
-                            <p>نئے تعلیمی سال کے لیے شعبہ جات (مثلاً شعبہ تجوید، شعبہ حفظ) کے تحت کلاسز اور پھر ان کلاسز کے لیے اساتذہ اور مضامین کی تقسیم (Allocation) کی جاتی ہے۔ کلاسز کے پیج پر جا کر آپ کسی بھی کلاس کی فیس اور سیکشنز بھی طے کر سکتے ہیں۔</p>
+                            <h4 class="sub-section-title">استاد کی طرف سے طلبہ کا اخراج و داخلہ</h4>
+                            <p>کلاس کے دوران طلبہ کے چھوڑ جانے یا نئے بچے داخل ہونے پر کلاس انچارج ٹیچر اپنی مخصوص سکرین سے یہ فرائض سرانجام دے سکتا ہے:</p>
+                            <ul>
+                                <li>استاد لاگ ان کر کے **کلاس کے طلباء (Class Students)** پیج پر جائے گا۔ یہاں ان کی اپنی کلاس کا بینر دکھائی دے گا۔</li>
+                                <li>**نیا طالب علم شامل کریں (Add Student)** پر کلک کر کے معلومات درج کریں۔ سیکنڈری لاگ ان میکانزم کی بدولت نیا بچہ رجسٹر ہو جائے گا اور ٹیچر لاگ آؤٹ نہیں ہوگا۔</li>
+                                <li>سیشن چھوڑنے والے بچے کے آگے موجود **حذف (Remove)** کا سرخ بٹن دبا کر اسے آسانی سے کلاس سے خارج کیا جا سکتا ہے۔</li>
+                            </ul>
+                            <div class="alert-box warning">
+                                <strong>تنبيه:</strong> طالب علم کو خارج کرنے سے اس کا سابقہ حاضری ریکارڈ اور تعلیمی مارکس سسٹم سے مکمل حذف ہو جائیں گے۔
+                            </div>
                         </div>
                     </section>
 
                     <!-- CHAPTER 3 -->
                     <section class="chapter-section" id="ch3">
                         <span class="chapter-badge">باب سوم</span>
-                        <h2 class="chapter-title">باب 3: تعلیمی منصوبہ بندی (Academic & Syllabus Planning)</h2>
-                        <p>تعلیمی منصوبہ بندی کے ذریعے تعلیمی سال کی رفتار اور یومیہ اسباق کے اہداف کو طے کیا جاتا ہے۔ اس میں دو انتہائی اہم ماڈیولز شامل ہیں:</p>
+                        <h2 class="chapter-title">باب 3: اکیڈمک پلانر اور سلیبس کی خودکار تقسیم</h2>
+                        <p>اکیڈمک پلانر تعلیمی سال کے آغاز میں نصاب کو مہینوں پر تقسیم کرنے کا ایک خودکار انجن ہے۔</p>
 
                         <div class="sub-section">
-                            <h4 class="sub-section-title">اکیڈمک پلانر (Syllabus Auto-Distribution)</h4>
-                            <p>جب آپ کسی کتاب کا مجموعی ہدف (کل صفحات) درج کرتے ہیں، تو سسٹم اسے سیشن کے مہینوں میں خودکار طور پر تقسیم کرتا ہے۔</p>
-                            <ul>
-                                <li><strong>سلائیڈر اور ان پٹ ہم آہنگی:</strong> صفحات کی تفصیل درج کرنے کے لیے اب آپ کے پاس صفحات کے خانے کے نیچے رینج سلائیڈر بھی دستیاب ہے۔ سلائیڈر کو آگے پیچھے کرنے سے صفحات کا نمبر خود بخود اپ ڈیٹ ہوگا اور مجموعہ چیک کیا جائے گا۔</li>
-                                <li><strong>اوور ایلوکیشن الرٹ:</strong> اگر مہینوں کے صفحات کا مجموعہ کل صفحات سے تجاوز کر جائے تو سسٹم فوری طور پر سرخ رنگ کا الرٹ جاری کرتا ہے۔</li>
-                            </ul>
+                            <h4 class="sub-section-title">سلیبس کی تقسیم کا طریقہ کار</h4>
+                            <ol>
+                                <li>اکیڈمک پلانر کے پیج پر جا کر شعبہ، کلاس اور کتاب منتخب کریں۔</li>
+                                <li>کتاب کے **کل صفحات (Total Pages)** درج کریں۔</li>
+                                <li>سسٹم تعلیمی سال کے مہینوں کے خانے ظاہر کرے گا۔ ہر مہینے کے خانے کے نیچے **رینج سلائیڈر (Range Slider)** موجود ہے جس کو انگلی یا ماؤس سے آگے پیچھے کر کے صفحات متعین کیے جا سکتے ہیں۔</li>
+                                <li>سلائیڈر چلانے سے ان پٹ کا ہندسہ خود بخود تبدیل ہو جائے گا۔</li>
+                            </ol>
                         </div>
 
                         <div class="sub-section">
-                            <h4 class="sub-section-title">ماڈل لیسن پلان (5-Step Stepper Wizard)</h4>
-                            <p>اساتذہ کے کام کو تیز اور آسان بنانے کے لیے سبق کی تیاری کے فارم کو 5 مراحل میں تقسیم کیا گیا ہے:</p>
-                            <ol>
-                                <li><strong>مرحلہ 1: عمومی معلومات</strong> - سبق کا نام، کلاس، مضمون اور وسائل منتخب کریں۔ یہاں <strong>"سابقہ سے کاپی کریں"</strong> کا بٹن بھی موجود ہے جو ایک کلک پر پچھلے سبق کا ہدف کاپی کر دیتا ہے۔</li>
-                                <li><strong>مرحلہ 2: سبق کے مقاصد</strong> - سبق کے مقاصد اور تدریسی طریقہ کار منتخب کریں۔</li>
-                                <li><strong>مرحلہ 3: تدریسی مراحل</strong> - استاد اور طلبہ کی سرگرمیاں درج کریں۔</li>
-                                <li><strong>مرحلہ 4: سبق کا اطلاق</strong> - عملی مثالیں اور تشخیصی سوالات درج کریں۔</li>
-                                <li><strong>مرحلہ 5: ہوم ورک و خود احتسابی</strong> - گھر کا کام اور سبق سے حاصل شدہ نتائج درج کریں۔</li>
-                            </ol>
-                            <div class="alert-box important">
-                                <strong>فوری ٹیکسٹ پینل (Quick Text Pills):</strong> لیسن پلان بناتے وقت دائیں جانب ایک مستقل پینل نظر آئے گا جس میں سبق کے مقاصد، اطلاق اور ہوم ورک کے بنے بنائے اردو جملے (Pills) ہیں۔ جس خانے میں لکھنا ہو، اس پر کلک کریں اور پھر پینل میں سے مطلوبہ جملے پر کلک کریں۔ جملہ خود بخود وہاں منتقل ہو جائے گا!
+                            <h4 class="sub-section-title">تقسیم کی سیکیورٹی اور خودکار الرٹس</h4>
+                            <ul>
+                                <li><strong>اوور ایلوکیشن انتباہ:</strong> اگر تمام مہینوں میں تقسیم کیے گئے صفحات کا مجموعہ کتاب کے کل صفحات سے زیادہ ہو جائے، تو اسکرین پر فوری طور پر سرخ رنگ کا الرٹ نمودار ہوگا اور **"پلانر محفوظ کریں"** کا بٹن غیر فعال ہو جائے گا۔</li>
+                                <li><strong>انڈر ایلوکیشن انتباہ:</strong> اگر کل صفحات سے کم صفحات تقسیم ہوئے ہوں تو پیلا الرٹ ظاہر ہوگا۔ مکمل صفحات تقسیم کرنے پر ہی گرین سگنل ملے گا۔</li>
+                            </ul>
+                            <div class="alert-box tip">
+                                <strong>ترکیب:</strong> خودکار تقسیم کا بٹن دبانے سے سسٹم سیشن کے مہینوں پر صفحات خود بخود برابر بانٹ دیتا ہے، جس سے دستی انٹری کا وقت بچتا ہے۔
                             </div>
                         </div>
                     </section>
@@ -470,104 +484,223 @@
                     <!-- CHAPTER 4 -->
                     <section class="chapter-section" id="ch4">
                         <span class="chapter-badge">باب چہارم</span>
-                        <h2 class="chapter-title">باب 4: امتحانات اور تعلیمی کارکردگی (Exams & Scores)</h2>
-                        <p>تعلیمی ریکارڈ کو اپ ڈیٹ رکھنے کے لیے اس ماڈیول کے تحت تحریری اور زبانی امتحانات کے نمبرات کو مربوط کیا گیا ہے۔</p>
+                        <h2 class="chapter-title">باب 4: ماڈل لیسن پلانر (Model Lesson Planner Wizard)</h2>
+                        <p>تدریسی عمل کو بہتر بنانے کے لیے اساتذہ کے پاس سبق کی یومیہ تیاری کے لیے 5 مراحل پر مشتمل ایک وزرڈ (Wizard) موجود ہے۔</p>
 
                         <div class="sub-section">
-                            <h4 class="sub-section-title">تحریری امتحانات (Written Exams)</h4>
-                            <p>ایڈمن سیشن کے دوران امتحانات شیڈول کرتا ہے۔ شیڈول ہونے کے بعد، اساتذہ مینو سے <strong>بلک مارکس اینٹری</strong> کا انتخاب کر کے پوری کلاس کے نمبرز ایک ساتھ درج کر کے فوری طور پر محفوظ کر سکتے ہیں۔</p>
+                            <h4 class="sub-section-title">سبق کی منصوبہ بندی کے 5 مراحل</h4>
+                            <p>جب استاد نیا سبق بناتا ہے تو وہ درج ذیل مراحل سے گزرتا ہے:</p>
+                            <div class="info-table-wrap">
+                                <table class="info-table">
+                                    <thead>
+                                        <tr>
+                                            <th>مرحلہ</th>
+                                            <th>مرحلے کا نام</th>
+                                            <th>تفصیل اور مطلوبہ ڈیٹا</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="step-pill">مرحلہ 1</span></td>
+                                            <td>عمومی معلومات</td>
+                                            <td>کلاس، شعبہ، عنوان، اور سابقہ لیسن پلان کا ڈیٹا ایک کلک پر کاپی کرنے کا آپشن۔</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="step-pill">مرحلہ 2</span></td>
+                                            <td>سبق کے مقاصد</td>
+                                            <td>طلبہ نے آج کیا سیکھنا تھا اور کون سی ایکٹو لرننگ حکمت عملی کا استعمال ہونا تھا۔</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="step-pill">مرحلہ 3</span></td>
+                                            <td>تدریسی مراحل</td>
+                                            <td>سبق کی پیشکش، استاد کا کردار، اور سرگرمی کے وقت متحرک طلباء کی تعداد۔</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="step-pill">مرحلہ 4</span></td>
+                                            <td>سبق کا اطلاق</td>
+                                            <td>تفہیم کا ثبوت (بچوں کو سبق سمجھ آیا یا نہیں) اور سوال جواب کا خاکہ۔</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="step-pill">مرحلہ 5</span></td>
+                                            <td>ہوم ورک اور مدد</td>
+                                            <td>گھر کا کام اور ان طلباء کے نام جنہیں تفہیم کے لیے اضافی مدد درکار ہے۔</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
 
                         <div class="sub-section">
-                            <h4 class="sub-section-title">زبانی امتحانات کا اندراج (Oral/Verbal Exams)</h4>
-                            <p>ناظمین کے لیے زبانی امتحان (مثلاً مخارج، قواعد، تلاوت) کے نمبرات کی انٹری کو تیز ترین بنانے کے لیے گریڈ سسٹم ترتیب دیا گیا ہے:</p>
-                            <ul>
-                                <li>ہر طالب علم کے نام کے سامنے نمبرز بڑھانے یا کم کرنے کے لیے <strong>(+) اور (-) کے بٹنز</strong> موجود ہیں۔</li>
-                                <li>ایک خانے میں نمبر درج کر کے کی بورڈ سے <strong>Enter دبانے سے</strong> فوکس خود بخود نیچے والے طالب علم کے خانے پر چلا جاتا ہے جس سے ماؤس استعمال کرنے کی ضرورت نہیں رہتی۔</li>
-                                <li>اگر کوئی نمبر مقررہ حد سے زیادہ ہو جائے تو خانہ فوری طور پر سرخ ہو جائے گا۔</li>
-                            </ul>
-                        </div>
-
-                        <div class="sub-section">
-                            <h4 class="sub-section-title">طلبہ تعلیمی ریکارڈ اور نمبرات (Unified Progress Center)</h4>
-                            <p>یہ اساتذہ، ناظمین اور ایڈمن کے لیے ایک مرکزی پیج ہے جہاں سے پوری کلاس کا مجموعی تعلیمی ریکارڈ ایک ہی نظر میں دیکھا جا سکتا ہے:</p>
-                            <ul>
-                                <li><strong>مرکزی تعلیمی شیٹ (Unified Grid):</strong> اس جدول (Table) میں تحریری اور زبانی تمام امتحانات کے کالم موجود ہیں۔ کسی بھی خانے میں ڈبل کلک کر کے نمبر تبدیل کریں، سسٹم فائر بیس ڈیٹا بیس میں اسے فوری خودکار طور پر محفوظ (Auto-Save) کر لے گا۔</li>
-                                <li><strong>کارکردگی گراف (Chart.js Analytics):</strong> پیج کے نچلے حصے میں گراف موجود ہیں جو کلاس کے اوسط نمبرات اور طالب علم کی انفرادی تعلیمی ترقی کا گراف دکھاتے ہیں۔</li>
-                            </ul>
+                            <h4 class="sub-section-title">فوری ٹیکسٹ دراز (Quick Text Pills Panel)</h4>
+                            <p>سبق کی تیاری کے دوران دائیں جانب بنے بنائے اردو تدریسی جملوں کا پینل کھلا رہتا ہے۔ جس ٹیکسٹ باکس میں لکھنا ہو، اس پر کلک کر کے دائیں پینل سے مطلوبہ جملے (مثلاً: "طلباء قرآنی آیات کا ترجمہ سیکھیں گے") پر کلک کریں، وہ جملہ ٹائپ کیے بغیر وہاں لکھ دیا جائے گا۔</p>
                         </div>
                     </section>
 
                     <!-- CHAPTER 5 -->
                     <section class="chapter-section" id="ch5">
                         <span class="chapter-badge">باب پنجم</span>
-                        <h2 class="chapter-title">باب 5: حاضری، اسمبلی اور ذمہ داریاں (Daily Activities)</h2>
-                        <p>روزانہ کی سرگرمیاں تعلیمی نظم و ضبط کا حصہ ہیں۔ سسٹم میں روزانہ کی حاضری، اسمبلی کی کارکردگی اور اسمبلی کے فرائض کی تفویض کے جدید کنٹرولز شامل ہیں۔</p>
+                        <h2 class="chapter-title">باب 5: زبانی و تحریری امتحانات اور پروگریس مرکز</h2>
+                        <p>امتحانات اور نمبرات کے لیے سسٹم کے اندر دو بالکل الگ اور مربوط سسٹمز موجود ہیں۔</p>
 
                         <div class="sub-section">
-                            <h4 class="sub-section-title">روزانہ حاضری (Attendance taking)</h4>
-                            <p>کلاس ٹیچر صبح کلاس میں جا کر حاضری پیج کھولتا ہے اور ایک کلک پر تمام طلبہ کو پریزینٹ (Present) کر کے غیر حاضر بچوں کے آگے ابسینٹ (Absent) مارک کر کے محفوظ کر دیتا ہے۔ جیو فینسنگ کی بدولت اساتذہ صرف سکول کی حدود میں رہتے ہوئے ہی موبائل سے حاضری درج کر سکتے ہیں۔</p>
+                            <h4 class="sub-section-title">1۔ تحریری امتحانات کی مارکس شیٹ (Written Exams)</h4>
+                            <p>اساتذہ اور ایڈمنز کے پاس کلاس وائز نمبرز چڑھانے کے لیے ایک مکمل شیٹ موجود ہے:</p>
+                            <ul>
+                                <li>مینو سے **Exams (امتحانات)** منتخب کریں۔</li>
+                                <li>ڈپارٹمنٹ، کلاس، ٹرم، مضمون اور امتحان کی قسم (ماہانہ، فرسٹ ٹرم، سیکنڈ ٹرم) کا انتخاب کریں۔</li>
+                                <li>تمام طلبہ کی لسٹ لوڈ ہو جائے گی۔ اوپر دیے گئے **کل نمبر (Total Marks)** کے خانے میں کل مارکس درج کریں، وہ تمام قطاروں پر لاگو ہو جائیں گے۔</li>
+                                <li>ہر بچے کے سامنے حاصل کردہ نمبر درج کر کے نیچے موجود **محفوظ کریں** کا بٹن دبائیں۔</li>
+                            </ul>
                         </div>
 
                         <div class="sub-section">
-                            <h4 class="sub-section-title">روزانہ اسمبلی کارکردگی کی درجہ بندی (5-Star Rating)</h4>
-                            <p>اسمبلی میں تلاوت، نعت یا تقاریر کرنے والے بچوں کی کارکردگی کی جانچ کے لیے اب 5 اسٹار ریٹنگ کا نظام ہے۔ جج (استاد یا ناظم) ہر بچے کے پرفارمنس کے آگے ایک سے پنج ستارے منتخب کر کے محفوظ کر سکتا ہے۔</p>
+                            <h4 class="sub-section-title">2۔ زبانی امتحانات کے تیز ترین نمبرات (Oral/Verbal Exams)</h4>
+                            <p>ناظمین کے پاس زبانی نمبرز (تجوید، حفظ، ناظرہ) درج کرنے کے لیے ایک سپیڈ انٹری سسٹم ہے:</p>
+                            <ul>
+                                <li>فارغ التحصیل ہونے کے لیے نمبروں کے خانے کے دائیں بائیں **پلس (+) اور مائنس (-)** کے بٹن دبانے سے نمبر ایک سیکنڈ میں اپ ڈیٹ ہو جاتے ہیں۔</li>
+                                <li>خانے میں نمبر لکھ کر کی بورڈ سے **Enter** دبانے پر ماؤس کے بغیر ہی اگلی لائن پر فوکس چلا جاتا ہے۔</li>
+                                <li>غیر حاضر طلباء کے آگے موجود **A (Absent)** چیک باکس کو کلک کریں۔</li>
+                            </ul>
                         </div>
 
                         <div class="sub-section">
-                            <h4 class="sub-section-title">ڈریگ اینڈ ڈراپ ڈیوٹی شیڈولر (Assembly Responsibilities)</h4>
-                            <p>ہفتہ وار اسمبلی کی ذمہ داریاں تفویض کرنے کے لیے اب ایک جدید شیڈولر سکرین پر دستیاب ہے:</p>
-                            <ol>
-                                <li>سب سے اوپر ہفتے کے آغاز کی تاریخ اور کلاس منتخب کریں۔</li>
-                                <li>سکرین پر موجود طلبہ کی لسٹ میں سے طالب علم کے <strong>کارڈ کو ماؤس سے پکڑیں (Drag کریں)</strong>۔</li>
-                                <li>مطلوبہ دن (ہفتہ، اتوار وغیرہ) اور ٹاسک (تلاوت، نعت، دعا) کے <strong>خانے میں لے جا کر چھوڑ دیں (Drop کریں)</strong>۔</li>
-                                <li>سستم فوری طور پر اسائنمنٹ کو محفوظ کر لے گا۔ اگر کوئی طالب علم ایک سے زائد کاموں کے لیے منتخب ہو تو تصادم کا انتباہ (Conflict Warning) ظاہر ہو گا۔</li>
-                            </ol>
+                            <h4 class="sub-section-title">3۔ مرکزی تعلیمی شیٹ اور پروگریس چارٹس (Unified Progress Center)</h4>
+                            <p>کسی بھی طالب علم کی مجموعی کارکردگی کا جائزہ لینے کے لیے <strong>Student Progress & Score Center</strong> بہترین ٹول ہے:</p>
+                            <ul>
+                                <li>پوری کلاس کے تحریری اور زبانی امتحانات کے نمبر ایک ہی شیٹ پر کالموں کی صورت میں نظر آتے ہیں۔</li>
+                                <li>کسی بھی نمبر پر ڈبل کلک کر کے اس میں ترمیم کریں، وہ ڈیٹا بیس میں **خودکار محفوظ (Auto-Save)** ہو جاتا ہے۔</li>
+                                <li>کارکردگی کا رجحان دیکھنے کے لیے نیچے Chart.js کے بنے **لائن چارٹس (Performance Graphs)** موجود ہیں جو نمبروں کے اتار چڑھاؤ کو واضح کرتے ہیں۔</li>
+                            </ul>
                         </div>
                     </section>
 
                     <!-- CHAPTER 6 -->
                     <section class="chapter-section" id="ch6">
                         <span class="chapter-badge">باب ششم</span>
-                        <h2 class="chapter-title">باب 6: مانیٹرنگ اور تعلیمی معیار (Quality & Supervision)</h2>
-                        <p>تعلیمی معیار کو یقینی بنانے کے لیے ناظمین اور سپروائزرز کے پاس درج ذیل فیچرز موجود ہیں:</p>
+                        <h2 class="chapter-title">باب 6: حاضری اور یومیہ ڈائری پورٹل</h2>
+                        <p>اساتذہ کے روزمرہ کاموں میں حاضری اور ڈائری کا اندراج سرِفہرست ہے۔</p>
 
                         <div class="sub-section">
-                            <h4 class="sub-section-title">حفظ پروگریس شیٹ (Hifz Progress)</h4>
-                            <p>حفظ سپروائزر روزانہ حفظ کے ہر بچے کی کارکردگی درج کرتا ہے، جس میں **سبق** (آج کا نیا سبق)، **سبقی** (حالیہ چند پارے) اور **منزل** (پچھلے پارے) شامل ہیں۔ یہ معلومات روزانہ کی بنیاد پر والدین کے پورٹل پر بھی اپ ڈیٹ ہوتی ہیں۔</p>
+                            <h4 class="sub-section-title">روزانہ حاضری کا طریقہ</h4>
+                            <p>سسٹم جیو فینسنگ ٹیکنالوجی سے لیس ہے، حاضری صرف ادارہ کے احاطے میں رہ کر ہی موبائل سے لگائی جا سکتی ہے۔ تمام طلبہ کو ایک بٹن سے حاضر کر کے صرف غیر حاضر بچوں کو مارک کیا جاتا ہے اور والدین کو خودکار الرٹ موصول ہو جاتا ہے۔</p>
                         </div>
 
                         <div class="sub-section">
-                            <h4 class="sub-section-title">استاد کی تعلیمی معیار کی رپورٹ (Teacher Quality Scorecard)</h4>
-                            <p>ناظمین اساتذہ کی کلاسز کا اچانک دورہ کر کے ان کے تعلیمی معیار اور سبق کی تیاری کا جائزہ لیتے ہیں اور اساتذہ کے اسکور کارڈ پر ان کی درجہ بندی محفوظ کرتے ہیں جو سالانہ کارکردگی کا حصہ بنتی ہے۔</p>
+                            <h4 class="sub-section-title">روزانہ ڈائری پورٹل (Daily Diary Entry)</h4>
+                            <p>اساتذہ روزانہ کلاس ختم ہونے پر سکھائے گئے سبق کی تفصیلات ڈائری میں محفوظ کرتے ہیں:</p>
+                            <ol>
+                                <li>استاد ڈائری فارم پر جا کر کلاس، مضمون اور تاریخ منتخب کرے گا۔</li>
+                                <li>آج پڑھائی گئی کتاب کا نام اور صفحات لکھے گا۔</li>
+                                <li>**طلباء نے آج کیا سیکھنا تھا** اور **سبق کے آخر میں کیا ثبوت ملا کہ سمجھ آگئی ہے** جیسے خانے مکمل کرے گا۔</li>
+                                <li>سست بچوں کے نام اور ہوم ورک کی تفصیل لکھ کر **محفوظ کریں** دبائے گا۔</li>
+                            </ol>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">ناظم کے دستخط اور پرنٹنگ</h4>
+                            <p>ناظم تعلیمات روزانہ کی بنیاد پر تمام اساتذہ کی ڈائری چیک کرتا ہے اور ہر ایک ڈائری کے آگے **ان لائن ریمارکس اور دستخط (Sign & Remarks)** درج کر کے محفوظ کرتا ہے۔ ڈائری لسٹ کو زمین دوز (Landscape) حالت میں پرنٹ کر کے باقاعدہ فزیکل ریکارڈ فائل بھی بنائی جا سکتی ہے۔</p>
                         </div>
                     </section>
 
                     <!-- CHAPTER 7 -->
                     <section class="chapter-section" id="ch7">
                         <span class="chapter-badge">باب ہفتم</span>
-                        <h2 class="chapter-title">باب 7: فنانس اور معاون سہولیات (Finance & Other Modules)</h2>
-                        <p>سسٹم کے دیگر انتظامی ماڈیول فنانس، لائبریری اور ٹرانسپورٹ کو سنبھالنے کے لیے استعمال کیے جاتے ہیں۔</p>
+                        <h2 class="chapter-title">باب 7: اسمبلی کی درجہ بندی اور ذمہ داریاں</h2>
+                        <p>اسمبلی ماڈیول کے تحت روزانہ کی بنیاد پر اسمبلی ڈیوٹی شیڈول کرنا اور درجہ بندی کرنا شامل ہے۔</p>
 
                         <div class="sub-section">
-                            <h4 class="sub-section-title">فیس اور فنانس (Fees & Ledger)</h4>
+                            <h4 class="sub-section-title">1۔ اسمبلی کے فرائض کی تفویض (Date-Level Assembly)</h4>
+                            <p>اب سسٹم ہفتہ وار کے بجائے روزانہ کسی بھی تاریخ کے لیے الگ ذمہ داریاں تفویض کرنے کی اجازت دیتا ہے:</p>
                             <ul>
-                                <li><strong>فیس جمع کرنا:</strong> طالب علم کا رول نمبر سرچ کریں، بقایا جات خود بخود ظاہر ہوں گے۔ رقم موصول کر کے <strong>رسید پرنٹ کریں</strong> پر کلک کریں۔ فیس کی رسید کا پرنٹ آؤٹ تیار ہو کر سامنے آ جائے گا۔</li>
-                                <li><strong>لیجر (Finance ledger):</strong> ادارے کے روزمرہ اخراجات (بجلی کا بل، سٹیشنری وغیرہ) اور متفرق آمدنی کا اندراج کریں تاکہ سسٹم سالانہ نیٹ بیلنس اور نفع نقصان کا چارٹ خود بخود ڈیش بورڈ پر تیار کر سکے  ۔</li>
+                                <li><strong>فارم کے ذریعے:</strong> تاریخ، ٹاسک، شعبہ، کلاس اور طالب علم کا نام منتخب کر کے محفوظ کریں۔</li>
+                                <li><strong>ڈریگ اینڈ ڈراپ شیڈولر:</strong> تاریخ اور کلاس منتخب کرنے پر طلبہ کے نام کے کارڈز نمودار ہو جائیں گے۔ جس بچے کی ڈیوٹی لگانی ہو، اس کے کارڈ کو ماؤس سے پکڑ کر مطلوبہ ٹاسک کے خانے میں لے جا کر چھوڑ دیں۔</li>
+                                <li><strong>طالب علم کا کردار:</strong> سسٹم کی جدید اپ ڈیٹ کے تحت اب **طالب علم بھی اپنے لاگ ان سے ڈیوٹی تفویض کر سکتے ہیں**۔ تاہم، طلبہ پہلے سے تفویض شدہ ڈیوٹی کو حذف یا تبدیل نہیں کر سکتے۔ یہ اختیار صرف اساتذہ اور ناظمین کو حاصل ہے۔</li>
+                            </ul>
+                            <div class="alert-box tips">
+                                <strong>نوٹ:</strong> طالب علم جب بھی ڈیوٹی تفویض کرے گا، سسٹم پیچھے خودکار طور پر ہفتے کا آغاز (Saturday) اور دن متعین کر لے گا تاکہ اسکور کارڈ کی مطابقت برقرار رہے۔
+                            </div>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">2۔ اسمبلی کارکردگی کی درجہ بندی (Assembly Rating)</h4>
+                            <p>تلاوت، حدیث یا نعت پڑھنے والے بچوں کو روزانہ اسمبلی ہال میں **5 ستارہ درجہ بندی (5-Star Ratings)** کے ذریعے فائیو سٹار ریٹنگ دی جاتی ہے، جو ان کے رپورٹ کارڈ پر منعکس ہوتی ہے۔</p>
+                        </div>
+                    </section>
+
+                    <!-- CHAPTER 8 -->
+                    <section class="chapter-section" id="ch8">
+                        <span class="chapter-badge">باب ہشتم</span>
+                        <h2 class="chapter-title">باب 8: تعلیمی نگرانی اور مانیٹرنگ اسکور کارڈز</h2>
+                        <p>تعلیمی معیار کی جانچ اور اساتذہ کی سرگرمیوں کو باقاعدہ فریم ورک میں ٹریک کرنے کا انتظام درج ذیل صفحات سے ممکن ہے۔</p>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">1۔ تعلیمی چیک لسٹ ہسٹری (Lesson Delivery Checklist History)</h4>
+                            <p>ناظم تعلیمات اساتذہ کی کلاسز کا جائزہ لینے کے بعد جو اسکور کارڈز بھرتے ہیں، ان کا پورا تاریخی ریکارڈ یہاں محفوظ رہتا ہے:</p>
+                            <ul>
+                                <li>یہاں اساتذہ کی ماہانہ کارکردگی کا مجموعی گراف اور کوالٹی انڈیکس نظر آتا ہے۔</li>
+                                <li>ہر ایک وزٹ کے آگے **ترمیم (Edit)** کا بٹن دبانے سے چیک لسٹ فارم دوبارہ پرانی معلومات کے ساتھ کھل جاتا ہے جہاں ناظم ریمارکس اپ ڈیٹ کر سکتا ہے۔</li>
+                                <li>غلط انٹری کی صورت میں **حذف (Delete)** پر کلک کر کے دورے کا ریکارڈ خارج کیا جا سکتا ہے۔</li>
                             </ul>
                         </div>
 
                         <div class="sub-section">
-                            <h4 class="sub-section-title">ٹرانسپورٹ اور لائبریری</h4>
-                            <ul>
-                                <li><strong>ٹرانسپورٹ:</strong> بس/وین کے روٹس بنائیں، اور طلبہ کو روٹ کے مطابق الاٹ کریں۔ روزانہ ڈرائیورز کا بائیو ڈیٹا ٹریک کیا جا سکتا ہے۔</li>
-                                <li><strong>لائبریری:</strong> کتابیں داخل کریں (ISBN کے ذریعے سرچ کی سہولت موجود ہے)، اور طلبہ کو کتابیں جاری کرنے کا باقاعدہ کارڈ سسٹم ریکارڈ رکھیں۔</li>
-                            </ul>
+                            <h4 class="sub-section-title">2۔ اساتذہ کی تعلیمی ذمہ داریوں کا ٹریکر (Teacher Compliance Tracker)</h4>
+                            <p>ناظمین اور ایڈمن کے لیے ایک انتہائی اہم سکرین جہاں سے ایک ہی نظر میں معلوم ہو جاتا ہے کہ کس ٹیچر نے اپنا کام وقت پر کیا ہے اور کس کا کام ادھورا ہے:</p>
+                            <div class="info-table-wrap">
+                                <table class="info-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ڈیوٹی کی قسم</th>
+                                            <th>شامل سرگرمیاں اور تعمیل کے اصول</th>
+                                            <th>فریکوئنسی (Frequecy)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>روزانہ ڈیوٹیز (Daily)</strong></td>
+                                            <td>روزانہ کی حاضری مارک کرنا اور روزانہ سکھائے گئے سبق کی ڈائری پورٹل پر انٹری کرنا۔</td>
+                                            <td>یومیہ (Daily)</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>امتحانی ڈیوٹیز (Monthly/Term)</strong></td>
+                                            <td>زبانی امتحانات کے حاصل کردہ نمبر اور تحریری امتحانات کی شیٹ میں مارکس کی انٹری۔</td>
+                                            <td>ماہانہ یا میعاد کے آخر پر</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>اسمبلی ذمہ داریاں (Annual)</strong></td>
+                                            <td>طلباء کو فرائض تفویض کرنا اور روزانہ اسمبلی کارکردگی کی درجہ بندی کرنا۔</td>
+                                            <td>سالانہ / باقاعدگی سے</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p>ٹریکر پر ہر ٹیچر کے سامنے ان کاموں کے مطابق رنگین بیجز ظاہر ہوتے ہیں: 
+                                <span style="color:#059669; font-weight:bold;">✅ مکمل</span> (کام مکمل)، 
+                                <span style="color:#d97706; font-weight:bold;">⚠️ جزوی</span> (کچھ کام باقی ہے)، 
+                                <span style="color:#dc2626; font-weight:bold;">❌ غیر مکمل</span> (کام شروع نہیں ہوا)۔
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- CHAPTER 9 -->
+                    <section class="chapter-section" id="ch9">
+                        <span class="chapter-badge">باب نہم</span>
+                        <h2 class="chapter-title">باب 9: فنانس اور فیسوں کا کمپیوٹرائزڈ حساب کتاب</h2>
+                        <p>محاسب یا کیشئیر کے پاس روزمرہ اکاؤنٹس اور فیس کی رسیدیں کاٹنے کا خودکار ماڈیول ہے۔</p>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">فیس جمع کرنا اور رسید جاری کرنا</h4>
+                            <ol>
+                                <li>مینو سے **فیس جمع کریں (Collect Fees)** پیج کھولیں۔</li>
+                                <li>بچے کا رول نمبر سرچ کریں۔ سکرین پر بچے کا نام، تصویر اور بقایا فیس خود بخود لوڈ ہو جائے گی۔</li>
+                                <li>موصولہ رقم درج کریں اور **رسید پرنٹ کریں (Print Receipt)** پر کلک کریں۔</li>
+                                <li>کمپیوٹرائزڈ رسید پرنٹ ہونے کے لیے سامنے آ جائے گی جس پر ادارے کا لوگو اور بارکوڈ درج ہوتا ہے۔</li>
+                            </ol>
                         </div>
 
-                        <div class="sub-section" style="border-right-color:#10b981; background:#f0fdf4;">
-                            <h4 class="sub-section-title" style="color:#047857;"><i class="fas fa-print"></i> پرنٹ اور پی ڈی ایف بکلیٹ کی تیاری</h4>
-                            <p>اس کتابچے کو اپنے پاس ڈاؤن لوڈ کرنے یا اس کا پرنٹ آؤٹ نکالنے کے لیے، سب سے اوپر موجود **"پرنٹ گائیڈ / PDF بنائیں"** کے بٹن پر کلک کریں۔ کھلنے والی ونڈو میں آپ اسے "Save as PDF" منتخب کر کے پی ڈی ایف کی شکل میں ہمیشہ کے لیے محفوظ کر سکتے ہیں۔</p>
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">ادارے کا روزانہ کا خرچ (Ledger Book)</h4>
+                            <p>سکول کے روزمرہ اخراجات (سٹاف کی تنخواہیں، بلز، مرمت، سٹیشنری) اور آمدنی کے دیگر ذرائع (عطیات، امتحانی فیس) کا اندراج اکاؤنٹس پیج پر جا کر کریں۔ سسٹم ڈیش بورڈ پر موجود آمدن بمقابلہ خرچ کا گراف اس لیجر بک کے مطابق لائیو اپ ڈیٹ کرتا رہتا ہے۔</p>
                         </div>
                     </section>
                 </div>
