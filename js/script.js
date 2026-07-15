@@ -1918,6 +1918,7 @@ function renderSidebar(userOrRole) {
             { name: getTrans('finance'), icon: '💼', href: basePath + 'pages/admin/finance.html' },
             { name: getTrans('payroll'), icon: '🧾', href: basePath + 'pages/admin/payroll.html' },
             { name: getTrans('reports'), icon: '📊', href: basePath + 'pages/admin/reports.html' },
+            { name: getTrans('teacher_tracker'), icon: '📊', href: basePath + 'pages/admin/teacher_tracker.html' },
             { name: getTrans('attendance_report'), icon: '📄', href: basePath + 'pages/admin/attendance-report.html' },
             { name: getTrans('communication'), icon: '💬', href: basePath + 'pages/admin/communication.html' },
             { name: getTrans('library'), icon: '📖', href: basePath + 'pages/admin/library.html' },
@@ -1953,7 +1954,8 @@ function renderSidebar(userOrRole) {
             { name: getTrans('students'), icon: '👨‍🎓', href: basePath + 'pages/admin/students.html' },
             { name: getTrans('classes'), icon: '🏫', href: basePath + 'pages/admin/classes.html' },
             { name: getTrans('subjects'), icon: '📚', href: basePath + 'pages/admin/subjects.html' },
-            { name: getTrans('reports'), icon: '📊', href: basePath + 'pages/admin/reports.html' }
+            { name: getTrans('reports'), icon: '📊', href: basePath + 'pages/admin/reports.html' },
+            { name: getTrans('teacher_tracker'), icon: '📊', href: basePath + 'pages/admin/teacher_tracker.html' }
         ],
         hifz_supervisor: [
             { name: getTrans('portal'), icon: '🏠', href: basePath + 'dashboard.html' },

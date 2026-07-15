@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ٹیچرز جاب ٹریکر - ادارہ مصباح القرآن</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .tracker-shell {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding-bottom: 5rem;
+        }
+
+        .tracker-filter-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: end;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .tracker-filter-card .form-group {
+            margin: 0;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .tracker-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .stat-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            gap: 0.35rem;
+            white-space: nowrap;
+        }
+
+        .badge-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-info {
+            background-color: #e0f2fe;
+            color: #075985;
+        }
+
+        .tracker-table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 0.85rem;
+            background: #fff;
+        }
+
+        .tracker-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .tracker-table th,
+        .tracker-table td {
+            padding: 0.95rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            text-align: right;
+            vertical-align: middle;
+        }
+
+        .tracker-table th {
+            background: #f8fafc;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+            font-size: 0.88rem;
+        }
+
+        .tracker-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        @media print {
+            .sidebar, .header, .tracker-filter-card, .btn-print {
+                display: none !important;
+            }
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+            .tracker-table-wrap {
+                border: none !important;
+            }
+            .tracker-table th, .tracker-table td {
+                border: 1px solid #000 !important;
+                padding: 8px !important;
+                font-size: 10pt !important;
+            }
+            .print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 25px;
+            }
+        }
+
+        .print-header {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <!-- Print Header -->
+            <div class="print-header">
+                <h2 style="margin: 0 0 5px;">ادارہ مصباح القرآن</h2>
+                <h3 style="margin: 0 0 15px;">ٹیچرز جاب کمپلائنس رپورٹ (کارکردگی ٹریکر)</h3>
+                <div style="font-size: 10pt; margin-bottom: 15px;" id="printMetaText">
+                    نوعیت: - • تاریخ/مدت: -
+                </div>
+            </div>
+
+            <header class="header">
+                <div class="page-title">
+                    <h1 data-i18n="teacher_tracker">ٹیچرز جاب ٹریکر</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">User</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content tracker-shell">
+                <div class="stat-card" id="trackerAccessDenied" style="display:none;">
+                    <div style="text-align:center; padding:2rem;">
+                        <h3>رسائی ممکن نہیں</h3>
+                        <p>یہ صفحہ صرف ناظمین اور ایڈمن کے لیے دستیاب ہے۔</p>
+                    </div>
+                </div>
+
+                <div id="trackerContent" style="display:none;">
+                    <!-- Filter Cards -->
+                    <div class="tracker-filter-card">
+                        <div class="form-group">
+                            <label>کام کی نوعیت (Job Type)</label>
+                            <select id="trackerJobType" class="form-control">
+                                <option value="daily">يومیہ کام (Daily Jobs)</option>
+                                <option value="monthly">ماہانہ اور تعلیمی مدت کے کام (Monthly/Term Jobs)</option>
+                                <option value="annual">سالانہ کام (Annual Jobs)</option>
+                            </select>
+                        </div>
+
+                        <!-- Daily Date Selector -->
+                        <div class="form-group" id="groupDailyDate">
+                            <label>تاریخ منتخب کریں</label>
+                            <input type="date" id="trackerDailyDate" class="form-control">
+                        </div>
+
+                        <!-- Monthly Selector -->
+                        <div class="form-group" id="groupMonthlyDate" style="display:none;">
+                            <label>ماہ اور سال</label>
+                            <input type="month" id="trackerMonthlyDate" class="form-control">
+                        </div>
+
+                        <!-- Annual Year Selector -->
+                        <div class="form-group" id="groupAnnualYear" style="display:none;">
+                            <label>سال (Academic Year)</label>
+                            <select id="trackerAnnualYear" class="form-control">
+                                <option value="2026">2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2025">2025</option>
+                            </select>
+                        </div>
+
+                        <div style="display:flex; gap:0.5rem; justify-content:end;">
+                            <button type="button" class="btn btn-primary" id="fetchComplianceBtn" style="padding: 0.7rem 1.5rem;">
+                                🔍 رپورٹ لوڈ کریں
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-print" onclick="window.print()" style="padding: 0.7rem 1.5rem;">
+                                🖨️ پرنٹ کریں
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Metrics -->
+                    <div class="tracker-stats-grid">
+                        <div class="stat-card" style="display:flex; align-items:center; gap:1rem;">
+                            <div class="stat-icon" style="background:#e0f2fe; color:#0369a1; padding:0.75rem; border-radius:0.75rem; font-size:1.5rem;">👨‍🏫</div>
+                            <div>
+                                <h4 style="margin:0; color:#64748b; font-size:0.88rem;">کل اساتذہ</h4>
+                                <h3 style="margin:0.25rem 0 0; font-size:1.5rem;" id="statTotalTeachers">0</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card" style="display:flex; align-items:center; gap:1rem;">
+                            <div class="stat-icon" style="background:#d1fae5; color:#047857; padding:0.75rem; border-radius:0.75rem; font-size:1.5rem;">✅</div>
+                            <div>
+                                <h4 style="margin:0; color:#64748b; font-size:0.88rem;" id="metricTaskTitle1">حاضری جمع شدگی</h4>
+                                <h3 style="margin:0.25rem 0 0; font-size:1.5rem;" id="statMetric1">0%</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card" style="display:flex; align-items:center; gap:1rem;">
+                            <div class="stat-icon" style="background:#fef3c7; color:#b45309; padding:0.75rem; border-radius:0.75rem; font-size:1.5rem;">📝</div>
+                            <div>
+                                <h4 style="margin:0; color:#64748b; font-size:0.88rem;" id="metricTaskTitle2">ڈائری جمع شدگی</h4>
+                                <h3 style="margin:0.25rem 0 0; font-size:1.5rem;" id="statMetric2">0%</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Report Table Card -->
+                    <div class="stat-card">
+                        <h3 style="margin:0 0 1rem; color:#1e293b;" id="reportTitle">ٹیچرز جاب شیٹ</h3>
+                        
+                        <div class="tracker-table-wrap">
+                            <table class="tracker-table" id="trackerGrid">
+                                <thead id="trackerGridHead">
+                                    <!-- Rendered dynamically based on type -->
+                                </thead>
+                                <tbody id="trackerGridBody">
+                                    <tr>
+                                        <td colspan="6" style="text-align:center; padding:3rem; color:#64748b;">
+                                            براہ کرم فلٹرز سیٹ کر کے تلاش کا بٹن دبائیں۔
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/teacher-tracker.js"></script>
+</body>
+</html>
