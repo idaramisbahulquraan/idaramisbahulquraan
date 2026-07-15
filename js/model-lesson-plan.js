@@ -174,9 +174,33 @@ async function loadSimpleLessonDepartments() {
   const select = document.getElementById('slpDepartment');
   if (!select) return;
   select.innerHTML = '<option value="">شعبہ منتخب کریں</option>';
-  const snapshot = await db.collection('departments').orderBy('name').get();
-  simpleLessonPlanState.departments = [];
-  snapshot.forEach(doc => simpleLessonPlanState.departments.push({ id: doc.id, ...(doc.data() || {}) }));
+
+  const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+  let docs = [];
+  try {
+    const snap = await db.collection('departments').where('tenantId', '==', tenantId).get();
+    snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+  } catch (e) {
+    console.warn('Error fetching departments:', e);
+  }
+
+  if (docs.length === 0) {
+    try {
+      const snap = await db.collection('departments').get();
+      snap.forEach(doc => {
+        const data = doc.data() || {};
+        if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+          docs.push({ id: doc.id, ...data });
+        }
+      });
+    } catch (e2) {
+      console.error('Fallback departments failed:', e2);
+    }
+  }
+
+  docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+  simpleLessonPlanState.departments = docs;
+
   simpleLessonPlanState.departments.forEach((department) => {
     const option = document.createElement('option');
     option.value = department.name || '';
@@ -240,9 +264,36 @@ async function updateSimpleLessonClasses() {
   resetSimpleSectionSelect();
   resetSimpleSubjectSelect();
   if (!department) return;
-  const snapshot = await db.collection('classes').where('department', '==', department).get();
-  snapshot.forEach(doc => simpleLessonPlanState.classes.push({ id: doc.id, ...(doc.data() || {}) }));
-  simpleLessonPlanState.classes.sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''))).forEach((cls) => {
+
+  const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+  let docs = [];
+  try {
+    const snap = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', department).get();
+    snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+  } catch (e) {
+    console.warn('Error fetching classes:', e);
+  }
+
+  if (docs.length === 0) {
+    try {
+      const snap = await db.collection('classes').get();
+      snap.forEach(doc => {
+        const data = doc.data() || {};
+        if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+          if (data.department === department) {
+            docs.push({ id: doc.id, ...data });
+          }
+        }
+      });
+    } catch (e2) {
+      console.error('Fallback classes failed:', e2);
+    }
+  }
+
+  docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+  simpleLessonPlanState.classes = docs;
+
+  simpleLessonPlanState.classes.forEach((cls) => {
     const option = document.createElement('option');
     option.value = cls.name || '';
     option.innerText = typeof getClassDisplayName === 'function' ? getClassDisplayName(cls.name || '', cls.name_ur || '') : (cls.name_ur || cls.name || '');
@@ -280,14 +331,42 @@ async function updateSimpleLessonSubjects() {
   select.innerHTML = '<option value="">مضمون منتخب کریں</option>';
   if (!department || !className) return;
 
-  const snapshot = await db.collection('subjects').where('department', '==', department).where('className', '==', className).get();
+  const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+  let docs = [];
+  try {
+    const snap = await db.collection('subjects')
+      .where('tenantId', '==', tenantId)
+      .where('department', '==', department)
+      .where('className', '==', className)
+      .get();
+    snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+  } catch (e) {
+    console.warn('Error fetching subjects:', e);
+  }
+
+  if (docs.length === 0) {
+    try {
+      const snap = await db.collection('subjects').get();
+      snap.forEach(doc => {
+        const data = doc.data() || {};
+        if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+          if (data.department === department && data.className === className) {
+            docs.push({ id: doc.id, ...data });
+          }
+        }
+      });
+    } catch (e2) {
+      console.error('Fallback subjects failed:', e2);
+    }
+  }
+
   const roles = getUserRoles(simpleLessonPlanState.currentUser);
   const elevated = roles.some(role => ['admin', 'owner', 'principal', 'nazim_e_taleemaat', 'hifz_supervisor', 'accountant', 'clerk'].includes(role));
   const teacherUid = simpleLessonPlanState.currentUser?.uid || '';
   const teacherName = String(simpleLessonPlanState.currentUser?.name || simpleLessonPlanState.currentUser?.displayName || '').trim();
 
-  snapshot.forEach((doc) => {
-    const subject = { id: doc.id, ...(doc.data() || {}) };
+  docs.forEach((doc) => {
+    const subject = doc;
     const subjectSections = normalizeSimpleSections(subject.sections || subject.section);
     const matchesSection = !section || !subjectSections.length || subjectSections.includes(section);
     const matchesTeacher = elevated || !roles.includes('teacher') ? true : subject.teacherId === teacherUid || (Array.isArray(subject.teacherIds) && subject.teacherIds.includes(teacherUid)) || (teacherName && String(subject.teacherName || '').trim() === teacherName) || (Array.isArray(subject.teacherNames) && subject.teacherNames.map(name => String(name || '').trim()).includes(teacherName));

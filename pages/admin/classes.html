@@ -592,27 +592,33 @@
 
             const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
             try {
-                let snapshot;
+                let docs = [];
                 try {
-                    snapshot = await db.collection('departments').where('tenantId', '==', tenantId).orderBy('name').get();
+                    const snap = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                    snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
                 } catch (e) {
-                    console.warn('Fallback ordering', e);
-                    try {
-                        snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
-                    } catch (e2) {
-                        const fullSnap = await db.collection('departments').get();
-                        const filteredDocs = fullSnap.docs.filter(d => !d.data().tenantId || d.data().tenantId === tenantId);
-                        snapshot = { empty: filteredDocs.length === 0, forEach: filteredDocs.forEach.bind(filteredDocs) };
-                    }
+                    console.warn('Error querying departments by tenantId:', e);
                 }
+
+                if (docs.length === 0) {
+                    const snap = await db.collection('departments').get();
+                    snap.forEach(doc => {
+                        const data = doc.data() || {};
+                        if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+                            docs.push({ id: doc.id, ...data });
+                        }
+                    });
+                }
+
+                // Sort docs client-side by name
+                docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
 
                 // Populate Filters
                 [filter1, filter2].forEach(select => {
+                    if (!select) return;
                     const currentVal = select.value;
                     select.innerHTML = `<option value="" data-i18n="all_departments">${getTrans('all_departments')}</option>`;
-                    snapshot.forEach(doc => {
-                        const data = doc.data() || {};
-                        if (data.tenantId && data.tenantId !== tenantId) return;
+                    docs.forEach(data => {
                         const opt = document.createElement('option');
                         opt.value = data.name;
                         opt.innerText = data.name_ur || data.name;
@@ -621,21 +627,19 @@
                     select.value = currentVal;
                 });
 
-                if (snapshot.empty) {
+                if (docs.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; padding: 2rem;">${getTrans('no_departments_found')}</td></tr>`;
                     return;
                 }
 
                 let html = '';
-                snapshot.forEach(doc => {
-                    const d = doc.data() || {};
-                    if (d.tenantId && d.tenantId !== tenantId) return;
+                docs.forEach(d => {
                     html += `
                         <tr>
                             <td style="font-weight: 500;">${d.name_ur || d.name}</td>
                             <td>
-                                <button onclick="editDepartment('${doc.id}', '${d.name}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">${getTrans('edit')}</button>
-                                <button onclick="deleteDepartment('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
+                                <button onclick="editDepartment('${d.id}', '${d.name}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">${getTrans('edit')}</button>
+                                <button onclick="deleteDepartment('${d.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
                             </td>
                         </tr>
                     `;
@@ -724,41 +728,40 @@
 
             const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
             try {
-                let snapshot;
+                let docs = [];
                 try {
                     let query = db.collection('classes').where('tenantId', '==', tenantId);
                     if (filterDept) {
                         query = query.where('department', '==', filterDept);
                     }
-                    snapshot = await query.get();
+                    const snap = await query.get();
+                    snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
                 } catch (e) {
-                    console.warn('Fallback classes', e);
-                    try {
-                        let query = db.collection('classes');
-                        if (filterDept) {
-                            query = query.where('department', '==', filterDept);
-                        }
-                        const fullSnap = await query.get();
-                        const filteredDocs = fullSnap.docs.filter(d => !d.data().tenantId || d.data().tenantId === tenantId);
-                        snapshot = { empty: filteredDocs.length === 0, forEach: filteredDocs.forEach.bind(filteredDocs) };
-                    } catch (e2) {
-                        const fullSnap = await db.collection('classes').get();
-                        const filteredDocs = fullSnap.docs.filter(d => !d.data().tenantId || d.data().tenantId === tenantId);
-                        snapshot = { empty: filteredDocs.length === 0, forEach: filteredDocs.forEach.bind(filteredDocs) };
-                    }
+                    console.warn('Error fetching classes by tenantId:', e);
                 }
 
-                if (snapshot.empty) {
+                if (docs.length === 0) {
+                    const snap = await db.collection('classes').get();
+                    snap.forEach(doc => {
+                        const data = doc.data() || {};
+                        if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+                            if (!filterDept || data.department === filterDept) {
+                                docs.push({ id: doc.id, ...data });
+                            }
+                        }
+                    });
+                }
+
+                // Sort classes by name
+                docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+
+                if (docs.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 2rem;">${getTrans('no_classes_found')}</td></tr>`;
                     return;
                 }
 
                 let html = '';
-                snapshot.forEach(doc => {
-                    const c = doc.data() || {};
-                    if (c.tenantId && c.tenantId !== tenantId) return;
-
-                    // Lookup department Urdu name
+                docs.forEach(c => {
                     const deptUrdu = {
                         "Dars-e-Nizami Department": "شعبہ درس نظامی",
                         "Hifz Department": "شعبہ تحفیظ القرآن",
@@ -770,56 +773,20 @@
 
                     html += `
                         <tr>
-                            <td style="font-weight: 500;">${c.name_ur || c.name}</td>
+                            <td style="font-weight: 500;">${(typeof getClassDisplayName === 'function') ? getClassDisplayName(c.name, c.name_ur || c.name) : (c.name_ur || c.name)}</td>
                             <td>${displayDept}</td>
                             <td>
-                                <button onclick="editClass('${doc.id}', '${c.name}', '${c.department}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">${getTrans('edit')}</button>
-                                <button onclick="deleteClass('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
+                                <button onclick="editClass('${c.id}', '${c.name}', '${c.department}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">${getTrans('edit')}</button>
+                                <button onclick="deleteClass('${c.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
                             </td>
                         </tr>
                     `;
                 });
-                tbody.innerHTML = html || `<tr><td colspan="3" style="text-align:center; padding: 2rem;">${getTrans('no_classes_found')}</td></tr>`;
+                tbody.innerHTML = html;
                 updatePageLanguage();
             } catch (error) {
                 console.error("Error loading classes:", error);
-                // Try client fallback if it was a query capability error (like missing index link)
-                try {
-                    const snapshot = await db.collection('classes').get();
-                    let html = '';
-                    let count = 0;
-                    snapshot.forEach(doc => {
-                        const c = doc.data() || {};
-                        if (c.tenantId && c.tenantId !== tenantId) return;
-                        if (filterDept && c.department !== filterDept) return;
-                        count++;
-                        
-                        const deptUrdu = {
-                            "Dars-e-Nizami Department": "شعبہ درس نظامی",
-                            "Hifz Department": "شعبہ تحفیظ القرآن",
-                            "Tajweed Department": "شعبہ تجوید و قرأت"
-                        };
-                        const displayDept = (typeof getDepartmentDisplayName === 'function')
-                            ? getDepartmentDisplayName(c.department, deptUrdu[c.department] || c.department)
-                            : (deptUrdu[c.department] || c.department);
-
-                        html += `
-                            <tr>
-                                <td style="font-weight: 500;">${(typeof getClassDisplayName === 'function') ? getClassDisplayName(c.name, c.name_ur || c.name) : (c.name_ur || c.name)}</td>
-                                <td>${displayDept}</td>
-                                <td>
-                                    <button onclick="editClass('${doc.id}', '${c.name}', '${c.department}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">${getTrans('edit')}</button>
-                                    <button onclick="deleteClass('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
-                                </td>
-                            </tr>
-                         `;
-                    });
-                    if (count === 0) tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 2rem;">${getTrans('no_classes_found')}</td></tr>`;
-                    else tbody.innerHTML = html;
-                    updatePageLanguage();
-                } catch (e2) {
-                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:red;">Error: ${error.message}</td></tr>`;
-                }
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:red;">Error: ${error.message}</td></tr>`;
             }
         }
 
@@ -879,23 +846,35 @@
 
         async function loadDepartmentsForSelect(selectId) {
             const select = document.getElementById(selectId);
+            if (!select) return;
             const current = select.value;
             select.innerHTML = `<option value="" data-i18n="select_department">${getTrans('select_department')}</option>`;
 
             const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
-            let snapshot;
+            let docs = [];
             try {
-                snapshot = await db.collection('departments').where('tenantId', '==', tenantId).orderBy('name').get();
+                const snap = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
             } catch (e) {
+                console.warn('Error fetching departments:', e);
+            }
+
+            if (docs.length === 0) {
                 try {
-                    snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                    const snap = await db.collection('departments').get();
+                    snap.forEach(doc => {
+                        const data = doc.data() || {};
+                        if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+                            docs.push({ id: doc.id, ...data });
+                        }
+                    });
                 } catch (e2) {
-                    snapshot = await db.collection('departments').get();
+                    console.error('Failed fallback query for departments select:', e2);
                 }
             }
-            snapshot.forEach(doc => {
-                const data = doc.data() || {};
-                if (data.tenantId && data.tenantId !== tenantId) return;
+
+            docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+            docs.forEach(data => {
                 const opt = document.createElement('option');
                 opt.value = data.name;
                 opt.innerText = data.name_ur || data.name;

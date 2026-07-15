@@ -144,15 +144,31 @@ async function loadAssemblyDepartments() {
     select.innerHTML = `<option value="">${idx === 0 ? 'شعبہ منتخب کریں' : 'تمام شعبے'}</option>`;
   });
 
+  const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+  let docs = [];
   try {
-    const snapshot = await db.collection('departments').orderBy('name').get();
-    assemblyState.departments = [];
-    snapshot.forEach((doc) => assemblyState.departments.push({ id: doc.id, ...(doc.data() || {}) }));
+    const snap = await db.collection('departments').where('tenantId', '==', tenantId).get();
+    snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
   } catch (error) {
-    console.warn('Assembly departments not available for current profile', error?.message || error);
-    assemblyState.departments = [];
-    return;
+    console.warn('Assembly departments by tenantId not available', error?.message || error);
   }
+
+  if (docs.length === 0) {
+    try {
+      const snap = await db.collection('departments').get();
+      snap.forEach(doc => {
+        const data = doc.data() || {};
+        if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+          docs.push({ id: doc.id, ...data });
+        }
+      });
+    } catch (e2) {
+      console.error('Fallback departments failed:', e2);
+    }
+  }
+
+  docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+  assemblyState.departments = docs;
 
   [formSelect, filterSelect].forEach((select) => {
     if (!select) return;

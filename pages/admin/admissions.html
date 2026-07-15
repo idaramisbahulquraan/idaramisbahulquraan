@@ -536,15 +536,30 @@
             const sel = document.getElementById('deptSelect');
             if (!sel) return;
             const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
-            let snap;
+            let docs = [];
             try {
-                snap = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                const snap = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
             } catch (e) {
-                snap = await db.collection('departments').get();
+                console.warn('Error fetching departments:', e);
             }
-            snap.forEach(d => {
-                const data = d.data() || {};
-                if (data.tenantId && data.tenantId !== tenantId) return;
+
+            if (docs.length === 0) {
+                try {
+                    const snap = await db.collection('departments').get();
+                    snap.forEach(doc => {
+                        const data = doc.data() || {};
+                        if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+                            docs.push({ id: doc.id, ...data });
+                        }
+                    });
+                } catch (e2) {
+                    console.error('Fallback departments failed:', e2);
+                }
+            }
+
+            docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+            docs.forEach(data => {
                 const name = data.name;
                 const nameUr = data.name_ur || name;
                 sel.innerHTML += `<option value="${name}">${nameUr}</option>`;
@@ -557,16 +572,34 @@
             if (!sel) return;
             sel.innerHTML = '<option value="">Loading...</option>';
             const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
-            let snap;
+            let docs = [];
             try {
-                snap = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+                const snap = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+                snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
             } catch (e) {
-                snap = await db.collection('classes').where('department', '==', dept).get();
+                console.warn('Error fetching classes:', e);
             }
+
+            if (docs.length === 0) {
+                try {
+                    const snap = await db.collection('classes').get();
+                    snap.forEach(doc => {
+                        const data = doc.data() || {};
+                        if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+                            if (data.department === dept) {
+                                docs.push({ id: doc.id, ...data });
+                            }
+                        }
+                    });
+                } catch (e2) {
+                    console.error('Fallback classes failed:', e2);
+                }
+            }
+
+            docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+
             sel.innerHTML = '<option value="">Select Class</option>';
-            snap.forEach(d => {
-                const data = d.data() || {};
-                if (data.tenantId && data.tenantId !== tenantId) return;
+            docs.forEach(data => {
                 const name = data.name;
                 const nameUr = data.name_ur || name;
                 sel.innerHTML += `<option value="${name}">${nameUr}</option>`;

@@ -59,23 +59,31 @@ async function loadNazimDepartments() {
     select.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
 
     const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
-    let snapshot;
+    let docs = [];
     try {
-        snapshot = await db.collection('departments').where('tenantId', '==', tenantId).orderBy('name').get();
+        const snap = await db.collection('departments').where('tenantId', '==', tenantId).get();
+        snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
     } catch (e) {
+        console.warn('Error fetching departments:', e);
+    }
+
+    if (docs.length === 0) {
         try {
-            snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
+            const snap = await db.collection('departments').get();
+            snap.forEach(doc => {
+                const data = doc.data() || {};
+                if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+                    docs.push({ id: doc.id, ...data });
+                }
+            });
         } catch (e2) {
-            snapshot = await db.collection('departments').orderBy('name').get();
+            console.error('Failed fallback query for departments:', e2);
         }
     }
-    verbalExamState.departments = [];
-    snapshot.forEach(doc => {
-        const data = doc.data() || {};
-        if (!data.tenantId || data.tenantId === tenantId) {
-            verbalExamState.departments.push({ id: doc.id, ...data });
-        }
-    });
+
+    // Sort client-side
+    docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+    verbalExamState.departments = docs;
 
     verbalExamState.departments.forEach(dept => {
         const opt = document.createElement('option');
@@ -102,28 +110,42 @@ async function updateNazimClasses() {
     if (!dept) return;
 
     const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
-    let snapshot;
+    let docs = [];
     try {
-        snapshot = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+        const snap = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+        snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
     } catch (e) {
-        snapshot = await db.collection('classes').where('department', '==', dept).get();
+        console.warn('Error fetching classes:', e);
     }
-    snapshot.forEach(doc => {
-        const data = doc.data() || {};
-        if (!data.tenantId || data.tenantId === tenantId) {
-            verbalExamState.classes.push({ id: doc.id, ...data });
+
+    if (docs.length === 0) {
+        try {
+            const snap = await db.collection('classes').get();
+            snap.forEach(doc => {
+                const data = doc.data() || {};
+                if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+                    if (data.department === dept) {
+                        docs.push({ id: doc.id, ...data });
+                    }
+                }
+            });
+        } catch (e2) {
+            console.error('Failed fallback query for classes:', e2);
         }
+    }
+
+    // Sort client-side
+    docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+    verbalExamState.classes = docs;
+
+    verbalExamState.classes.forEach(cls => {
+        const opt = document.createElement('option');
+        opt.value = cls.name || '';
+        opt.innerText = (typeof getClassDisplayName === 'function')
+            ? getClassDisplayName(cls.name || '', cls.name_ur || '')
+            : (cls.name_ur || cls.name || '');
+        classSelect.appendChild(opt);
     });
-    verbalExamState.classes
-        .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')))
-        .forEach(cls => {
-            const opt = document.createElement('option');
-            opt.value = cls.name || '';
-            opt.innerText = (typeof getClassDisplayName === 'function')
-                ? getClassDisplayName(cls.name || '', cls.name_ur || '')
-                : (cls.name_ur || cls.name || '');
-            classSelect.appendChild(opt);
-        });
 
     if (typeof updatePageLanguage === 'function') updatePageLanguage();
 }
@@ -140,26 +162,35 @@ async function updateNazimSubjects() {
     if (!dept || !className) return;
 
     const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
-    let snapshot;
+    let docs = [];
     try {
-        snapshot = await db.collection('subjects')
+        const snap = await db.collection('subjects')
             .where('tenantId', '==', tenantId)
             .where('department', '==', dept)
             .where('className', '==', className)
             .get();
+        snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
     } catch (e) {
-        snapshot = await db.collection('subjects')
-            .where('department', '==', dept)
-            .where('className', '==', className)
-            .get();
+        console.warn('Error fetching subjects:', e);
     }
 
-    snapshot.forEach(doc => {
-        const data = doc.data() || {};
-        if (!data.tenantId || data.tenantId === tenantId) {
-            verbalExamState.subjects.push({ id: doc.id, ...data });
+    if (docs.length === 0) {
+        try {
+            const snap = await db.collection('subjects').get();
+            snap.forEach(doc => {
+                const data = doc.data() || {};
+                if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+                    if (data.department === dept && data.className === className) {
+                        docs.push({ id: doc.id, ...data });
+                    }
+                }
+            });
+        } catch (e2) {
+            console.error('Failed fallback query for subjects:', e2);
         }
-    });
+    }
+
+    verbalExamState.subjects = docs;
     verbalExamState.subjects
         .sort((a, b) => getSubjectDisplayName(a).localeCompare(getSubjectDisplayName(b), 'ur'))
         .forEach(subject => {

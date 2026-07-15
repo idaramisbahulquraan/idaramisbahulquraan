@@ -317,36 +317,49 @@
 
         async function loadDepartments(selected = '') {
             const select = document.getElementById('department');
+            if (!select) return;
             const currentVal = select.value;
             select.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
 
             try {
                 const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
-                let snapshot;
+                let docs = [];
                 try {
-                    snapshot = await db.collection('departments').where('tenantId', '==', tenantId).orderBy('name').get();
+                    const snap = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                    snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
                 } catch (e) {
+                    console.warn('Error fetching departments:', e);
+                }
+
+                if (docs.length === 0) {
                     try {
-                        snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                        const snap = await db.collection('departments').get();
+                        snap.forEach(doc => {
+                            const data = doc.data() || {};
+                            if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+                                docs.push({ id: doc.id, ...data });
+                            }
+                        });
                     } catch (e2) {
-                        snapshot = await db.collection('departments').get();
+                        console.error('Fallback departments failed:', e2);
                     }
                 }
 
-                // Fallback: derive from classes if departments collection is empty
-                if (snapshot.empty) {
+                // If still empty, derive from classes
+                if (docs.length === 0) {
                     let classesSnap;
                     try {
-                        classesSnap = await db.collection('classes').where('tenantId', '==', tenantId).get();
-                    } catch (e) {
                         classesSnap = await db.collection('classes').get();
+                    } catch (e) {
+                        classesSnap = { forEach: () => {} };
                     }
                     const set = new Set();
                     classesSnap.forEach(c => {
                         const data = c.data() || {};
-                        if (data.tenantId && data.tenantId !== tenantId) return;
-                        const dep = data.department;
-                        if (dep) set.add(dep);
+                        if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+                            const dep = data.department;
+                            if (dep) set.add(dep);
+                        }
                     });
                     Array.from(set).sort().forEach(dep => {
                         const opt = document.createElement('option');
@@ -355,15 +368,15 @@
                         select.appendChild(opt);
                     });
                 } else {
-                    snapshot.forEach(doc => {
-                        const data = doc.data() || {};
-                        if (data.tenantId && data.tenantId !== tenantId) return;
+                    docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+                    docs.forEach(data => {
                         const opt = document.createElement('option');
                         opt.value = data.name;
                         opt.innerText = data.name_ur || data.name;
                         select.appendChild(opt);
                     });
                 }
+
                 const targetVal = selected || currentVal;
                 if (targetVal) {
                     select.value = targetVal;
@@ -384,6 +397,7 @@
         async function updateClasses(prefillClass = '') {
             const dept = document.getElementById('department').value;
             const classSelect = document.getElementById('className');
+            if (!classSelect) return;
             classSelect.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
             document.getElementById('subject').innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
 
@@ -391,16 +405,34 @@
 
             try {
                 const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
-                let snapshot;
+                let docs = [];
                 try {
-                    snapshot = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+                    const snap = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+                    snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
                 } catch (e) {
-                    snapshot = await db.collection('classes').where('department', '==', dept).get();
+                    console.warn('Error fetching classes:', e);
                 }
+
+                if (docs.length === 0) {
+                    try {
+                        const snap = await db.collection('classes').get();
+                        snap.forEach(doc => {
+                            const data = doc.data() || {};
+                            if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+                                if (data.department === dept) {
+                                    docs.push({ id: doc.id, ...data });
+                                }
+                            }
+                        });
+                    } catch (e2) {
+                        console.error('Fallback classes failed:', e2);
+                    }
+                }
+
+                docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+
                 const seen = new Set();
-                snapshot.forEach(doc => {
-                    const data = doc.data() || {};
-                    if (data.tenantId && data.tenantId !== tenantId) return;
+                docs.forEach(data => {
                     if (!data.name) return;
                     const label = data.name_ur || data.name;
                     if (seen.has(label)) return;
@@ -411,6 +443,7 @@
                     opt.innerText = label;
                     classSelect.appendChild(opt);
                 });
+
                 if (prefillClass) {
                     classSelect.value = prefillClass;
                     if (classSelect.value !== prefillClass) {
@@ -437,6 +470,8 @@
             const partSelect = document.getElementById('subjectPart');
             const partGroup = document.getElementById('subjectPartGroup');
 
+            if (!subjectSelect || !partSelect || !partGroup) return;
+
             subjectSelect.innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
             partSelect.innerHTML = '<option value="" data-i18n="select_part">Select Part</option>';
             partGroup.style.display = 'none';
@@ -445,24 +480,36 @@
             if (!department || !className) return;
             try {
                 const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
-                let snap;
+                let docs = [];
                 try {
-                    snap = await db.collection('subjects')
+                    const snap = await db.collection('subjects')
                         .where('tenantId', '==', tenantId)
                         .where('department', '==', department)
                         .where('className', '==', className)
                         .get();
+                    snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
                 } catch (e) {
-                    snap = await db.collection('subjects')
-                        .where('department', '==', department)
-                        .where('className', '==', className)
-                        .get();
+                    console.warn('Error fetching subjects:', e);
+                }
+
+                if (docs.length === 0) {
+                    try {
+                        const snap = await db.collection('subjects').get();
+                        snap.forEach(doc => {
+                            const data = doc.data() || {};
+                            if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+                                if (data.department === department && data.className === className) {
+                                    docs.push({ id: doc.id, ...data });
+                                }
+                            }
+                        });
+                    } catch (e2) {
+                        console.error('Fallback subjects failed:', e2);
+                    }
                 }
 
                 const subjects = [];
-                snap.forEach(doc => {
-                    const data = doc.data() || {};
-                    if (data.tenantId && data.tenantId !== tenantId) return;
+                docs.forEach(data => {
                     currentSubjectsCache.push(data);
                     if (data.name) subjects.push(data);
                 });

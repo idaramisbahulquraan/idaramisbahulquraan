@@ -261,19 +261,31 @@
             select.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
             try {
                 const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
-                let snapshot;
+                let docs = [];
                 try {
-                    snapshot = await db.collection('departments').where('tenantId', '==', tenantId).orderBy('name').get();
+                    const snap = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                    snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
                 } catch (e) {
+                    console.warn('Error fetching departments:', e);
+                }
+
+                if (docs.length === 0) {
                     try {
-                        snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                        const snap = await db.collection('departments').get();
+                        snap.forEach(doc => {
+                            const data = doc.data() || {};
+                            if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+                                docs.push({ id: doc.id, ...data });
+                            }
+                        });
                     } catch (e2) {
-                        snapshot = await db.collection('departments').get();
+                        console.error('Fallback departments failed:', e2);
                     }
                 }
-                snapshot.forEach(doc => {
-                    const data = doc.data() || {};
-                    if (data.tenantId && data.tenantId !== tenantId) return;
+
+                docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+
+                docs.forEach(data => {
                     const opt = document.createElement('option');
                     opt.value = data.name;
                     opt.innerText = data.name_ur || data.name;
@@ -291,16 +303,34 @@
 
             try {
                 const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
-                let snapshot;
+                let docs = [];
                 try {
-                    snapshot = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+                    const snap = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+                    snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
                 } catch (e) {
-                    snapshot = await db.collection('classes').where('department', '==', dept).get();
+                    console.warn('Error fetching classes:', e);
                 }
+
+                if (docs.length === 0) {
+                    try {
+                        const snap = await db.collection('classes').get();
+                        snap.forEach(doc => {
+                            const data = doc.data() || {};
+                            if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+                                if (data.department === dept) {
+                                    docs.push({ id: doc.id, ...data });
+                                }
+                            }
+                        });
+                    } catch (e2) {
+                        console.error('Fallback classes failed:', e2);
+                    }
+                }
+
+                docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+
                 const seen = new Set();
-                snapshot.forEach(doc => {
-                    const data = doc.data() || {};
-                    if (data.tenantId && data.tenantId !== tenantId) return;
+                docs.forEach(data => {
                     if (!data.name) return;
                     const label = data.name_ur || data.name;
                     if (seen.has(label)) return;

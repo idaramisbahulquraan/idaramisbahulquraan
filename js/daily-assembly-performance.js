@@ -86,9 +86,31 @@ function updateSelectedDayLabel() {
 }
 
 async function loadDailyAssemblyDepartments() {
-  const snapshot = await db.collection('departments').orderBy('name').get();
-  dailyAssemblyState.departments = [];
-  snapshot.forEach((doc) => dailyAssemblyState.departments.push({ id: doc.id, ...(doc.data() || {}) }));
+  const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+  let docs = [];
+  try {
+    const snap = await db.collection('departments').where('tenantId', '==', tenantId).get();
+    snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+  } catch (e) {
+    console.warn('Error fetching departments:', e);
+  }
+
+  if (docs.length === 0) {
+    try {
+      const snap = await db.collection('departments').get();
+      snap.forEach(doc => {
+        const data = doc.data() || {};
+        if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+          docs.push({ id: doc.id, ...data });
+        }
+      });
+    } catch (e2) {
+      console.error('Fallback departments failed:', e2);
+    }
+  }
+
+  docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+  dailyAssemblyState.departments = docs;
 
   ['dacDepartment', 'dapDepartment'].forEach((id) => {
     const select = document.getElementById(id);
@@ -134,8 +156,32 @@ async function updateCoordinatorClasses() {
   dailyAssemblyState.coordinatorClassDocs = [];
   if (!department) return;
 
-  const snapshot = await db.collection('classes').where('department', '==', department).get();
-  snapshot.forEach((doc) => dailyAssemblyState.coordinatorClassDocs.push({ id: doc.id, ...(doc.data() || {}) }));
+  const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+  let docs = [];
+  try {
+    const snap = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', department).get();
+    snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+  } catch (e) {
+    console.warn('Error fetching classes:', e);
+  }
+
+  if (docs.length === 0) {
+    try {
+      const snap = await db.collection('classes').get();
+      snap.forEach(doc => {
+        const data = doc.data() || {};
+        if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+          if (data.department === department) {
+            docs.push({ id: doc.id, ...data });
+          }
+        }
+      });
+    } catch (e2) {
+      console.error('Fallback classes failed:', e2);
+    }
+  }
+
+  dailyAssemblyState.coordinatorClassDocs = docs;
   dailyAssemblyState.coordinatorClassDocs
     .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')))
     .forEach((cls) => {
@@ -171,9 +217,33 @@ async function updateEvaluationClasses() {
   dailyAssemblyState.evaluationClassDocs = [];
   if (!department) return;
 
+  const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+
   if (dailyAssemblyState.canElevatedEvaluate) {
-    const snapshot = await db.collection('classes').where('department', '==', department).get();
-    snapshot.forEach((doc) => dailyAssemblyState.evaluationClassDocs.push({ id: doc.id, ...(doc.data() || {}) }));
+    let docs = [];
+    try {
+      const snap = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', department).get();
+      snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+    } catch (e) {
+      console.warn('Error fetching classes:', e);
+    }
+
+    if (docs.length === 0) {
+      try {
+        const snap = await db.collection('classes').get();
+        snap.forEach(doc => {
+          const data = doc.data() || {};
+          if (!data.tenantId || data.tenantId === tenantId || data.tenantId === 'default') {
+            if (data.department === department) {
+              docs.push({ id: doc.id, ...data });
+            }
+          }
+        });
+      } catch (e2) {
+        console.error('Fallback classes failed:', e2);
+      }
+    }
+    dailyAssemblyState.evaluationClassDocs = docs;
   } else {
     const currentUid = dailyAssemblyState.currentUser?.uid || '';
     const currentName = String(dailyAssemblyState.currentUser?.name || dailyAssemblyState.currentUser?.displayName || '').trim();
