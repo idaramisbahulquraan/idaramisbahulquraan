@@ -7,6 +7,7 @@ const assemblyState = {
   editorStudents: [],
   assignments: [],
   canEdit: false,
+  canEnter: false,
   tasks: [
     { key: 'tilawat', label: 'تلاوت' },
     { key: 'tarjama', label: 'ترجمہ و تشریح' },
@@ -43,21 +44,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (typeof initDashboard === 'function') initDashboard(currentUser);
 
   const roles = getUserRoles(currentUser);
+  
+  // canEdit: Who can edit/delete existing assignments (Admins, Teachers, Nazims)
   assemblyState.canEdit = roles.some((role) => ['teacher', 'admin', 'owner', 'principal', 'nazim_e_taleemaat'].includes(role));
+  
+  // canEnter: Who can enter data/create new assignments (Students + Teachers + Admins)
+  assemblyState.canEnter = roles.some((role) => ['student', 'teacher', 'admin', 'owner', 'principal', 'nazim_e_taleemaat'].includes(role));
 
-  // Set default values to today's date
+  // Set default value to today's date
   const today = new Date().toLocaleDateString('sv-SE');
   const dateInput = document.getElementById('assemblyDate');
-  const studentDateInput = document.getElementById('assemblyStudentDate');
   if (dateInput && !dateInput.value) dateInput.value = today;
-  if (studentDateInput && !studentDateInput.value) studentDateInput.value = today;
 
   updateAssemblyModeUi();
   renderAssemblyStaticControls();
   bindAssemblyEvents();
 
   await loadAssemblyDepartments();
-  if (assemblyState.canEdit) {
+  if (assemblyState.canEnter) {
     await loadAssemblyTeachers();
     await updateAssemblyFormClasses();
     await updateAssemblyFormSections();
@@ -70,14 +74,17 @@ function updateAssemblyModeUi() {
   const editorCard = document.getElementById('assemblyEditorCard');
   const modeNote = document.getElementById('assemblyModeNote');
   const statMode = document.getElementById('assemblyStatMode');
-  const studentDateGroup = document.getElementById('studentDateGroup');
 
-  if (editorCard) editorCard.classList.toggle('editor-hidden', !assemblyState.canEdit);
-  if (modeNote) modeNote.innerText = assemblyState.canEdit ? 'استاد / ایڈمن اسائن کر سکتے ہیں' : 'صرف مشاہدہ';
-  if (statMode) statMode.innerText = assemblyState.canEdit ? 'اسائنمنٹ فعال' : 'صرف مشاہدہ';
-  
-  if (studentDateGroup) {
-    studentDateGroup.style.display = assemblyState.canEdit ? 'none' : 'block';
+  if (editorCard) editorCard.classList.toggle('editor-hidden', !assemblyState.canEnter);
+  if (modeNote) {
+    modeNote.innerText = assemblyState.canEdit 
+      ? 'مکمل اختیارات (ترمیم/حذف)' 
+      : (assemblyState.canEnter ? 'ذمہ داری تفویض کرنے کی اجازت فعال' : 'صرف مشاہدہ');
+  }
+  if (statMode) {
+    statMode.innerText = assemblyState.canEdit 
+      ? 'مکمل اختیارات فعال' 
+      : (assemblyState.canEnter ? 'تفویض کی اجازت فعال' : 'صرف مشاہدہ');
   }
 }
 
@@ -110,43 +117,38 @@ function renderAssemblyStaticControls() {
 }
 
 function bindAssemblyEvents() {
-  // Setup listeners for form changes to auto-query and refresh board
   document.getElementById('assemblyDate')?.addEventListener('change', loadAssemblyAssignments);
   
   document.getElementById('assemblyDepartment')?.addEventListener('change', async () => {
     await updateAssemblyFormClasses();
     await updateAssemblyFormSections();
     await updateAssemblyAssigneeOptions();
-    await loadAssemblyAssignments(); // Auto reload board on department change
+    await loadAssemblyAssignments();
   });
   
   document.getElementById('assemblyClass')?.addEventListener('change', async () => {
     await updateAssemblyFormSections();
     await updateAssemblyAssigneeOptions();
-    await loadAssemblyAssignments(); // Auto reload board on class change
+    await loadAssemblyAssignments();
   });
   
   document.getElementById('assemblySection')?.addEventListener('change', async () => {
     await updateAssemblyAssigneeOptions();
-    await loadAssemblyAssignments(); // Auto reload board on section change
+    await loadAssemblyAssignments();
   });
   
   document.getElementById('assemblyAssigneeType')?.addEventListener('change', updateAssemblyAssigneeOptions);
-  
-  // Student view date selector listener
-  document.getElementById('assemblyStudentDate')?.addEventListener('change', loadAssemblyAssignments);
-  
   document.getElementById('assemblySaveBtn')?.addEventListener('click', saveAssemblyAssignment);
   document.getElementById('assemblyResetBtn')?.addEventListener('click', resetAssemblyForm);
   
   document.getElementById('assemblyBoardBody')?.addEventListener('click', async (event) => {
     const editBtn = event.target.closest('[data-edit-assignment]');
     const deleteBtn = event.target.closest('[data-delete-assignment]');
-    if (editBtn) {
+    if (editBtn && assemblyState.canEdit) {
       await loadAssignmentIntoForm(editBtn.dataset.editAssignment);
       return;
     }
-    if (deleteBtn) {
+    if (deleteBtn && assemblyState.canEdit) {
       await deleteAssemblyAssignment(deleteBtn.dataset.deleteAssignment);
     }
   });
@@ -337,9 +339,7 @@ async function loadAssemblyStudents({ department, className, section }) {
 
 // Load by Date index
 async function loadAssemblyAssignments() {
-  const datePicker = assemblyState.canEdit 
-    ? document.getElementById('assemblyDate') 
-    : document.getElementById('assemblyStudentDate');
+  const datePicker = document.getElementById('assemblyDate');
   const selectedDate = datePicker?.value || '';
 
   if (!selectedDate) {
@@ -348,7 +348,7 @@ async function loadAssemblyAssignments() {
     return;
   }
 
-  // Derive weekStart and dayKey from selectedDate for index-free backward compatibility
+  // Derive weekStart and dayKey
   const weekStart = getSaturdayOfDate(selectedDate);
   const dayIndex = new Date(selectedDate).getDay();
   const dayKey = DAY_KEYS[dayIndex];
@@ -364,10 +364,9 @@ async function loadAssemblyAssignments() {
     snapshot.forEach((doc) => assignments.push({ id: doc.id, ...(doc.data() || {}) }));
     window.allWeekAssignmentsCache = assignments;
 
-    // Filter board dynamically in-memory matching form options if user is teacher/admin
-    const filterDepartment = assemblyState.canEdit ? (document.getElementById('assemblyDepartment')?.value || '') : '';
-    const filterClass = assemblyState.canEdit ? (document.getElementById('assemblyClass')?.value || '') : '';
-    const filterSection = assemblyState.canEdit ? (document.getElementById('assemblySection')?.value || '') : '';
+    const filterDepartment = document.getElementById('assemblyDepartment')?.value || '';
+    const filterClass = document.getElementById('assemblyClass')?.value || '';
+    const filterSection = document.getElementById('assemblySection')?.value || '';
     
     if (filterDepartment) assignments = assignments.filter((item) => item.department === filterDepartment || item.department_ur === filterDepartment);
     if (filterClass) assignments = assignments.filter((item) => item.className === filterClass || item.className_ur === filterClass);
@@ -448,19 +447,17 @@ function renderAssemblyBoard(assignments) {
 function updateAssemblyStats(assignments) {
   document.getElementById('assemblyStatTotal').innerText = String(assignments.length || 0);
   
-  const filterDepartment = assemblyState.canEdit ? (document.getElementById('assemblyDepartment')?.value || 'تمام') : 'تمام';
-  const filterClass = assemblyState.canEdit ? (document.getElementById('assemblyClass')?.value || '') : '';
-  const filterSection = assemblyState.canEdit ? (document.getElementById('assemblySection')?.value || '') : '';
+  const filterDepartment = document.getElementById('assemblyDepartment')?.value || 'تمام';
+  const filterClass = document.getElementById('assemblyClass')?.value || '';
+  const filterSection = document.getElementById('assemblySection')?.value || '';
   document.getElementById('assemblyStatFilter').innerText = [filterClass || filterDepartment, filterSection].filter(Boolean).join(' • ') || 'تمام';
 
-  const datePicker = assemblyState.canEdit 
-    ? document.getElementById('assemblyDate') 
-    : document.getElementById('assemblyStudentDate');
+  const datePicker = document.getElementById('assemblyDate');
   document.getElementById('assemblyStatDay').innerText = datePicker?.value || '-';
 }
 
 async function saveAssemblyAssignment() {
-  if (!assemblyState.canEdit) return;
+  if (!assemblyState.canEnter) return;
 
   const assignDate = document.getElementById('assemblyDate')?.value || '';
   if (!assignDate) {
@@ -496,10 +493,29 @@ async function saveAssemblyAssignment() {
     return;
   }
 
+  // Permission Guard: students cannot edit existing records
+  if (docId && !assemblyState.canEdit) {
+    alert('صرف اساتذہ اور ناظمین کو موجودہ ذمہ داریوں میں ترمیم کرنے کی اجازت ہے۔');
+    return;
+  }
+
+  // Permission Guard: students cannot overwrite already occupied slots
+  const allWeek = window.allWeekAssignmentsCache || [];
+  const occupied = allWeek.find(item => 
+      item.dayKey === dayKey && 
+      item.taskKey === taskKey &&
+      item.className === className &&
+      normalizeAssemblyToken(item.section || '') === normalizeAssemblyToken(section) &&
+      item.id !== docId
+  );
+  if (occupied && !assemblyState.canEdit) {
+      alert('اس تاریخ اور ٹاسک پر پہلے سے ڈیوٹی تفویض ہے۔ تبدیل کرنے کے لیے اپنے استاد یا ناظم سے رابطہ کریں۔');
+      return;
+  }
+
   const taskLabel = assemblyState.tasks.find((item) => item.key === taskKey)?.label || taskKey;
 
-  // Conflict Checking
-  const allWeek = window.allWeekAssignmentsCache || [];
+  // Conflict Checking for same person twice a week/day
   const conflict = allWeek.find(item => 
       item.dayKey === dayKey && 
       item.assigneeId === assigneeId && 
@@ -567,6 +583,7 @@ async function saveAssemblyAssignment() {
 }
 
 async function loadAssignmentIntoForm(id) {
+  if (!assemblyState.canEdit) return;
   const item = assemblyState.assignments.find((entry) => entry.id === id);
   if (!item) return;
   
@@ -720,6 +737,7 @@ function setAssemblyState(text) {
   if (el) el.innerText = text;
 }
 
+// Fallback safety mappings
 function getDepartmentDisplayNameSafe(value) {
   const dept = assemblyState.departments.find((item) => item.name === value) || {};
   return typeof getDepartmentDisplayName === 'function' ? getDepartmentDisplayName(value || '', dept.name_ur || '') : (dept.name_ur || value || '');
@@ -748,7 +766,7 @@ window.renderAssemblyDragDropScheduler = function() {
   const dragDropCard = document.getElementById('assemblyDragDropCard');
   if (!dragDropCard) return;
 
-  if (!assemblyState.canEdit) {
+  if (!assemblyState.canEnter) {
     dragDropCard.style.display = 'none';
     return;
   }
@@ -807,7 +825,7 @@ window.renderAssemblyDragDropScheduler = function() {
         assigneeHtml = `
           <div class="slot-assignee-card">
             <span>${assignment.assigneeName}</span>
-            <button type="button" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1rem; line-height:1; padding:0 0.25rem; font-weight:bold;" onclick="removeAssemblyAssignmentDirect('${assignment.id}')" title="حذف کریں">&times;</button>
+            ${assemblyState.canEdit ? `<button type="button" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1rem; line-height:1; padding:0 0.25rem; font-weight:bold;" onclick="removeAssemblyAssignmentDirect('${assignment.id}')" title="حذف کریں">&times;</button>` : ''}
           </div>
         `;
       }
@@ -862,7 +880,7 @@ window.handleAssemblyDrop = async function(event) {
 };
 
 async function assignStudentViaDragDrop(studentId, dayKey, taskKey) {
-  if (!assemblyState.canEdit) return;
+  if (!assemblyState.canEnter) return;
   const assignDate = document.getElementById('assemblyDate')?.value || '';
   const department = document.getElementById('assemblyDepartment')?.value || '';
   const className = document.getElementById('assemblyClass')?.value || '';
@@ -881,8 +899,20 @@ async function assignStudentViaDragDrop(studentId, dayKey, taskKey) {
   const weekStart = getSaturdayOfDate(assignDate);
   const dayLabelStr = DAY_LABELS[dayKey] || 'دن';
 
-  // Conflict checking
+  // Overwrite guard: students cannot overwrite already assigned slots
   const allWeek = window.allWeekAssignmentsCache || [];
+  const occupied = allWeek.find(item => 
+      item.dayKey === dayKey && 
+      item.taskKey === taskKey &&
+      item.className === className &&
+      normalizeAssemblyToken(item.section || '') === normalizeAssemblyToken(section)
+  );
+  if (occupied && !assemblyState.canEdit) {
+      alert('اس خانے میں پہلے ہی ڈیوٹی تفویض ہو چکی ہے۔ تبدیل کرنے کے لیے اپنے استاد یا ناظم سے رابطہ کریں۔');
+      return;
+  }
+
+  // Conflict checking for same student
   const conflict = allWeek.find(item => 
       item.dayKey === dayKey && 
       item.assigneeId === studentId && 
