@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Progress & Exam Score Center - Idara Misbah ul Quran</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --glass-shadow: rgba(31, 38, 135, 0.05);
+            --accent-glow: rgba(99, 102, 241, 0.15);
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 var(--glass-shadow);
+            border-radius: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.1);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .filters-wrapper {
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .filters-wrapper select,
+        .filters-wrapper input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: var(--white);
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .filters-wrapper select:focus,
+        .filters-wrapper input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 0.75rem;
+            background: var(--accent-glow);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Tabs Navigation */
+        .tabs-header {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Table Design */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 1rem 1.25rem;
+            text-align: left;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 0.85rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-dark);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* Editable Cell styling */
+        .score-cell {
+            position: relative;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: center;
+            min-width: 90px;
+            transition: background-color 0.2s;
+        }
+
+        .score-cell:hover {
+            background-color: var(--accent-glow) !important;
+            border-radius: 0.25rem;
+        }
+
+        .score-cell .edit-indicator {
+            position: absolute;
+            right: 4px;
+            top: 4px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .score-cell:hover .edit-indicator {
+            opacity: 1;
+        }
+
+        .score-input {
+            width: 60px;
+            padding: 0.35rem;
+            text-align: center;
+            font-weight: 600;
+            border: 2px solid var(--primary-color);
+            border-radius: 0.25rem;
+            outline: none;
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .score-type-tag {
+            font-size: 0.75rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.25rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 0.25rem;
+        }
+
+        .score-type-written {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .score-type-oral {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .score-na {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Analytics Styles */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        @media (min-width: 992px) {
+            .charts-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .chart-box {
+            padding: 1.5rem;
+            border-radius: 1rem;
+            background: var(--white);
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-box h4 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Urdu Specifics */
+        [dir="rtl"] th,
+        [dir="rtl"] td {
+            text-align: right;
+        }
+
+        [dir="rtl"] .score-cell .edit-indicator {
+            right: auto;
+            left: 4px;
+        }
+
+        /* Action Buttons */
+        .action-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            color: var(--text-dark);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: #f8fafc;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            color: var(--white);
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar will be injected dynamically by script.js -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Misbah ul Quran</h2>
+            </div>
+            <ul class="sidebar-menu" id="sidebarNav"></ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-title">
+                    <h1 data-i18n="student_progress">Student Progress & Exam Score Center</h1>
+                </div>
+                <div class="user-profile">
+                    <span id="userName">User</span>
+                    <button class="btn-action" onclick="toggleLanguage()" style="margin-left: 1rem;">اردو / English</button>
+                    <button class="btn-action" onclick="auth.signOut()" data-i18n="logout">Logout</button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-body" id="mainContainer" style="display: none;">
+                <!-- Filter Panel -->
+                <div class="filters-wrapper glass-panel">
+                    <div>
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;" data-i18n="department">Department</label>
+                        <select id="progressDept" onchange="updateClassDropdown()">
+                            <option value="">Select Department</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;" data-i18n="class">Class</label>
+                        <select id="progressClass" onchange="loadClassData()">
+                            <option value="">Select Class</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;" data-i18n="search">Search Student</label>
+                        <input type="text" id="studentSearch" placeholder="Enter student name..." oninput="filterGrid()">
+                    </div>
+                </div>
+
+                <!-- Stats Dashboard -->
+                <div class="stats-grid">
+                    <div class="stat-card glass-panel">
+                        <div class="stat-icon">👨‍🎓</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="statTotalStudents">0</span>
+                            <span class="stat-label" data-i18n="total_students">Total Students</span>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-panel">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="statClassAverage">0%</span>
+                            <span class="stat-label" data-i18n="class_average">Class Average</span>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-panel">
+                        <div class="stat-icon">🎓</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="statPassRate">0%</span>
+                            <span class="stat-label" data-i18n="pass_rate">Passing Rate</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab system -->
+                <div class="tabs-header">
+                    <button class="tab-btn active" onclick="switchTab('scoreGrid')" data-i18n="marks_sheet">Unified Marks Sheet</button>
+                    <button class="tab-btn" onclick="switchTab('analytics')" data-i18n="progress_analytics">Performance Analytics</button>
+                </div>
+
+                <!-- Tab 1: Score Grid -->
+                <div id="tab-scoreGrid" class="tab-content active">
+                    <div class="action-bar">
+                        <button class="btn-action btn-primary" onclick="openAddOralModal()" data-i18n="add_oral_column">Add Oral Exam Column</button>
+                        <button class="btn-action" onclick="exportToPDF()" data-i18n="export_pdf">Export PDF</button>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="unifiedGridTable">
+                            <thead>
+                                <tr id="gridHeaderRow">
+                                    <th style="min-width: 150px;" data-i18n="student_name">Student Name</th>
+                                    <th style="min-width: 100px;" data-i18n="roll_no">Roll No</th>
+                                    <!-- Dynamic headers will be injected here -->
+                                </tr>
+                            </thead>
+                            <tbody id="gridBody">
+                                <tr>
+                                    <td colspan="2" style="text-align: center; padding: 3rem;" class="text-muted" data-i18n="select_class_prompt">Please select a department and class to load the student scorecard.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Analytics -->
+                <div id="tab-analytics" class="tab-content">
+                    <div class="charts-container">
+                        <div class="chart-box glass-panel">
+                            <h4>
+                                <span data-i18n="class_performance_trend">Class Performance Trend</span>
+                            </h4>
+                            <div style="height: 300px; position: relative;">
+                                <canvas id="classTrendChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-box glass-panel">
+                            <h4>
+                                <span data-i18n="student_performance_progression">Individual Student Progression</span>
+                                <select id="chartStudentSelect" onchange="renderStudentChart()" style="width: 180px; padding: 0.35rem; font-size: 0.85rem; margin: 0;">
+                                    <option value="" data-i18n="select_student">Select Student</option>
+                                </select>
+                            </h4>
+                            <div style="height: 300px; position: relative;">
+                                <canvas id="studentTrendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Access Denied Message -->
+            <div id="accessDeniedContainer" style="display: none; padding: 3rem; text-align: center;">
+                <h2 style="color: var(--danger);" data-i18n="access_denied">Access Denied</h2>
+                <p class="text-muted" data-i18n="access_denied_msg">You do not have permission to view or manage student exam scorecards.</p>
+                <a href="../../dashboard.html" class="btn-add" style="margin-top: 1rem;" data-i18n="go_to_dashboard">Go to Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Oral Exam Modal -->
+    <div id="addOralModal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3 style="margin-top:0;" data-i18n="add_oral_column">Add Oral Exam Column</h3>
+            <form id="oralColumnForm" onsubmit="handleAddOralColumn(event)">
+                <div class="form-group" style="margin-bottom:1rem;">
+                    <label style="display:block; margin-bottom:0.5rem;" data-i18n="subject">Subject</label>
+                    <select id="oralSubjectSelect" required>
+                        <option value="">Select Subject</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom:1.5rem;">
+                    <label style="display:block; margin-bottom:0.5rem;" data-i18n="date">Exam Date</label>
+                    <input type="date" id="oralExamDate" required>
+                </div>
+                <div style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end;">
+                    <button type="button" class="btn-action" onclick="closeAddOralModal()" data-i18n="cancel">Cancel</button>
+                    <button type="submit" class="btn-action btn-primary" data-i18n="create">Create Column</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Configuration and Logic -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script>
+        // Local state
+        const state = {
+            currentUser: null,
+            tenantId: 'default',
+            departments: [],
+            classes: [],
+            students: [],
+            exams: [], // Written exams
+            subjects: [], // Subject info (for oral columns)
+            verbalScores: [], // Oral exam scores
+            examMarks: {}, // Key: `${examId}_${studentId}` -> mark object
+            currentClass: '',
+            currentDept: '',
+            columns: [], // List of { type: 'written'|'oral', id: string, name: string, max: number, date: string, subjectId?: string }
+            classChart: null,
+            studentChart: null
+        };
+
+        // Authentication Observer
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = '../../index.html';
+                return;
+            }
+            try {
+                // Load user profile
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                const userData = userDoc.data() || {};
+                state.currentUser = userData;
+                state.tenantId = userData.tenantId || (localStorage.getItem('tenant_id') || 'default');
+
+                document.getElementById('userName').textContent = userData.name || userData.displayName || 'User';
+
+                // Roles validation
+                const allowedRoles = ['admin', 'owner', 'principal', 'teacher', 'nazim_e_taleemaat'];
+                const roles = getUserRoles(userData);
+                const isAllowed = roles.some(role => allowedRoles.includes(role));
+
+                if (isAllowed) {
+                    document.getElementById('mainContainer').style.display = 'block';
+                    document.getElementById('accessDeniedContainer').style.display = 'none';
+                    await initPage();
+                } else {
+                    document.getElementById('mainContainer').style.display = 'none';
+                    document.getElementById('accessDeniedContainer').style.display = 'block';
+                }
+            } catch (err) {
+                console.error("Auth initialization failed:", err);
+                document.getElementById('mainContainer').style.display = 'none';
+                document.getElementById('accessDeniedContainer').style.display = 'block';
+            }
+        });
+
+        async function initPage() {
+            // Setup Sidebar
+            if (typeof renderSidebar === 'function') {
+                renderSidebar(state.currentUser);
+            }
+            
+            // Load filters
+            await loadFilterDepartments();
+            if (typeof updatePageLanguage === 'function') {
+                updatePageLanguage();
+            }
+        }
+
+        // Helper to retrieve roles
+        function getUserRoles(user) {
+            if (!user) return [];
+            const r = [];
+            if (user.role) r.push(user.role);
+            if (user.roles && Array.isArray(user.roles)) {
+                user.roles.forEach(role => { if (!r.includes(role)) r.push(role); });
+            }
+            return r;
+        }
+
+        // --- FILTERS LOADERS ---
+        async function loadFilterDepartments() {
+            const select = document.getElementById('progressDept');
+            if (!select) return;
+            select.innerHTML = `<option value="" data-i18n="select_department">${getTrans('select_department') || 'Select Department'}</option>`;
+
+            let docs = [];
+            try {
+                const snap = await db.collection('departments').where('tenantId', '==', state.tenantId).get();
+                snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+            } catch (e) {
+                console.warn('Error fetching departments:', e);
+            }
+
+            if (docs.length === 0) {
+                try {
+                    const snap = await db.collection('departments').get();
+                    snap.forEach(doc => {
+                        const data = doc.data() || {};
+                        if (!data.tenantId || data.tenantId === state.tenantId || data.tenantId === 'default') {
+                            docs.push({ id: doc.id, ...data });
+                        }
+                    });
+                } catch (e2) {
+                    console.error('Fallback departments failed:', e2);
+                }
+            }
+
+            docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+            state.departments = docs;
+
+            docs.forEach(data => {
+                const opt = document.createElement('option');
+                opt.value = data.name;
+                opt.innerText = data.name_ur || data.name;
+                select.appendChild(opt);
+            });
+        }
+
+        async function updateClassDropdown() {
+            const dept = document.getElementById('progressDept').value;
+            const select = document.getElementById('progressClass');
+            if (!select) return;
+            select.innerHTML = `<option value="" data-i18n="select_class">${getTrans('select_class') || 'Select Class'}</option>`;
+            
+            // Clear stats and table
+            document.getElementById('statTotalStudents').textContent = '0';
+            document.getElementById('statClassAverage').textContent = '0%';
+            document.getElementById('statPassRate').textContent = '0%';
+            document.getElementById('gridBody').innerHTML = `<tr><td colspan="2" style="text-align: center; padding: 3rem;" class="text-muted" data-i18n="select_class_prompt">${getTrans('select_class_prompt') || 'Please select a department and class to load.'}</td></tr>`;
+
+            if (!dept) return;
+
+            let docs = [];
+            try {
+                const snap = await db.collection('classes').where('tenantId', '==', state.tenantId).where('department', '==', dept).get();
+                snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+            } catch (e) {
+                console.warn('Error fetching classes:', e);
+            }
+
+            if (docs.length === 0) {
+                try {
+                    const snap = await db.collection('classes').get();
+                    snap.forEach(doc => {
+                        const data = doc.data() || {};
+                        if (!data.tenantId || data.tenantId === state.tenantId || data.tenantId === 'default') {
+                            if (data.department === dept) {
+                                docs.push({ id: doc.id, ...data });
+                            }
+                        }
+                    });
+                } catch (e2) {
+                    console.error('Fallback classes failed:', e2);
+                }
+            }
+
+            docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+            state.classes = docs;
+
+            docs.forEach(data => {
+                const opt = document.createElement('option');
+                opt.value = data.name;
+                opt.innerText = data.name_ur || data.name;
+                select.appendChild(opt);
+            });
+            if (typeof updatePageLanguage === 'function') updatePageLanguage();
+        }
+
+        // --- CORE DATA LOADING ---
+        async function loadClassData() {
+            const dept = document.getElementById('progressDept').value;
+            const className = document.getElementById('progressClass').value;
+            if (!dept || !className) return;
+
+            state.currentDept = dept;
+            state.currentClass = className;
+
+            const tbody = document.getElementById('gridBody');
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 3rem;"><div class="skeleton-row" style="margin-bottom:0.5rem;"><div class="skeleton" style="width:100%; height:20px;"></div></div><div class="skeleton-row" style="margin-bottom:0.5rem;"><div class="skeleton" style="width:100%; height:20px;"></div></div><div class="skeleton-row"><div class="skeleton" style="width:100%; height:20px;"></div></div></td></tr>`;
+
+            try {
+                // 1. Fetch Students
+                let students = [];
+                const studentsSnap = await db.collection('students')
+                    .where('tenantId', '==', state.tenantId)
+                    .where('department', '==', dept)
+                    .where('className', '==', className)
+                    .get();
+                studentsSnap.forEach(doc => students.push({ id: doc.id, ...doc.data() }));
+
+                if (students.length === 0) {
+                    const snap = await db.collection('students').get();
+                    snap.forEach(doc => {
+                        const data = doc.data() || {};
+                        if (!data.tenantId || data.tenantId === state.tenantId || data.tenantId === 'default') {
+                            if (data.department === dept && data.className === className) {
+                                students.push({ id: doc.id, ...data });
+                            }
+                        }
+                    });
+                }
+                students.sort((a, b) => String(a.firstName || a.name || '').localeCompare(String(b.firstName || b.name || '')));
+                state.students = students;
+
+                // 2. Fetch Written Exams
+                let exams = [];
+                const examsSnap = await db.collection('exams')
+                    .where('tenantId', '==', state.tenantId)
+                    .where('department', '==', dept)
+                    .where('className', '==', className)
+                    .get();
+                examsSnap.forEach(doc => exams.push({ id: doc.id, ...doc.data() }));
+
+                if (exams.length === 0) {
+                    const snap = await db.collection('exams').get();
+                    snap.forEach(doc => {
+                        const data = doc.data() || {};
+                        if (!data.tenantId || data.tenantId === state.tenantId || data.tenantId === 'default') {
+                            if (data.department === dept && data.className === className) {
+                                exams.push({ id: doc.id, ...data });
+                            }
+                        }
+                    });
+                }
+                exams.sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')));
+                state.exams = exams;
+
+                // 3. Fetch Subjects (for modal and orals)
+                let subjects = [];
+                const subjectsSnap = await db.collection('subjects')
+                    .where('tenantId', '==', state.tenantId)
+                    .where('department', '==', dept)
+                    .where('className', '==', className)
+                    .get();
+                subjectsSnap.forEach(doc => subjects.push({ id: doc.id, ...doc.data() }));
+
+                if (subjects.length === 0) {
+                    const snap = await db.collection('subjects').get();
+                    snap.forEach(doc => {
+                        const data = doc.data() || {};
+                        if (!data.tenantId || data.tenantId === state.tenantId || data.tenantId === 'default') {
+                            if (data.department === dept && data.className === className) {
+                                subjects.push({ id: doc.id, ...data });
+                            }
+                        }
+                    });
+                }
+                state.subjects = subjects;
+
+                // 4. Fetch Verbal/Oral Exam Scores
+                let verbalScores = [];
+                const verbalSnap = await db.collection('verbal_exam_scores')
+                    .where('tenantId', '==', state.tenantId)
+                    .where('department', '==', dept)
+                    .where('className', '==', className)
+                    .get();
+                verbalSnap.forEach(doc => verbalScores.push({ id: doc.id, ...doc.data() }));
+
+                if (verbalScores.length === 0) {
+                    const snap = await db.collection('verbal_exam_scores').get();
+                    snap.forEach(doc => {
+                        const data = doc.data() || {};
+                        if (!data.tenantId || data.tenantId === state.tenantId || data.tenantId === 'default') {
+                            if (data.department === dept && data.className === className) {
+                                verbalScores.push({ id: doc.id, ...data });
+                            }
+                        }
+                    });
+                }
+                state.verbalScores = verbalScores;
+
+                // 5. Fetch Written Marks in parallel
+                state.examMarks = {};
+                if (exams.length > 0) {
+                    const marksPromises = exams.map(e => 
+                        db.collection('exam_marks')
+                            .where('examId', '==', e.id)
+                            .get()
+                    );
+                    const marksSnapshots = await Promise.all(marksPromises);
+                    marksSnapshots.forEach(snap => {
+                        snap.forEach(doc => {
+                            const data = doc.data() || {};
+                            const key = `${data.examId}_${data.studentId}`;
+                            state.examMarks[key] = { id: doc.id, ...data };
+                        });
+                    });
+                }
+
+                // Compile Columns list
+                compileColumns();
+
+                // Build scorecard table
+                buildUnifiedGrid();
+
+                // Compute Metrics
+                computeMetrics();
+
+                // Populate student select for charts
+                populateStudentChartSelect();
+
+                // Render Charts
+                renderCharts();
+
+            } catch (err) {
+                console.error("Error loading scorecard data:", err);
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Error: ${err.message}</td></tr>`;
+            }
+        }
+
+        function compileColumns() {
+            const columns = [];
+            
+            // Add written exams
+            state.exams.forEach(e => {
+                columns.push({
+                    type: 'written',
+                    id: e.id,
+                    name: `${e.subject} (${e.examType})`,
+                    name_ur: `${e.subject_ur || e.subject} (${e.examType})`,
+                    max: e.maxMarks || 100,
+                    date: e.date || ''
+                });
+            });
+
+            // Add oral/verbal unique subject+date combinations
+            const uniqueOrals = new Set();
+            state.verbalScores.forEach(vs => {
+                const key = `${vs.subjectId}__${vs.examDate}`;
+                if (!uniqueOrals.has(key)) {
+                    uniqueOrals.add(key);
+                    columns.push({
+                        type: 'oral',
+                        id: key,
+                        subjectId: vs.subjectId,
+                        subjectName: vs.subject || '',
+                        name: `Oral: ${vs.subject}`,
+                        name_ur: `زبانی: ${vs.subject_ur || vs.subject}`,
+                        max: 20, // Verbal scores standard scale
+                        date: vs.examDate
+                    });
+                }
+            });
+
+            // Sort columns by date
+            columns.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+            state.columns = columns;
+        }
+
+        // --- GRID RENDERING ---
+        function buildUnifiedGrid() {
+            const headerRow = document.getElementById('gridHeaderRow');
+            const tbody = document.getElementById('gridBody');
+
+            // Reset headers, keep first two
+            headerRow.innerHTML = `
+                <th style="min-width: 180px;" data-i18n="student_name">${getTrans('student_name') || 'Student Name'}</th>
+                <th style="min-width: 100px;" data-i18n="roll_no">${getTrans('roll_no') || 'Roll No'}</th>
+            `;
+
+            // Append dynamic exam headers
+            state.columns.forEach(col => {
+                const th = document.createElement('th');
+                th.style.textAlign = 'center';
+                th.style.minWidth = '120px';
+                
+                const label = document.createElement('div');
+                label.style.fontWeight = '700';
+                label.textContent = state.currentUser?.language === 'ur' ? (col.name_ur || col.name) : col.name;
+                th.appendChild(label);
+
+                const meta = document.createElement('div');
+                meta.style.fontSize = '0.75rem';
+                meta.style.color = 'var(--text-muted)';
+                meta.style.fontWeight = '500';
+                meta.textContent = `${col.date || ''} (${col.max}m)`;
+                th.appendChild(meta);
+
+                const typeTag = document.createElement('span');
+                typeTag.className = `score-type-tag ${col.type === 'written' ? 'score-type-written' : 'score-type-oral'}`;
+                typeTag.textContent = col.type === 'written' ? (getTrans('written') || 'Written') : (getTrans('verbal') || 'Oral');
+                th.appendChild(typeTag);
+
+                headerRow.appendChild(th);
+            });
+
+            if (state.students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${2 + state.columns.length}" style="text-align: center; padding: 3rem;" class="text-muted" data-i18n="no_students_found">${getTrans('no_students_found') || 'No students found.'}</td></tr>`;
+                return;
+            }
+
+            // Populate rows
+            let html = '';
+            state.students.forEach(std => {
+                const name = std.name_ur || `${std.firstName || ''} ${std.lastName || ''}`.trim() || std.name || std.id;
+                html += `<tr data-student-id="${std.id}">
+                    <td style="font-weight: 600;">${name}</td>
+                    <td style="font-family: monospace;">${std.rollNumber || '—'}</td>
+                `;
+
+                state.columns.forEach(col => {
+                    let score = '—';
+                    let numericVal = '';
+                    
+                    if (col.type === 'written') {
+                        const markKey = `${col.id}_${std.id}`;
+                        const record = state.examMarks[markKey];
+                        if (record && record.obtainedMarks !== undefined && record.obtainedMarks !== null) {
+                            score = `${record.obtainedMarks}`;
+                            numericVal = record.obtainedMarks;
+                        }
+                    } else if (col.type === 'oral') {
+                        const record = state.verbalScores.find(vs => 
+                            vs.studentId === std.id && 
+                            vs.subjectId === col.subjectId && 
+                            vs.examDate === col.date
+                        );
+                        if (record && record.total !== undefined && record.total !== null) {
+                            score = `${record.total}`;
+                            numericVal = record.total;
+                        }
+                    }
+
+                    const naClass = score === '—' ? 'score-na' : '';
+                    html += `
+                        <td class="score-cell ${naClass}" 
+                            data-student-id="${std.id}" 
+                            data-column-type="${col.type}" 
+                            data-column-id="${col.id}"
+                            data-max-val="${col.max}"
+                            data-value="${numericVal}"
+                            onclick="makeCellEditable(this)">
+                            <span class="cell-text">${score}</span>
+                            <span class="edit-indicator">✏️</span>
+                        </td>
+                    `;
+                });
+
+                html += '</tr>';
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // --- INLINE EDITING ---
+        function makeCellEditable(cell) {
+            // If already editing, do nothing
+            if (cell.querySelector('input')) return;
+
+            const originalSpan = cell.querySelector('.cell-text');
+            const currentValue = cell.getAttribute('data-value') || '';
+            const maxVal = parseFloat(cell.getAttribute('data-max-val') || '100');
+
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'score-input';
+            input.value = currentValue;
+            input.min = '0';
+            input.max = maxVal;
+            input.step = '0.5';
+
+            originalSpan.style.display = 'none';
+            cell.querySelector('.edit-indicator').style.display = 'none';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+
+            // Handle save on blur or Enter
+            const saveFn = async () => {
+                const newValStr = input.value.trim();
+                originalSpan.style.display = '';
+                cell.querySelector('.edit-indicator').style.display = '';
+                
+                if (newValStr === currentValue) {
+                    input.remove();
+                    return;
+                }
+
+                if (newValStr === '') {
+                    // Empty marks entry
+                    originalSpan.textContent = '—';
+                    cell.setAttribute('data-value', '');
+                    input.remove();
+                    await deleteScoreInDatabase(cell);
+                    return;
+                }
+
+                const val = parseFloat(newValStr);
+                if (isNaN(val) || val < 0 || val > maxVal) {
+                    alert(`Invalid score! Must be between 0 and ${maxVal}`);
+                    originalSpan.textContent = currentValue || '—';
+                    input.remove();
+                    return;
+                }
+
+                originalSpan.textContent = `${val}`;
+                cell.setAttribute('data-value', val);
+                input.remove();
+                
+                await saveScoreToDatabase(cell, val);
+            };
+
+            input.onblur = saveFn;
+            input.onkeydown = (e) => {
+                if (e.key === 'Enter') {
+                    input.blur();
+                } else if (e.key === 'Escape') {
+                    originalSpan.textContent = currentValue || '—';
+                    originalSpan.style.display = '';
+                    cell.querySelector('.edit-indicator').style.display = '';
+                    input.remove();
+                }
+            };
+        }
+
+        async function saveScoreToDatabase(cell, val) {
+            const studentId = cell.getAttribute('data-student-id');
+            const colType = cell.getAttribute('data-column-type');
+            const colId = cell.getAttribute('data-column-id');
+            const maxVal = parseFloat(cell.getAttribute('data-max-val') || '100');
+
+            const stdObj = state.students.find(s => s.id === studentId);
+            const stdName = stdObj ? (stdObj.name_ur || `${stdObj.firstName || ''} ${stdObj.lastName || ''}`.trim()) : '';
+            const stdRoll = stdObj ? (stdObj.rollNumber || '') : '';
+
+            try {
+                if (colType === 'written') {
+                    const docId = `${colId}_${studentId}`;
+                    const ref = db.collection('exam_marks').doc(docId);
+                    await ref.set({
+                        examId: colId,
+                        studentId: studentId,
+                        studentName: stdName,
+                        rollNumber: stdRoll,
+                        obtainedMarks: val,
+                        totalMarks: maxVal,
+                        tenantId: state.tenantId,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+
+                    // Update local cache
+                    state.examMarks[docId] = {
+                        id: docId,
+                        examId: colId,
+                        studentId: studentId,
+                        obtainedMarks: val,
+                        totalMarks: maxVal
+                    };
+
+                } else if (colType === 'oral') {
+                    // colId is subjectId__examDate
+                    const parts = colId.split('__');
+                    const subjectId = parts[0];
+                    const examDate = parts[1];
+                    const subObj = state.subjects.find(s => s.id === subjectId) || {};
+
+                    const docId = buildVerbalScoreDocId(examDate, state.currentClass, subjectId, studentId);
+                    const ref = db.collection('verbal_exam_scores').doc(docId);
+                    await ref.set({
+                        examDate: examDate,
+                        department: state.currentDept,
+                        className: state.currentClass,
+                        subjectId: subjectId,
+                        subject: subObj.name || '',
+                        subject_ur: subObj.name_ur || subObj.name || '',
+                        studentId: studentId,
+                        studentName: stdName,
+                        rollNumber: stdRoll,
+                        total: val,
+                        scores: { total: val }, // sub-criteria default to flat total
+                        tenantId: state.tenantId,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+
+                    // Update local cache
+                    const existingIdx = state.verbalScores.findIndex(vs => 
+                        vs.studentId === studentId && 
+                        vs.subjectId === subjectId && 
+                        vs.examDate === examDate
+                    );
+                    const updatedObj = {
+                        id: docId,
+                        examDate,
+                        department: state.currentDept,
+                        className: state.currentClass,
+                        subjectId,
+                        studentId,
+                        total: val
+                    };
+                    if (existingIdx > -1) {
+                        state.verbalScores[existingIdx] = updatedObj;
+                    } else {
+                        state.verbalScores.push(updatedObj);
+                    }
+                }
+
+                // Recompute dashboard metrics dynamically
+                computeMetrics();
+                renderCharts();
+
+            } catch (err) {
+                console.error("Save score failed:", err);
+                alert("Error saving score: " + err.message);
+                cell.querySelector('.cell-text').textContent = '—';
+                cell.setAttribute('data-value', '');
+            }
+        }
+
+        async function deleteScoreInDatabase(cell) {
+            const studentId = cell.getAttribute('data-student-id');
+            const colType = cell.getAttribute('data-column-type');
+            const colId = cell.getAttribute('data-column-id');
+
+            try {
+                if (colType === 'written') {
+                    const docId = `${colId}_${studentId}`;
+                    await db.collection('exam_marks').doc(docId).delete();
+                    delete state.examMarks[docId];
+                } else if (colType === 'oral') {
+                    const parts = colId.split('__');
+                    const subjectId = parts[0];
+                    const examDate = parts[1];
+                    const docId = buildVerbalScoreDocId(examDate, state.currentClass, subjectId, studentId);
+                    await db.collection('verbal_exam_scores').doc(docId).delete();
+                    
+                    state.verbalScores = state.verbalScores.filter(vs => 
+                        !(vs.studentId === studentId && vs.subjectId === subjectId && vs.examDate === examDate)
+                    );
+                }
+
+                computeMetrics();
+                renderCharts();
+            } catch (err) {
+                console.error("Delete score failed:", err);
+            }
+        }
+
+        function buildVerbalScoreDocId(examDate, className, subjectId, studentId) {
+            return [examDate, className, subjectId, studentId]
+                .map(value => String(value || '').trim().replace(/[\/\\?#%\*:|"<>]/g, '-').replace(/\s+/g, '_'))
+                .filter(Boolean)
+                .join('__');
+        }
+
+        // --- DASHBOARD METRICS ---
+        function computeMetrics() {
+            const totalStudents = state.students.length;
+            document.getElementById('statTotalStudents').textContent = totalStudents;
+
+            if (totalStudents === 0 || state.columns.length === 0) {
+                document.getElementById('statClassAverage').textContent = '0%';
+                document.getElementById('statPassRate').textContent = '0%';
+                return;
+            }
+
+            let classTotalObtained = 0;
+            let classTotalMax = 0;
+            let passedStudentsCount = 0;
+
+            state.students.forEach(std => {
+                let stdObtained = 0;
+                let stdMax = 0;
+                let examsTaken = 0;
+
+                state.columns.forEach(col => {
+                    if (col.type === 'written') {
+                        const record = state.examMarks[`${col.id}_${std.id}`];
+                        if (record && record.obtainedMarks !== undefined && record.obtainedMarks !== null) {
+                            stdObtained += record.obtainedMarks;
+                            stdMax += col.max;
+                            examsTaken++;
+                        }
+                    } else if (col.type === 'oral') {
+                        const record = state.verbalScores.find(vs => 
+                            vs.studentId === std.id && 
+                            vs.subjectId === col.subjectId && 
+                            vs.examDate === col.date
+                        );
+                        if (record && record.total !== undefined && record.total !== null) {
+                            stdObtained += record.total;
+                            stdMax += col.max;
+                            examsTaken++;
+                        }
+                    }
+                });
+
+                if (stdMax > 0) {
+                    classTotalObtained += stdObtained;
+                    classTotalMax += stdMax;
+
+                    const percentage = (stdObtained / stdMax) * 100;
+                    if (percentage >= 50) {
+                        passedStudentsCount++;
+                    }
+                }
+            });
+
+            const classAverage = classTotalMax > 0 ? Math.round((classTotalObtained / classTotalMax) * 100) : 0;
+            const passRate = totalStudents > 0 ? Math.round((passedStudentsCount / totalStudents) * 100) : 0;
+
+            document.getElementById('statClassAverage').textContent = `${classAverage}%`;
+            document.getElementById('statPassRate').textContent = `${passRate}%`;
+        }
+
+        // --- TABS CONTROL ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Find clicked button
+            const clickedBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+            if (clickedBtn) clickedBtn.classList.add('active');
+
+            const contentEl = document.getElementById(`tab-${tabId}`);
+            if (contentEl) contentEl.classList.add('active');
+
+            if (tabId === 'analytics') {
+                setTimeout(renderCharts, 100);
+            }
+        }
+
+        // --- ADD ORAL COLUMN MODAL ---
+        function openAddOralModal() {
+            const select = document.getElementById('oralSubjectSelect');
+            select.innerHTML = '<option value="">Select Subject</option>';
+            
+            state.subjects.forEach(sub => {
+                const opt = document.createElement('option');
+                opt.value = sub.id;
+                opt.innerText = (state.currentUser?.language === 'ur' ? (sub.name_ur || sub.name) : sub.name) || '';
+                select.appendChild(opt);
+            });
+
+            document.getElementById('oralExamDate').value = new Date().toISOString().slice(0,10);
+            document.getElementById('addOralModal').classList.add('active');
+        }
+
+        function closeAddOralModal() {
+            document.getElementById('addOralModal').classList.remove('active');
+        }
+
+        async function handleAddOralColumn(e) {
+            e.preventDefault();
+            const subjectId = document.getElementById('oralSubjectSelect').value;
+            const examDate = document.getElementById('oralExamDate').value;
+            if (!subjectId || !examDate) return;
+
+            const key = `${subjectId}__${examDate}`;
+            // Check if column already exists
+            const exists = state.columns.some(col => col.id === key);
+            if (exists) {
+                alert("Oral column for this subject and date already exists!");
+                return;
+            }
+
+            const subObj = state.subjects.find(s => s.id === subjectId) || {};
+
+            // Add dummy score document in DB to persist the column existence
+            const docId = buildVerbalScoreDocId(examDate, state.currentClass, subjectId, 'placeholder');
+            try {
+                await db.collection('verbal_exam_scores').doc(docId).set({
+                    examDate: examDate,
+                    department: state.currentDept,
+                    className: state.currentClass,
+                    subjectId: subjectId,
+                    subject: subObj.name || '',
+                    subject_ur: subObj.name_ur || subObj.name || '',
+                    studentId: 'placeholder',
+                    studentName: 'Column Placeholder',
+                    total: 0,
+                    tenantId: state.tenantId,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                closeAddOralModal();
+                await loadClassData(); // Reload scorecard
+            } catch (err) {
+                alert("Failed to create oral column: " + err.message);
+            }
+        }
+
+        // --- CHARTS & ANALYTICS ---
+        function populateStudentChartSelect() {
+            const select = document.getElementById('chartStudentSelect');
+            if (!select) return;
+            select.innerHTML = `<option value="">${getTrans('select_student') || 'Select Student'}</option>`;
+
+            state.students.forEach(std => {
+                const opt = document.createElement('option');
+                opt.value = std.id;
+                opt.innerText = std.name_ur || `${std.firstName || ''} ${std.lastName || ''}`.trim() || std.name;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderCharts() {
+            renderClassTrendChart();
+            renderStudentChart();
+        }
+
+        function renderClassTrendChart() {
+            const ctx = document.getElementById('classTrendChart');
+            if (!ctx) return;
+
+            if (state.classChart) {
+                state.classChart.destroy();
+                state.classChart = null;
+            }
+
+            if (state.columns.length === 0) return;
+
+            // X-axis: Exam names
+            const labels = state.columns.map(col => state.currentUser?.language === 'ur' ? (col.name_ur || col.name) : col.name);
+            
+            // Y-axis: Class Average percentage for each exam
+            const dataPoints = state.columns.map(col => {
+                let colSum = 0;
+                let count = 0;
+
+                state.students.forEach(std => {
+                    if (col.type === 'written') {
+                        const record = state.examMarks[`${col.id}_${std.id}`];
+                        if (record && record.obtainedMarks !== undefined && record.obtainedMarks !== null) {
+                            colSum += (record.obtainedMarks / col.max) * 100;
+                            count++;
+                        }
+                    } else if (col.type === 'oral') {
+                        const record = state.verbalScores.find(vs => 
+                            vs.studentId === std.id && 
+                            vs.subjectId === col.subjectId && 
+                            vs.examDate === col.date
+                        );
+                        if (record && record.total !== undefined && record.total !== null) {
+                            colSum += (record.total / col.max) * 100;
+                            count++;
+                        }
+                    }
+                });
+
+                return count > 0 ? Math.round(colSum / count) : null;
+            });
+
+            state.classChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: state.currentUser?.language === 'ur' ? 'کلاس اوسط (%)' : 'Class Average (%)',
+                        data: dataPoints,
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        spanGaps: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: '%'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderStudentChart() {
+            const ctx = document.getElementById('studentTrendChart');
+            const studentId = document.getElementById('chartStudentSelect').value;
+            if (!ctx) return;
+
+            if (state.studentChart) {
+                state.studentChart.destroy();
+                state.studentChart = null;
+            }
+
+            if (!studentId || state.columns.length === 0) return;
+
+            const labels = state.columns.map(col => state.currentUser?.language === 'ur' ? (col.name_ur || col.name) : col.name);
+            const dataPoints = state.columns.map(col => {
+                if (col.type === 'written') {
+                    const record = state.examMarks[`${col.id}_${studentId}`];
+                    if (record && record.obtainedMarks !== undefined && record.obtainedMarks !== null) {
+                        return Math.round((record.obtainedMarks / col.max) * 100);
+                    }
+                } else if (col.type === 'oral') {
+                    const record = state.verbalScores.find(vs => 
+                        vs.studentId === studentId && 
+                        vs.subjectId === col.subjectId && 
+                        vs.examDate === col.date
+                    );
+                    if (record && record.total !== undefined && record.total !== null) {
+                        return Math.round((record.total / col.max) * 100);
+                    }
+                }
+                return null;
+            });
+
+            state.studentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: state.currentUser?.language === 'ur' ? 'طالب علم کا سکور (%)' : 'Student Score (%)',
+                        data: dataPoints,
+                        backgroundColor: '#10b981',
+                        borderColor: '#059669',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- FILTERING GRID SEARCH ---
+        function filterGrid() {
+            const query = document.getElementById('studentSearch').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#gridBody tr');
+
+            rows.forEach(row => {
+                const nameCell = row.querySelector('td');
+                if (nameCell) {
+                    const name = nameCell.textContent.toLowerCase();
+                    row.style.display = name.includes(query) ? '' : 'none';
+                }
+            });
+        }
+
+        // --- PDF EXPORT FUNCTION ---
+        function exportToPDF() {
+            if (state.students.length === 0) return;
+            
+            const rows = [];
+            const headers = [
+                getTrans('student_name') || 'Student Name',
+                getTrans('roll_no') || 'Roll No'
+            ];
+
+            state.columns.forEach(col => {
+                headers.push(state.currentUser?.language === 'ur' ? (col.name_ur || col.name) : col.name);
+            });
+
+            state.students.forEach(std => {
+                const name = std.name_ur || `${std.firstName || ''} ${std.lastName || ''}`.trim() || std.name;
+                const row = [name, std.rollNumber || '—'];
+                
+                state.columns.forEach(col => {
+                    let score = '—';
+                    if (col.type === 'written') {
+                        const record = state.examMarks[`${col.id}_${std.id}`];
+                        if (record && record.obtainedMarks !== undefined && record.obtainedMarks !== null) {
+                            score = `${record.obtainedMarks}/${col.max}`;
+                        }
+                    } else if (col.type === 'oral') {
+                        const record = state.verbalScores.find(vs => 
+                            vs.studentId === std.id && 
+                            vs.subjectId === col.subjectId && 
+                            vs.examDate === col.date
+                        );
+                        if (record && record.total !== undefined && record.total !== null) {
+                            score = `${record.total}/${col.max}`;
+                        }
+                    }
+                    row.push(score);
+                });
+                rows.push(row);
+            });
+
+            if (window.PDFSnapshot && typeof window.PDFSnapshot.generate === 'function') {
+                window.PDFSnapshot.generate({
+                    title: `Student Scorecard Report - ${state.currentClass}`,
+                    columns: headers,
+                    data: rows
+                }).catch(err => {
+                    console.error("PDF generation failed:", err);
+                    alert("PDF export failed.");
+                });
+            } else {
+                alert("PDF Snapshot utility not loaded.");
+            }
+        }
+
+        // Toggle Language logic wrapper
+        function toggleLanguage() {
+            if (typeof toggleLang === 'function') {
+                toggleLang();
+            } else {
+                const curr = state.currentUser?.language || 'en';
+                const next = curr === 'en' ? 'ur' : 'en';
+                if (state.currentUser) state.currentUser.language = next;
+                if (typeof updatePageLanguage === 'function') updatePageLanguage();
+            }
+            loadClassData(); // Redraw UI
+        }
+    </script>
+</body>
+
+</html>

@@ -1898,6 +1898,7 @@ function renderSidebar(userOrRole) {
         admin: [
             { name: (getTrans('academic_planner') !== 'academic_planner') ? getTrans('academic_planner') : 'Academic Planner', icon: '📅', href: basePath + 'pages/admin/academic_planner.html' },
             { name: getTrans('nazim_verbal_exam') !== 'nazim_verbal_exam' ? getTrans('nazim_verbal_exam') : 'Verbal Exam Scores', icon: '🗣️', href: basePath + 'pages/nazim/verbal_exam.html' },
+            { name: getTrans('student_progress') !== 'student_progress' ? getTrans('student_progress') : 'Student Progress', icon: '📈', href: basePath + 'pages/shared/student_progress.html' },
             { name: getTrans('timetable'), icon: '📅', href: basePath + 'pages/admin/timetable.html' },
             { name: getTrans('attendance'), icon: '✅', href: basePath + 'pages/admin/attendance.html' },
             { name: getTrans('students'), icon: '👨‍🎓', href: basePath + 'pages/admin/students.html' },
@@ -1926,6 +1927,7 @@ function renderSidebar(userOrRole) {
         principal: 'admin',
         teacher: [
             { name: getTrans('portal'), icon: '🏠', href: basePath + 'pages/teacher/portal.html' },
+            { name: getTrans('student_progress') !== 'student_progress' ? getTrans('student_progress') : 'Student Progress', icon: '📈', href: basePath + 'pages/shared/student_progress.html' },
             { name: getTrans('attendance'), icon: '✅', href: basePath + 'pages/teacher/attendance.html' },
             { name: getTrans('attendance_report'), icon: '📄', href: basePath + 'pages/teacher/attendance-report.html' },
             { name: getTrans('grades'), icon: '📊', href: basePath + 'pages/teacher/grades.html' },
@@ -1936,6 +1938,7 @@ function renderSidebar(userOrRole) {
         ],
         nazim_e_taleemaat: [
             { name: getTrans('portal'), icon: '🏠', href: basePath + 'dashboard.html' },
+            { name: getTrans('student_progress') !== 'student_progress' ? getTrans('student_progress') : 'Student Progress', icon: '📈', href: basePath + 'pages/shared/student_progress.html' },
             { name: getTrans('nazim_verbal_exam') !== 'nazim_verbal_exam' ? getTrans('nazim_verbal_exam') : 'Verbal Exam Scores', icon: '🗣️', href: basePath + 'pages/nazim/verbal_exam.html' },
             { name: (getTrans('academic_planner') !== 'academic_planner') ? getTrans('academic_planner') : 'Academic Planner', icon: '📅', href: basePath + 'pages/admin/academic_planner.html' },
             { name: getTrans('students'), icon: '👨‍🎓', href: basePath + 'pages/admin/students.html' },
