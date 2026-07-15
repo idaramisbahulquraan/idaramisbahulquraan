@@ -1087,12 +1087,18 @@ function updatePageLanguage() {
 // Helper to get translation
 function getTrans(key) {
     try {
-        if (typeof translations === 'undefined' || !translations) return key;
+        if (typeof translations === 'undefined' || !translations) return toTitleCase(key);
         const langPack = translations[currentLang] || translations.en || {};
-        return langPack[key] || key;
+        return langPack[key] || toTitleCase(key);
     } catch (e) {
-        return key;
+        return toTitleCase(key);
     }
+}
+
+function toTitleCase(str) {
+    return String(str)
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase());
 }
 
 function getTransOr(key, fallback) {
@@ -1896,27 +1902,27 @@ function renderSidebar(userOrRole) {
     const roleLinks = {
         owner: 'admin',
         admin: [
-            { name: getTrans('handbook') !== 'handbook' ? getTrans('handbook') : 'User Handbook', icon: '📘', href: basePath + 'pages/shared/handbook.html' },
-            { name: (getTrans('academic_planner') !== 'academic_planner') ? getTrans('academic_planner') : 'Academic Planner', icon: '📅', href: basePath + 'pages/admin/academic_planner.html' },
-            { name: getTrans('nazim_verbal_exam') !== 'nazim_verbal_exam' ? getTrans('nazim_verbal_exam') : 'Verbal Exam Scores', icon: '🗣️', href: basePath + 'pages/nazim/verbal_exam.html' },
-            { name: getTrans('student_progress') !== 'student_progress' ? getTrans('student_progress') : 'Student Progress', icon: '📈', href: basePath + 'pages/shared/student_progress.html' },
+            { name: getTrans('handbook'), icon: '📘', href: basePath + 'pages/shared/handbook.html' },
+            { name: getTrans('academic_planner'), icon: '📅', href: basePath + 'pages/admin/academic_planner.html' },
+            { name: getTrans('nazim_verbal_exam'), icon: '🗣️', href: basePath + 'pages/nazim/verbal_exam.html' },
+            { name: getTrans('student_progress'), icon: '📈', href: basePath + 'pages/shared/student_progress.html' },
             { name: getTrans('timetable'), icon: '📅', href: basePath + 'pages/admin/timetable.html' },
             { name: getTrans('attendance'), icon: '✅', href: basePath + 'pages/admin/attendance.html' },
             { name: getTrans('students'), icon: '👨‍🎓', href: basePath + 'pages/admin/students.html' },
             { name: getTrans('teachers'), icon: '👨‍🏫', href: basePath + 'pages/admin/teachers.html' },
             { name: getTrans('classes'), icon: '🏫', href: basePath + 'pages/admin/classes.html' },
             { name: getTrans('subjects'), icon: '📚', href: basePath + 'pages/admin/subjects.html' },
-            { name: getTrans('admissions') !== 'admissions' ? getTrans('admissions') : 'Admissions', icon: '📝', href: basePath + 'pages/admin/admissions.html' },
-            { name: getTrans('exams'), icon: '📝', href: basePath + 'pages/admin/exams.html' },
+            { name: getTrans('admissions'), icon: '📝', href: basePath + 'pages/admin/admissions.html' },
+            { name: getTrans('exams'), icon: '📋', href: basePath + 'pages/admin/exams.html' },
             { name: getTrans('fees'), icon: '💸', href: basePath + 'pages/admin/fees.html' },
             { name: getTrans('finance'), icon: '💼', href: basePath + 'pages/admin/finance.html' },
-            { name: getTrans('payroll'), icon: '🧧', href: basePath + 'pages/admin/payroll.html' },
-            { name: getTrans('reports'), icon: '📈', href: basePath + 'pages/admin/reports.html' },
+            { name: getTrans('payroll'), icon: '🧾', href: basePath + 'pages/admin/payroll.html' },
+            { name: getTrans('reports'), icon: '📊', href: basePath + 'pages/admin/reports.html' },
             { name: getTrans('attendance_report'), icon: '📄', href: basePath + 'pages/admin/attendance-report.html' },
             { name: getTrans('communication'), icon: '💬', href: basePath + 'pages/admin/communication.html' },
             { name: getTrans('library'), icon: '📖', href: basePath + 'pages/admin/library.html' },
             { name: getTrans('transport'), icon: '🚌', href: basePath + 'pages/admin/transport.html' },
-            { name: getTrans('inventory'), icon: '📦', href: basePath + 'pages/admin/inventory.html' },
+            { name: getTrans('inventory_management'), icon: '📦', href: basePath + 'pages/admin/inventory.html' },
             { name: getTrans('certificates'), icon: '🎓', href: basePath + 'pages/admin/certificates.html' },
             { name: getTrans('users'), icon: '👥', href: basePath + 'pages/admin/users.html' },
             { name: getTrans('settings'), icon: '⚙️', href: basePath + 'pages/admin/settings.html' },
@@ -1927,27 +1933,27 @@ function renderSidebar(userOrRole) {
         ],
         principal: 'admin',
         teacher: [
-            { name: getTrans('handbook') !== 'handbook' ? getTrans('handbook') : 'User Handbook', icon: '📘', href: basePath + 'pages/shared/handbook.html' },
+            { name: getTrans('handbook'), icon: '📘', href: basePath + 'pages/shared/handbook.html' },
             { name: getTrans('portal'), icon: '🏠', href: basePath + 'pages/teacher/portal.html' },
-            { name: getTrans('student_progress') !== 'student_progress' ? getTrans('student_progress') : 'Student Progress', icon: '📈', href: basePath + 'pages/shared/student_progress.html' },
+            { name: getTrans('student_progress'), icon: '📈', href: basePath + 'pages/shared/student_progress.html' },
             { name: getTrans('attendance'), icon: '✅', href: basePath + 'pages/teacher/attendance.html' },
             { name: getTrans('attendance_report'), icon: '📄', href: basePath + 'pages/teacher/attendance-report.html' },
             { name: getTrans('grades'), icon: '📊', href: basePath + 'pages/teacher/grades.html' },
             { name: getTrans('homework'), icon: '📝', href: basePath + 'pages/teacher/homework.html' },
-            { name: getTrans('academic_planner') !== 'academic_planner' ? getTrans('academic_planner') : 'Academic Planner', icon: '📅', href: basePath + 'pages/teacher/academic_planner.html' },
+            { name: getTrans('academic_planner'), icon: '📅', href: basePath + 'pages/teacher/academic_planner.html' },
             { name: getTrans('communication'), icon: '💬', href: basePath + 'pages/admin/communication.html#messages' },
             { name: getTrans('timetable'), icon: '📅', href: basePath + 'pages/teacher/timetable.html' }
         ],
         nazim_e_taleemaat: [
-            { name: getTrans('handbook') !== 'handbook' ? getTrans('handbook') : 'User Handbook', icon: '📘', href: basePath + 'pages/shared/handbook.html' },
+            { name: getTrans('handbook'), icon: '📘', href: basePath + 'pages/shared/handbook.html' },
             { name: getTrans('portal'), icon: '🏠', href: basePath + 'dashboard.html' },
-            { name: getTrans('student_progress') !== 'student_progress' ? getTrans('student_progress') : 'Student Progress', icon: '📈', href: basePath + 'pages/shared/student_progress.html' },
-            { name: getTrans('nazim_verbal_exam') !== 'nazim_verbal_exam' ? getTrans('nazim_verbal_exam') : 'Verbal Exam Scores', icon: '🗣️', href: basePath + 'pages/nazim/verbal_exam.html' },
-            { name: (getTrans('academic_planner') !== 'academic_planner') ? getTrans('academic_planner') : 'Academic Planner', icon: '📅', href: basePath + 'pages/admin/academic_planner.html' },
+            { name: getTrans('student_progress'), icon: '📈', href: basePath + 'pages/shared/student_progress.html' },
+            { name: getTrans('nazim_verbal_exam'), icon: '🗣️', href: basePath + 'pages/nazim/verbal_exam.html' },
+            { name: getTrans('academic_planner'), icon: '📅', href: basePath + 'pages/admin/academic_planner.html' },
             { name: getTrans('students'), icon: '👨‍🎓', href: basePath + 'pages/admin/students.html' },
             { name: getTrans('classes'), icon: '🏫', href: basePath + 'pages/admin/classes.html' },
             { name: getTrans('subjects'), icon: '📚', href: basePath + 'pages/admin/subjects.html' },
-            { name: getTrans('reports'), icon: '📈', href: basePath + 'pages/admin/reports.html' }
+            { name: getTrans('reports'), icon: '📊', href: basePath + 'pages/admin/reports.html' }
         ],
         hifz_supervisor: [
             { name: getTrans('portal'), icon: '🏠', href: basePath + 'dashboard.html' },
@@ -1955,8 +1961,9 @@ function renderSidebar(userOrRole) {
             { name: getTrans('attendance'), icon: '✅', href: basePath + 'pages/admin/attendance.html' },
             { name: getTrans('attendance_report'), icon: '📄', href: basePath + 'pages/admin/attendance-report.html' },
             { name: getTrans('timetable'), icon: '📅', href: basePath + 'pages/admin/timetable.html' },
-            { name: getTrans('reports'), icon: '📈', href: basePath + 'pages/admin/reports.html' }
+            { name: getTrans('reports'), icon: '📊', href: basePath + 'pages/admin/reports.html' }
         ],
+
         student: [
             { name: getTrans('portal'), icon: '🏠', href: basePath + 'pages/student/portal.html' },
             { name: getTrans('my_attendance'), icon: '✅', href: basePath + 'pages/student/attendance.html' },
