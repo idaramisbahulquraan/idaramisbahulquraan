@@ -172,6 +172,46 @@ document.addEventListener('DOMContentLoaded', async () => {
   bindLessonChecklistEvents();
   await Promise.all([loadChecklistDepartments(), loadChecklistTeachers()]);
   updateChecklistSummary();
+
+  // Pre-load evaluation context from URL parameters if provided (Edit Mode)
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('teacherId') && params.has('date')) {
+    try {
+      const dept = params.get('department') || '';
+      const className = params.get('class') || '';
+      const section = params.get('section') || '';
+      const subjectId = params.get('subjectId') || '';
+      const teacherId = params.get('teacherId') || '';
+      const date = params.get('date') || '';
+      const time = params.get('time') || '';
+      const observer = params.get('observer') || '';
+      const book = params.get('book') || '';
+
+      if (dept) document.getElementById('ldcDepartment').value = dept;
+      await updateChecklistClasses();
+      
+      if (className) document.getElementById('ldcClass').value = className;
+      updateChecklistSections();
+      
+      if (section) document.getElementById('ldcSection').value = section;
+      await updateChecklistSubjects();
+      
+      if (subjectId) document.getElementById('ldcSubject').value = subjectId;
+      if (teacherId) {
+        document.getElementById('ldcTeacher').value = teacherId;
+        updateChecklistSelectedTeacher();
+      }
+      if (date) document.getElementById('ldcDate').value = date;
+      if (time) document.getElementById('ldcTime').value = time;
+      if (observer) document.getElementById('ldcObserver').value = observer;
+      if (book) document.getElementById('ldcBook').value = book;
+
+      // Auto-load checklist ratings from Firestore
+      await loadLessonChecklistRecord();
+    } catch (e) {
+      console.error('Error preloading checklist from URL params:', e);
+    }
+  }
 });
 
 function bindLessonChecklistEvents() {
@@ -521,7 +561,7 @@ async function saveLessonChecklistRecord() {
     summary,
     teacherId: context.teacherId,
     teacherName: context.teacherName,
-    tenantId: lessonChecklistState.currentUser?.tenantId || localStorage.getItem('tenantId') || '',
+    tenantId: lessonChecklistState.currentUser?.tenantId || (typeof getCurrentTenant === 'function' ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default')),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     updatedByUid: lessonChecklistState.currentUser?.uid || '',
     updatedByName: lessonChecklistState.currentUser?.name || lessonChecklistState.currentUser?.displayName || ''

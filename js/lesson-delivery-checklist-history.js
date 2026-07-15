@@ -421,8 +421,10 @@ function renderHistoryDashboard() {
         <td>${sum.totalPoints || 0} / ${sum.maxPoints || 0}</td>
         <td><strong>${sum.percentage || 0}%</strong></td>
         <td><span class="ldch-badge ${badgeClass}">${sum.grade || '-'}</span></td>
-        <td>
+        <td style="display:flex; gap:0.45rem;">
           <button type="button" class="btn-secondary" style="padding:0.4rem 0.8rem; min-width:auto; font-size:0.85rem;" onclick="viewChecklistDetails('${doc.id}')">تفصیل دیکھیں</button>
+          <button type="button" class="btn-primary btn-edit" style="padding:0.4rem 0.8rem; min-width:auto; font-size:0.85rem;" onclick="editChecklist('${doc.id}')">ترمیم کریں</button>
+          <button type="button" class="btn-danger btn-delete" style="padding:0.4rem 0.8rem; min-width:auto; font-size:0.85rem;" onclick="deleteChecklist('${doc.id}')">حذف کریں</button>
         </td>
       </tr>
     `;
@@ -551,4 +553,42 @@ function viewChecklistDetails(docId) {
 function closeDetailModal() {
   document.getElementById('ldchDetailModal').style.display = 'none';
   document.getElementById('ldchDetailModal').classList.remove('active');
+}
+
+function editChecklist(docId) {
+  const doc = checklistHistoryState.checklists.find(item => item.id === docId);
+  if (!doc) return;
+
+  const ctx = doc.context || {};
+  const queryParams = new URLSearchParams({
+    department: ctx.department || '',
+    class: ctx.className || '',
+    section: ctx.section || '',
+    subjectId: ctx.subjectId || '',
+    teacherId: ctx.teacherId || '',
+    date: ctx.date || '',
+    time: ctx.time || '',
+    observer: ctx.observer || '',
+    book: ctx.book || ''
+  });
+
+  const targetUrl = 'lesson_delivery_checklist.html?' + queryParams.toString();
+  window.location.href = targetUrl;
+}
+
+async function deleteChecklist(docId) {
+  const doc = checklistHistoryState.checklists.find(item => item.id === docId);
+  if (!doc) return;
+
+  const isConfirmed = confirm('کیا آپ واقعی اس مشاہدہ شیٹ کو حذف کرنا چاہتے ہیں؟ یہ عمل واپس نہیں لیا جا سکتا۔');
+  if (!isConfirmed) return;
+
+  try {
+    await db.collection('lesson_delivery_checklists').doc(docId).delete();
+    alert('مشاہدہ شیٹ کامیابی سے حذف ہو گئی ہے۔');
+    await fetchHistoricalChecklists();
+  } catch (error) {
+    console.error('Error deleting checklist:', error);
+    alert('مشاہدہ شیٹ حذف کرنے میں مسئلہ پیش آیا۔');
+  }
 }
