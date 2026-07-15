@@ -1922,7 +1922,8 @@ function renderSidebar(userOrRole) {
             { name: getTrans('ai_features'), icon: '🤖', href: basePath + 'pages/admin/ai-features.html' },
             { name: getTrans('compliance_privacy'), icon: '🔒', href: basePath + 'pages/admin/compliance.html' },
             { name: getTrans('integrations'), icon: '🔗', href: basePath + 'pages/admin/integrations.html' },
-            { name: getTrans('backup'), icon: '💾', href: basePath + 'pages/admin/backup.html' }
+            { name: getTrans('backup'), icon: '💾', href: basePath + 'pages/admin/backup.html' },
+            { name: getTrans('handbook') !== 'handbook' ? getTrans('handbook') : 'User Handbook', icon: '📘', href: basePath + 'pages/shared/handbook.html' }
         ],
         principal: 'admin',
         teacher: [
@@ -1932,9 +1933,10 @@ function renderSidebar(userOrRole) {
             { name: getTrans('attendance_report'), icon: '📄', href: basePath + 'pages/teacher/attendance-report.html' },
             { name: getTrans('grades'), icon: '📊', href: basePath + 'pages/teacher/grades.html' },
             { name: getTrans('homework'), icon: '📝', href: basePath + 'pages/teacher/homework.html' },
-            { name: (getTrans('academic_planner') !== 'academic_planner') ? getTrans('academic_planner') : 'Academic Planner', icon: '📅', href: basePath + 'pages/teacher/academic_planner.html' },
+            { name: getTrans('academic_planner') !== 'academic_planner' ? getTrans('academic_planner') : 'Academic Planner', icon: '📅', href: basePath + 'pages/teacher/academic_planner.html' },
             { name: getTrans('communication'), icon: '💬', href: basePath + 'pages/admin/communication.html#messages' },
-            { name: getTrans('timetable'), icon: '📅', href: basePath + 'pages/teacher/timetable.html' }
+            { name: getTrans('timetable'), icon: '📅', href: basePath + 'pages/teacher/timetable.html' },
+            { name: getTrans('handbook') !== 'handbook' ? getTrans('handbook') : 'User Handbook', icon: '📘', href: basePath + 'pages/shared/handbook.html' }
         ],
         nazim_e_taleemaat: [
             { name: getTrans('portal'), icon: '🏠', href: basePath + 'dashboard.html' },
@@ -1944,7 +1946,8 @@ function renderSidebar(userOrRole) {
             { name: getTrans('students'), icon: '👨‍🎓', href: basePath + 'pages/admin/students.html' },
             { name: getTrans('classes'), icon: '🏫', href: basePath + 'pages/admin/classes.html' },
             { name: getTrans('subjects'), icon: '📚', href: basePath + 'pages/admin/subjects.html' },
-            { name: getTrans('reports'), icon: '📈', href: basePath + 'pages/admin/reports.html' }
+            { name: getTrans('reports'), icon: '📈', href: basePath + 'pages/admin/reports.html' },
+            { name: getTrans('handbook') !== 'handbook' ? getTrans('handbook') : 'User Handbook', icon: '📘', href: basePath + 'pages/shared/handbook.html' }
         ],
         hifz_supervisor: [
             { name: getTrans('portal'), icon: '🏠', href: basePath + 'dashboard.html' },

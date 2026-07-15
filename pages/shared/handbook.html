@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صارف گائیڈ اور ہینڈ بک - ادارہ مصباح القرآن</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e40af 0%, #4f46e5 100%);
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+        body {
+            font-family: 'Inter', 'Noto Nastaliq Urdu', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.8;
+        }
+        .handbook-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            padding: 1.5rem;
+            margin-bottom: 5rem;
+        }
+        @media (min-width: 992px) {
+            .handbook-layout {
+                grid-template-columns: 280px 1fr;
+            }
+        }
+        /* Sticky Navigation Sidebar */
+        .handbook-sidebar {
+            position: sticky;
+            top: 2rem;
+            background: #ffffff;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 1.2rem;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .chapter-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .chapter-item a {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 0.85rem;
+            color: #475569;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.92rem;
+            border-radius: 0.6rem;
+            transition: all 0.2s ease;
+        }
+        .chapter-item a:hover {
+            background-color: #f1f5f9;
+            color: #2563eb;
+            transform: translateX(-3px);
+        }
+        .chapter-item.active a {
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-weight: 700;
+        }
+        /* Main Handbook Content */
+        .handbook-content {
+            background: #ffffff;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 1.2rem;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+        }
+        .handbook-hero {
+            background: var(--primary-gradient);
+            color: #ffffff;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.2);
+        }
+        .handbook-hero::after {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            bottom: -3rem;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .handbook-hero h1 {
+            margin: 0 0 0.5rem;
+            font-size: 2.2rem;
+            font-weight: 900;
+        }
+        .handbook-hero p {
+            margin: 0;
+            font-size: 1.05rem;
+            opacity: 0.92;
+            max-width: 800px;
+        }
+        .print-btn-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1.2rem;
+        }
+        .btn-print {
+            background: #ffffff;
+            color: #1e3a8a;
+            border: none;
+            border-radius: 0.75rem;
+            padding: 0.6rem 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+        /* Chapter styling */
+        .chapter-section {
+            border-bottom: 2px dashed #f1f5f9;
+            padding-bottom: 2.5rem;
+            margin-bottom: 2.5rem;
+            scroll-margin-top: 2rem;
+        }
+        .chapter-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+        .chapter-badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+        }
+        .chapter-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        .sub-section {
+            margin-top: 1.5rem;
+            background: #f8fafc;
+            border-radius: 0.85rem;
+            padding: 1.2rem 1.5rem;
+            border-right: 4px solid #3b82f6;
+        }
+        .sub-section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-top: 0;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        /* Tables */
+        .info-table-wrap {
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            background: #fff;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .info-table th, .info-table td {
+            padding: 0.75rem 1rem;
+            text-align: right;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .info-table th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 700;
+        }
+        .info-table tr:last-child td {
+            border-bottom: none;
+        }
+        /* Alert boxes */
+        .alert-box {
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            margin: 1.25rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+        }
+        .alert-box.important {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e3a8a;
+            border-right: 4px solid #2563eb;
+        }
+        .alert-box.warning {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #78350f;
+            border-right: 4px solid #d97706;
+        }
+        .alert-box.tip {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            border-right: 4px solid #059669;
+        }
+
+        /* PRINT STYLING */
+        @media print {
+            body {
+                background: #ffffff;
+                color: #000000;
+                font-size: 11pt;
+            }
+            .dashboard-layout {
+                display: block !important;
+            }
+            .sidebar, .header, .handbook-sidebar, .print-btn-container, .sticky-actions {
+                display: none !important;
+            }
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+            .handbook-layout {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .handbook-content {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .handbook-hero {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border: 2px solid #000000 !important;
+                box-shadow: none !important;
+                padding: 1.5rem !important;
+            }
+            .handbook-hero h1 {
+                color: #000000 !important;
+            }
+            .handbook-hero p {
+                color: #333333 !important;
+            }
+            .chapter-section {
+                page-break-after: always;
+                border-bottom: none !important;
+                padding-bottom: 0 !important;
+                margin-bottom: 0 !important;
+            }
+            .chapter-section:last-child {
+                page-break-after: avoid;
+            }
+            .sub-section {
+                border-right: 2px solid #000000 !important;
+                background: #ffffff !important;
+            }
+            .info-table th {
+                background-color: #f1f5f9 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>صارف گائیڈ اور ہینڈ بک</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight:600;">User</p>
+                            <p id="userRole" style="font-size:0.75rem; color:var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content handbook-layout">
+                <!-- Sticky Chapters Navigation -->
+                <aside class="handbook-sidebar">
+                    <h3 class="sidebar-title"><i class="fas fa-book-reader"></i> ابواب کی فہرست</h3>
+                    <ul class="chapter-list">
+                        <li class="chapter-item"><a href="#ch1">باب 1: تعارف اور لاگ ان</a></li>
+                        <li class="chapter-item"><a href="#ch2">باب 2: بنیادی انتظام</a></li>
+                        <li class="chapter-item"><a href="#ch3">باب 3: تعلیمی منصوبہ بندی</a></li>
+                        <li class="chapter-item"><a href="#ch4">باب 4: تعلیمی کارکردگی و امتحانات</a></li>
+                        <li class="chapter-item"><a href="#ch5">باب 5: حاضری، اسمبلی و ذمہ داریاں</a></li>
+                        <li class="chapter-item"><a href="#ch6">باب 6: مانیٹرنگ اور تعلیمی معیار</a></li>
+                        <li class="chapter-item"><a href="#ch7">باب 7: فنانس اور معاون سہولیات</a></li>
+                    </ul>
+                </aside>
+
+                <!-- Main Content Area -->
+                <div class="handbook-content">
+                    <div class="handbook-hero">
+                        <h1>صارف گائیڈ اور تعلیمی ہینڈ بک</h1>
+                        <p>ادارہ مصباح القرآن کے جدید سکول مینجمنٹ سسٹم کو چلانے کے لیے ایک جامع کتابچہ۔ یہ ہینڈ بک تمام ایڈمنز، ناظمین اور اساتذہ کو ہر ایک ماڈیول کی تفصیل, ڈیٹا انٹری کا طریقہ کار اور رپورٹس نکالنے کا آسان طریقہ بتائے گی۔</p>
+                        <div class="print-btn-container">
+                            <button type="button" class="btn-print" onclick="window.print()">
+                                <i class="fas fa-file-pdf"></i> پرنٹ گائیڈ / PDF بنائیں
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CHAPTER 1 -->
+                    <section class="chapter-section" id="ch1">
+                        <span class="chapter-badge">باب اول</span>
+                        <h2 class="chapter-title">باب 1: تعارف اور لاگ ان (Roles & Dashboard)</h2>
+                        <p>یہ ویب ایپلی کیشن ادارہ مصباح القرآن کی تعلیمی و انتظامی سرگرمیوں کو سنبھالنے کے لیے بنائی گئی ہے۔ سسٹم کو مختلف صارفین کے کردار (Roles) کے مطابق تقسیم کیا گیا ہے تاکہ ہر فرد اپنے دائرہ کار میں رہ کر کام کر سکے۔</p>
+                        
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">صارفین کے کردار (System Roles)</h4>
+                            <p>سسٹم کے اندر داخل ہوتے ہی صارف کو اس کے کردار کے مطابق مینو اور اختیارات نظر آتے ہیں:</p>
+                            <div class="info-table-wrap">
+                                <table class="info-table">
+                                    <thead>
+                                        <tr>
+                                            <th>کردار (Role)</th>
+                                            <th>بنیادی کام اور اختیارات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>ایڈمن (Admin)</strong></td>
+                                            <td>پورے سسٹم پر مکمل کنٹرول، اساتذہ و طلبہ کا اندراج، فنانس، سیٹنگز، اور ڈیٹا کا بیک اپ لینا۔</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>ناظم تعلیمات (Nazim)</strong></td>
+                                            <td>سلیبس مانیٹرنگ، زبانی امتحان کے نمبرات کا اندراج، طلبہ کی تعلیمی پیش رفت کا مشاہدہ۔</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>استاد (Teacher)</strong></td>
+                                            <td>روزانہ حاضری، ڈائری لکھنا، ماڈل سبق کی منصوبہ بندی (Lesson Plan)، اور اپنے مضمون کا ٹائم ٹیبل دیکھنا۔</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>حفظ سپروائزر</strong></td>
+                                            <td>حفظ کے طلبہ کا ریکارڈ، روزانہ منزل، سبقی اور سبکی کا اندراج اور ٹریکنگ۔</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>کیشیئر / محاسب</strong></td>
+                                            <td>طلبہ کی فیس وصول کرنا، فیس کی رسیدیں جاری کرنا، اور آمدنی و اخراجات کا اندراج۔</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">لاگ ان اور سیشن سیکیورٹی</h4>
+                            <p>لاگ ان کرنے کے لیے اپنی مخصوص ای میل آئی ڈی اور پاس ورڈ استعمال کریں۔ سسٹم کے اندر <strong>سیشن پروٹیکشن</strong> کا خاص خیال رکھا گیا ہے، اگر انٹرنیٹ منقطع ہو جائے تو آف لائن بینر ظاہر ہوگا اور آپ کا سیشن خراب ہوئے بغیر دوبارہ بحال ہو جائے گا۔</p>
+                        </div>
+                    </section>
+
+                    <!-- CHAPTER 2 -->
+                    <section class="chapter-section" id="ch2">
+                        <span class="chapter-badge">باب دوم</span>
+                        <h2 class="chapter-title">باب 2: بنیادی انتظام (Administrative Setup)</h2>
+                        <p>انتظامی انتظام کے تحت ادارے کے بنیادی ڈھانچے جیسے اساتذہ، طلبہ، کلاسز اور مضامین کو سیٹ کیا جاتا ہے۔ یہ کام عموماً تعلیمی سال کے آغاز پر ایڈمن کے ذریعے کیا جاتا ہے۔</p>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">طلبہ کا نیا داخلہ (Admissions)</h4>
+                            <ol>
+                                <li>مینو سے <strong>داخلہ (Admissions)</strong> منتخب کریں۔</li>
+                                <li>طالب علم کی بنیادی معلومات، والد کا نام، فون نمبر، داخلہ کلاس اور سیشن منتخب کریں۔</li>
+                                <li><strong>محفوظ کریں</strong> کے بٹن پر کلک کریں۔ طالب علم کو سسٹم خود بخود ایک منفرد آئی ڈی الاٹ کر دے گا۔</li>
+                            </ol>
+                            <div class="alert-box tip">
+                                <strong>ترکیب (Tip):</strong> آپ طلبہ کی فہرست کو سکرین پر موجود بٹن کے ذریعے براہِ راست PDF کی صورت میں ڈاؤن لوڈ بھی کر سکتے ہیں۔
+                            </div>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">کلاسز، شعبہ جات اور مضامین</h4>
+                            <p>نئے تعلیمی سال کے لیے شعبہ جات (مثلاً شعبہ تجوید، شعبہ حفظ) کے تحت کلاسز اور پھر ان کلاسز کے لیے اساتذہ اور مضامین کی تقسیم (Allocation) کی جاتی ہے۔ کلاسز کے پیج پر جا کر آپ کسی بھی کلاس کی فیس اور سیکشنز بھی طے کر سکتے ہیں۔</p>
+                        </div>
+                    </section>
+
+                    <!-- CHAPTER 3 -->
+                    <section class="chapter-section" id="ch3">
+                        <span class="chapter-badge">باب سوم</span>
+                        <h2 class="chapter-title">باب 3: تعلیمی منصوبہ بندی (Academic & Syllabus Planning)</h2>
+                        <p>تعلیمی منصوبہ بندی کے ذریعے تعلیمی سال کی رفتار اور یومیہ اسباق کے اہداف کو طے کیا جاتا ہے۔ اس میں دو انتہائی اہم ماڈیولز شامل ہیں:</p>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">اکیڈمک پلانر (Syllabus Auto-Distribution)</h4>
+                            <p>جب آپ کسی کتاب کا مجموعی ہدف (کل صفحات) درج کرتے ہیں، تو سسٹم اسے سیشن کے مہینوں میں خودکار طور پر تقسیم کرتا ہے۔</p>
+                            <ul>
+                                <li><strong>سلائیڈر اور ان پٹ ہم آہنگی:</strong> صفحات کی تفصیل درج کرنے کے لیے اب آپ کے پاس صفحات کے خانے کے نیچے رینج سلائیڈر بھی دستیاب ہے۔ سلائیڈر کو آگے پیچھے کرنے سے صفحات کا نمبر خود بخود اپ ڈیٹ ہوگا اور مجموعہ چیک کیا جائے گا۔</li>
+                                <li><strong>اوور ایلوکیشن الرٹ:</strong> اگر مہینوں کے صفحات کا مجموعہ کل صفحات سے تجاوز کر جائے تو سسٹم فوری طور پر سرخ رنگ کا الرٹ جاری کرتا ہے۔</li>
+                            </ul>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">ماڈل لیسن پلان (5-Step Stepper Wizard)</h4>
+                            <p>اساتذہ کے کام کو تیز اور آسان بنانے کے لیے سبق کی تیاری کے فارم کو 5 مراحل میں تقسیم کیا گیا ہے:</p>
+                            <ol>
+                                <li><strong>مرحلہ 1: عمومی معلومات</strong> - سبق کا نام، کلاس، مضمون اور وسائل منتخب کریں۔ یہاں <strong>"سابقہ سے کاپی کریں"</strong> کا بٹن بھی موجود ہے جو ایک کلک پر پچھلے سبق کا ہدف کاپی کر دیتا ہے۔</li>
+                                <li><strong>مرحلہ 2: سبق کے مقاصد</strong> - سبق کے مقاصد اور تدریسی طریقہ کار منتخب کریں۔</li>
+                                <li><strong>مرحلہ 3: تدریسی مراحل</strong> - استاد اور طلبہ کی سرگرمیاں درج کریں۔</li>
+                                <li><strong>مرحلہ 4: سبق کا اطلاق</strong> - عملی مثالیں اور تشخیصی سوالات درج کریں۔</li>
+                                <li><strong>مرحلہ 5: ہوم ورک و خود احتسابی</strong> - گھر کا کام اور سبق سے حاصل شدہ نتائج درج کریں۔</li>
+                            </ol>
+                            <div class="alert-box important">
+                                <strong>فوری ٹیکسٹ پینل (Quick Text Pills):</strong> لیسن پلان بناتے وقت دائیں جانب ایک مستقل پینل نظر آئے گا جس میں سبق کے مقاصد، اطلاق اور ہوم ورک کے بنے بنائے اردو جملے (Pills) ہیں۔ جس خانے میں لکھنا ہو، اس پر کلک کریں اور پھر پینل میں سے مطلوبہ جملے پر کلک کریں۔ جملہ خود بخود وہاں منتقل ہو جائے گا!
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- CHAPTER 4 -->
+                    <section class="chapter-section" id="ch4">
+                        <span class="chapter-badge">باب چہارم</span>
+                        <h2 class="chapter-title">باب 4: امتحانات اور تعلیمی کارکردگی (Exams & Scores)</h2>
+                        <p>تعلیمی ریکارڈ کو اپ ڈیٹ رکھنے کے لیے اس ماڈیول کے تحت تحریری اور زبانی امتحانات کے نمبرات کو مربوط کیا گیا ہے۔</p>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">تحریری امتحانات (Written Exams)</h4>
+                            <p>ایڈمن سیشن کے دوران امتحانات شیڈول کرتا ہے۔ شیڈول ہونے کے بعد، اساتذہ مینو سے <strong>بلک مارکس اینٹری</strong> کا انتخاب کر کے پوری کلاس کے نمبرز ایک ساتھ درج کر کے فوری طور پر محفوظ کر سکتے ہیں۔</p>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">زبانی امتحانات کا اندراج (Oral/Verbal Exams)</h4>
+                            <p>ناظمین کے لیے زبانی امتحان (مثلاً مخارج، قواعد، تلاوت) کے نمبرات کی انٹری کو تیز ترین بنانے کے لیے گریڈ سسٹم ترتیب دیا گیا ہے:</p>
+                            <ul>
+                                <li>ہر طالب علم کے نام کے سامنے نمبرز بڑھانے یا کم کرنے کے لیے <strong>(+) اور (-) کے بٹنز</strong> موجود ہیں۔</li>
+                                <li>ایک خانے میں نمبر درج کر کے کی بورڈ سے <strong>Enter دبانے سے</strong> فوکس خود بخود نیچے والے طالب علم کے خانے پر چلا جاتا ہے جس سے ماؤس استعمال کرنے کی ضرورت نہیں رہتی۔</li>
+                                <li>اگر کوئی نمبر مقررہ حد سے زیادہ ہو جائے تو خانہ فوری طور پر سرخ ہو جائے گا۔</li>
+                            </ul>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">طلبہ تعلیمی ریکارڈ اور نمبرات (Unified Progress Center)</h4>
+                            <p>یہ اساتذہ، ناظمین اور ایڈمن کے لیے ایک مرکزی پیج ہے جہاں سے پوری کلاس کا مجموعی تعلیمی ریکارڈ ایک ہی نظر میں دیکھا جا سکتا ہے:</p>
+                            <ul>
+                                <li><strong>مرکزی تعلیمی شیٹ (Unified Grid):</strong> اس جدول (Table) میں تحریری اور زبانی تمام امتحانات کے کالم موجود ہیں۔ کسی بھی خانے میں ڈبل کلک کر کے نمبر تبدیل کریں، سسٹم فائر بیس ڈیٹا بیس میں اسے فوری خودکار طور پر محفوظ (Auto-Save) کر لے گا۔</li>
+                                <li><strong>کارکردگی گراف (Chart.js Analytics):</strong> پیج کے نچلے حصے میں گراف موجود ہیں جو کلاس کے اوسط نمبرات اور طالب علم کی انفرادی تعلیمی ترقی کا گراف دکھاتے ہیں۔</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <!-- CHAPTER 5 -->
+                    <section class="chapter-section" id="ch5">
+                        <span class="chapter-badge">باب پنجم</span>
+                        <h2 class="chapter-title">باب 5: حاضری، اسمبلی اور ذمہ داریاں (Daily Activities)</h2>
+                        <p>روزانہ کی سرگرمیاں تعلیمی نظم و ضبط کا حصہ ہیں۔ سسٹم میں روزانہ کی حاضری، اسمبلی کی کارکردگی اور اسمبلی کے فرائض کی تفویض کے جدید کنٹرولز شامل ہیں۔</p>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">روزانہ حاضری (Attendance taking)</h4>
+                            <p>کلاس ٹیچر صبح کلاس میں جا کر حاضری پیج کھولتا ہے اور ایک کلک پر تمام طلبہ کو پریزینٹ (Present) کر کے غیر حاضر بچوں کے آگے ابسینٹ (Absent) مارک کر کے محفوظ کر دیتا ہے۔ جیو فینسنگ کی بدولت اساتذہ صرف سکول کی حدود میں رہتے ہوئے ہی موبائل سے حاضری درج کر سکتے ہیں۔</p>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">روزانہ اسمبلی کارکردگی کی درجہ بندی (5-Star Rating)</h4>
+                            <p>اسمبلی میں تلاوت، نعت یا تقاریر کرنے والے بچوں کی کارکردگی کی جانچ کے لیے اب 5 اسٹار ریٹنگ کا نظام ہے۔ جج (استاد یا ناظم) ہر بچے کے پرفارمنس کے آگے ایک سے پنج ستارے منتخب کر کے محفوظ کر سکتا ہے۔</p>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">ڈریگ اینڈ ڈراپ ڈیوٹی شیڈولر (Assembly Responsibilities)</h4>
+                            <p>ہفتہ وار اسمبلی کی ذمہ داریاں تفویض کرنے کے لیے اب ایک جدید شیڈولر سکرین پر دستیاب ہے:</p>
+                            <ol>
+                                <li>سب سے اوپر ہفتے کے آغاز کی تاریخ اور کلاس منتخب کریں۔</li>
+                                <li>سکرین پر موجود طلبہ کی لسٹ میں سے طالب علم کے <strong>کارڈ کو ماؤس سے پکڑیں (Drag کریں)</strong>۔</li>
+                                <li>مطلوبہ دن (ہفتہ، اتوار وغیرہ) اور ٹاسک (تلاوت، نعت، دعا) کے <strong>خانے میں لے جا کر چھوڑ دیں (Drop کریں)</strong>۔</li>
+                                <li>سستم فوری طور پر اسائنمنٹ کو محفوظ کر لے گا۔ اگر کوئی طالب علم ایک سے زائد کاموں کے لیے منتخب ہو تو تصادم کا انتباہ (Conflict Warning) ظاہر ہو گا۔</li>
+                            </ol>
+                        </div>
+                    </section>
+
+                    <!-- CHAPTER 6 -->
+                    <section class="chapter-section" id="ch6">
+                        <span class="chapter-badge">باب ششم</span>
+                        <h2 class="chapter-title">باب 6: مانیٹرنگ اور تعلیمی معیار (Quality & Supervision)</h2>
+                        <p>تعلیمی معیار کو یقینی بنانے کے لیے ناظمین اور سپروائزرز کے پاس درج ذیل فیچرز موجود ہیں:</p>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">حفظ پروگریس شیٹ (Hifz Progress)</h4>
+                            <p>حفظ سپروائزر روزانہ حفظ کے ہر بچے کی کارکردگی درج کرتا ہے، جس میں **سبق** (آج کا نیا سبق)، **سبقی** (حالیہ چند پارے) اور **منزل** (پچھلے پارے) شامل ہیں۔ یہ معلومات روزانہ کی بنیاد پر والدین کے پورٹل پر بھی اپ ڈیٹ ہوتی ہیں۔</p>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">استاد کی تعلیمی معیار کی رپورٹ (Teacher Quality Scorecard)</h4>
+                            <p>ناظمین اساتذہ کی کلاسز کا اچانک دورہ کر کے ان کے تعلیمی معیار اور سبق کی تیاری کا جائزہ لیتے ہیں اور اساتذہ کے اسکور کارڈ پر ان کی درجہ بندی محفوظ کرتے ہیں جو سالانہ کارکردگی کا حصہ بنتی ہے۔</p>
+                        </div>
+                    </section>
+
+                    <!-- CHAPTER 7 -->
+                    <section class="chapter-section" id="ch7">
+                        <span class="chapter-badge">باب ہفتم</span>
+                        <h2 class="chapter-title">باب 7: فنانس اور معاون سہولیات (Finance & Other Modules)</h2>
+                        <p>سسٹم کے دیگر انتظامی ماڈیول فنانس، لائبریری اور ٹرانسپورٹ کو سنبھالنے کے لیے استعمال کیے جاتے ہیں۔</p>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">فیس اور فنانس (Fees & Ledger)</h4>
+                            <ul>
+                                <li><strong>فیس جمع کرنا:</strong> طالب علم کا رول نمبر سرچ کریں، بقایا جات خود بخود ظاہر ہوں گے۔ رقم موصول کر کے <strong>رسید پرنٹ کریں</strong> پر کلک کریں۔ فیس کی رسید کا پرنٹ آؤٹ تیار ہو کر سامنے آ جائے گا۔</li>
+                                <li><strong>لیجر (Finance ledger):</strong> ادارے کے روزمرہ اخراجات (بجلی کا بل، سٹیشنری وغیرہ) اور متفرق آمدنی کا اندراج کریں تاکہ سسٹم سالانہ نیٹ بیلنس اور نفع نقصان کا چارٹ خود بخود ڈیش بورڈ پر تیار کر سکے  ۔</li>
+                            </ul>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4 class="sub-section-title">ٹرانسپورٹ اور لائبریری</h4>
+                            <ul>
+                                <li><strong>ٹرانسپورٹ:</strong> بس/وین کے روٹس بنائیں، اور طلبہ کو روٹ کے مطابق الاٹ کریں۔ روزانہ ڈرائیورز کا بائیو ڈیٹا ٹریک کیا جا سکتا ہے۔</li>
+                                <li><strong>لائبریری:</strong> کتابیں داخل کریں (ISBN کے ذریعے سرچ کی سہولت موجود ہے)، اور طلبہ کو کتابیں جاری کرنے کا باقاعدہ کارڈ سسٹم ریکارڈ رکھیں۔</li>
+                            </ul>
+                        </div>
+
+                        <div class="sub-section" style="border-right-color:#10b981; background:#f0fdf4;">
+                            <h4 class="sub-section-title" style="color:#047857;"><i class="fas fa-print"></i> پرنٹ اور پی ڈی ایف بکلیٹ کی تیاری</h4>
+                            <p>اس کتابچے کو اپنے پاس ڈاؤن لوڈ کرنے یا اس کا پرنٹ آؤٹ نکالنے کے لیے، سب سے اوپر موجود **"پرنٹ گائیڈ / PDF بنائیں"** کے بٹن پر کلک کریں۔ کھلنے والی ونڈو میں آپ اسے "Save as PDF" منتخب کر کے پی ڈی ایف کی شکل میں ہمیشہ کے لیے محفوظ کر سکتے ہیں۔</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Dependencies -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (typeof initDashboard === 'function') initDashboard(currentUser);
+
+            // Active Menu Highlighting
+            const items = document.querySelectorAll('.chapter-item');
+            const sections = document.querySelectorAll('.chapter-section');
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (window.scrollY >= sectionTop - 60) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                items.forEach(item => {
+                    item.classList.remove('active');
+                    const link = item.querySelector('a');
+                    if (link && link.getAttribute('href') === '#' + current) {
+                        item.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
