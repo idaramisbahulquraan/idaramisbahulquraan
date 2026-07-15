@@ -146,26 +146,46 @@ function getHistoryTenantId() {
     || 'default';
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
   if (!document.getElementById('ldchMainContent')) return;
-
-  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-  checklistHistoryState.currentUser = currentUser;
-  if (typeof initDashboard === 'function') initDashboard(currentUser);
-
-  const roles = getUserRoles(currentUser);
-  const allowed = roles.some(role => ['admin', 'owner', 'principal', 'nazim_e_taleemaat'].includes(role));
-  document.getElementById('ldchAccessDenied').style.display = allowed ? 'none' : '';
-  document.getElementById('ldchMainContent').style.display = allowed ? '' : 'none';
-  if (!allowed) return;
-
+  
   bindHistoryEvents();
-  await Promise.all([loadHistoryDepartments(), loadHistoryTeachers(), loadHistoryClasses()]);
+
+  if (typeof auth !== 'undefined') {
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) return;
+      
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      if (!currentUser.uid) {
+        currentUser.uid = user.uid;
+        currentUser.email = user.email;
+        currentUser.name = user.displayName || user.email;
+      }
+      checklistHistoryState.currentUser = currentUser;
+      if (typeof initDashboard === 'function') initDashboard(currentUser);
+
+      const roles = getUserRoles(currentUser);
+      const allowed = roles.some(role => ['admin', 'owner', 'principal', 'nazim_e_taleemaat'].includes(role));
+      document.getElementById('ldchAccessDenied').style.display = allowed ? 'none' : '';
+      document.getElementById('ldchMainContent').style.display = allowed ? '' : 'none';
+      if (!allowed) return;
+
+      try {
+        await Promise.all([loadHistoryDepartments(), loadHistoryTeachers(), loadHistoryClasses()]);
+      } catch (err) {
+        console.error('Error loading dropdown data:', err);
+      }
+    });
+  }
 });
 
 function bindHistoryEvents() {
   document.getElementById('ldchDepartment')?.addEventListener('change', async () => {
-    await loadHistoryClasses();
+    try {
+      await loadHistoryClasses();
+    } catch (err) {
+      console.error(err);
+    }
   });
   document.getElementById('ldchFetchBtn')?.addEventListener('click', fetchHistoricalChecklists);
   document.getElementById('ldchModalClose')?.addEventListener('click', closeDetailModal);
@@ -182,27 +202,31 @@ async function loadHistoryDepartments() {
   select.innerHTML = '<option value="">تمام شعبہ جات</option>';
   
   const tenantId = getHistoryTenantId();
-  let snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
-  if (snapshot.empty) {
-    snapshot = await db.collection('departments').get();
-  }
-  
-  checklistHistoryState.departments = [];
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    if (!data.tenantId || data.tenantId === tenantId) {
-      checklistHistoryState.departments.push({ id: doc.id, ...data });
+  try {
+    let snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
+    if (snapshot.empty) {
+      snapshot = await db.collection('departments').get();
     }
-  });
+    
+    checklistHistoryState.departments = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (!data.tenantId || data.tenantId === tenantId) {
+        checklistHistoryState.departments.push({ id: doc.id, ...data });
+      }
+    });
 
-  checklistHistoryState.departments.forEach((dept) => {
-    const option = document.createElement('option');
-    option.value = dept.name;
-    option.innerText = typeof getDepartmentDisplayName === 'function' 
-      ? getDepartmentDisplayName(dept.name, dept.name_ur || '')
-      : (dept.name_ur || dept.name || '');
-    select.appendChild(option);
-  });
+    checklistHistoryState.departments.forEach((dept) => {
+      const option = document.createElement('option');
+      option.value = dept.name;
+      option.innerText = typeof getDepartmentDisplayName === 'function' 
+        ? getDepartmentDisplayName(dept.name, dept.name_ur || '')
+        : (dept.name_ur || dept.name || '');
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error('Error loading history departments:', err);
+  }
 }
 
 async function loadHistoryTeachers() {
@@ -211,29 +235,33 @@ async function loadHistoryTeachers() {
   select.innerHTML = '<option value="">استاد منتخب کریں</option>';
   
   const tenantId = getHistoryTenantId();
-  let snapshot = await db.collection('teachers').where('tenantId', '==', tenantId).get();
-  if (snapshot.empty) {
-    try {
-      snapshot = await db.collection('teachers').orderBy('firstName').get();
-    } catch (_) {
-      snapshot = await db.collection('teachers').get();
+  try {
+    let snapshot = await db.collection('teachers').where('tenantId', '==', tenantId).get();
+    if (snapshot.empty) {
+      try {
+        snapshot = await db.collection('teachers').orderBy('firstName').get();
+      } catch (_) {
+        snapshot = await db.collection('teachers').get();
+      }
     }
+
+    checklistHistoryState.teachers = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (!data.tenantId || data.tenantId === tenantId) {
+        checklistHistoryState.teachers.push({ id: doc.id, ...data });
+      }
+    });
+
+    checklistHistoryState.teachers.forEach((teacher) => {
+      const option = document.createElement('option');
+      option.value = teacher.id;
+      option.innerText = teacher.name || `${teacher.firstName || ''} ${teacher.lastName || ''}`.trim() || teacher.fullName || '';
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error('Error loading history teachers:', err);
   }
-
-  checklistHistoryState.teachers = [];
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    if (!data.tenantId || data.tenantId === tenantId) {
-      checklistHistoryState.teachers.push({ id: doc.id, ...data });
-    }
-  });
-
-  checklistHistoryState.teachers.forEach((teacher) => {
-    const option = document.createElement('option');
-    option.value = teacher.id;
-    option.innerText = teacher.name || `${teacher.firstName || ''} ${teacher.lastName || ''}`.trim() || teacher.fullName || '';
-    select.appendChild(option);
-  });
 }
 
 async function loadHistoryClasses() {
@@ -244,32 +272,36 @@ async function loadHistoryClasses() {
   const dept = document.getElementById('ldchDepartment')?.value || '';
   const tenantId = getHistoryTenantId();
   
-  let query = db.collection('classes').where('tenantId', '==', tenantId);
-  if (dept) query = query.where('department', '==', dept);
-  
-  let snapshot = await query.get();
-  if (snapshot.empty && !dept) {
-    snapshot = await db.collection('classes').get();
-  }
-
-  checklistHistoryState.classes = [];
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    if (!data.tenantId || data.tenantId === tenantId) {
-      if (!dept || data.department === dept) {
-        checklistHistoryState.classes.push({ id: doc.id, ...data });
-      }
+  try {
+    let query = db.collection('classes').where('tenantId', '==', tenantId);
+    if (dept) query = query.where('department', '==', dept);
+    
+    let snapshot = await query.get();
+    if (snapshot.empty && !dept) {
+      snapshot = await db.collection('classes').get();
     }
-  });
 
-  checklistHistoryState.classes.forEach((cls) => {
-    const option = document.createElement('option');
-    option.value = cls.name;
-    option.innerText = typeof getClassDisplayName === 'function'
-      ? getClassDisplayName(cls.name, cls.name_ur || '')
-      : (cls.name_ur || cls.name || '');
-    select.appendChild(option);
-  });
+    checklistHistoryState.classes = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (!data.tenantId || data.tenantId === tenantId) {
+        if (!dept || data.department === dept) {
+          checklistHistoryState.classes.push({ id: doc.id, ...data });
+        }
+      }
+    });
+
+    checklistHistoryState.classes.forEach((cls) => {
+      const option = document.createElement('option');
+      option.value = cls.name;
+      option.innerText = typeof getClassDisplayName === 'function'
+        ? getClassDisplayName(cls.name, cls.name_ur || '')
+        : (cls.name_ur || cls.name || '');
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error('Error loading history classes:', err);
+  }
 }
 
 async function fetchHistoricalChecklists() {
@@ -290,7 +322,6 @@ async function fetchHistoricalChecklists() {
 
   try {
     let query = db.collection('lesson_delivery_checklists')
-      .where('tenantId', '==', tenantId)
       .where('teacherId', '==', teacherId);
 
     const snapshot = await query.get();
@@ -300,6 +331,9 @@ async function fetchHistoricalChecklists() {
       const data = doc.data();
       const ctx = data.context || {};
       
+      // Tenant filtering (match active tenant, or allow legacy empty/unset tenantId values)
+      if (data.tenantId && data.tenantId !== tenantId && tenantId !== 'default') return;
+
       // Client-side filtering for optional parameters to avoid complex multi-field indexes
       if (dept && ctx.department !== dept) return;
       if (className && ctx.className !== className) return;
