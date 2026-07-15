@@ -590,17 +590,32 @@
                 tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; padding: 2rem;">${getTrans('loading')}...</td></tr>`;
             }
 
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
             try {
-                const snapshot = await db.collection('departments').orderBy('name').get();
+                let snapshot;
+                try {
+                    snapshot = await db.collection('departments').where('tenantId', '==', tenantId).orderBy('name').get();
+                } catch (e) {
+                    console.warn('Fallback ordering', e);
+                    try {
+                        snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                    } catch (e2) {
+                        const fullSnap = await db.collection('departments').get();
+                        const filteredDocs = fullSnap.docs.filter(d => !d.data().tenantId || d.data().tenantId === tenantId);
+                        snapshot = { empty: filteredDocs.length === 0, forEach: filteredDocs.forEach.bind(filteredDocs) };
+                    }
+                }
 
                 // Populate Filters
                 [filter1, filter2].forEach(select => {
                     const currentVal = select.value;
                     select.innerHTML = `<option value="" data-i18n="all_departments">${getTrans('all_departments')}</option>`;
                     snapshot.forEach(doc => {
+                        const data = doc.data() || {};
+                        if (data.tenantId && data.tenantId !== tenantId) return;
                         const opt = document.createElement('option');
-                        opt.value = doc.data().name;
-                        opt.innerText = doc.data().name_ur || doc.data().name;
+                        opt.value = data.name;
+                        opt.innerText = data.name_ur || data.name;
                         select.appendChild(opt);
                     });
                     select.value = currentVal;
@@ -613,7 +628,8 @@
 
                 let html = '';
                 snapshot.forEach(doc => {
-                    const d = doc.data();
+                    const d = doc.data() || {};
+                    if (d.tenantId && d.tenantId !== tenantId) return;
                     html += `
                         <tr>
                             <td style="font-weight: 500;">${d.name_ur || d.name}</td>
@@ -685,18 +701,52 @@
         async function loadClasses() {
             const tbody = document.getElementById('classesList');
             const filterDept = document.getElementById('classFilterDept').value;
+            if (!tbody) return;
 
-            if (!tbody.innerHTML.trim() || tbody.innerHTML.includes('Loading')) {
-                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 2rem;">${getTrans('loading')}...</td></tr>`;
-            }
+            // UI Polish: Premium skeleton loader rows instead of plain text
+            tbody.innerHTML = `
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+            `;
 
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
             try {
-                let query = db.collection('classes').orderBy('name');
-                if (filterDept) {
-                    query = db.collection('classes').where('department', '==', filterDept);
+                let snapshot;
+                try {
+                    let query = db.collection('classes').where('tenantId', '==', tenantId);
+                    if (filterDept) {
+                        query = query.where('department', '==', filterDept);
+                    }
+                    snapshot = await query.get();
+                } catch (e) {
+                    console.warn('Fallback classes', e);
+                    try {
+                        let query = db.collection('classes');
+                        if (filterDept) {
+                            query = query.where('department', '==', filterDept);
+                        }
+                        const fullSnap = await query.get();
+                        const filteredDocs = fullSnap.docs.filter(d => !d.data().tenantId || d.data().tenantId === tenantId);
+                        snapshot = { empty: filteredDocs.length === 0, forEach: filteredDocs.forEach.bind(filteredDocs) };
+                    } catch (e2) {
+                        const fullSnap = await db.collection('classes').get();
+                        const filteredDocs = fullSnap.docs.filter(d => !d.data().tenantId || d.data().tenantId === tenantId);
+                        snapshot = { empty: filteredDocs.length === 0, forEach: filteredDocs.forEach.bind(filteredDocs) };
+                    }
                 }
-
-                const snapshot = await query.get();
 
                 if (snapshot.empty) {
                     tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 2rem;">${getTrans('no_classes_found')}</td></tr>`;
@@ -705,7 +755,9 @@
 
                 let html = '';
                 snapshot.forEach(doc => {
-                    const c = doc.data();
+                    const c = doc.data() || {};
+                    if (c.tenantId && c.tenantId !== tenantId) return;
+
                     // Lookup department Urdu name
                     const deptUrdu = {
                         "Dars-e-Nizami Department": "شعبہ درس نظامی",
@@ -727,23 +779,34 @@
                         </tr>
                     `;
                 });
-                tbody.innerHTML = html;
+                tbody.innerHTML = html || `<tr><td colspan="3" style="text-align:center; padding: 2rem;">${getTrans('no_classes_found')}</td></tr>`;
                 updatePageLanguage();
             } catch (error) {
                 console.error("Error loading classes:", error);
-                if (error.message.includes('index')) {
-                    // Fallback client-side filtering if index missing
+                // Try client fallback if it was a query capability error (like missing index link)
+                try {
                     const snapshot = await db.collection('classes').get();
                     let html = '';
                     let count = 0;
                     snapshot.forEach(doc => {
-                        const c = doc.data();
+                        const c = doc.data() || {};
+                        if (c.tenantId && c.tenantId !== tenantId) return;
                         if (filterDept && c.department !== filterDept) return;
                         count++;
+                        
+                        const deptUrdu = {
+                            "Dars-e-Nizami Department": "شعبہ درس نظامی",
+                            "Hifz Department": "شعبہ تحفیظ القرآن",
+                            "Tajweed Department": "شعبہ تجوید و قرأت"
+                        };
+                        const displayDept = (typeof getDepartmentDisplayName === 'function')
+                            ? getDepartmentDisplayName(c.department, deptUrdu[c.department] || c.department)
+                            : (deptUrdu[c.department] || c.department);
+
                         html += `
                             <tr>
                                 <td style="font-weight: 500;">${(typeof getClassDisplayName === 'function') ? getClassDisplayName(c.name, c.name_ur || c.name) : (c.name_ur || c.name)}</td>
-                                <td>${(typeof getDepartmentDisplayName === 'function') ? getDepartmentDisplayName(c.department, c.department) : c.department}</td>
+                                <td>${displayDept}</td>
                                 <td>
                                     <button onclick="editClass('${doc.id}', '${c.name}', '${c.department}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">${getTrans('edit')}</button>
                                     <button onclick="deleteClass('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
@@ -754,7 +817,7 @@
                     if (count === 0) tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 2rem;">${getTrans('no_classes_found')}</td></tr>`;
                     else tbody.innerHTML = html;
                     updatePageLanguage();
-                } else {
+                } catch (e2) {
                     tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:red;">Error: ${error.message}</td></tr>`;
                 }
             }
@@ -819,11 +882,23 @@
             const current = select.value;
             select.innerHTML = `<option value="" data-i18n="select_department">${getTrans('select_department')}</option>`;
 
-            const snapshot = await db.collection('departments').orderBy('name').get();
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+            let snapshot;
+            try {
+                snapshot = await db.collection('departments').where('tenantId', '==', tenantId).orderBy('name').get();
+            } catch (e) {
+                try {
+                    snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                } catch (e2) {
+                    snapshot = await db.collection('departments').get();
+                }
+            }
             snapshot.forEach(doc => {
+                const data = doc.data() || {};
+                if (data.tenantId && data.tenantId !== tenantId) return;
                 const opt = document.createElement('option');
-                opt.value = doc.data().name;
-                opt.innerText = doc.data().name_ur || doc.data().name;
+                opt.value = data.name;
+                opt.innerText = data.name_ur || data.name;
                 select.appendChild(opt);
             });
             if (current) select.value = current;

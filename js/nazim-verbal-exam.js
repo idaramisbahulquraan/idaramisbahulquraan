@@ -58,9 +58,24 @@ async function loadNazimDepartments() {
     if (!select) return;
     select.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
 
-    const snapshot = await db.collection('departments').orderBy('name').get();
+    const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+    let snapshot;
+    try {
+        snapshot = await db.collection('departments').where('tenantId', '==', tenantId).orderBy('name').get();
+    } catch (e) {
+        try {
+            snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
+        } catch (e2) {
+            snapshot = await db.collection('departments').orderBy('name').get();
+        }
+    }
     verbalExamState.departments = [];
-    snapshot.forEach(doc => verbalExamState.departments.push({ id: doc.id, ...(doc.data() || {}) }));
+    snapshot.forEach(doc => {
+        const data = doc.data() || {};
+        if (!data.tenantId || data.tenantId === tenantId) {
+            verbalExamState.departments.push({ id: doc.id, ...data });
+        }
+    });
 
     verbalExamState.departments.forEach(dept => {
         const opt = document.createElement('option');
@@ -77,6 +92,7 @@ async function updateNazimClasses() {
     const dept = document.getElementById('department').value;
     const classSelect = document.getElementById('className');
     const subjectSelect = document.getElementById('subject');
+    if (!classSelect || !subjectSelect) return;
     classSelect.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
     subjectSelect.innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
     verbalExamState.classes = [];
@@ -85,8 +101,19 @@ async function updateNazimClasses() {
     showSheetPlaceholder('کلاس منتخب کریں، پھر مضمون منتخب کریں۔');
     if (!dept) return;
 
-    const snapshot = await db.collection('classes').where('department', '==', dept).get();
-    snapshot.forEach(doc => verbalExamState.classes.push({ id: doc.id, ...(doc.data() || {}) }));
+    const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+    let snapshot;
+    try {
+        snapshot = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+    } catch (e) {
+        snapshot = await db.collection('classes').where('department', '==', dept).get();
+    }
+    snapshot.forEach(doc => {
+        const data = doc.data() || {};
+        if (!data.tenantId || data.tenantId === tenantId) {
+            verbalExamState.classes.push({ id: doc.id, ...data });
+        }
+    });
     verbalExamState.classes
         .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')))
         .forEach(cls => {
@@ -105,18 +132,34 @@ async function updateNazimSubjects() {
     const dept = document.getElementById('department').value;
     const className = document.getElementById('className').value;
     const subjectSelect = document.getElementById('subject');
+    if (!subjectSelect) return;
     subjectSelect.innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
     verbalExamState.subjects = [];
     verbalExamState.selectedSubjectDoc = null;
     showSheetPlaceholder('مضمون منتخب کریں اور پھر شیٹ لوڈ کریں۔');
     if (!dept || !className) return;
 
-    const snapshot = await db.collection('subjects')
-        .where('department', '==', dept)
-        .where('className', '==', className)
-        .get();
+    const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+    let snapshot;
+    try {
+        snapshot = await db.collection('subjects')
+            .where('tenantId', '==', tenantId)
+            .where('department', '==', dept)
+            .where('className', '==', className)
+            .get();
+    } catch (e) {
+        snapshot = await db.collection('subjects')
+            .where('department', '==', dept)
+            .where('className', '==', className)
+            .get();
+    }
 
-    snapshot.forEach(doc => verbalExamState.subjects.push({ id: doc.id, ...(doc.data() || {}) }));
+    snapshot.forEach(doc => {
+        const data = doc.data() || {};
+        if (!data.tenantId || data.tenantId === tenantId) {
+            verbalExamState.subjects.push({ id: doc.id, ...data });
+        }
+    });
     verbalExamState.subjects
         .sort((a, b) => getSubjectDisplayName(a).localeCompare(getSubjectDisplayName(b), 'ur'))
         .forEach(subject => {
@@ -153,25 +196,51 @@ async function loadVerbalExamSheet() {
     try {
         const selectedClass = verbalExamState.classes.find(cls => cls.name === className) || null;
         const deptUr = verbalExamState.departments.find(item => item.name === dept)?.name_ur || '';
+        const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+
+        const getStudentQuery = async (field, val, field2 = null, val2 = null) => {
+            try {
+                let q = db.collection('students').where('tenantId', '==', tenantId).where(field, '==', val);
+                if (field2 && val2) q = q.where(field2, '==', val2);
+                return await q.get();
+            } catch (e) {
+                let q = db.collection('students').where(field, '==', val);
+                if (field2 && val2) q = q.where(field2, '==', val2);
+                return await q.get();
+            }
+        };
+
         const queryTasks = [
-            db.collection('students').where('department', '==', dept).where('className', '==', className).get(),
-            db.collection('students').where('department', '==', dept).where('admissionClass', '==', className).get()
+            getStudentQuery('department', dept, 'className', className),
+            getStudentQuery('department', dept, 'admissionClass', className)
         ];
 
         if (selectedClass?.id) {
-            queryTasks.push(db.collection('students').where('classId', '==', selectedClass.id).get());
+            queryTasks.push(getStudentQuery('classId', selectedClass.id));
         }
         if (selectedClass?.name_ur) {
-            queryTasks.push(db.collection('students').where('className_ur', '==', selectedClass.name_ur).get());
-            queryTasks.push(db.collection('students').where('admissionClass_ur', '==', selectedClass.name_ur).get());
+            queryTasks.push(getStudentQuery('className_ur', selectedClass.name_ur));
+            queryTasks.push(getStudentQuery('admissionClass_ur', selectedClass.name_ur));
         }
         if (deptUr && selectedClass?.name_ur) {
-            queryTasks.push(db.collection('students').where('department_ur', '==', deptUr).where('className_ur', '==', selectedClass.name_ur).get());
+            queryTasks.push(getStudentQuery('department_ur', deptUr, 'className_ur', selectedClass.name_ur));
         }
+
+        const getScoresQuery = async () => {
+            try {
+                return await db.collection('verbal_exam_scores').where('tenantId', '==', tenantId).where('examDate', '==', examDate).get();
+            } catch (e) {
+                try {
+                    return await db.collection('verbal_exam_scores').where('examDate', '==', examDate).get();
+                } catch (e2) {
+                    return await db.collection('verbal_exam_scores').get();
+                }
+            }
+        };
 
         const settled = await Promise.allSettled([
             ...queryTasks,
-            db.collection('verbal_exam_scores').where('examDate', '==', examDate).get()
+            getScoresQuery()
         ]);
 
         const scoreResult = settled.pop();
@@ -238,17 +307,22 @@ function renderVerbalExamSheet() {
             const hint = criteria.max ? `0-${criteria.max}` : '0';
             return `
                 <td>
-                    <input
-                        type="number"
-                        class="score-input"
-                        min="0"
-                        ${maxAttr}
-                        step="1"
-                        placeholder="${hint}"
-                        value="${getCriteriaScoreValue(scores, criteria)}"
-                        data-student-id="${student.id}"
-                        data-criteria="${criteria.key}"
-                        oninput="updateVerbalScoreRow('${student.id}')">
+                    <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
+                        <button type="button" style="padding:2px 6px; font-size:0.8rem; font-weight:bold; background:var(--border-color); border:1px solid #ddd; border-radius:4px; cursor:pointer;" onclick="adjustVerbalScore('${student.id}', '${criteria.key}', -1)">-</button>
+                        <input
+                            type="number"
+                            class="score-input"
+                            min="0"
+                            ${maxAttr}
+                            step="1"
+                            placeholder="${hint}"
+                            value="${getCriteriaScoreValue(scores, criteria)}"
+                            data-student-id="${student.id}"
+                            data-criteria="${criteria.key}"
+                            oninput="updateVerbalScoreRow('${student.id}')"
+                            onkeydown="handleVerbalExamKeydown(event, '${student.id}', '${criteria.key}')">
+                        <button type="button" style="padding:2px 6px; font-size:0.8rem; font-weight:bold; background:var(--border-color); border:1px solid #ddd; border-radius:4px; cursor:pointer;" onclick="adjustVerbalScore('${student.id}', '${criteria.key}', 1)">+</button>
+                    </div>
                 </td>
             `;
         }).join('');
@@ -269,11 +343,46 @@ function renderVerbalExamSheet() {
     card.style.display = '';
 }
 
+function adjustVerbalScore(studentId, criteriaKey, amount) {
+    const input = document.querySelector(`input[data-student-id="${studentId}"][data-criteria="${criteriaKey}"]`);
+    if (!input) return;
+    const maxVal = input.hasAttribute('max') ? parseInt(input.getAttribute('max'), 10) : Infinity;
+    let val = parseInt(input.value, 10) || 0;
+    val += amount;
+    if (val < 0) val = 0;
+    if (val > maxVal) val = maxVal;
+    input.value = val;
+    updateVerbalScoreRow(studentId);
+}
+
+function handleVerbalExamKeydown(event, studentId, criteriaKey) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        const inputs = Array.from(document.querySelectorAll(`input[data-criteria="${criteriaKey}"]`));
+        const index = inputs.findIndex(inp => inp.getAttribute('data-student-id') === studentId);
+        if (index !== -1 && index + 1 < inputs.length) {
+            inputs[index + 1].focus();
+            inputs[index + 1].select();
+        }
+    }
+}
+
 function updateVerbalScoreRow(studentId) {
     const values = {};
     verbalExamState.criteria.forEach(criteria => {
         const input = document.querySelector(`input[data-student-id="${studentId}"][data-criteria="${criteria.key}"]`);
-        values[criteria.key] = Number(input?.value || 0) || 0;
+        if (input) {
+            const val = Number(input.value || 0) || 0;
+            const maxVal = input.hasAttribute('max') ? parseInt(input.getAttribute('max'), 10) : null;
+            if (maxVal !== null && val > maxVal) {
+                input.style.borderColor = 'red';
+                input.style.boxShadow = '0 0 5px rgba(255,0,0,0.5)';
+            } else {
+                input.style.borderColor = '';
+                input.style.boxShadow = '';
+            }
+            values[criteria.key] = val;
+        }
     });
     const totalEl = document.getElementById(`total_${studentId}`);
     if (totalEl) totalEl.innerText = calculateVerbalScoreTotal(values);
@@ -330,6 +439,7 @@ async function saveVerbalExamScores() {
             const fullName = `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.name || student.email || student.id;
             const docId = buildVerbalScoreDocId(examDate, className, subject.id, student.id);
             const ref = db.collection('verbal_exam_scores').doc(docId);
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
             batch.set(ref, {
                 examDate,
                 department: dept,
@@ -349,6 +459,7 @@ async function saveVerbalExamScores() {
                 criteriaMeta: verbalExamState.criteria,
                 assessedByUid: verbalExamState.currentUser?.uid || '',
                 assessedByName: verbalExamState.currentUser?.name || verbalExamState.currentUser?.displayName || '',
+                tenantId: tenantId,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
         });

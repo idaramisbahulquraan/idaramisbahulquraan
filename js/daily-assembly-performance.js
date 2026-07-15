@@ -350,17 +350,47 @@ function renderDailyAssemblyRows() {
     renderDailyAssemblyPlaceholder('اس تاریخ اور کلاس / سیکشن کے لیے کوئی مشارک نہیں ملا۔');
     return;
   }
-  tbody.innerHTML = dailyAssemblyState.currentParticipants.map((row, index) => `
-    <tr>
-      <td>${index + 1}</td>
-      <td class="dap-participant">${escapeDailyAssemblyHtml(row.participantName)}${row.rollNumber ? `<div style="color:var(--text-light); font-size:0.82rem; margin-top:0.2rem;">رول نمبر: ${escapeDailyAssemblyHtml(row.rollNumber)}</div>` : ''}</td>
-      <td class="dap-task">${escapeDailyAssemblyHtml(row.taskLabel)}${row.itemTitle ? `<div style="color:var(--text-light); font-size:0.82rem; margin-top:0.25rem;">${escapeDailyAssemblyHtml(row.itemTitle)}</div>` : ''}</td>
-      ${dailyAssemblyState.criteria.map((criteria) => `
-        <td><input type="number" min="0" max="5" class="dap-input dap-score-input" data-row-id="${row.rowId}" data-criteria="${criteria.key}" value="${row.scores[criteria.key] || 0}" ${dailyAssemblyState.canSaveScores ? '' : 'disabled'}></td>
-      `).join('')}
-      <td><span class="dap-total-pill" id="total_${row.rowId}">${calculateDailyAssemblyRowTotal(row.scores)}</span></td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = dailyAssemblyState.currentParticipants.map((row, index) => {
+    const logBtn = row.studentId ? `<button type="button" onclick="viewSpeakerLog('${row.studentId}', '${escapeDailyAssemblyHtml(row.participantName)}')" style="background:#eef2ff; color:#4338ca; border:1px solid rgba(79,70,229,0.15); padding:4px 8px; border-radius:6px; cursor:pointer; font-size:0.75rem; margin-top:4px;">لاگ ہسٹری</button>` : '';
+    
+    const starsCells = dailyAssemblyState.criteria.map((criteria) => {
+      const val = row.scores[criteria.key] || 0;
+      let starsHtml = `<div class="dap-stars-container" style="display:flex; gap:3px; justify-content:center; font-size:1.2rem;">`;
+      for (let star = 1; star <= 5; star++) {
+        const active = star <= val;
+        const starColor = active ? '#eab308' : '#cbd5e1';
+        starsHtml += `
+          <span 
+            class="dap-star-icon" 
+            style="cursor: ${dailyAssemblyState.canSaveScores ? 'pointer' : 'default'}; color: ${starColor}; transition: color 0.1s;"
+            data-row-id="${row.rowId}"
+            data-criteria="${criteria.key}"
+            data-value="${star}"
+            ${dailyAssemblyState.canSaveScores ? `onclick="rateDailyAssemblyStar('${row.rowId}', '${criteria.key}', ${star})"` : ''}
+          >★</span>
+        `;
+      }
+      starsHtml += `</div>`;
+      return `<td>${starsHtml}</td>`;
+    }).join('');
+
+    return `
+      <tr>
+        <td>${index + 1}</td>
+        <td class="dap-participant">
+          <div>${escapeDailyAssemblyHtml(row.participantName)}</div>
+          ${row.rollNumber ? `<div style="color:var(--text-light); font-size:0.82rem; margin-top:0.2rem;">رول نمبر: ${escapeDailyAssemblyHtml(row.rollNumber)}</div>` : ''}
+          ${logBtn}
+        </td>
+        <td class="dap-task">
+          <div>${escapeDailyAssemblyHtml(row.taskLabel)}</div>
+          ${row.itemTitle ? `<div style="color:var(--text-light); font-size:0.82rem; margin-top:0.25rem;">${escapeDailyAssemblyHtml(row.itemTitle)}</div>` : ''}
+        </td>
+        ${starsCells}
+        <td><span class="dap-total-pill" id="total_${row.rowId}">${calculateDailyAssemblyRowTotal(row.scores)}</span></td>
+      </tr>
+    `;
+  }).join('');
 }
 
 function renderDailyAssemblyPlaceholder(message) {
@@ -529,4 +559,81 @@ function escapeDailyAssemblyHtml(value) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function rateDailyAssemblyStar(rowId, criteriaKey, value) {
+  const row = dailyAssemblyState.currentParticipants.find((item) => item.rowId === rowId);
+  if (!row) return;
+  row.scores[criteriaKey] = value;
+
+  const stars = document.querySelectorAll(`.dap-star-icon[data-row-id="${rowId}"][data-criteria="${criteriaKey}"]`);
+  stars.forEach((star) => {
+    const starVal = parseInt(star.dataset.value, 10);
+    star.style.color = starVal <= value ? '#eab308' : '#cbd5e1';
+  });
+
+  const totalEl = document.getElementById(`total_${rowId}`);
+  if (totalEl) totalEl.innerText = String(calculateDailyAssemblyRowTotal(row.scores));
+  updateDailyAssemblyStats();
+}
+
+async function viewSpeakerLog(studentId, name) {
+  const modal = document.getElementById('speakerLogModal');
+  const title = document.getElementById('speakerLogTitle');
+  const meta = document.getElementById('speakerLogMeta');
+  const tbody = document.getElementById('speakerLogTableBody');
+  if (!modal || !tbody) return;
+
+  title.innerText = `کارکردگی ہسٹری - ${name}`;
+  meta.innerText = 'لوڈ ہو رہا ہے...';
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لوڈ ہو رہا ہے...</td></tr>';
+  modal.classList.add('active');
+
+  try {
+    const tenantId = dailyAssemblyState.currentUser?.tenantId || localStorage.getItem('tenantId') || '';
+    let query = db.collection('daily_assembly_performance');
+    if (tenantId) query = query.where('tenantId', '==', tenantId);
+    const snap = await query.get();
+    
+    const records = [];
+    snap.forEach((doc) => {
+      const data = doc.data() || {};
+      const matchEntry = (data.entries || []).find((e) => e.studentId === studentId);
+      if (matchEntry) {
+        records.push({
+          date: data.date,
+          task: matchEntry.taskLabel,
+          prep: matchEntry.preparation || 0,
+          conf: matchEntry.confidence || 0,
+          total: matchEntry.total || 0
+        });
+      }
+    });
+
+    if (records.length === 0) {
+      meta.innerText = 'کوئی ہسٹری نہیں ملی۔';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">کوئی ہسٹری نہیں ملی۔</td></tr>';
+      return;
+    }
+
+    records.sort((a, b) => new Date(b.date) - new Date(a.date));
+    meta.innerText = `کل کارکردگی لاگز: ${records.length}`;
+    tbody.innerHTML = records.map((rec) => `
+      <tr>
+        <td>${rec.date}</td>
+        <td>${escapeDailyAssemblyHtml(rec.task)}</td>
+        <td>${rec.prep} / 5</td>
+        <td>${rec.conf} / 5</td>
+        <td><strong>${rec.total} / 25</strong></td>
+      </tr>
+    `).join('');
+  } catch (error) {
+    console.error('Error fetching speaker log:', error);
+    meta.innerText = 'لوڈ کرنے میں غلطی پیش آئی۔';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">لوڈ کرنے میں غلطی پیش آئی۔</td></tr>';
+  }
+}
+
+function closeSpeakerLogModal() {
+  document.getElementById('speakerLogModal')?.classList.remove('active');
 }

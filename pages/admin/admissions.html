@@ -534,10 +534,19 @@
         // --- 2. DROPDOWNS ---
         async function loadDepts() {
             const sel = document.getElementById('deptSelect');
-            const snap = await db.collection('departments').get();
+            if (!sel) return;
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+            let snap;
+            try {
+                snap = await db.collection('departments').where('tenantId', '==', tenantId).get();
+            } catch (e) {
+                snap = await db.collection('departments').get();
+            }
             snap.forEach(d => {
-                const name = d.data().name;
-                const nameUr = d.data().name_ur || name;
+                const data = d.data() || {};
+                if (data.tenantId && data.tenantId !== tenantId) return;
+                const name = data.name;
+                const nameUr = data.name_ur || name;
                 sel.innerHTML += `<option value="${name}">${nameUr}</option>`;
             });
         }
@@ -545,12 +554,21 @@
         async function loadClasses() {
             const dept = document.getElementById('deptSelect').value;
             const sel = document.getElementById('classSelect');
+            if (!sel) return;
             sel.innerHTML = '<option value="">Loading...</option>';
-            const snap = await db.collection('classes').where('department', '==', dept).get();
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+            let snap;
+            try {
+                snap = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+            } catch (e) {
+                snap = await db.collection('classes').where('department', '==', dept).get();
+            }
             sel.innerHTML = '<option value="">Select Class</option>';
             snap.forEach(d => {
-                const name = d.data().name;
-                const nameUr = d.data().name_ur || name;
+                const data = d.data() || {};
+                if (data.tenantId && data.tenantId !== tenantId) return;
+                const name = data.name;
+                const nameUr = data.name_ur || name;
                 sel.innerHTML += `<option value="${name}">${nameUr}</option>`;
             });
         }
@@ -583,6 +601,7 @@
                 // Add Metadata
                 data.status = 'pending';
                 data.submittedAt = firebase.firestore.FieldValue.serverTimestamp();
+                data.tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
 
                 await db.collection('admissions').add(data);
 
@@ -602,10 +621,44 @@
         // --- 5. APPROVAL WORKFLOW ---
         async function loadPendingApplications() {
             const tbody = document.getElementById('pendingTableBody');
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
+            if (!tbody) return;
+
+            // UI Polish: Premium skeleton loader rows
+            tbody.innerHTML = `
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+            `;
 
             try {
-                const snap = await db.collection('admissions').where('status', '==', 'pending').get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snap;
+                try {
+                    snap = await db.collection('admissions').where('tenantId', '==', tenantId).where('status', '==', 'pending').get();
+                } catch (e) {
+                    console.warn('Fallback admissions', e);
+                    try {
+                        snap = await db.collection('admissions').where('status', '==', 'pending').get();
+                    } catch (e2) {
+                        const fullSnap = await db.collection('admissions').get();
+                        const filteredDocs = fullSnap.docs.filter(d => (!d.data().tenantId || d.data().tenantId === tenantId) && d.data().status === 'pending');
+                        snap = { empty: filteredDocs.length === 0, forEach: filteredDocs.forEach.bind(filteredDocs) };
+                    }
+                }
+
                 if (snap.empty) {
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No pending requests.</td></tr>';
                     return;
@@ -613,7 +666,10 @@
 
                 tbody.innerHTML = '';
                 snap.forEach(doc => {
-                    const d = doc.data();
+                    const d = doc.data() || {};
+                    if (d.tenantId && d.tenantId !== tenantId) return;
+                    if (d.status !== 'pending') return;
+
                     // Basic date fmt
                     const date = d.submittedAt ? new Date(d.submittedAt.seconds * 1000).toLocaleDateString() : '-';
 

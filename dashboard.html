@@ -83,22 +83,22 @@
                 <!-- ADMIN DASHBOARD -->
                 <div id="admin-dashboard" style="display: none;">
                     <div class="stats-grid">
-                        <div class="stat-card">
+                        <div class="stat-card glass-panel">
                             <div class="stat-icon">👨‍🎓</div>
                             <p class="stat-title" data-i18n="total_students">Total Students</p>
                             <p class="stat-value" id="countStudents">-</p>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-card glass-panel">
                             <div class="stat-icon">👨‍🏫</div>
                             <p class="stat-title" data-i18n="total_teachers">Total Teachers</p>
                             <p class="stat-value" id="countTeachers">-</p>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-card glass-panel">
                             <div class="stat-icon">🏫</div>
                             <p class="stat-title" data-i18n="total_classes">Total Classes</p>
                             <p class="stat-value" id="countClasses">-</p>
                         </div>
-                        <div class="stat-card" style="border-left-color: var(--success);">
+                        <div class="stat-card glass-panel" style="border-left-color: var(--success);">
                             <div class="stat-icon" style="color: var(--success);">💰</div>
                             <p class="stat-title" data-i18n="monthly_income">Monthly Income</p>
                             <p class="stat-value" id="monthlyIncome" style="color: var(--success);">$0</p>
@@ -106,19 +106,19 @@
                     </div>
 
                     <div class="charts-grid">
-                        <div class="chart-card">
+                        <div class="chart-card glass-panel">
                             <h3 style="margin-bottom: 1rem; font-size: 1.1rem;" data-i18n="income_vs_expense">Income vs
                                 Expense (This Year)</h3>
                             <canvas id="financeChart"></canvas>
                         </div>
-                        <div class="chart-card">
+                        <div class="chart-card glass-panel">
                             <h3 style="margin-bottom: 1rem; font-size: 1.1rem;" data-i18n="student_distribution">Student
                                 Distribution</h3>
                             <canvas id="studentChart"></canvas>
                         </div>
                     </div>
 
-                    <div class="stat-card" style="min-height: auto;">
+                    <div class="stat-card glass-panel" style="min-height: auto;">
                         <h3 style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;"
                             data-i18n="recent_activity">Recent Activity</h3>
                         <div id="recentActivityList">
@@ -126,8 +126,8 @@
                         </div>
                     </div>
 
-                    <div class="card"
-                        style="margin-top: 1.5rem; padding: 1.5rem; background: white; border-radius: 1rem;">
+                    <div class="card glass-panel"
+                        style="margin-top: 1.5rem; padding: 1.5rem; border-radius: 1rem;">
                         <h3 style="margin-bottom: 1rem;" data-i18n="upcoming_events">Upcoming Events</h3>
                         <div id="adminEventsList" class="events-list">
                             <p>Loading events...</p>
@@ -140,15 +140,15 @@
                     <h2 id="teacherWelcome" style="margin-bottom: 1.5rem;">Welcome Teacher</h2>
                     <div class="grid-container"
                         style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
-                        <div class="card"
-                            style="background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: var(--shadow-sm);">
+                        <div class="card glass-panel"
+                            style="padding: 1.5rem; border-radius: 1rem;">
                             <h3 style="margin-bottom: 1rem;">Today's Schedule</h3>
                             <div id="teacherClasses">
                                 <p>Loading schedule...</p>
                             </div>
                         </div>
-                        <div class="card"
-                            style="background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: var(--shadow-sm);">
+                        <div class="card glass-panel"
+                            style="padding: 1.5rem; border-radius: 1rem;">
                             <h3 style="margin-bottom: 1rem;">Quick Actions</h3>
                             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                                 <a href="pages/teacher/attendance.html" class="btn-primary"
@@ -161,7 +161,7 @@
                         </div>
                     </div>
 
-                    <div class="card" style="padding: 1.5rem; background: white; border-radius: 1rem;">
+                    <div class="card glass-panel" style="padding: 1.5rem; border-radius: 1rem;">
                         <h3 style="margin-bottom: 1rem;" data-i18n="upcoming_events">Upcoming Events</h3>
                         <div id="teacherEventsList" class="events-list">
                             <p>Loading events...</p>
@@ -174,15 +174,15 @@
                     <h2 id="studentWelcome" style="margin-bottom: 1.5rem;">Welcome Student</h2>
                     <div class="grid-container"
                         style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
-                        <div class="card"
-                            style="background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: var(--shadow-sm);">
+                        <div class="card glass-panel"
+                            style="padding: 1.5rem; border-radius: 1rem;">
                             <h3 style="margin-bottom: 1rem;">My Attendance</h3>
                             <div id="studentAttendanceSummary">
                                 <p>Loading...</p>
                             </div>
                         </div>
-                        <div class="card"
-                            style="background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: var(--shadow-sm);">
+                        <div class="card glass-panel"
+                            style="padding: 1.5rem; border-radius: 1rem;">
                             <h3 style="margin-bottom: 1rem;">Upcoming Exams</h3>
                             <div id="studentExams">
                                 <p>No upcoming exams.</p>
@@ -190,13 +190,14 @@
                         </div>
                     </div>
 
-                    <div class="card" style="padding: 1.5rem; background: white; border-radius: 1rem;">
+                    <div class="card glass-panel" style="padding: 1.5rem; border-radius: 1rem;">
                         <h3 style="margin-bottom: 1rem;" data-i18n="upcoming_events">Upcoming Events</h3>
                         <div id="studentEventsList" class="events-list">
                             <p>Loading events...</p>
                         </div>
                     </div>
                 </div>
+
 
             </div>
         </main>

@@ -257,13 +257,26 @@
         // --- Data Loading ---
         async function loadDepartments() {
             const select = document.getElementById('department');
+            if (!select) return;
             select.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
             try {
-                const snapshot = await db.collection('departments').orderBy('name').get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('departments').where('tenantId', '==', tenantId).orderBy('name').get();
+                } catch (e) {
+                    try {
+                        snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                    } catch (e2) {
+                        snapshot = await db.collection('departments').get();
+                    }
+                }
                 snapshot.forEach(doc => {
+                    const data = doc.data() || {};
+                    if (data.tenantId && data.tenantId !== tenantId) return;
                     const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name_ur || doc.data().name;
+                    opt.value = data.name;
+                    opt.innerText = data.name_ur || data.name;
                     select.appendChild(opt);
                 });
             } catch (e) { console.error(e); }
@@ -272,14 +285,22 @@
         async function updateClasses() {
             const dept = document.getElementById('department').value;
             const select = document.getElementById('className');
+            if (!select) return;
             select.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
             if (!dept) return;
 
             try {
-                const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+                } catch (e) {
+                    snapshot = await db.collection('classes').where('department', '==', dept).get();
+                }
                 const seen = new Set();
                 snapshot.forEach(doc => {
-                    const data = doc.data();
+                    const data = doc.data() || {};
+                    if (data.tenantId && data.tenantId !== tenantId) return;
                     if (!data.name) return;
                     const label = data.name_ur || data.name;
                     if (seen.has(label)) return;
@@ -297,17 +318,29 @@
             const dept = document.getElementById('department').value;
             const className = document.getElementById('className').value;
             const select = document.getElementById('studentSelect');
+            if (!select) return;
             select.innerHTML = '<option value="" data-i18n="select_student">Select Student</option>';
             if (!dept || !className) return;
 
             try {
-                const snapshot = await db.collection('students')
-                    .where('department', '==', dept)
-                    .where('className', '==', className)
-                    .get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('students')
+                        .where('tenantId', '==', tenantId)
+                        .where('department', '==', dept)
+                        .where('className', '==', className)
+                        .get();
+                } catch (e) {
+                    snapshot = await db.collection('students')
+                        .where('department', '==', dept)
+                        .where('className', '==', className)
+                        .get();
+                }
 
                 snapshot.forEach(doc => {
-                    const data = doc.data();
+                    const data = doc.data() || {};
+                    if (data.tenantId && data.tenantId !== tenantId) return;
                     const opt = document.createElement('option');
                     const name = data.name_ur || (data.firstName + ' ' + (data.lastName || ''));
                     opt.value = JSON.stringify({ name: name, detail: data.fatherName || '' });
@@ -319,17 +352,26 @@
 
         async function loadTeachers() {
             const select = document.getElementById('teacherSelect');
-            // Assuming 'teachers' collection exists based on seed logic, or we use 'users' with role='teacher'
-            // Let's try 'teachers' collection first
+            if (!select) return;
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
             try {
-                let snapshot = await db.collection('teachers').get();
+                let snapshot;
+                try {
+                    snapshot = await db.collection('teachers').where('tenantId', '==', tenantId).get();
+                } catch (e) {
+                    snapshot = await db.collection('teachers').get();
+                }
                 if (snapshot.empty) {
-                    // Fallback to users role=teacher
-                    snapshot = await db.collection('users').where('role', '==', 'teacher').get();
+                    try {
+                        snapshot = await db.collection('users').where('tenantId', '==', tenantId).where('role', '==', 'teacher').get();
+                    } catch (e) {
+                        snapshot = await db.collection('users').where('role', '==', 'teacher').get();
+                    }
                 }
 
                 snapshot.forEach(doc => {
-                    const data = doc.data();
+                    const data = doc.data() || {};
+                    if (data.tenantId && data.tenantId !== tenantId) return;
                     const name = data.name_ur || data.name || data.firstName || 'Unknown';
                     const opt = document.createElement('option');
                     opt.value = JSON.stringify({ name: name, detail: data.mobile || data.email || '' });
@@ -387,7 +429,7 @@
             let content = document.getElementById('certContent').value;
             const date = document.getElementById('issueDate').value;
 
-            if (!name) { alert("Please enter recipient name"); return; }
+            if (!name) { alert(getTransOr('enter_recipient_name', "Please enter recipient name")); return; }
 
             // Replace placeholders
             content = content.replace('[Name]', `<b>${name}</b>`);
@@ -419,7 +461,7 @@
             const content = document.getElementById('certContent').value;
             const date = document.getElementById('issueDate').value;
 
-            if (!name) { alert("Please enter recipient name"); return; }
+            if (!name) { alert(getTransOr('enter_recipient_name', "Please enter recipient name")); return; }
 
             const btn = document.querySelector('button[onclick="saveAndDownload()"]');
             btn.disabled = true;
@@ -439,6 +481,7 @@
                 });
 
                 // 2. Save to Firestore
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
                 await db.collection('certificates').add({
                     recipientName: name,
                     recipientDetails: details,
@@ -447,7 +490,8 @@
                     content: content,
                     issueDate: date,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    issuedBy: firebase.auth().currentUser.uid
+                    issuedBy: firebase.auth().currentUser.uid,
+                    tenantId: tenantId
                 });
 
                 loadHistory(); // Refresh table
@@ -465,14 +509,49 @@
 
         async function loadHistory() {
             const tbody = document.getElementById('historyTableBody');
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center" data-i18n="loading">Loading...</td></tr>';
+            if (!tbody) return;
+
+            // UI Polish: Premium skeleton loader rows
+            tbody.innerHTML = `
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+            `;
             updatePageLanguage();
 
             try {
-                const snapshot = await db.collection('certificates')
-                    .orderBy('createdAt', 'desc')
-                    .limit(20)
-                    .get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('certificates')
+                        .where('tenantId', '==', tenantId)
+                        .orderBy('createdAt', 'desc')
+                        .limit(20)
+                        .get();
+                } catch (e) {
+                    console.warn('Fallback certificates history query', e);
+                    try {
+                        snapshot = await db.collection('certificates')
+                            .where('tenantId', '==', tenantId)
+                            .limit(20)
+                            .get();
+                    } catch (e2) {
+                        const fullSnap = await db.collection('certificates').limit(100).get();
+                        const filteredDocs = fullSnap.docs.filter(d => !d.data().tenantId || d.data().tenantId === tenantId);
+                        snapshot = { empty: filteredDocs.length === 0, forEach: filteredDocs.forEach.bind(filteredDocs) };
+                    }
+                }
 
                 if (snapshot.empty) {
                     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center" data-i18n="no_certificates_issued">No certificates issued yet.</td></tr>';
@@ -482,13 +561,14 @@
 
                 tbody.innerHTML = '';
                 snapshot.forEach(doc => {
-                    const data = doc.data();
+                    const data = doc.data() || {};
+                    if (data.tenantId && data.tenantId !== tenantId) return;
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${data.issueDate}</td>
-                        <td>${data.recipientName}</td>
-                        <td>${data.role.toUpperCase()}</td>
-                        <td>${data.type}</td>
+                        <td>${data.issueDate || ''}</td>
+                        <td>${data.recipientName || ''}</td>
+                        <td>${(data.role || '').toUpperCase()}</td>
+                        <td>${data.type || ''}</td>
                         <td>
                             <button class="btn-primary" style="padding: 2px 8px; font-size: 0.8rem;" onclick="reprintCert('${doc.id}')" data-i18n="reprint">Reprint</button>
                         </td>
@@ -501,7 +581,7 @@
 
         // Simple reprint function (simplified)
         async function reprintCert(id) {
-            alert("To reprint, please generate a new one with the same details for now.");
+            alert(getTransOr('reprint_instructions', "To reprint, please generate a new one with the same details for now."));
         }
 
         updateCertTemplate();

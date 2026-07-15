@@ -359,9 +359,13 @@ async function loadAssemblyAssignments() {
 
   setAssemblyState('ذمہ داریاں لوڈ ہو رہی ہیں...');
   try {
-    const snapshot = await db.collection('assembly_responsibilities').where('weekStart', '==', weekStart).get();
+    const tenantId = assemblyState.currentUser?.tenantId || localStorage.getItem('tenantId') || '';
+    let query = db.collection('assembly_responsibilities').where('weekStart', '==', weekStart);
+    if (tenantId) query = query.where('tenantId', '==', tenantId);
+    const snapshot = await query.get();
     let assignments = [];
     snapshot.forEach((doc) => assignments.push({ id: doc.id, ...(doc.data() || {}) }));
+    window.allWeekAssignmentsCache = assignments;
 
     const filterDepartment = document.getElementById('assemblyFilterDepartment')?.value || '';
     const filterClass = document.getElementById('assemblyFilterClass')?.value || '';
@@ -467,6 +471,24 @@ async function saveAssemblyAssignment() {
 
   const taskLabel = assemblyState.tasks.find((item) => item.key === taskKey)?.label || taskKey;
   const dayLabel = assemblyState.days.find((item) => item.key === dayKey)?.label || dayKey;
+
+  // Conflict Checking
+  const allWeek = window.allWeekAssignmentsCache || [];
+  const conflict = allWeek.find(item => 
+      item.dayKey === dayKey && 
+      item.assigneeId === assigneeId && 
+      item.id !== docId &&
+      item.assigneeType === assigneeType &&
+      assigneeType !== 'class' && 
+      assigneeType !== 'other'
+  );
+  if (conflict) {
+      const msg = `تنبيه: یہ مسئول (${assigneeName}) پہلے ہی اس دن (${dayLabel}) ٹاسک "${conflict.taskLabel}" کے لیے تفویض شدہ ہے۔ کیا آپ پھر بھی تفویض کرنا چاہتے ہیں؟`;
+      if (!confirm(msg)) {
+          return;
+      }
+  }
+
   const departmentUr = getDepartmentDisplayNameSafe(department);
   const classUr = getClassDisplayNameSafe(className);
   const classDoc = assemblyState.classes.find((item) => item.name === className) || null;

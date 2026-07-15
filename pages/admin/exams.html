@@ -271,6 +271,36 @@
         </div>
     </div>
 
+    <!-- Bulk Marks Modal -->
+    <div id="bulkMarksModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 data-i18n="bulk_marks_entry">Enter Written Exam Marks</h3>
+                <button class="close-btn" onclick="closeBulkMarksModal()">&times;</button>
+            </div>
+            <div id="bulkMarksMeta" style="margin-bottom: 1rem; color: var(--text-light); font-size: 0.95rem;"></div>
+            <div style="overflow-x: auto; max-height: 400px; margin-bottom: 1rem;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th data-i18n="roll_no">Roll No</th>
+                            <th data-i18n="student_name">Student Name</th>
+                            <th data-i18n="marks_obtained">Marks Obtained</th>
+                            <th data-i18n="total_marks">Total Marks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bulkMarksTableBody">
+                        <!-- Student rows loaded here -->
+                    </tbody>
+                </table>
+            </div>
+            <div style="text-align: right;">
+                <button type="button" class="btn-secondary" onclick="closeBulkMarksModal()" style="margin-right: 0.5rem; padding: 0.75rem 1.5rem; border:none; border-radius: 0.5rem; background: #e2e8f0; cursor: pointer;" data-i18n="cancel">Cancel</button>
+                <button type="button" onclick="saveBulkMarks()" class="btn-add" style="border:none;" data-i18n="save_marks">Save Marks</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase Compat SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -291,13 +321,31 @@
             select.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
 
             try {
-                let snapshot = await db.collection('departments').orderBy('name').get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('departments').where('tenantId', '==', tenantId).orderBy('name').get();
+                } catch (e) {
+                    try {
+                        snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                    } catch (e2) {
+                        snapshot = await db.collection('departments').get();
+                    }
+                }
+
                 // Fallback: derive from classes if departments collection is empty
                 if (snapshot.empty) {
-                    const classesSnap = await db.collection('classes').get();
+                    let classesSnap;
+                    try {
+                        classesSnap = await db.collection('classes').where('tenantId', '==', tenantId).get();
+                    } catch (e) {
+                        classesSnap = await db.collection('classes').get();
+                    }
                     const set = new Set();
                     classesSnap.forEach(c => {
-                        const dep = c.data().department;
+                        const data = c.data() || {};
+                        if (data.tenantId && data.tenantId !== tenantId) return;
+                        const dep = data.department;
                         if (dep) set.add(dep);
                     });
                     Array.from(set).sort().forEach(dep => {
@@ -308,9 +356,11 @@
                     });
                 } else {
                     snapshot.forEach(doc => {
+                        const data = doc.data() || {};
+                        if (data.tenantId && data.tenantId !== tenantId) return;
                         const opt = document.createElement('option');
-                        opt.value = doc.data().name;
-                        opt.innerText = doc.data().name_ur || doc.data().name;
+                        opt.value = data.name;
+                        opt.innerText = data.name_ur || data.name;
                         select.appendChild(opt);
                     });
                 }
@@ -340,10 +390,17 @@
             if (!dept) return;
 
             try {
-                const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+                } catch (e) {
+                    snapshot = await db.collection('classes').where('department', '==', dept).get();
+                }
                 const seen = new Set();
                 snapshot.forEach(doc => {
-                    const data = doc.data();
+                    const data = doc.data() || {};
+                    if (data.tenantId && data.tenantId !== tenantId) return;
                     if (!data.name) return;
                     const label = data.name_ur || data.name;
                     if (seen.has(label)) return;
@@ -387,14 +444,25 @@
 
             if (!department || !className) return;
             try {
-                let snap = await db.collection('subjects')
-                    .where('department', '==', department)
-                    .where('className', '==', className)
-                    .get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snap;
+                try {
+                    snap = await db.collection('subjects')
+                        .where('tenantId', '==', tenantId)
+                        .where('department', '==', department)
+                        .where('className', '==', className)
+                        .get();
+                } catch (e) {
+                    snap = await db.collection('subjects')
+                        .where('department', '==', department)
+                        .where('className', '==', className)
+                        .get();
+                }
 
                 const subjects = [];
                 snap.forEach(doc => {
-                    const data = doc.data();
+                    const data = doc.data() || {};
+                    if (data.tenantId && data.tenantId !== tenantId) return;
                     currentSubjectsCache.push(data);
                     if (data.name) subjects.push(data);
                 });
@@ -493,11 +561,42 @@
         // Fetch and Display Exams
         async function loadExams() {
             const tableBody = document.getElementById('examsList');
-            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;" data-i18n="loading_exams">Loading exams...</td></tr>';
+            if (!tableBody) return;
+
+            // UI Polish: Premium skeleton loader rows
+            tableBody.innerHTML = `
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+            `;
             updatePageLanguage();
 
             try {
-                let snapshot = await db.collection('exams').orderBy('date', 'asc').get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('exams').where('tenantId', '==', tenantId).orderBy('date', 'asc').get();
+                } catch (e) {
+                    console.warn('Fallback exams query ordering', e);
+                    try {
+                        snapshot = await db.collection('exams').where('tenantId', '==', tenantId).get();
+                    } catch (e2) {
+                        const fullSnap = await db.collection('exams').get();
+                        const filteredDocs = fullSnap.docs.filter(d => !d.data().tenantId || d.data().tenantId === tenantId);
+                        snapshot = { empty: filteredDocs.length === 0, forEach: filteredDocs.forEach.bind(filteredDocs) };
+                    }
+                }
 
                 if (snapshot.empty) {
                     tableBody.innerHTML = `
@@ -513,7 +612,9 @@
 
                 let html = '';
                 snapshot.forEach(doc => {
-                    const exam = doc.data();
+                    const exam = doc.data() || {};
+                    if (exam.tenantId && exam.tenantId !== tenantId) return;
+
                     const date = exam.date ? new Date(exam.date).toLocaleDateString() : 'N/A';
 
                     // Class name Urdu mapping
@@ -556,13 +657,21 @@
                             <td>${date}</td>
                             <td>
                                 <button onclick="editExam('${doc.id}')" style="color: var(--primary-color); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="edit">${getTrans('edit')}</button>
-                                <button onclick="deleteExam('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="delete">${getTrans('delete')}</button>
+                                <button onclick="deleteExam('${doc.id}')" style="color: var(--danger); background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="delete">${getTrans('delete')}</button>
+                                <button onclick="generateAdmitCards('${doc.id}')" style="color: #0d9488; background: none; border: none; font-weight: 600; cursor: pointer; margin-right: 0.5rem;" data-i18n="admit_cards">Admit Cards</button>
+                                <button onclick="openBulkMarksModal('${doc.id}')" style="color: #6366f1; background: none; border: none; font-weight: 600; cursor: pointer;" data-i18n="enter_marks">Marks</button>
                             </td>
                         </tr>
                     `;
                 });
 
-                tableBody.innerHTML = html;
+                tableBody.innerHTML = html || `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-light);" data-i18n="no_exams_scheduled">
+                            No exams scheduled. Click "Add New Exam" to start.
+                        </td>
+                    </tr>
+                `;
                 updatePageLanguage();
 
             } catch (error) {
@@ -588,6 +697,7 @@
             const examDate = document.getElementById('examDate').value;
             const department = document.getElementById('department').value;
 
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
             const examData = {
                 examName,
                 className,
@@ -595,17 +705,18 @@
                 subject,
                 subject_ur: document.querySelector('#subject option:checked')?.textContent || subject,
                 subjectPart: subjectPart || null, // Optional if no part
-                date: examDate
+                date: examDate,
+                tenantId: tenantId
             };
 
             try {
                 if (docId) {
                     await db.collection('exams').doc(docId).update(examData);
-                    alert('Exam updated successfully!');
+                    alert(getTransOr('exam_updated', 'Exam updated successfully!'));
                 } else {
                     examData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
                     await db.collection('exams').add(examData);
-                    alert('Exam scheduled successfully!');
+                    alert(getTransOr('exam_scheduled', 'Exam scheduled successfully!'));
                 }
 
                 closeModal();
@@ -643,19 +754,19 @@
                 modal.classList.add('active');
             } catch (error) {
                 console.error(error);
-                alert('Error loading exam details');
+                alert(getTransOr('error_loading_exam', 'Error loading exam details'));
             }
         }
 
         // Delete Exam
         async function deleteExam(id) {
-            if (!confirm('Are you sure you want to delete this exam?')) return;
+            if (!confirm(getTransOr('confirm_delete_exam', 'Are you sure you want to delete this exam?'))) return;
             try {
                 await db.collection('exams').doc(id).delete();
                 loadExams();
             } catch (error) {
                 console.error(error);
-                alert('Error deleting record');
+                alert(getTransOr('error_deleting_exam', 'Error deleting record'));
             }
         }
 
@@ -686,6 +797,223 @@
                 title: getTrans('exam_schedule'),
                 content: tableClone.outerHTML
             });
+        }
+
+        async function generateAdmitCards(examId) {
+            try {
+                const doc = await db.collection('exams').doc(examId).get();
+                if (!doc.exists) { alert('Exam not found'); return; }
+                const exam = doc.data() || {};
+
+                // Fetch students
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let studentsSnap;
+                try {
+                    studentsSnap = await db.collection('students')
+                        .where('tenantId', '==', tenantId)
+                        .where('className', '==', exam.className)
+                        .get();
+                } catch(e) {
+                    studentsSnap = await db.collection('students')
+                        .where('className', '==', exam.className)
+                        .get();
+                }
+
+                if (studentsSnap.empty) {
+                    alert('No students found in this class.');
+                    return;
+                }
+
+                let cardsHtml = '<div style="font-family: inherit; direction: rtl; padding: 20px;">';
+                studentsSnap.forEach((stdDoc) => {
+                    const student = stdDoc.data() || {};
+                    if (student.tenantId && student.tenantId !== tenantId) return;
+
+                    const studentName = student.name_ur || `${student.firstName || ''} ${student.lastName || ''}`.trim();
+                    const examDateStr = exam.date ? new Date(exam.date).toLocaleDateString() : '';
+
+                    cardsHtml += `
+                        <div style="border: 2px double #333; border-radius: 12px; padding: 20px; margin-bottom: 30px; background: #fff; page-break-inside: avoid;">
+                            <div style="text-align: center; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 15px;">
+                                <h2 style="margin: 0; font-size: 1.4rem; color: #111;">ادارہ مصباح القرآن</h2>
+                                <h3 style="margin: 5px 0 0; font-size: 1.1rem; color: #666;">داخلی کارڈ (Admit Card) - امتحان</h3>
+                            </div>
+                            <table style="width: 100%; font-size: 0.95rem; border-collapse: collapse; text-align: right;">
+                                <tr>
+                                    <td style="padding: 6px; font-weight: bold; width: 30%;">طالب علم کا نام:</td>
+                                    <td style="padding: 6px; border-bottom: 1px dotted #ccc;">${studentName}</td>
+                                    <td style="padding: 6px; font-weight: bold; width: 25%;">رول نمبر:</td>
+                                    <td style="padding: 6px; border-bottom: 1px dotted #ccc;">${student.rollNumber || '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px; font-weight: bold;">شعبہ:</td>
+                                    <td style="padding: 6px; border-bottom: 1px dotted #ccc;">${exam.department || ''}</td>
+                                    <td style="padding: 6px; font-weight: bold;">کلاس:</td>
+                                    <td style="padding: 6px; border-bottom: 1px dotted #ccc;">${exam.className || ''}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px; font-weight: bold;">امتحان کا مضمون:</td>
+                                    <td style="padding: 6px; border-bottom: 1px dotted #ccc;">${exam.subject_ur || exam.subject || ''}</td>
+                                    <td style="padding: 6px; font-weight: bold;">امتحان کی تاریخ:</td>
+                                    <td style="padding: 6px; border-bottom: 1px dotted #ccc;">${examDateStr}</td>
+                                </tr>
+                            </table>
+                            <div style="margin-top: 25px; display: flex; justify-content: space-between; font-size: 0.85rem; color: #444;">
+                                <div>ناظمِ امتحانات: ___________________</div>
+                                <div>دستخط طالب علم: ___________________</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                cardsHtml += '</div>';
+
+                window.PDFSnapshot.generate({
+                    title: `Admit Cards - ${exam.examName || ''}`,
+                    content: cardsHtml,
+                    orientation: 'portrait'
+                });
+            } catch (err) {
+                console.error(err);
+                alert('Error generating admit cards: ' + err.message);
+            }
+        }
+
+        let activeExamId = '';
+        let activeClassEnrolledStudents = [];
+
+        async function openBulkMarksModal(examId) {
+            activeExamId = examId;
+            const tbody = document.getElementById('bulkMarksTableBody');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading students...</td></tr>';
+            document.getElementById('bulkMarksModal').classList.add('active');
+
+            try {
+                const doc = await db.collection('exams').doc(examId).get();
+                if (!doc.exists) { alert('Exam not found'); return; }
+                const exam = doc.data() || {};
+                
+                document.getElementById('bulkMarksMeta').innerText = `${exam.examName} • ${exam.className} • ${exam.subject_ur || exam.subject}`;
+
+                // Fetch students
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let studentsSnap;
+                try {
+                    studentsSnap = await db.collection('students')
+                        .where('tenantId', '==', tenantId)
+                        .where('className', '==', exam.className)
+                        .get();
+                } catch(e) {
+                    studentsSnap = await db.collection('students')
+                        .where('className', '==', exam.className)
+                        .get();
+                }
+
+                // Fetch existing marks
+                let marksSnap;
+                try {
+                    marksSnap = await db.collection('exam_marks')
+                        .where('tenantId', '==', tenantId)
+                        .where('examId', '==', examId)
+                        .get();
+                } catch(e) {
+                    marksSnap = await db.collection('exam_marks')
+                        .where('examId', '==', examId)
+                        .get();
+                }
+
+                const marksMap = new Map();
+                marksSnap.forEach(mDoc => {
+                    const data = mDoc.data() || {};
+                    marksMap.set(data.studentId, data);
+                });
+
+                activeClassEnrolledStudents = [];
+                studentsSnap.forEach(sDoc => {
+                    const data = sDoc.data() || {};
+                    if (data.tenantId && data.tenantId !== tenantId) return;
+                    activeClassEnrolledStudents.push({ id: sDoc.id, ...data });
+                });
+
+                if (activeClassEnrolledStudents.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No students found in this class.</td></tr>';
+                    return;
+                }
+
+                activeClassEnrolledStudents.sort((a,b) => (a.rollNumber || '').localeCompare(b.rollNumber || ''));
+
+                let html = '';
+                activeClassEnrolledStudents.forEach(std => {
+                    const existing = marksMap.get(std.id) || {};
+                    const obtained = existing.obtainedMarks != null ? existing.obtainedMarks : '';
+                    const total = existing.totalMarks != null ? existing.totalMarks : '100';
+
+                    html += `
+                        <tr>
+                            <td>${std.rollNumber || '-'}</td>
+                            <td>${std.name_ur || `${std.firstName || ''} ${std.lastName || ''}`.trim()}</td>
+                            <td>
+                                <input type="number" class="score-input mark-obtained" data-student-id="${std.id}" value="${obtained}" min="0" placeholder="0" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 80px;">
+                            </td>
+                            <td>
+                                <input type="number" class="score-input mark-total" data-student-id="${std.id}" value="${total}" min="1" placeholder="100" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 80px;">
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Error loading sheet.</td></tr>';
+            }
+        }
+
+        function closeBulkMarksModal() {
+            document.getElementById('bulkMarksModal').classList.remove('active');
+        }
+
+        async function saveBulkMarks() {
+            const btn = document.querySelector('button[onclick="saveBulkMarks()"]');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'Saving...';
+
+            try {
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                const batch = db.batch();
+
+                activeClassEnrolledStudents.forEach(std => {
+                    const obInput = document.querySelector(`.mark-obtained[data-student-id="${std.id}"]`);
+                    const totInput = document.querySelector(`.mark-total[data-student-id="${std.id}"]`);
+                    
+                    const obtained = obInput && obInput.value !== '' ? parseFloat(obInput.value) : null;
+                    const total = totInput && totInput.value !== '' ? parseFloat(totInput.value) : 100;
+
+                    if (obtained !== null) {
+                        const docId = `${activeExamId}_${std.id}`;
+                        const ref = db.collection('exam_marks').doc(docId);
+                        batch.set(ref, {
+                            examId: activeExamId,
+                            studentId: std.id,
+                            studentName: std.name_ur || `${std.firstName || ''} ${std.lastName || ''}`.trim(),
+                            rollNumber: std.rollNumber || '',
+                            obtainedMarks: obtained,
+                            totalMarks: total,
+                            tenantId: tenantId,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                    }
+                });
+
+                await batch.commit();
+                alert('Marks saved successfully!');
+                closeBulkMarksModal();
+            } catch (err) {
+                console.error(err);
+                alert('Error saving marks: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
         }
 
         // Initial Load

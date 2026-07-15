@@ -172,16 +172,29 @@
 
         async function loadDepartments() {
             const select = document.getElementById('department');
+            if (!select) return;
             const currentVal = select.value;
             select.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
             if (typeof updatePageLanguage === 'function') updatePageLanguage();
 
             try {
-                const snapshot = await db.collection('departments').orderBy('name').get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('departments').where('tenantId', '==', tenantId).orderBy('name').get();
+                } catch (e) {
+                    try {
+                        snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                    } catch (e2) {
+                        snapshot = await db.collection('departments').get();
+                    }
+                }
                 snapshot.forEach(doc => {
+                    const data = doc.data() || {};
+                    if (data.tenantId && data.tenantId !== tenantId) return;
                     const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name_ur || doc.data().name;
+                    opt.value = data.name;
+                    opt.innerText = data.name_ur || data.name;
                     select.appendChild(opt);
                 });
                 if (currentVal) select.value = currentVal;
@@ -197,6 +210,7 @@
         async function updateClasses() {
             const dept = document.getElementById('department').value;
             const classSelect = document.getElementById('className');
+            if (!classSelect) return;
             classSelect.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
             document.getElementById('subject').innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
             if (typeof updatePageLanguage === 'function') updatePageLanguage();
@@ -204,11 +218,18 @@
             if (!dept) return;
 
             try {
-                const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+                } catch (e) {
+                    snapshot = await db.collection('classes').where('department', '==', dept).get();
+                }
                 const seen = new Set();
                 snapshot.forEach(doc => {
-                    const data = doc.data();
+                    const data = doc.data() || {};
                     if (!data.name) return;
+                    if (data.tenantId && data.tenantId !== tenantId) return;
                     const label = data.name_ur || data.name;
                     if (seen.has(label)) return;
                     seen.add(label);
@@ -227,19 +248,34 @@
             const dept = document.getElementById('department').value;
             const className = document.getElementById('className').value;
             const subjectSelect = document.getElementById('subject');
+            if (!subjectSelect) return;
             subjectSelect.innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
             if (typeof updatePageLanguage === 'function') updatePageLanguage();
 
             if (!dept || !className) return;
 
             try {
-                const snapshot = await db.collection('subjects')
-                    .where('department', '==', dept)
-                    .where('className', '==', className)
-                    .get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('subjects')
+                        .where('tenantId', '==', tenantId)
+                        .where('department', '==', dept)
+                        .where('className', '==', className)
+                        .get();
+                } catch (e) {
+                    snapshot = await db.collection('subjects')
+                        .where('department', '==', dept)
+                        .where('className', '==', className)
+                        .get();
+                }
 
                 const subjects = [];
-                snapshot.forEach(doc => subjects.push(doc.data()));
+                snapshot.forEach(doc => {
+                    const data = doc.data() || {};
+                    if (data.tenantId && data.tenantId !== tenantId) return;
+                    subjects.push(data);
+                });
                 subjects.sort((a, b) => {
                     const aLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(a) : (a.name_ur || a.name || '');
                     const bLabel = (typeof getSubjectDisplayName === 'function') ? getSubjectDisplayName(b) : (b.name_ur || b.name || '');
@@ -264,7 +300,7 @@
             const date = document.getElementById('date').value;
 
             if (!dept || !className || !subject || !date) {
-                alert("Please select Department, Class, Subject and Date.");
+                alert(getTransOr('select_required_fields', "Please select Department, Class, Subject and Date."));
                 return;
             }
 
@@ -272,30 +308,56 @@
             const tbody = document.getElementById('attendanceTableBody');
 
             listCard.style.display = 'block';
-            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">Loading...</td></tr>';
+            tbody.innerHTML = `
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+            `;
 
             try {
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
                 // Check if attendance already exists
                 const attId = `${date}_${dept}_${className}_${subject}`.replace(/[^a-zA-Z0-9]/g, '_');
                 const attDoc = await db.collection("attendance").doc(attId).get();
                 let existingData = null;
 
                 if (attDoc.exists) {
-                    existingData = attDoc.data().records;
+                    const docData = attDoc.data() || {};
+                    if (!docData.tenantId || docData.tenantId === tenantId) {
+                        existingData = docData.records;
+                    }
                 }
 
                 // Fetch Students
-                const snapshot = await db.collection("students")
-                    .where("department", "==", dept)
-                    .where("className", "==", className)
-                    .orderBy("rollNumber")
-                    .get()
-                    .catch(async (e) => {
-                        return await db.collection("students")
+                let snapshot;
+                try {
+                    snapshot = await db.collection("students")
+                        .where("tenantId", "==", tenantId)
+                        .where("department", "==", dept)
+                        .where("className", "==", className)
+                        .orderBy("rollNumber")
+                        .get();
+                } catch (e) {
+                    console.warn("Fallback student query", e);
+                    try {
+                        snapshot = await db.collection("students")
+                            .where("tenantId", "==", tenantId)
                             .where("department", "==", dept)
                             .where("className", "==", className)
                             .get();
-                    });
+                    } catch (e2) {
+                        const fullSnap = await db.collection("students").where("department", "==", dept).where("className", "==", className).get();
+                        const filteredDocs = fullSnap.docs.filter(d => !d.data().tenantId || d.data().tenantId === tenantId);
+                        snapshot = { empty: filteredDocs.length === 0, forEach: filteredDocs.forEach.bind(filteredDocs) };
+                    }
+                }
 
                 if (snapshot.empty) {
                     tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No students found in this class.</td></tr>';
@@ -304,7 +366,8 @@
 
                 const students = [];
                 snapshot.forEach(doc => {
-                    const data = doc.data();
+                    const data = doc.data() || {};
+                    if (data.tenantId && data.tenantId !== tenantId) return;
                     data.uid = doc.id; // Use doc.id as uid
                     students.push(data);
                 });
@@ -322,7 +385,7 @@
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${s.rollNumber}</td>
-                        <td>${s.firstName} ${s.lastName}</td>
+                        <td>${s.name_ur || `${s.firstName} ${s.lastName}`}</td>
                         <td>
                             <div class="radio-group">
                                 <label class="radio-option status-present">
@@ -353,16 +416,16 @@
         // QR/Barcode scan stub using native camera (requires https/localhost)
         async function openQrScanner() {
             if (!('mediaDevices' in navigator)) {
-                alert('Camera not available in this browser.');
+                alert(getTransOr('camera_not_available', 'Camera not available in this browser.'));
                 return;
             }
-            alert('QR/Barcode scanning placeholder. Integrate a scanner library to decode codes and then auto-mark attendance.');
+            alert(getTransOr('qr_placeholder_msg', 'QR/Barcode scanning placeholder. Integrate a scanner library to decode codes and then auto-mark attendance.'));
         }
 
         // Geofence/mobile check-in stub with location logging
         async function logGeoCheckin() {
             if (!navigator.geolocation) {
-                alert('Geolocation not supported in this browser.');
+                alert(getTransOr('geolocation_not_supported', 'Geolocation not supported in this browser.'));
                 return;
             }
             navigator.geolocation.getCurrentPosition(async (pos) => {
@@ -380,13 +443,13 @@
                     if (typeof logAudit === 'function') {
                         logAudit('geo_checkin', 'attendance_logs', coords);
                     }
-                    alert('Check-in recorded with location.');
+                    alert(getTransOr('checkin_success', 'Check-in recorded with location.'));
                 } catch (err) {
                     console.error(err);
-                    alert('Failed to record check-in.');
+                    alert(getTransOr('checkin_failed', 'Failed to record check-in.'));
                 }
             }, (err) => {
-                alert('Geolocation error: ' + err.message);
+                alert(getTransOr('checkin_error', 'Geolocation error: ') + err.message);
             });
         }
 
@@ -434,12 +497,13 @@
                     subject: subject,
                     records: records,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    markedBy: firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'unknown'
+                    markedBy: firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'unknown',
+                    tenantId: (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default')
                 });
-                alert("Attendance saved successfully!");
+                 alert(getTransOr('attendance_saved', "Attendance saved successfully!"));
             } catch (error) {
                 console.error("Error saving:", error);
-                alert("Error: " + error.message);
+                alert(getTransOr('error_saving', "Error: ") + error.message);
             } finally {
                 btn.innerText = 'Save Attendance';
                 btn.disabled = false;

@@ -363,20 +363,56 @@
             const tbody = document.getElementById('subjectsList');
             const filterDept = document.getElementById('subjectFilterDept').value;
             const filterClass = document.getElementById('subjectFilterClass').value;
+            if (!tbody) return;
 
-            if (!tbody.innerHTML.trim() || tbody.innerHTML.includes('Loading')) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem;">${getTrans('loading')}...</td></tr>`;
-            }
+            // UI Polish: Premium skeleton loader rows
+            tbody.innerHTML = `
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+            `;
 
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
             try {
-                const snapshot = await db.collection('subjects').orderBy('name').get();
+                let snapshot;
+                try {
+                    snapshot = await db.collection('subjects').where('tenantId', '==', tenantId).orderBy('name').get();
+                } catch (e) {
+                    console.warn('Fallback subjects ordering', e);
+                    try {
+                        snapshot = await db.collection('subjects').where('tenantId', '==', tenantId).get();
+                    } catch (e2) {
+                        const fullSnap = await db.collection('subjects').get();
+                        const filteredDocs = fullSnap.docs.filter(d => !d.data().tenantId || d.data().tenantId === tenantId);
+                        snapshot = { empty: filteredDocs.length === 0, forEach: filteredDocs.forEach.bind(filteredDocs) };
+                    }
+                }
 
                 let html = '';
                 let count = 0;
                 const subjects = [];
 
                 snapshot.forEach(doc => {
-                    const s = doc.data();
+                    const s = doc.data() || {};
+                    if (s.tenantId && s.tenantId !== tenantId) return;
                     if (filterDept && s.department !== filterDept) return;
                     if (filterClass && s.className !== filterClass) return;
 
@@ -578,11 +614,23 @@
             const current = select.value;
             select.innerHTML = `<option value="" data-i18n="all_departments">${getTrans('all_departments')}</option>`;
 
-            const snapshot = await db.collection('departments').orderBy('name').get();
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+            let snapshot;
+            try {
+                snapshot = await db.collection('departments').where('tenantId', '==', tenantId).orderBy('name').get();
+            } catch (e) {
+                try {
+                    snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                } catch (e2) {
+                    snapshot = await db.collection('departments').get();
+                }
+            }
             snapshot.forEach(doc => {
+                const data = doc.data() || {};
+                if (data.tenantId && data.tenantId !== tenantId) return;
                 const opt = document.createElement('option');
-                opt.value = doc.data().name;
-                opt.innerText = doc.data().name_ur || doc.data().name;
+                opt.value = data.name;
+                opt.innerText = data.name_ur || data.name;
                 select.appendChild(opt);
             });
             select.value = current;
@@ -593,11 +641,23 @@
             const current = select.value;
             select.innerHTML = `<option value="" data-i18n="select_department">${getTrans('select_department')}</option>`;
 
-            const snapshot = await db.collection('departments').orderBy('name').get();
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+            let snapshot;
+            try {
+                snapshot = await db.collection('departments').where('tenantId', '==', tenantId).orderBy('name').get();
+            } catch (e) {
+                try {
+                    snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                } catch (e2) {
+                    snapshot = await db.collection('departments').get();
+                }
+            }
             snapshot.forEach(doc => {
+                const data = doc.data() || {};
+                if (data.tenantId && data.tenantId !== tenantId) return;
                 const opt = document.createElement('option');
-                opt.value = doc.data().name;
-                opt.innerText = doc.data().name_ur || doc.data().name;
+                opt.value = data.name;
+                opt.innerText = data.name_ur || data.name;
                 select.appendChild(opt);
             });
             if (current) select.value = current;
@@ -613,11 +673,18 @@
                 return;
             }
 
-            const snapshot = await db.collection('classes').where('department', '==', dept).get();
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+            let snapshot;
+            try {
+                snapshot = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+            } catch (e) {
+                snapshot = await db.collection('classes').where('department', '==', dept).get();
+            }
             const seen = new Set();
             snapshot.forEach(doc => {
-                const data = doc.data();
+                const data = doc.data() || {};
                 if (!data.name) return;
+                if (data.tenantId && data.tenantId !== tenantId) return;
                 const label = data.name_ur || data.name;
                 if (seen.has(label)) return;
                 seen.add(label);
@@ -637,11 +704,18 @@
 
             if (!dept) return;
 
-            const snapshot = await db.collection('classes').where('department', '==', dept).get();
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+            let snapshot;
+            try {
+                snapshot = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+            } catch (e) {
+                snapshot = await db.collection('classes').where('department', '==', dept).get();
+            }
             const seen = new Set();
             snapshot.forEach(doc => {
-                const data = doc.data();
+                const data = doc.data() || {};
                 if (!data.name) return;
+                if (data.tenantId && data.tenantId !== tenantId) return;
                 const label = data.name_ur || data.name;
                 if (seen.has(label)) return;
                 seen.add(label);
@@ -670,8 +744,15 @@
             if (!dept) return;
 
             try {
-                // FETCH ALL strategy to avoid index/query issues (Robust Fallback)
-                const snapshot = await db.collection('subjects').get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('subjects').where('tenantId', '==', tenantId).get();
+                } catch (e) {
+                    const fullSnap = await db.collection('subjects').get();
+                    const filteredDocs = fullSnap.docs.filter(d => !d.data().tenantId || d.data().tenantId === tenantId);
+                    snapshot = { forEach: filteredDocs.forEach.bind(filteredDocs) };
+                }
 
                 const subjects = [];
                 snapshot.forEach(doc => {
@@ -780,9 +861,20 @@
             const current = select.value;
             select.innerHTML = `<option value="" data-i18n="select_teacher">${getTrans('select_teacher')}</option>`;
 
-            const snapshot = await db.collection('teachers').orderBy('firstName').get();
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+            let snapshot;
+            try {
+                snapshot = await db.collection('teachers').where('tenantId', '==', tenantId).orderBy('firstName').get();
+            } catch (e) {
+                try {
+                    snapshot = await db.collection('teachers').where('tenantId', '==', tenantId).get();
+                } catch (e2) {
+                    snapshot = await db.collection('teachers').get();
+                }
+            }
             snapshot.forEach(doc => {
-                const t = doc.data();
+                const t = doc.data() || {};
+                if (t.tenantId && t.tenantId !== tenantId) return;
                 const opt = document.createElement('option');
                 opt.value = doc.id;
                 opt.innerText = `${t.firstName} ${t.lastName} (${t.subject})`;

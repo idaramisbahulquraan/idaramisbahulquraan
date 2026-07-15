@@ -117,16 +117,29 @@
 
         async function loadDepartments() {
             const select = document.getElementById('department');
+            if (!select) return;
             const currentVal = select.value;
             select.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
             if (typeof updatePageLanguage === 'function') updatePageLanguage();
 
             try {
-                const snapshot = await db.collection('departments').orderBy('name').get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('departments').where('tenantId', '==', tenantId).orderBy('name').get();
+                } catch (e) {
+                    try {
+                        snapshot = await db.collection('departments').where('tenantId', '==', tenantId).get();
+                    } catch (e2) {
+                        snapshot = await db.collection('departments').get();
+                    }
+                }
                 snapshot.forEach(doc => {
+                    const data = doc.data() || {};
+                    if (data.tenantId && data.tenantId !== tenantId) return;
                     const opt = document.createElement('option');
-                    opt.value = doc.data().name;
-                    opt.innerText = doc.data().name_ur || doc.data().name;
+                    opt.value = data.name;
+                    opt.innerText = data.name_ur || data.name;
                     select.appendChild(opt);
                 });
                 if (currentVal) select.value = currentVal;
@@ -142,6 +155,7 @@
         async function updateClasses() {
             const dept = document.getElementById('department').value;
             const classSelect = document.getElementById('className');
+            if (!classSelect) return;
             classSelect.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
             document.getElementById('subject').innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
             if (typeof updatePageLanguage === 'function') updatePageLanguage();
@@ -149,11 +163,18 @@
             if (!dept) return;
 
             try {
-                const snapshot = await db.collection('classes').where('department', '==', dept).get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+                } catch (e) {
+                    snapshot = await db.collection('classes').where('department', '==', dept).get();
+                }
                 const seen = new Set();
                 snapshot.forEach(doc => {
-                    const data = doc.data();
+                    const data = doc.data() || {};
                     if (!data.name) return;
+                    if (data.tenantId && data.tenantId !== tenantId) return;
                     const label = data.name_ur || data.name;
                     if (seen.has(label)) return;
                     seen.add(label);
@@ -172,20 +193,32 @@
             const dept = document.getElementById('department').value;
             const className = document.getElementById('className').value;
             const subjectSelect = document.getElementById('subject');
+            if (!subjectSelect) return;
             subjectSelect.innerHTML = '<option value="" data-i18n="select_subject">Select Subject</option>';
             if (typeof updatePageLanguage === 'function') updatePageLanguage();
 
             if (!dept || !className) return;
 
             try {
-                const snapshot = await db.collection('subjects')
-                    .where('department', '==', dept)
-                    .where('className', '==', className)
-                    .get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('subjects')
+                        .where('tenantId', '==', tenantId)
+                        .where('department', '==', dept)
+                        .where('className', '==', className)
+                        .get();
+                } catch (e) {
+                    snapshot = await db.collection('subjects')
+                        .where('department', '==', dept)
+                        .where('className', '==', className)
+                        .get();
+                }
 
                 const subjects = [];
                 snapshot.forEach(doc => {
-                    const data = doc.data();
+                    const data = doc.data() || {};
+                    if (data.tenantId && data.tenantId !== tenantId) return;
                     subjects.push({ name: data.name, name_ur: data.name_ur, book: data.book || '', term: data.term || '' });
                 });
                 subjects.sort((a, b) => {
@@ -212,7 +245,7 @@
             const monthVal = document.getElementById('reportMonth').value; // YYYY-MM
 
             if (!dept || !className || !subject || !monthVal) {
-                alert("Please select Department, Class, Subject and Month.");
+                alert(getTransOr('select_required_fields', "Please select Department, Class, Subject and Month."));
                 return;
             }
 
@@ -222,15 +255,34 @@
             table.innerHTML = '<tr><td style="text-align: center;">Loading Report...</td></tr>';
 
             try {
-                const snapshot = await db.collection('attendance')
-                    .where('department', '==', dept)
-                    .where('className', '==', className)
-                    .where('subject', '==', subject)
-                    .get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let snapshot;
+                try {
+                    snapshot = await db.collection('attendance')
+                        .where('tenantId', '==', tenantId)
+                        .where('department', '==', dept)
+                        .where('className', '==', className)
+                        .where('subject', '==', subject)
+                        .get();
+                } catch (e) {
+                    console.warn('Fallback attendance query', e);
+                    try {
+                        snapshot = await db.collection('attendance')
+                            .where('department', '==', dept)
+                            .where('className', '==', className)
+                            .where('subject', '==', subject)
+                            .get();
+                    } catch (e2) {
+                        const fullSnap = await db.collection('attendance').get();
+                        const filteredDocs = fullSnap.docs.filter(d => (!d.data().tenantId || d.data().tenantId === tenantId) && d.data().department === dept && d.data().className === className && d.data().subject === subject);
+                        snapshot = { empty: filteredDocs.length === 0, forEach: filteredDocs.forEach.bind(filteredDocs) };
+                    }
+                }
 
                 const monthRecords = [];
                 snapshot.forEach(doc => {
-                    const data = doc.data();
+                    const data = doc.data() || {};
+                    if (data.tenantId && data.tenantId !== tenantId) return;
                     if (data.date.startsWith(monthVal)) {
                         monthRecords.push(data);
                     }
@@ -350,7 +402,7 @@
 
             } catch (e) {
                 console.error(e);
-                alert("Error generating PDF: " + e.message);
+                alert(getTransOr('error_generating_pdf', "Error generating PDF: ") + e.message);
             } finally {
                 if (btn) { btn.disabled = false; btn.innerText = "Download PDF"; }
             }

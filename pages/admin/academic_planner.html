@@ -518,22 +518,37 @@
             const legacyPlanId = buildLegacyPlanId(className, subjectData, part);
             if (legacyPlanId && legacyPlanId !== stablePlanId) candidateIds.push(legacyPlanId);
 
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
             for (const candidateId of candidateIds) {
                 const doc = await db.collection('syllabus_plans').doc(candidateId).get();
                 if (doc.exists) {
-                    return {
-                        planId: stablePlanId,
-                        sourceDocId: doc.id,
-                        legacyDocId: doc.id !== stablePlanId ? doc.id : '',
-                        data: doc.data() || {}
-                    };
+                    const docData = doc.data() || {};
+                    if (!docData.tenantId || docData.tenantId === tenantId) {
+                        return {
+                            planId: stablePlanId,
+                            sourceDocId: doc.id,
+                            legacyDocId: doc.id !== stablePlanId ? doc.id : '',
+                            data: docData
+                        };
+                    }
                 }
             }
 
-            const classSnap = await db.collection('syllabus_plans').where('className', '==', className).get();
+            let classSnap;
+            try {
+                classSnap = await db.collection('syllabus_plans').where('tenantId', '==', tenantId).where('className', '==', className).get();
+            } catch (e) {
+                console.warn('Fallback syllabus plans query', e);
+                try {
+                    classSnap = await db.collection('syllabus_plans').where('className', '==', className).get();
+                } catch (e2) {
+                    classSnap = await db.collection('syllabus_plans').get();
+                }
+            }
             let matchedDoc = null;
             classSnap.forEach(doc => {
                 const data = doc.data() || {};
+                if (data.tenantId && data.tenantId !== tenantId) return;
                 if (!planMatchesSubject(data, className, subjectData, part)) return;
                 if (!matchedDoc) {
                     matchedDoc = { id: doc.id, data };
@@ -708,8 +723,13 @@
         async function loadSettings() {
             const year = document.getElementById('sessionYear').value;
             try {
-                // Try year specific doc first
-                let doc = await db.collection('academic_settings').doc(year).get();
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                // Try year specific doc first with tenantId prefix
+                let doc = await db.collection('academic_settings').doc(`${tenantId}_${year}`).get();
+                if (!doc.exists) {
+                    // Fallback to legacy year doc
+                    doc = await db.collection('academic_settings').doc(year).get();
+                }
 
                 // Fallback to 'config' if migrating (or empty)
                 if (!doc.exists && year === '2024') {
@@ -772,10 +792,12 @@
             });
 
             try {
-                await db.collection('academic_settings').doc(year).set({
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                await db.collection('academic_settings').doc(`${tenantId}_${year}`).set({
                     sessionStartDate: document.getElementById('sessionStartDate').value,
                     isThreeTerm: document.getElementById('enableThreeTerms').checked,
                     months: monthsData,
+                    tenantId: tenantId,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
                 alert(trf('academic_calendar_saved_for', 'Academic Calendar Saved for {year}!', { year }));
@@ -790,11 +812,18 @@
             const select = document.getElementById('planClass');
             select.innerHTML = `<option>${tr('loading', 'Loading...')}</option>`;
 
-            const snap = await db.collection('classes').where('department', '==', dept).get();
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+            let snap;
+            try {
+                snap = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+            } catch (e) {
+                snap = await db.collection('classes').where('department', '==', dept).get();
+            }
             select.innerHTML = `<option value="">${tr('select_class', 'Select Class')}</option>`;
             const seen = new Set();
             snap.forEach(doc => {
-                const data = doc.data();
+                const data = doc.data() || {};
+                if (data.tenantId && data.tenantId !== tenantId) return;
                 if (!data.name) return;
                 const label = data.name_ur || data.name;
                 if (seen.has(label)) return;
@@ -814,12 +843,19 @@
 
             const select = document.getElementById('planSubject');
             select.innerHTML = `<option>${tr('loading', 'Loading...')}</option>`;
-            // Single field query (optimized)
-            const snap = await db.collection('subjects').where('department', '==', dept).get();
+            
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+            let snap;
+            try {
+                snap = await db.collection('subjects').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+            } catch (e) {
+                snap = await db.collection('subjects').where('department', '==', dept).get();
+            }
 
             select.innerHTML = `<option value="">${tr('select_subject', 'Select Subject')}</option>`;
             snap.forEach(doc => {
-                const s = doc.data();
+                const s = doc.data() || {};
+                if (s.tenantId && s.tenantId !== tenantId) return;
                 if (s.className === cls) {
                     const val = JSON.stringify({
                         id: doc.id,
@@ -935,10 +971,15 @@
                 // Fetch from academic_settings for current year
                 const year = document.getElementById('sessionYear')?.value || '2026';
                 try {
-                    const settingsDoc = await db.collection('academic_settings').doc(year).get();
+                    const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                    let settingsDoc = await db.collection('academic_settings').doc(`${tenantId}_${year}`).get();
+                    if (!settingsDoc.exists) {
+                        settingsDoc = await db.collection('academic_settings').doc(year).get();
+                    }
                     if (settingsDoc.exists && settingsDoc.data().months) {
                         displayMonths = Object.keys(settingsDoc.data().months);
                         currentSessionOrder = displayMonths; // Cache for future use
+                        window.currentYearMonthsSettings = settingsDoc.data().months;
                     } else {
                         // Fallback: Generate 12 months from April (typical academic year start)
                         const startMonth = 3; // April (0-indexed)
@@ -1079,23 +1120,96 @@
             const count = inputs.length;
             if (count === 0) return;
 
-            const perMonth = Math.floor(total / count);
-            let remainder = total % count;
-
+            const monthsSettings = window.currentYearMonthsSettings || {};
+            let totalWorkingDays = 0;
             inputs.forEach(input => {
-                let val = perMonth;
-                if (remainder > 0) {
-                    val++;
-                    remainder--;
-                }
-                input.value = val;
+                const monthName = input.name;
+                const days = (monthsSettings[monthName] && monthsSettings[monthName].days) || 20;
+                totalWorkingDays += days;
             });
 
+            if (totalWorkingDays > 0) {
+                let allocated = 0;
+                inputs.forEach((input, idx) => {
+                    const monthName = input.name;
+                    const days = (monthsSettings[monthName] && monthsSettings[monthName].days) || 20;
+                    let val = Math.round((days / totalWorkingDays) * total);
+                    if (idx === count - 1) {
+                        val = total - allocated;
+                    } else {
+                        allocated += val;
+                    }
+                    input.value = val;
+                });
+            } else {
+                const perMonth = Math.floor(total / count);
+                let remainder = total % count;
+                inputs.forEach(input => {
+                    let val = perMonth;
+                    if (remainder > 0) {
+                        val++;
+                        remainder--;
+                    }
+                    input.value = val;
+                });
+            }
+
             document.getElementById(`dist_msg_${bookIndex}`).innerText = trf('auto_distributed_pages_months', 'Auto-distributed {pages} pages across {months} months', { pages: total, months: count });
+            document.getElementById(`dist_msg_${bookIndex}`).style.color = '';
+            updateTotalPlanSum();
         }
 
         function manualOverride(bookIndex) {
             document.getElementById(`dist_msg_${bookIndex}`).innerText = tr('manual_editing_enabled', 'Manual editing enabled');
+            document.getElementById(`dist_msg_${bookIndex}`).style.color = '';
+            updateTotalPlanSum();
+        }
+
+        function updateTotalPlanSum() {
+            const totalInputs = document.querySelectorAll('[id^="total_"]');
+            let sumExpected = 0;
+            let sumActual = 0;
+            let mismatchFound = false;
+
+            totalInputs.forEach((totalInp, idx) => {
+                const expected = parseInt(totalInp.value) || 0;
+                sumExpected += expected;
+
+                let bookSum = 0;
+                const inputs = document.querySelectorAll(`.target-input.book-${idx}`);
+                inputs.forEach(input => {
+                    bookSum += parseInt(input.value) || 0;
+                });
+                sumActual += bookSum;
+
+                const msgEl = document.getElementById(`dist_msg_${idx}`);
+                if (bookSum !== expected) {
+                    mismatchFound = true;
+                    if (msgEl) {
+                        msgEl.innerText = tr('mismatch_warning', 'Warning: Allocated pages do not match total pages.');
+                        msgEl.style.color = '#dc2626';
+                    }
+                    totalInp.style.borderColor = '#dc2626';
+                } else {
+                    if (msgEl && msgEl.style.color === 'rgb(220, 38, 38)') {
+                        msgEl.innerText = tr('allocation_matched', 'All pages allocated.');
+                        msgEl.style.color = '#16a34a';
+                    }
+                    totalInp.style.borderColor = '';
+                }
+            });
+
+            const totalCheck = document.getElementById('totalCheck');
+            if (totalCheck) {
+                totalCheck.innerText = `${tr('total', 'Total')}: ${sumActual} / ${sumExpected}`;
+                if (mismatchFound) {
+                    totalCheck.style.color = '#dc2626';
+                    totalCheck.style.fontWeight = 'bold';
+                } else {
+                    totalCheck.style.color = '';
+                    totalCheck.style.fontWeight = '';
+                }
+            }
         }
 
         async function saveSyllabusPlan() {
@@ -1156,6 +1270,7 @@
                 const sourceDocId = window.currentPlanSourceDocId || planId;
                 const legacyDocId = window.currentPlanLegacyDocId || '';
 
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
                 await db.collection('syllabus_plans').doc(planId).set({
                     department: dept,
                     className: cls,
@@ -1173,6 +1288,7 @@
                     monthlyTargets: planMonthlyTargets,
                     monthlyAchieved: existingPlan.monthlyAchieved || {},
                     books: booksData, // The new multi-book structure
+                    tenantId: tenantId,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
 
@@ -1207,10 +1323,20 @@
         async function loadDepts() {
             const sel = document.getElementById('planDept');
             const repSel = document.getElementById('reportDept');
-            const snap = await db.collection('departments').get();
+            if (!sel) return;
+
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+            let snap;
+            try {
+                snap = await db.collection('departments').where('tenantId', '==', tenantId).get();
+            } catch (e) {
+                snap = await db.collection('departments').get();
+            }
             snap.forEach(d => {
-                const name = d.data().name;
-                const nameUr = d.data().name_ur || name;
+                const data = d.data() || {};
+                if (data.tenantId && data.tenantId !== tenantId) return;
+                const name = data.name;
+                const nameUr = data.name_ur || name;
                 sel.innerHTML += `<option value="${name}">${nameUr}</option>`;
                 if (repSel) repSel.innerHTML += `<option value="${name}">${nameUr}</option>`;
             });
@@ -1220,13 +1346,21 @@
         async function loadReportClasses() {
             const dept = document.getElementById('reportDept').value;
             const select = document.getElementById('reportClass');
+            if (!select) return;
             select.innerHTML = `<option value="">${tr('all_classes', 'All Classes')}</option>`;
             if (!dept) { loadReport(); return; }
 
-            const snap = await db.collection('classes').where('department', '==', dept).get();
+            const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+            let snap;
+            try {
+                snap = await db.collection('classes').where('tenantId', '==', tenantId).where('department', '==', dept).get();
+            } catch (e) {
+                snap = await db.collection('classes').where('department', '==', dept).get();
+            }
             const seen = new Set();
             snap.forEach(doc => {
-                const data = doc.data();
+                const data = doc.data() || {};
+                if (data.tenantId && data.tenantId !== tenantId) return;
                 if (!data.name) return;
                 const label = data.name_ur || data.name;
                 if (seen.has(label)) return;
@@ -1242,20 +1376,72 @@
 
         async function loadReport() {
             const tbody = document.getElementById('reportTableBody');
-            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">${tr('loading', 'Loading...')}</td></tr>`;
+            if (!tbody) return;
+            
+            // UI Polish: Premium skeleton loader rows
+            tbody.innerHTML = `
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+                <tr class="skeleton-row">
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                    <td class="skeleton">&nbsp;</td>
+                </tr>
+            `;
 
             try {
                 const dept = document.getElementById('reportDept').value;
                 const cls = document.getElementById('reportClass').value;
 
-                let query = db.collection('syllabus_plans');
+                const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+                let query = db.collection('syllabus_plans').where('tenantId', '==', tenantId);
                 if (dept) query = query.where('department', '==', dept);
                 if (cls) query = query.where('className', '==', cls);
 
-                const [snap, subjectsSnap] = await Promise.all([
-                    query.get(),
-                    db.collection('subjects').get()
-                ]);
+                let snap;
+                try {
+                    snap = await query.get();
+                } catch (e) {
+                    console.warn('Fallback syllabus query', e);
+                    try {
+                        let fallbackQuery = db.collection('syllabus_plans');
+                        if (dept) fallbackQuery = fallbackQuery.where('department', '==', dept);
+                        if (cls) fallbackQuery = fallbackQuery.where('className', '==', cls);
+                        const fullSnap = await fallbackQuery.get();
+                        const filteredDocs = fullSnap.docs.filter(d => !d.data().tenantId || d.data().tenantId === tenantId);
+                        snap = { empty: filteredDocs.length === 0, forEach: filteredDocs.forEach.bind(filteredDocs) };
+                    } catch (e2) {
+                        const fullSnap = await db.collection('syllabus_plans').get();
+                        const filteredDocs = fullSnap.docs.filter(d => !d.data().tenantId || d.data().tenantId === tenantId);
+                        snap = { empty: filteredDocs.length === 0, forEach: filteredDocs.forEach.bind(filteredDocs) };
+                    }
+                }
+
+                let subjectsSnap;
+                try {
+                    subjectsSnap = await db.collection('subjects').where('tenantId', '==', tenantId).get();
+                } catch (e) {
+                    try {
+                        subjectsSnap = await db.collection('subjects').get();
+                    } catch (e2) {
+                        subjectsSnap = { forEach: () => {} };
+                    }
+                }
 
                 if (snap.empty) {
                     tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">${tr('no_plans_found', 'No plans found.')}</td></tr>`;
@@ -1326,7 +1512,13 @@
                                 <span style="font-size:0.75em; color:#666;">(${displayLabel})</span>
                             </td>
                             <td>${achieved}</td>
-                            <td><span style="color:${color}; font-weight:600;">${status}</span></td>
+                            <td>
+                                <div style="font-weight:600; color:${color}; margin-bottom:4px;">${status}</div>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <progress value="${achieved}" max="${target}" style="width:60px; height:6px; accent-color:${color}; border:none; background:#eee; border-radius:3px;"></progress>
+                                    <span style="font-size:0.75rem; color:#666;">${target > 0 ? Math.min(100, Math.round((achieved / target) * 100)) : 0}%</span>
+                                </div>
+                            </td>
                             <td>
                                 <button onclick="editProgress('${doc.id}', '${displayLabel}', '${achieved || 0}')" style="background:#e0f2fe; color:#075985; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; margin-right:6px;">${tr('edit_progress', 'Edit')}</button>
                                 <button onclick="deletePlan('${doc.id}')" style="background:#fee2e2; color:#991b1b; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">${tr('delete_plan', 'Delete')}</button>
@@ -1364,6 +1556,7 @@
                 const update = {};
                 update[`monthlyAchieved.${monthKey}`] = val;
                 update['lastUpdated'] = firebase.firestore.FieldValue.serverTimestamp();
+                update['tenantId'] = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
                 await db.collection('syllabus_plans').doc(planId).set(update, { merge: true });
                 loadReport();
             } catch (e) {
