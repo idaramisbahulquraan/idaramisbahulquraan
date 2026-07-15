@@ -110,42 +110,20 @@
             </header>
             <div class="dashboard-content assembly-shell">
                 <div class="assembly-hero">
-                    <h2>ہفتہ وار اسمبلی ذمہ داریاں</h2>
-                    <p>اسمبلی کے مختلف کام روزانہ بنیاد پر کلاس، طالب علم یا استاد کو تفویض کریں۔ تمام صارفین موجودہ ہفتے کی ذمہ داریاں دیکھ سکتے ہیں۔</p>
+                    <h2>روزانہ اسمبلی ذمہ داریاں</h2>
+                    <p>اسمبلی کے مختلف کام روزانہ بنیاد پر کلاس، طالب علم یا استاد کو تفویض کریں۔ تمام صارفین منتخب کردہ تاریخ کی ذمہ داریاں دیکھ سکتے ہیں۔</p>
                     <div class="assembly-hero-chips">
                         <span class="assembly-chip">تمام پروفائلز کے لیے ویو</span>
                         <span class="assembly-chip">استاد / ایڈمن اسائنمنٹ</span>
-                        <span class="assembly-chip">ہفتہ وار بورڈ</span>
+                        <span class="assembly-chip">روزانہ بورڈ</span>
                     </div>
                 </div>
 
-                <div class="assembly-card">
-                    <div class="assembly-head">
-                        <div class="assembly-head-main">
-                            <span class="assembly-badge">ا</span>
-                            <div>
-                                <h3 class="assembly-title">فلٹر اور تاریخ منتخب کریں</h3>
-                                <p class="assembly-subtitle">تاریخ منتخب کریں، ذمہ داریاں لوڈ کریں، اور اپنی کلاس یا پورے ادارے کا بورڈ دیکھیں۔</p>
-                            </div>
-                        </div>
-                        <span class="assembly-note" id="assemblyModeNote">تمام صارفین کے لیے قابلِ مشاہدہ</span>
-                    </div>
-                    <div class="assembly-grid">
-                        <div class="form-group"><label>تاریخ (Date)</label><input id="assemblyDate" class="assembly-input" type="date"></div>
-                        <div class="form-group"><label>شعبہ فلٹر</label><select id="assemblyFilterDepartment" class="assembly-select"></select></div>
-                        <div class="form-group"><label>کلاس فلٹر</label><select id="assemblyFilterClass" class="assembly-select"></select></div>
-                        <div class="form-group"><label>سیکشن فلٹر</label><select id="assemblyFilterSection" class="assembly-select"></select></div>
-                    </div>
-                    <div class="assembly-toolbar">
-                        <button type="button" class="btn-secondary" id="assemblyRefreshBtn">ذمہ داریاں لوڈ کریں</button>
-                        <span class="assembly-state" id="assemblyLoadState">ذمہ داریاں دیکھنے کے لیے لوڈ کریں۔</span>
-                    </div>
-                </div>
-
+                <!-- Card 2: Assign Responsibility (Only Form Card) -->
                 <div class="assembly-card editor-only" id="assemblyEditorCard">
                     <div class="assembly-head">
                         <div class="assembly-head-main">
-                            <span class="assembly-badge">2</span>
+                            <span class="assembly-badge">1</span>
                             <div>
                                 <h3 class="assembly-title">ذمہ داری تفویض کریں</h3>
                                 <p class="assembly-subtitle">استاد یا ایڈمن نئے کام اسائن کر سکتا ہے یا موجودہ اندراج میں ترمیم کر سکتا ہے۔</p>
@@ -155,7 +133,7 @@
                     </div>
                     <input type="hidden" id="assemblyDocId">
                     <div class="assembly-grid">
-                        <div class="form-group"><label>تاریخ (Date)</label><input id="assemblyAssignDate" class="assembly-input" type="date"></div>
+                        <div class="form-group"><label>تاریخ (Date)</label><input id="assemblyDate" class="assembly-input" type="date"></div>
                         <div class="form-group"><label>ٹاسک</label><select id="assemblyTask" class="assembly-select"></select></div>
                         <div class="form-group"><label>شعبہ</label><select id="assemblyDepartment" class="assembly-select"></select></div>
                         <div class="form-group"><label>کلاس</label><select id="assemblyClass" class="assembly-select"></select></div>
@@ -274,20 +252,24 @@
                 </div>
 
                 <div class="assembly-card">
-                    <div class="assembly-head">
+                    <div class="assembly-head" style="align-items: center;">
                         <div class="assembly-head-main">
-                            <span class="assembly-badge">3</span>
+                            <span class="assembly-badge">2</span>
                             <div>
                                 <h3 class="assembly-title">روزانہ ذمہ داریاں بورڈ</h3>
-                                <p class="assembly-subtitle">ہر دن کے لیے مقررہ اسمبلی ذمہ داریاں ایک ہی جدول میں۔</p>
+                                <p class="assembly-subtitle">مقررہ تاریخ کے لیے اسمبلی ذمہ داریاں نیچے فہرست میں دیکھیں۔</p>
                             </div>
                         </div>
-                        <span class="assembly-note">دیکھنے کے لیے تمام صارفین</span>
+                        <div class="form-group" id="studentDateGroup" style="display:none; margin:0; min-width:180px;">
+                            <label style="margin-bottom:0.25rem; font-weight:700;">تاریخ منتخب کریں</label>
+                            <input id="assemblyStudentDate" class="assembly-input" type="date" style="min-height:40px; padding:0.5rem 0.82rem;">
+                        </div>
+                        <span class="assembly-note" id="assemblyLoadState">ذمہ داریاں دیکھنے کے لیے لوڈ کریں۔</span>
                     </div>
                     <div class="viewer-strip">
                         <div class="viewer-stat"><div class="viewer-label">کل ذمہ داریاں</div><div class="viewer-value" id="assemblyStatTotal">0</div></div>
+                        <div class="viewer-stat"><div class="viewer-label">موجودہ تاریخ</div><div class="viewer-value" id="assemblyStatDay">-</div></div>
                         <div class="viewer-stat"><div class="viewer-label">موجودہ فلٹر</div><div class="viewer-value" id="assemblyStatFilter">تمام</div></div>
-                        <div class="viewer-stat"><div class="viewer-label">سب سے مصروف دن</div><div class="viewer-value" id="assemblyStatDay">-</div></div>
                         <div class="viewer-stat"><div class="viewer-label">اسائنمنٹ موڈ</div><div class="viewer-value" id="assemblyStatMode">صرف مشاہدہ</div></div>
                     </div>
                     <div class="assembly-board-wrap" style="margin-top:1rem;">
@@ -308,6 +290,6 @@
     <script src="../../js/firebase-config.js"></script>
     <script src="../../js/translations.js"></script>
     <script src="../../js/script.js"></script>
-    <script src="../../js/assembly-responsibility.js?v=2.0.1"></script>
+    <script src="../../js/assembly-responsibility.js?v=2.0.2"></script>
 </body>
 </html>

@@ -48,9 +48,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Set default values to today's date
   const today = new Date().toLocaleDateString('sv-SE');
   const dateInput = document.getElementById('assemblyDate');
-  const assignDateInput = document.getElementById('assemblyAssignDate');
+  const studentDateInput = document.getElementById('assemblyStudentDate');
   if (dateInput && !dateInput.value) dateInput.value = today;
-  if (assignDateInput && !assignDateInput.value) assignDateInput.value = today;
+  if (studentDateInput && !studentDateInput.value) studentDateInput.value = today;
 
   updateAssemblyModeUi();
   renderAssemblyStaticControls();
@@ -63,8 +63,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await updateAssemblyFormSections();
     await updateAssemblyAssigneeOptions();
   }
-  await updateAssemblyFilterClasses();
-  await updateAssemblyFilterSections();
   await loadAssemblyAssignments();
 });
 
@@ -72,9 +70,15 @@ function updateAssemblyModeUi() {
   const editorCard = document.getElementById('assemblyEditorCard');
   const modeNote = document.getElementById('assemblyModeNote');
   const statMode = document.getElementById('assemblyStatMode');
+  const studentDateGroup = document.getElementById('studentDateGroup');
+
   if (editorCard) editorCard.classList.toggle('editor-hidden', !assemblyState.canEdit);
   if (modeNote) modeNote.innerText = assemblyState.canEdit ? 'استاد / ایڈمن اسائن کر سکتے ہیں' : 'صرف مشاہدہ';
   if (statMode) statMode.innerText = assemblyState.canEdit ? 'اسائنمنٹ فعال' : 'صرف مشاہدہ';
+  
+  if (studentDateGroup) {
+    studentDateGroup.style.display = assemblyState.canEdit ? 'none' : 'block';
+  }
 }
 
 function renderAssemblyStaticControls() {
@@ -89,9 +93,8 @@ function renderAssemblyStaticControls() {
     typeSelect.innerHTML = assemblyState.assigneeTypes.map((type) => `<option value="${type.key}">${type.label}</option>`).join('');
   }
   const editorSection = document.getElementById('assemblySection');
-  const filterSection = document.getElementById('assemblyFilterSection');
   if (editorSection) editorSection.innerHTML = '<option value="">عمومی سیکشن</option>';
-  if (filterSection) filterSection.innerHTML = '<option value="">تمام سیکشنز</option>';
+  
   const assigneeSelect = document.getElementById('assemblyAssigneeSelect');
   if (assigneeSelect) assigneeSelect.innerHTML = '<option value="">مسئول منتخب کریں</option>';
   
@@ -107,36 +110,32 @@ function renderAssemblyStaticControls() {
 }
 
 function bindAssemblyEvents() {
+  // Setup listeners for form changes to auto-query and refresh board
+  document.getElementById('assemblyDate')?.addEventListener('change', loadAssemblyAssignments);
+  
   document.getElementById('assemblyDepartment')?.addEventListener('change', async () => {
     await updateAssemblyFormClasses();
     await updateAssemblyFormSections();
     await updateAssemblyAssigneeOptions();
+    await loadAssemblyAssignments(); // Auto reload board on department change
   });
+  
   document.getElementById('assemblyClass')?.addEventListener('change', async () => {
     await updateAssemblyFormSections();
     await updateAssemblyAssigneeOptions();
+    await loadAssemblyAssignments(); // Auto reload board on class change
   });
-  document.getElementById('assemblySection')?.addEventListener('change', updateAssemblyAssigneeOptions);
-  document.getElementById('assemblyAssigneeType')?.addEventListener('change', updateAssemblyAssigneeOptions);
-  document.getElementById('assemblyFilterDepartment')?.addEventListener('change', async () => {
-    await updateAssemblyFilterClasses();
-    await updateAssemblyFilterSections();
-    await loadAssemblyAssignments();
-  });
-  document.getElementById('assemblyFilterClass')?.addEventListener('change', async () => {
-    await updateAssemblyFilterSections();
-    await loadAssemblyAssignments();
-  });
-  document.getElementById('assemblyFilterSection')?.addEventListener('change', loadAssemblyAssignments);
   
-  // Date selection listeners
-  document.getElementById('assemblyDate')?.addEventListener('change', (e) => {
-    // Sync assign date selector for user convenience
-    const assignDateInput = document.getElementById('assemblyAssignDate');
-    if (assignDateInput) assignDateInput.value = e.target.value;
-    loadAssemblyAssignments();
+  document.getElementById('assemblySection')?.addEventListener('change', async () => {
+    await updateAssemblyAssigneeOptions();
+    await loadAssemblyAssignments(); // Auto reload board on section change
   });
-  document.getElementById('assemblyRefreshBtn')?.addEventListener('click', loadAssemblyAssignments);
+  
+  document.getElementById('assemblyAssigneeType')?.addEventListener('change', updateAssemblyAssigneeOptions);
+  
+  // Student view date selector listener
+  document.getElementById('assemblyStudentDate')?.addEventListener('change', loadAssemblyAssignments);
+  
   document.getElementById('assemblySaveBtn')?.addEventListener('click', saveAssemblyAssignment);
   document.getElementById('assemblyResetBtn')?.addEventListener('click', resetAssemblyForm);
   
@@ -155,12 +154,8 @@ function bindAssemblyEvents() {
 
 async function loadAssemblyDepartments() {
   const formSelect = document.getElementById('assemblyDepartment');
-  const filterSelect = document.getElementById('assemblyFilterDepartment');
-
-  [formSelect, filterSelect].forEach((select, idx) => {
-    if (!select) return;
-    select.innerHTML = `<option value="">${idx === 0 ? 'شعبہ منتخب کریں' : 'تمام شعبے'}</option>`;
-  });
+  if (!formSelect) return;
+  formSelect.innerHTML = `<option value="">شعبہ منتخب کریں</option>`;
 
   const tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
   let docs = [];
@@ -188,16 +183,13 @@ async function loadAssemblyDepartments() {
   docs.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
   assemblyState.departments = docs;
 
-  [formSelect, filterSelect].forEach((select) => {
-    if (!select) return;
-    assemblyState.departments.forEach((department) => {
-      const option = document.createElement('option');
-      option.value = department.name || '';
-      option.innerText = typeof getDepartmentDisplayName === 'function'
-        ? getDepartmentDisplayName(department.name || '', department.name_ur || '')
-        : (department.name_ur || department.name || '');
-      select.appendChild(option);
-    });
+  assemblyState.departments.forEach((department) => {
+    const option = document.createElement('option');
+    option.value = department.name || '';
+    option.innerText = typeof getDepartmentDisplayName === 'function'
+      ? getDepartmentDisplayName(department.name || '', department.name_ur || '')
+      : (department.name_ur || department.name || '');
+    formSelect.appendChild(option);
   });
 }
 
@@ -247,49 +239,6 @@ async function updateAssemblyFormSections() {
   select.innerHTML = '<option value="">عمومی سیکشن</option>';
 
   const classDoc = assemblyState.classes.find((item) => item.name === className) || null;
-  normalizeAssemblySections(classDoc?.sections).forEach((section) => {
-    const option = document.createElement('option');
-    option.value = section;
-    option.innerText = `سیکشن ${section}`;
-    select.appendChild(option);
-  });
-}
-
-async function updateAssemblyFilterClasses() {
-  const department = document.getElementById('assemblyFilterDepartment')?.value || '';
-  const select = document.getElementById('assemblyFilterClass');
-  if (!select) return;
-  select.innerHTML = '<option value="">تمام کلاسیں</option>';
-  assemblyState.filterClasses = [];
-  if (!department) return;
-
-  try {
-    const snapshot = await db.collection('classes').where('department', '==', department).get();
-    snapshot.forEach((doc) => assemblyState.filterClasses.push({ id: doc.id, ...(doc.data() || {}) }));
-  } catch (error) {
-    console.warn('Assembly filter classes unavailable', error?.message || error);
-    return;
-  }
-
-  assemblyState.filterClasses
-    .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')))
-    .forEach((cls) => {
-      const option = document.createElement('option');
-      option.value = cls.name || '';
-      option.innerText = typeof getClassDisplayName === 'function'
-        ? getClassDisplayName(cls.name || '', cls.name_ur || '')
-        : (cls.name_ur || cls.name || '');
-      select.appendChild(option);
-    });
-}
-
-async function updateAssemblyFilterSections() {
-  const className = document.getElementById('assemblyFilterClass')?.value || '';
-  const select = document.getElementById('assemblyFilterSection');
-  if (!select) return;
-  select.innerHTML = '<option value="">تمام سیکشنز</option>';
-
-  const classDoc = [...assemblyState.filterClasses, ...assemblyState.classes].find((item) => item.name === className) || null;
   normalizeAssemblySections(classDoc?.sections).forEach((section) => {
     const option = document.createElement('option');
     option.value = section;
@@ -388,7 +337,11 @@ async function loadAssemblyStudents({ department, className, section }) {
 
 // Load by Date index
 async function loadAssemblyAssignments() {
-  const selectedDate = document.getElementById('assemblyDate')?.value || '';
+  const datePicker = assemblyState.canEdit 
+    ? document.getElementById('assemblyDate') 
+    : document.getElementById('assemblyStudentDate');
+  const selectedDate = datePicker?.value || '';
+
   if (!selectedDate) {
     setAssemblyState('تاریخ منتخب کریں۔');
     renderAssemblyBoard([]);
@@ -411,9 +364,11 @@ async function loadAssemblyAssignments() {
     snapshot.forEach((doc) => assignments.push({ id: doc.id, ...(doc.data() || {}) }));
     window.allWeekAssignmentsCache = assignments;
 
-    const filterDepartment = document.getElementById('assemblyFilterDepartment')?.value || '';
-    const filterClass = document.getElementById('assemblyFilterClass')?.value || '';
-    const filterSection = document.getElementById('assemblyFilterSection')?.value || '';
+    // Filter board dynamically in-memory matching form options if user is teacher/admin
+    const filterDepartment = assemblyState.canEdit ? (document.getElementById('assemblyDepartment')?.value || '') : '';
+    const filterClass = assemblyState.canEdit ? (document.getElementById('assemblyClass')?.value || '') : '';
+    const filterSection = assemblyState.canEdit ? (document.getElementById('assemblySection')?.value || '') : '';
+    
     if (filterDepartment) assignments = assignments.filter((item) => item.department === filterDepartment || item.department_ur === filterDepartment);
     if (filterClass) assignments = assignments.filter((item) => item.className === filterClass || item.className_ur === filterClass);
     if (filterSection) assignments = assignments.filter((item) => normalizeAssemblyToken(item.section || '') === normalizeAssemblyToken(filterSection));
@@ -450,7 +405,7 @@ function renderAssemblyBoard(assignments) {
   tbody.innerHTML = assemblyState.tasks.map((task) => {
     const matches = assignments.filter((item) => item.taskKey === task.key);
     
-    let cellContent = '<div class="assignment-empty">کوئی ذمہ داری نہیں</div>';
+    let cellContent = '<div class="assignment-empty" style="min-height: auto; padding: 0.5rem;">کوئی ذمہ داری نہیں</div>';
     if (matches.length > 0) {
       cellContent = matches.map((item) => `
         <div class="assignment-card" style="min-height: auto; margin-bottom: 0.5rem;">
@@ -470,8 +425,6 @@ function renderAssemblyBoard(assignments) {
         </div>
       `).join('');
     }
-
-    const firstMatch = matches[0] || {};
 
     return `
       <tr>
@@ -494,18 +447,22 @@ function renderAssemblyBoard(assignments) {
 
 function updateAssemblyStats(assignments) {
   document.getElementById('assemblyStatTotal').innerText = String(assignments.length || 0);
-  const filterDepartment = document.getElementById('assemblyFilterDepartment')?.selectedOptions?.[0]?.textContent || 'تمام';
-  const filterClass = document.getElementById('assemblyFilterClass')?.selectedOptions?.[0]?.textContent || '';
-  const filterSection = document.getElementById('assemblyFilterSection')?.selectedOptions?.[0]?.textContent || '';
-  document.getElementById('assemblyStatFilter').innerText = [filterClass || filterDepartment, filterSection && filterSection !== 'تمام سیکشنز' ? filterSection : ''].filter(Boolean).join(' • ') || 'تمام';
+  
+  const filterDepartment = assemblyState.canEdit ? (document.getElementById('assemblyDepartment')?.value || 'تمام') : 'تمام';
+  const filterClass = assemblyState.canEdit ? (document.getElementById('assemblyClass')?.value || '') : '';
+  const filterSection = assemblyState.canEdit ? (document.getElementById('assemblySection')?.value || '') : '';
+  document.getElementById('assemblyStatFilter').innerText = [filterClass || filterDepartment, filterSection].filter(Boolean).join(' • ') || 'تمام';
 
-  document.getElementById('assemblyStatDay').innerText = document.getElementById('assemblyDate')?.value || '-';
+  const datePicker = assemblyState.canEdit 
+    ? document.getElementById('assemblyDate') 
+    : document.getElementById('assemblyStudentDate');
+  document.getElementById('assemblyStatDay').innerText = datePicker?.value || '-';
 }
 
 async function saveAssemblyAssignment() {
   if (!assemblyState.canEdit) return;
 
-  const assignDate = document.getElementById('assemblyAssignDate')?.value || '';
+  const assignDate = document.getElementById('assemblyDate')?.value || '';
   if (!assignDate) {
     alert('براہ کرم تاریخ منتخب کریں۔');
     return;
@@ -616,7 +573,7 @@ async function loadAssignmentIntoForm(id) {
   const docDate = item.date || getDateFromWeekStartAndDay(item.weekStart, item.dayKey);
   
   document.getElementById('assemblyDocId').value = item.id || '';
-  document.getElementById('assemblyAssignDate').value = docDate;
+  document.getElementById('assemblyDate').value = docDate;
   document.getElementById('assemblyTask').value = item.taskKey || '';
   document.getElementById('assemblyDepartment').value = item.department || '';
   await updateAssemblyFormClasses();
@@ -654,7 +611,7 @@ async function deleteAssemblyAssignment(id) {
 function resetAssemblyForm() {
   document.getElementById('assemblyDocId').value = '';
   const today = new Date().toLocaleDateString('sv-SE');
-  document.getElementById('assemblyAssignDate').value = today;
+  document.getElementById('assemblyDate').value = today;
   document.getElementById('assemblyTask').selectedIndex = 0;
   document.getElementById('assemblyDepartment').value = '';
   document.getElementById('assemblyClass').innerHTML = '<option value="">کلاس منتخب کریں</option>';
@@ -906,7 +863,7 @@ window.handleAssemblyDrop = async function(event) {
 
 async function assignStudentViaDragDrop(studentId, dayKey, taskKey) {
   if (!assemblyState.canEdit) return;
-  const assignDate = document.getElementById('assemblyAssignDate')?.value || '';
+  const assignDate = document.getElementById('assemblyDate')?.value || '';
   const department = document.getElementById('assemblyDepartment')?.value || '';
   const className = document.getElementById('assemblyClass')?.value || '';
   const section = document.getElementById('assemblySection')?.value || '';
