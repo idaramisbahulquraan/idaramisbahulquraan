@@ -562,6 +562,25 @@
             examState.activeExamId = `${examState.tenantId}_${dept}_${className}_${term}_${subjectId}_${examType}`.replace(/\s+/g, '_');
 
             try {
+                // Fetch existing exam header if it exists to get who entered marks
+                let enteredBy = 'درج نہیں ہوا (Not Entered)';
+                try {
+                    const examDoc = await db.collection('exams').doc(examState.activeExamId).get();
+                    if (examDoc.exists) {
+                        enteredBy = examDoc.data().enteredByTeacherName || 'تفصیلات دستیاب نہیں';
+                    }
+                } catch (eExam) {
+                    console.warn(eExam);
+                }
+
+                const assignedTeacher = subject ? (subject.teacherName || 'غیر تفویض') : 'غیر تفویض';
+                document.getElementById('examGradingMeta').innerHTML = `
+                    شعبہ: <strong>${dept}</strong> • 
+                    تعلیمی مدت: <strong>${term}</strong> • 
+                    کورس استاد: <strong>${assignedTeacher}</strong> • 
+                    نمبرات درج کنندہ: <strong>${enteredBy}</strong>
+                `;
+
                 // 1. Fetch Students
                 let snapStudents = await db.collection('students')
                     .where('tenantId', '==', examState.tenantId)
@@ -675,6 +694,7 @@
                     examType: examType,
                     examName: examName,
                     maxMarks: globalTotalVal,
+                    enteredByTeacherName: examState.currentUser ? (examState.currentUser.name || examState.currentUser.email || '') : '',
                     date: new Date().toLocaleDateString('sv-SE'),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
