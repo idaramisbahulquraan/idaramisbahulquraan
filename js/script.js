@@ -1936,6 +1936,7 @@ function renderSidebar(userOrRole) {
         teacher: [
             { name: getTrans('handbook'), icon: '📘', href: basePath + 'pages/shared/handbook.html' },
             { name: getTrans('portal'), icon: '🏠', href: basePath + 'pages/teacher/portal.html' },
+            { name: getTrans('class_students'), icon: '👨‍🎓', href: basePath + 'pages/teacher/class_students.html' },
             { name: getTrans('student_progress'), icon: '📈', href: basePath + 'pages/shared/student_progress.html' },
             { name: getTrans('attendance'), icon: '✅', href: basePath + 'pages/teacher/attendance.html' },
             { name: getTrans('attendance_report'), icon: '📄', href: basePath + 'pages/teacher/attendance-report.html' },

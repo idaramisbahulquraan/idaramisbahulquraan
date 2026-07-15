@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>کلاس کے طلباء - ادارہ مصباح القرآن</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .class-incharge-banner {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .class-incharge-banner h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .class-incharge-banner p {
+            margin: 0.25rem 0 0 0;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .btn-add-student {
+            background-color: white;
+            color: #0369a1;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-add-student:hover {
+            background-color: #f0f9ff;
+            transform: translateY(-2px);
+        }
+
+        /* Modal custom styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+
+        .table-container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th,
+        td {
+            padding: 1rem 1.5rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 700;
+            color: #334155;
+            font-size: 0.875rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1 data-i18n="class_students">کلاس کے طلباء</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight: 600;">Teacher</p>
+                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">T</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <!-- Not Assigned Banner -->
+                <div class="stat-card" id="notAssignedWarning" style="display:none; text-align:center; padding:3rem;">
+                    <div style="font-size:3rem; margin-bottom:1rem;">⚠️</div>
+                    <h3>آپ کو کسی کلاس کا انچارج مقرر نہیں کیا گیا ہے</h3>
+                    <p style="color:var(--text-light); margin-top:0.5rem;">
+                        طالب علموں کو شامل یا خارج کرنے کے لیے، براہ کرم اپنے ناظم یا ایڈمن سے رابطہ کریں تاکہ وہ آپ کو کلاس کا انچارج مقرر کریں۔
+                    </p>
+                </div>
+
+                <!-- Assigned Roster Section -->
+                <div id="rosterSection" style="display:none;">
+                    <div class="class-incharge-banner">
+                        <div>
+                            <h2 id="bannerClassName">کلاس: -</h2>
+                            <p id="bannerDeptName">شعبہ: -</p>
+                        </div>
+                        <button class="btn-add-student" onclick="openStudentModal()">
+                            <span>+</span> نیا طالب علم شامل کریں
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>رول نمبر</th>
+                                    <th>طالب علم کا نام</th>
+                                    <th>والد کا نام</th>
+                                    <th>رابطہ نمبر (سرپرست)</th>
+                                    <th>صنف (Gender)</th>
+                                    <th>اقدامات (Actions)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentRosterBody">
+                                <tr>
+                                    <td colspan="6" style="text-align:center; padding:2rem;">لوڈنگ ہو رہی ہے...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Student Add Modal -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="studentModalTitle">نیا طالب علم شامل کریں</h3>
+                <button class="close-btn" onclick="closeStudentModal()">&times;</button>
+            </div>
+            <form id="addStudentForm">
+                <input type="hidden" name="docId">
+                <div class="form-group">
+                    <label>رول نمبر (Roll Number) *</label>
+                    <input type="text" name="rollNumber" required placeholder="مثال: Std-101">
+                </div>
+                <div class="form-group">
+                    <label>پہلا نام (First Name in English) *</label>
+                    <input type="text" name="firstName" required placeholder="e.g. Ahmad">
+                </div>
+                <div class="form-group">
+                    <label>آخری نام (Last Name in English) *</label>
+                    <input type="text" name="lastName" required placeholder="e.g. Ali">
+                </div>
+                <div class="form-group">
+                    <label>طالب علم کا نام (Urdu Name)</label>
+                    <input type="text" name="name_ur" placeholder="مثال: احمد علی">
+                </div>
+                <div class="form-group">
+                    <label>والد کا نام (Parent Name) *</label>
+                    <input type="text" name="parentName" required placeholder="مثال: محمد علی">
+                </div>
+                <div class="form-group">
+                    <label>سرپرست کا فون نمبر (Parent Phone) *</label>
+                    <input type="text" name="parentPhone" required placeholder="مثال: 03001234567">
+                </div>
+                <div class="form-group">
+                    <label>صنف (Gender) *</label>
+                    <select name="gender" required>
+                        <option value="Male">مرد (Male)</option>
+                        <option value="Female">خاتون (Female)</option>
+                    </select>
+                </div>
+                <div class="form-group" id="emailGroup">
+                    <label>ای میل (Email Address) *</label>
+                    <input type="email" name="email" required placeholder="e.g. ahmad@gmail.com">
+                </div>
+                <div class="form-group" id="passwordGroup">
+                    <label>لاگ ان پاس ورڈ (Password) *</label>
+                    <input type="password" name="password" required minlength="6" placeholder="کم از کم 6 ہندسے">
+                </div>
+
+                <div style="text-align: left; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary" id="saveStudentBtn" style="padding: 0.75rem 1.5rem;">محفوظ کریں</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+
+    <script>
+        // Secondary App configuration to create users without logging out current teacher
+        let secondaryApp;
+        let secondaryAuth;
+        try {
+            secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
+            secondaryAuth = secondaryApp.auth();
+        } catch (e) {
+            const apps = firebase.apps;
+            secondaryApp = apps.find(app => app.name === "Secondary");
+            secondaryAuth = secondaryApp.auth();
+        }
+
+        const state = {
+            currentUser: null,
+            tenantId: '',
+            teacherProfile: null,
+            assignedClass: null,
+            students: []
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof auth !== 'undefined') {
+                auth.onAuthStateChanged(async (user) => {
+                    if (!user) return;
+
+                    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    if (!currentUser.uid) {
+                        currentUser.uid = user.uid;
+                        currentUser.email = user.email;
+                        currentUser.name = user.displayName || user.email;
+                    }
+                    state.currentUser = currentUser;
+                    state.tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+
+                    if (typeof initDashboard === 'function') {
+                        initDashboard(currentUser);
+                    }
+
+                    await loadTeacherRoster();
+                });
+            }
+
+            document.getElementById('addStudentForm').addEventListener('submit', handleSaveStudent);
+        });
+
+        // 1. Fetch teacher class assignments and students
+        async function loadTeacherRoster() {
+            try {
+                // Find teacher ID from email
+                let teacherSnap = await db.collection('teachers')
+                    .where('tenantId', '==', state.tenantId)
+                    .where('email', '==', state.currentUser.email)
+                    .get();
+
+                if (teacherSnap.empty) {
+                    // Fallback to all teachers search
+                    teacherSnap = await db.collection('teachers')
+                        .where('email', '==', state.currentUser.email)
+                        .get();
+                }
+
+                if (teacherSnap.empty) {
+                    showWarning();
+                    return;
+                }
+
+                const teacherDoc = teacherSnap.docs[0];
+                state.teacherProfile = { id: teacherDoc.id, ...teacherDoc.data() };
+
+                // Find class where this teacher is assigned as incharge
+                let classSnap = await db.collection('classes')
+                    .where('tenantId', '==', state.tenantId)
+                    .where('inchargeTeacherId', '==', state.teacherProfile.id)
+                    .get();
+
+                if (classSnap.empty) {
+                    // Fallback using name or email
+                    classSnap = await db.collection('classes')
+                        .where('tenantId', '==', state.tenantId)
+                        .where('inchargeTeacherName', '==', state.teacherProfile.name_ur || state.teacherProfile.firstName)
+                        .get();
+                }
+
+                if (classSnap.empty) {
+                    showWarning();
+                    return;
+                }
+
+                state.assignedClass = { id: classSnap.docs[0].id, ...classSnap.docs[0].data() };
+
+                // Update UI elements
+                document.getElementById('bannerClassName').innerText = `کلاس: ${state.assignedClass.name_ur || state.assignedClass.name}`;
+                document.getElementById('bannerDeptName').innerText = `شعبہ: ${getDeptUrduName(state.assignedClass.department)}`;
+                
+                document.getElementById('notAssignedWarning').style.display = 'none';
+                document.getElementById('rosterSection').style.display = 'block';
+
+                // Load class students list
+                await loadStudentsList();
+
+            } catch (err) {
+                console.error("Error loading roster:", err);
+                alert("معلومات لوڈ کرنے میں خامی آئی۔");
+            }
+        }
+
+        function showWarning() {
+            document.getElementById('notAssignedWarning').style.display = 'block';
+            document.getElementById('rosterSection').style.display = 'none';
+        }
+
+        function getDeptUrduName(dept) {
+            const deptUrdu = {
+                "Dars-e-Nizami Department": "شعبہ درس نظامی",
+                "Hifz Department": "شعبہ تحفیظ القرآن",
+                "Tajweed Department": "شعبہ تجوید و قرأت"
+            };
+            return deptUrdu[dept] || dept || '';
+        }
+
+        // 2. Fetch class students
+        async function loadStudentsList() {
+            const tbody = document.getElementById('studentRosterBody');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem;">لوڈنگ ہو رہی ہے...</td></tr>';
+
+            try {
+                const snap = await db.collection('students')
+                    .where('tenantId', '==', state.tenantId)
+                    .where('className', '==', state.assignedClass.name)
+                    .get();
+
+                state.students = [];
+                snap.forEach(doc => {
+                    state.students.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Sort by roll number
+                state.students.sort((a, b) => String(a.rollNumber || '').localeCompare(String(b.rollNumber || '')));
+
+                if (state.students.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--text-light);">کلاس میں کوئی طالب علم موجود نہیں ہے۔</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = state.students.map(s => {
+                    const fullName = s.name_ur || `${s.firstName || ''} ${s.lastName || ''}`.trim();
+                    return `
+                        <tr>
+                            <td style="font-weight:700;">${s.rollNumber || ''}</td>
+                            <td style="font-weight:600;">${escapeHtml(fullName)}</td>
+                            <td>${escapeHtml(s.parentName || '')}</td>
+                            <td>${escapeHtml(s.parentPhone || '')}</td>
+                            <td>${s.gender === 'Female' ? 'خاتون' : 'مرد'}</td>
+                            <td>
+                                <div style="display:flex; gap:0.5rem; justify-content:end;">
+                                    <button onclick="editStudent('${s.id}')" class="btn btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.85rem;">ترمیم</button>
+                                    <button onclick="removeStudent('${s.id}')" class="btn btn-danger" style="padding:0.4rem 0.8rem; font-size:0.85rem; background:#fee2e2; color:#991b1b; border:1px solid #fee2e2;">حذف</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error("Error loading students:", err);
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem; color:red;">طالب علموں کو حاصل کرنے میں مسئلہ پیش آیا۔</td></tr>';
+            }
+        }
+
+        // 3. Save Student Handler
+        async function handleSaveStudent(e) {
+            e.preventDefault();
+            const btn = document.getElementById('saveStudentBtn');
+            const originalText = btn.innerText;
+            btn.innerText = 'محفوظ ہو رہا ہے...';
+            btn.disabled = true;
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            const docId = data.docId;
+
+            try {
+                if (docId) {
+                    // Update Student document
+                    await db.collection('students').doc(docId).update({
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        name_ur: data.name_ur || '',
+                        parentName: data.parentName,
+                        parentPhone: data.parentPhone,
+                        gender: data.gender
+                    });
+                    alert('طالب علم کی معلومات کامیابی سے تبدیل ہو گئیں۔');
+                } else {
+                    // Create student account in secondary Auth
+                    const userCredential = await secondaryAuth.createUserWithEmailAndPassword(data.email, data.password);
+                    const uid = userCredential.user.uid;
+
+                    // Write user record
+                    await db.collection('users').doc(uid).set({
+                        email: data.email,
+                        role: 'student',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Write student record
+                    await db.collection('students').doc(uid).set({
+                        uid: uid,
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        name_ur: data.name_ur || '',
+                        email: data.email,
+                        department: state.assignedClass.department,
+                        className: state.assignedClass.name,
+                        rollNumber: data.rollNumber,
+                        parentName: data.parentName,
+                        parentPhone: data.parentPhone,
+                        gender: data.gender,
+                        role: 'student',
+                        tenantId: state.tenantId,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    alert('نیا طالب علم کامیابی سے شامل کر دیا گیا۔');
+                }
+
+                closeStudentModal();
+                await loadStudentsList();
+
+            } catch (err) {
+                console.error("Error saving student:", err);
+                alert("طالب علم کو محفوظ کرنے میں خامی آئی: " + err.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // 4. Modal actions
+        function openStudentModal() {
+            const form = document.getElementById('addStudentForm');
+            form.reset();
+            document.getElementById('studentModalTitle').innerText = 'نیا طالب علم شامل کریں';
+            document.getElementById('emailGroup').style.display = 'block';
+            document.getElementById('passwordGroup').style.display = 'block';
+            document.querySelector('input[name="email"]').setAttribute('required', 'true');
+            document.querySelector('input[name="password"]').setAttribute('required', 'true');
+            form.querySelector('input[name="docId"]').value = '';
+            
+            document.getElementById('studentModal').classList.add('active');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('studentModal').classList.remove('active');
+        }
+
+        async function editStudent(uid) {
+            try {
+                const doc = await db.collection('students').doc(uid).get();
+                if (!doc.exists) return;
+                const s = doc.data();
+
+                const form = document.getElementById('addStudentForm');
+                form.reset();
+                form.querySelector('input[name="docId"]').value = uid;
+                form.querySelector('input[name="rollNumber"]').value = s.rollNumber || '';
+                form.querySelector('input[name="firstName"]').value = s.firstName || '';
+                form.querySelector('input[name="lastName"]').value = s.lastName || '';
+                form.querySelector('input[name="name_ur"]').value = s.name_ur || '';
+                form.querySelector('input[name="parentName"]').value = s.parentName || '';
+                form.querySelector('input[name="parentPhone"]').value = s.parentPhone || '';
+                form.querySelector('select[name="gender"]').value = s.gender || 'Male';
+
+                // Hide credentials for editing
+                document.getElementById('emailGroup').style.display = 'none';
+                document.getElementById('passwordGroup').style.display = 'none';
+                document.querySelector('input[name="email"]').removeAttribute('required');
+                document.querySelector('input[name="password"]').removeAttribute('required');
+
+                document.getElementById('studentModalTitle').innerText = 'طالب علم کی معلومات درست کریں';
+                document.getElementById('studentModal').classList.add('active');
+
+            } catch (err) {
+                console.error(err);
+                alert("معلومات حاصل کرنے میں خامی آئی۔");
+            }
+        }
+
+        async function removeStudent(uid) {
+            if (!confirm("کیا آپ واقعی اس طالب علم کو نکالنا/خارج کرنا چاہتے ہیں؟ اس سے طالب علم کے لاگ ان سمیت تمام ریکارڈز حذف ہو جائیں گے۔")) return;
+
+            try {
+                await db.collection('students').doc(uid).delete();
+                await db.collection('users').doc(uid).delete();
+                alert("طالب علم کو کامیابی سے خارج کر دیا گیا۔");
+                await loadStudentsList();
+            } catch (err) {
+                console.error(err);
+                alert("طالب علم کو خارج کرنے میں خامی آئی۔");
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return String(unsafe)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
