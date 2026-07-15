@@ -203,25 +203,25 @@ function renderDiaryGrid() {
                         oninput="updateEntryLocalField(${index}, 'pageNo', this.value)">
                 </td>
                 <td>
-                    <textarea class="diary-textarea-cell" placeholder="طلبہ نے آج کیا پڑھا؟" 
+                    <textarea class="diary-textarea-cell" placeholder="طلباء نے آج کیا سیکھنا تھا" 
                         oninput="updateEntryLocalField(${index}, 'whatStudentsRead', this.value)">${escapeHtml(entry.whatStudentsRead || '')}</textarea>
                 </td>
                 <td>
-                    <input type="text" class="diary-input-cell" placeholder="رنگ، حرکت، عمل، یا سرگرمی" 
+                    <input type="text" class="diary-input-cell" placeholder="کون سی ایکٹو لرننگ حکمت عملی کا استعمال ہوا" 
                         value="${escapeHtml(entry.activityUsed || '')}" 
                         oninput="updateEntryLocalField(${index}, 'activityUsed', this.value)">
                 </td>
                 <td>
-                    <input type="text" style="text-align:center;" class="diary-input-cell" placeholder="تعداد" 
+                    <input type="text" style="text-align:center;" class="diary-input-cell" placeholder="تعداد متحرک طلباء" 
                         value="${escapeHtml(entry.studentsParticipated || '')}" 
                         oninput="updateEntryLocalField(${index}, 'studentsParticipated', this.value)">
                 </td>
                 <td>
-                    <textarea class="diary-textarea-cell" placeholder="اہم بات جو یاد رکھنی تھی" 
+                    <textarea class="diary-textarea-cell" placeholder="سبق کے آخر میں کیا ثبوت ملا کہ سمجھ آگئی ہے" 
                         oninput="updateEntryLocalField(${index}, 'rememberKeyPoints', this.value)">${escapeHtml(entry.rememberKeyPoints || '')}</textarea>
                 </td>
                 <td>
-                    <textarea class="diary-textarea-cell" placeholder="کمزور طلبہ کے نام" 
+                    <textarea class="diary-textarea-cell" placeholder="طلبا کے نام جن کو مزید مدد کی ضرورت ہے" 
                         oninput="updateEntryLocalField(${index}, 'studentsNeedingHelp', this.value)">${escapeHtml(entry.studentsNeedingHelp || '')}</textarea>
                 </td>
                 <td>
