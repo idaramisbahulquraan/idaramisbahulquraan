@@ -1,412 +1,822 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="ur" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Grades - School Management System</title>
+    <title>درج نمبرات اساتذہ - ادارہ مصباح القرآن</title>
     <link rel="stylesheet" href="../../css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- PDFMake for PDF downloads if needed -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/vfs_fonts.js"></script>
+    <script src="../../js/pdf-manager.js"></script>
     <style>
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        .exam-shell {
+            display: flex;
+            flex-direction: column;
             gap: 1.5rem;
-            margin-bottom: 2rem;
+            padding-bottom: 6rem;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 500;
+        .exam-toolbar-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.25rem;
+            align-items: end;
         }
 
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem;
+        .exam-grid-card {
+            background: #fff;
             border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
         }
 
-        .table-container {
-            background: var(--white);
-            border-radius: 1rem;
-            box-shadow: var(--shadow-sm);
+        .exam-global-marks-bar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .exam-table-wrap {
             overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 0.85rem;
         }
 
-        table {
+        .exam-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 600px;
+            min-width: 700px;
         }
 
-        th,
-        td {
-            padding: 1rem 1.5rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        th {
-            background-color: #f8fafc;
-            font-weight: 600;
-            color: var(--text-light);
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        .grade-input {
-            width: 80px;
-            padding: 0.5rem;
+        .exam-table th,
+        .exam-table td {
+            padding: 0.85rem 1rem;
             border: 1px solid var(--border-color);
-            border-radius: 0.25rem;
+            text-align: right;
+            vertical-align: middle;
+        }
+
+        .exam-table th {
+            background: #f8fafc;
+            font-weight: 700;
+            color: #334155;
+            white-space: nowrap;
+        }
+
+        .exam-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .exam-score-input {
+            width: 90px;
+            padding: 0.45rem 0.65rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.35rem;
+            font-size: 0.95rem;
+            text-align: center;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .exam-score-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+        }
+
+        .exam-action-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .exam-sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            z-index: 99;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-load-sheet {
+            background: linear-gradient(135deg, #4f46e5, #4338ca) !important;
+            border: none !important;
+            color: #fff !important;
+        }
+        .btn-load-sheet:hover {
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
+        }
+
+        .btn-save-marks {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            border: none !important;
+            color: #fff !important;
+            padding: 0.75rem 2rem !important;
+            font-weight: 700;
+        }
+        .btn-save-marks:hover {
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
+        }
+
+        .btn-admit-cards {
+            background: linear-gradient(135deg, #0d9488, #0f766e) !important;
+            border: none !important;
+            color: #fff !important;
+        }
+        .btn-admit-cards:hover {
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25) !important;
+        }
+
+        @media print {
+            body {
+                background: #fff;
+                color: #000;
+            }
+            .sidebar, .header, .exam-toolbar-card, .exam-sticky-footer, .exam-global-marks-bar, .exam-action-bar {
+                display: none !important;
+            }
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+            .exam-grid-card {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+            }
+            .exam-table-wrap {
+                border: none !important;
+            }
+            .exam-table th, .exam-table td {
+                border: 1px solid #000 !important;
+                color: #000 !important;
+                font-size: 10pt !important;
+                padding: 6px !important;
+            }
+            .exam-score-input {
+                border: none !important;
+                background: transparent !important;
+                font-size: 10pt !important;
+                text-align: center !important;
+            }
+            .print-title {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+        }
+
+        .print-title {
+            display: none;
         }
     </style>
 </head>
-
 <body class="bg-light">
     <div class="dashboard-layout">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
                 <h2>SMS Teacher</h2>
             </div>
-            <nav class="sidebar-nav" id="sidebarNav">
-                <!-- Links rendered by JS -->
-            </nav>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
+            <!-- Print Header -->
+            <div class="print-title">
+                <h2 style="margin:0 0 5px;">ادارہ مصباح القرآن</h2>
+                <h3 style="margin:0 0 15px;" id="printSheetTitle">تحریری امتحانات نمبرات شیٹ</h3>
+                <div style="display:flex; justify-content:space-around; font-size:10pt;" id="printSheetMeta">
+                    <span>کلاس: -</span>
+                    <span>مضمون: -</span>
+                    <span>تعلیمی مدت: -</span>
+                </div>
+            </div>
+
             <header class="header">
                 <div class="page-title">
-                    <h1 id="pageTitle">Manage Grades</h1>
+                    <h1 data-i18n="grades">درج نمبرات اساتذہ</h1>
                 </div>
                 <div class="header-actions">
                     <div class="user-profile">
                         <div class="user-info">
-                            <p id="userName" style="font-weight: 600;">User</p>
-                            <p id="userRole" style="font-size: 0.75rem; color: var(--text-light);">Role</p>
+                            <p id="userName" style="font-weight:600;">User</p>
+                            <p id="userRole" style="font-size:0.75rem; color:var(--text-light);">Role</p>
                         </div>
                         <div class="avatar">U</div>
                     </div>
                 </div>
             </header>
 
-            <!-- Page Content -->
-            <div class="dashboard-content">
-                <div class="stat-card">
-                    <h3 style="margin-bottom: 1.5rem;">Select Exam</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Department</label>
-                            <select id="department" onchange="updateClasses()" required>
-                                <option value="" data-i18n="select_department">Select Department</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Class</label>
-                            <select id="className" onchange="loadExams()" required>
-                                <option value="" data-i18n="select_class">Select Class</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Exam & Subject</label>
-                            <select id="examSelect" onchange="loadGradingSheet()" required>
-                                <option value="" data-i18n="select_class_first">Select Class First</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Weight (%)</label>
-                            <input type="number" id="examWeight" value="100" min="0" max="100" placeholder="100">
-                        </div>
+            <div class="dashboard-content exam-shell">
+                <div class="stat-card" id="examsAccessDenied" style="display:none;">
+                    <div style="text-align:center; padding:2rem;">
+                        <h3>رسائی ممکن نہیں</h3>
+                        <p>یہ صفحہ صرف اساتذہ اور عملہ کے لیے دستیاب ہے۔</p>
                     </div>
                 </div>
 
-                <div class="stat-card" id="gradingCard" style="display: none; margin-top: 2rem;">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h3 id="gradingTitle">Grading Sheet</h3>
-                        <button class="btn-primary" onclick="saveGrades()" style="width: auto;">Save Grades</button>
+                <div id="examsContent" style="display:none;">
+                    <!-- 5-Filter Section -->
+                    <div class="exam-toolbar-card">
+                        <div class="form-group">
+                            <label>شعبہ (Department)</label>
+                            <select id="examDept" class="form-control"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>کلاس (Class)</label>
+                            <select id="examClass" class="form-control"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>تعلیمی مدت (Term)</label>
+                            <select id="examTerm" class="form-control">
+                                <option value="پہلی تعلیمی مدت">پہلی تعلیمی مدت (First Term)</option>
+                                <option value="دوسری تعلیمی مدت">دوسری تعلیمی مدت (Second Term)</option>
+                                <option value="سالانہ">سالانہ (Annual)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>مضمون (Subject)</label>
+                            <select id="examSubject" class="form-control">
+                                <option value="">کلاس منتخب کریں</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>سلسلہ امتحان (Exam Type)</label>
+                            <select id="examType" class="form-control">
+                                <option value="monthly">ماہانہ (Monthly)</option>
+                                <option value="first_term">پہلا سمسٹر (First Term)</option>
+                                <option value="second_term">دوسرا سمسٹر (2nd Term)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-load-sheet" id="loadExamSheetBtn" style="width:100%;">
+                                📋 نمبرات شیٹ لوڈ کریں
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Roll No</th>
-                                    <th>Student Name</th>
-                                    <th>Obtained Marks</th>
-                                    <th>Total Marks</th>
-                                </tr>
-                            </thead>
-                            <tbody id="gradingList">
-                                <tr>
-                                    <td colspan="4" style="text-align: center;">Loading...</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <!-- Grading Sheet Card -->
+                    <div class="exam-grid-card" id="examGradingCard" style="display:none; margin-top:1.5rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+                            <div>
+                                <h3 style="margin:0; color:#1e293b;" id="examGradingTitle">درج نمبرات شیٹ</h3>
+                                <p style="color:#64748b; font-size:0.85rem; margin:0.25rem 0 0;" id="examGradingMeta">کلاس کا ڈیٹا لوڈ ہو گیا۔</p>
+                            </div>
+                            <div class="exam-action-bar">
+                                <button type="button" class="btn btn-admit-cards" id="generateAdmitCardsBtn">
+                                    🖨️ ایڈمٹ کارڈز بنائیں
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="window.print()">
+                                    🖨️ شیٹ پرنٹ کریں
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Global Total Marks Pre-fill -->
+                        <div class="exam-global-marks-bar">
+                            <label style="font-weight:700; color:#475569;">پورے کلاس کے کل نمبر مقرر کریں (Global Total Marks):</label>
+                            <input type="number" id="globalTotalMarks" class="exam-score-input" value="100" min="1" placeholder="100">
+                            <span style="color:#64748b; font-size:0.82rem;">(تبدیلی خودکار طور پر تمام خانوں میں لاگو ہو جائے گی)</span>
+                        </div>
+
+                        <div class="exam-table-wrap">
+                            <table class="exam-table" id="examTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 8%;">شمار</th>
+                                        <th style="width: 15%;">رول نمبر</th>
+                                        <th style="width: 35%;">طالب علم کا نام</th>
+                                        <th style="width: 20%;">حاصل کردہ نمبر (Obtained Marks)</th>
+                                        <th style="width: 22%;">کل نمبر (Total Marks)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="examTableBody">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="exam-sticky-footer" id="examFooter" style="display:none;">
+                        <span id="examSaveStateText" style="align-self:center; font-size:0.9rem; color:#10b981; font-weight:600; margin-left:auto;"></span>
+                        <button type="button" class="btn btn-save-marks" id="saveExamMarksBtn">
+                            💾 تمام نمبرات محفوظ کریں
+                        </button>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Firebase Compat SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-    <!-- App Scripts -->
     <script src="../../js/firebase-config.js"></script>
     <script src="../../js/translations.js"></script>
     <script src="../../js/script.js"></script>
 
     <script>
-        async function loadDepartments() {
-            const select = document.getElementById('department');
-            const currentVal = select.value;
-            select.innerHTML = '<option value="" data-i18n="select_department">Select Department</option>';
-            if (typeof updatePageLanguage === 'function') updatePageLanguage();
+        const examState = {
+            currentUser: null,
+            tenantId: '',
+            departments: [],
+            classes: [],
+            subjects: [],
+            students: [],
+            savedMarks: {}, // uid -> doc
+            activeExamId: '',
+            isSaving: false
+        };
 
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!document.getElementById('examTableBody')) return;
+
+            if (typeof auth !== 'undefined') {
+                auth.onAuthStateChanged(async (user) => {
+                    if (!user) return;
+
+                    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    if (!currentUser.uid) {
+                        currentUser.uid = user.uid;
+                        currentUser.email = user.email;
+                        currentUser.name = user.displayName || user.email;
+                    }
+                    examState.currentUser = currentUser;
+                    examState.tenantId = (typeof getCurrentTenant === 'function') ? getCurrentTenant() : (localStorage.getItem('tenant_id') || 'default');
+
+                    if (typeof initDashboard === 'function') {
+                        initDashboard(currentUser);
+                    }
+
+                    const roles = getUserRoles(currentUser);
+                    const allowed = roles.some(role => ['admin', 'owner', 'principal', 'nazim_e_taleemaat', 'teacher'].includes(role));
+                    
+                    document.getElementById('examsAccessDenied').style.display = allowed ? 'none' : 'block';
+                    document.getElementById('examsContent').style.display = allowed ? 'block' : 'none';
+                    
+                    if (!allowed) return;
+
+                    // Load filters
+                    await Promise.all([loadExamDepartments(), loadExamClasses()]);
+
+                    // Bind Event Listeners
+                    bindExamEvents();
+                });
+            }
+        });
+
+        function bindExamEvents() {
+            document.getElementById('examDept')?.addEventListener('change', async () => {
+                await loadExamClasses();
+            });
+            document.getElementById('examClass')?.addEventListener('change', async () => {
+                await loadExamSubjects();
+            });
+            document.getElementById('loadExamSheetBtn')?.addEventListener('click', loadExamGradingSheet);
+            document.getElementById('saveExamMarksBtn')?.addEventListener('click', saveExamMarksSheet);
+            document.getElementById('generateAdmitCardsBtn')?.addEventListener('click', generateClassAdmitCards);
+            
+            // Global total marks auto-prefill logic
+            document.getElementById('globalTotalMarks')?.addEventListener('input', (e) => {
+                const total = e.target.value;
+                document.querySelectorAll('.mark-total').forEach(input => {
+                    input.value = total;
+                });
+            });
+        }
+
+        async function loadExamDepartments() {
+            const select = document.getElementById('examDept');
+            if (!select) return;
+            select.innerHTML = '<option value="">شعبہ منتخب کریں</option>';
+            
             try {
-                const snapshot = await db.collection('departments').orderBy('name').get();
+                let snapshot = await db.collection('departments')
+                    .where('tenantId', '==', examState.tenantId)
+                    .get();
+                if (snapshot.empty) {
+                    snapshot = await db.collection('departments').get();
+                }
+                
+                examState.departments = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    if (!data?.name) return;
-                    const opt = document.createElement('option');
-                    opt.value = data.name;
-                    opt.innerText = (typeof getDepartmentDisplayName === 'function') ? getDepartmentDisplayName(data.name, data.name_ur || data.name) : (data.name_ur || data.name);
-                    select.appendChild(opt);
+                    if (!data.tenantId || data.tenantId === examState.tenantId) {
+                        examState.departments.push({ id: doc.id, ...data });
+                    }
                 });
-                if (currentVal) select.value = currentVal;
-            } catch (error) {
-                console.error("Error loading departments:", error);
+
+                examState.departments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept.name;
+                    option.innerText = typeof getDepartmentDisplayName === 'function'
+                        ? getDepartmentDisplayName(dept.name, dept.name_ur || '')
+                        : (dept.name_ur || dept.name || '');
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error(err);
             }
         }
 
-        function updateClasses() {
-            const dept = document.getElementById('department').value;
-            const classSelect = document.getElementById('className');
-            const currentVal = classSelect.value;
-            classSelect.innerHTML = '<option value="" data-i18n="select_class">Select Class</option>';
-            if (typeof updatePageLanguage === 'function') updatePageLanguage();
-            if (!dept) return;
+        async function loadExamClasses() {
+            const select = document.getElementById('examClass');
+            if (!select) return;
+            select.innerHTML = '<option value="">کلاس منتخب کریں</option>';
+            
+            const dept = document.getElementById('examDept')?.value || '';
+            try {
+                let query = db.collection('classes').where('tenantId', '==', examState.tenantId);
+                if (dept) query = query.where('department', '==', dept);
+                
+                let snapshot = await query.get();
+                if (snapshot.empty && !dept) {
+                    snapshot = await db.collection('classes').get();
+                }
 
-            db.collection('classes').where('department', '==', dept).get()
-                .then(snapshot => {
-                    const classes = [];
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        if (data?.name) classes.push({ name: data.name, name_ur: data.name_ur || '' });
-                    });
-                    classes.sort((a, b) => {
-                        const aLabel = (typeof getClassDisplayName === 'function') ? getClassDisplayName(a.name, a.name_ur || a.name) : (a.name_ur || a.name);
-                        const bLabel = (typeof getClassDisplayName === 'function') ? getClassDisplayName(b.name, b.name_ur || b.name) : (b.name_ur || b.name);
-                        return aLabel.localeCompare(bLabel);
-                    });
-                    classes.forEach(c => {
-                        const opt = document.createElement('option');
-                        opt.value = c.name;
-                        opt.innerText = (typeof getClassDisplayName === 'function') ? getClassDisplayName(c.name, c.name_ur || c.name) : (c.name_ur || c.name);
-                        classSelect.appendChild(opt);
-                    });
-                    if (currentVal) classSelect.value = currentVal;
-                })
-                .catch(error => {
-                    console.error("Error loading classes:", error);
+                examState.classes = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (!data.tenantId || data.tenantId === examState.tenantId) {
+                        if (!dept || data.department === dept) {
+                            examState.classes.push({ id: doc.id, ...data });
+                        }
+                    }
                 });
 
-            // Reset Exam Select
-            document.getElementById('examSelect').innerHTML = '<option value="" data-i18n="select_class_first">Select Class First</option>';
-            if (typeof updatePageLanguage === 'function') updatePageLanguage();
-            document.getElementById('gradingCard').style.display = 'none';
+                examState.classes
+                    .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')))
+                    .forEach(cls => {
+                        const option = document.createElement('option');
+                        option.value = cls.name;
+                        option.innerText = typeof getClassDisplayName === 'function'
+                            ? getClassDisplayName(cls.name, cls.name_ur || '')
+                            : (cls.name_ur || cls.name || '');
+                        select.appendChild(option);
+                    });
+            } catch (err) {
+                console.error(err);
+            }
+            await loadExamSubjects();
         }
 
-        loadDepartments();
-        window.addEventListener('language-changed', () => {
-            loadDepartments()
-                .then(() => updateClasses())
-                .catch(() => {});
-        });
+        async function loadExamSubjects() {
+            const select = document.getElementById('examSubject');
+            if (!select) return;
+            select.innerHTML = '<option value="">مضمون منتخب کریں</option>';
 
-        async function loadExams() {
-            const dept = document.getElementById('department').value;
-            const className = document.getElementById('className').value;
-            const examSelect = document.getElementById('examSelect');
-
+            const dept = document.getElementById('examDept')?.value || '';
+            const className = document.getElementById('examClass')?.value || '';
             if (!dept || !className) return;
 
-            examSelect.innerHTML = '<option value="">Loading...</option>';
-
             try {
-                // Client-side filter to avoid composite index
-                const snapshot = await db.collection('exams')
+                let snapshot = await db.collection('subjects')
+                    .where('tenantId', '==', examState.tenantId)
                     .where('department', '==', dept)
                     .where('className', '==', className)
                     .get();
-
                 if (snapshot.empty) {
-                    examSelect.innerHTML = '<option value="">No exams found</option>';
-                    return;
+                    snapshot = await db.collection('subjects').get();
                 }
 
-                examSelect.innerHTML = '<option value="">Select Exam</option>';
+                examState.subjects = [];
                 snapshot.forEach(doc => {
-                    const exam = doc.data();
-                    const opt = document.createElement('option');
-                    opt.value = doc.id;
-                    const displaySubject = exam.subject_ur || exam.subject || '';
-                    opt.innerText = `${exam.examName} - ${displaySubject} (${new Date(exam.date).toLocaleDateString()})`;
-                    // Store full exam object in dataset if needed, but we'll fetch it again or just use basic info
-                    examSelect.appendChild(opt);
+                    const data = doc.data();
+                    if (!data.tenantId || data.tenantId === examState.tenantId) {
+                        if (data.department === dept && data.className === className) {
+                            examState.subjects.push({ id: doc.id, ...data });
+                        }
+                    }
                 });
 
-            } catch (error) {
-                console.error("Error loading exams:", error);
-                examSelect.innerHTML = '<option value="">Error loading exams</option>';
+                examState.subjects.forEach(sub => {
+                    const option = document.createElement('option');
+                    option.value = sub.id;
+                    option.innerText = sub.name_ur || sub.name || '';
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error(err);
             }
         }
 
-        async function loadGradingSheet() {
-            const examId = document.getElementById('examSelect').value;
-            if (!examId) {
-                document.getElementById('gradingCard').style.display = 'none';
+        // Fetch students and marks sheet
+        async function loadExamGradingSheet() {
+            const dept = document.getElementById('examDept').value;
+            const className = document.getElementById('examClass').value;
+            const term = document.getElementById('examTerm').value;
+            const subjectId = document.getElementById('examSubject').value;
+            const examType = document.getElementById('examType').value;
+
+            if (!dept || !className || !term || !subjectId || !examType) {
+                alert('براہ کرم تمام فلٹرز منتخب کریں۔');
                 return;
             }
 
-            const dept = document.getElementById('department').value;
-            const className = document.getElementById('className').value;
+            const subject = examState.subjects.find(s => s.id === subjectId);
+            const subjectName = subject ? (subject.name || '') : '';
+            const subjectNameUr = subject ? (subject.name_ur || subject.name || '') : '';
 
-            document.getElementById('gradingCard').style.display = 'block';
-            const tbody = document.getElementById('gradingList');
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading students and existing grades...</td></tr>';
+            const gradingCard = document.getElementById('examGradingCard');
+            const footer = document.getElementById('examFooter');
+            const tbody = document.getElementById('examTableBody');
+
+            gradingCard.style.display = 'block';
+            footer.style.display = 'flex';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:3rem;">معلومات حاصل کی جا رہی ہیں...</td></tr>';
+
+            // Set dynamic header titles
+            const examTypeLabel = examType === 'monthly' ? 'ماہانہ' : examType === 'first_term' ? 'پہلی تعلیمی مدت' : 'دوسری تعلیمی مدت';
+            document.getElementById('examGradingTitle').innerText = `درج نمبرات: ${className} - ${subjectNameUr} (${examTypeLabel})`;
+            document.getElementById('examGradingMeta').innerText = `شعبہ: ${dept} • تعلیمی مدت: ${term}`;
+
+            // Sync print titles
+            document.getElementById('printSheetTitle').innerText = `تحریری امتحانات نمبرات شیٹ - ${examTypeLabel}`;
+            document.getElementById('printSheetMeta').innerHTML = `
+                <span><strong>کلاس:</strong> ${className}</span>
+                <span><strong>مضمون:</strong> ${subjectNameUr}</span>
+                <span><strong>تعلیمی مدت:</strong> ${term}</span>
+            `;
+
+            // Deterministic Unique Exam ID
+            examState.activeExamId = `${examState.tenantId}_${dept}_${className}_${term}_${subjectId}_${examType}`.replace(/\s+/g, '_');
 
             try {
-                // 1. Fetch Exam Details (to get subject, etc.)
-                const examDoc = await db.collection('exams').doc(examId).get();
-                const examData = examDoc.data();
-                document.getElementById('gradingTitle').innerText = `Grading: ${examData.examName} - ${examData.subject_ur || examData.subject}`;
-
-                // 2. Fetch Students
-                const studentsSnapshot = await db.collection('students')
-                    .where('department', '==', dept)
+                // 1. Fetch Students
+                let snapStudents = await db.collection('students')
+                    .where('tenantId', '==', examState.tenantId)
                     .where('className', '==', className)
-                    .orderBy('rollNumber')
                     .get();
+                if (snapStudents.empty) {
+                    snapStudents = await db.collection('students')
+                        .where('className', '==', className)
+                        .get();
+                }
 
-                if (studentsSnapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No students found in this class.</td></tr>';
+                examState.students = [];
+                snapStudents.forEach(doc => {
+                    const data = doc.data();
+                    if (!data.tenantId || data.tenantId === examState.tenantId) {
+                        examState.students.push({ id: doc.id, ...data });
+                    }
+                });
+
+                // Sort students by roll number
+                examState.students.sort((a, b) => String(a.rollNumber || '').localeCompare(String(b.rollNumber || '')));
+
+                if (examState.students.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:3rem; color:red;">اس کلاس میں کوئی طالب علم نہیں ملا۔</td></tr>';
                     return;
                 }
 
-                // 3. Fetch Existing Grades
-                let existingGrades = {};
-                const gradesDoc = await db.collection('grades').doc(examId).get();
-                if (gradesDoc.exists) {
-                    gradesDoc.data().records.forEach(r => {
-                        existingGrades[r.uid] = r;
-                    });
-                    // Prefill weight if saved
-                    if (gradesDoc.data().weight) {
-                        document.getElementById('examWeight').value = gradesDoc.data().weight;
-                    }
-                }
+                // 2. Fetch existing marks from exam_marks
+                const snapMarks = await db.collection('exam_marks')
+                    .where('examId', '==', examState.activeExamId)
+                    .get();
 
-                // 4. Render
-                tbody.innerHTML = '';
-                studentsSnapshot.forEach(doc => {
-                    const s = doc.data();
-                    const existing = existingGrades[s.uid] || {};
-
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${s.rollNumber}</td>
-                        <td>${s.firstName} ${s.lastName}</td>
-                        <td>
-                            <input type="number" class="grade-input obtained" data-uid="${s.uid}" data-name="${s.firstName} ${s.lastName}" data-roll="${s.rollNumber}" value="${existing.obtained || ''}" placeholder="0">
-                        </td>
-                        <td>
-                            <input type="number" class="grade-input total" value="${existing.total || 100}" placeholder="100">
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
+                examState.savedMarks = {};
+                snapMarks.forEach(doc => {
+                    const data = doc.data();
+                    examState.savedMarks[data.studentId] = data;
                 });
 
-            } catch (error) {
-                console.error("Error:", error);
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Error loading data. Note: If "Missing or insufficient permissions" or "Index" error, check console.</td></tr>';
+                // Render grid
+                const globalTotal = document.getElementById('globalTotalMarks').value || 100;
+                
+                tbody.innerHTML = examState.students.map((student, index) => {
+                    const existing = examState.savedMarks[student.id] || {};
+                    const obtained = existing.obtainedMarks !== undefined ? existing.obtainedMarks : '';
+                    const total = existing.totalMarks !== undefined ? existing.totalMarks : globalTotal;
+
+                    const studentName = student.name_ur || `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.fullName || '';
+
+                    return `
+                        <tr>
+                            <td style="text-align:center; font-weight:700;">${index + 1}</td>
+                            <td style="font-weight:600; text-align:center;">${student.rollNumber || '-'}</td>
+                            <td style="font-weight:600;">${escapeHtml(studentName)}</td>
+                            <td style="text-align:center;">
+                                <input type="number" class="exam-score-input mark-obtained" 
+                                    data-student-id="${student.id}" 
+                                    value="${obtained}" min="0" placeholder="0">
+                            </td>
+                            <td style="text-align:center;">
+                                <input type="number" class="exam-score-input mark-total" 
+                                    data-student-id="${student.id}" 
+                                    value="${total}" min="1" placeholder="100">
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red; padding:3rem;">معلومات حاصل کرنے میں مسئلہ پیش آیا۔</td></tr>';
             }
         }
 
-        async function saveGrades() {
-            const examId = document.getElementById('examSelect').value;
-            const dept = document.getElementById('department').value;
-            const className = document.getElementById('className').value;
+        // Save all marks
+        async function saveExamMarksSheet() {
+            if (examState.isSaving) return;
+            examState.isSaving = true;
 
-            if (!examId) return;
+            const saveStateText = document.getElementById('examSaveStateText');
+            const saveBtn = document.getElementById('saveExamMarksBtn');
 
-            const btn = document.querySelector('button[onclick="saveGrades()"]');
-            btn.innerText = 'Saving...';
-            btn.disabled = true;
+            if (saveStateText) saveStateText.innerText = 'محفوظ ہو رہا ہے...';
+            if (saveBtn) saveBtn.disabled = true;
+
+            const dept = document.getElementById('examDept').value;
+            const className = document.getElementById('examClass').value;
+            const term = document.getElementById('examTerm').value;
+            const subjectId = document.getElementById('examSubject').value;
+            const examType = document.getElementById('examType').value;
+
+            const subject = examState.subjects.find(s => s.id === subjectId);
+            const subjectName = subject ? (subject.name || '') : '';
+            const subjectNameUr = subject ? (subject.name_ur || subject.name || '') : '';
+
+            // Extract the global total marks set by the user (or read from the first student row)
+            const globalTotalVal = parseFloat(document.getElementById('globalTotalMarks').value) || 100;
 
             try {
-                // Get Exam Info again to be safe/consistent
-                const examDoc = await db.collection('exams').doc(examId).get();
-                const examData = examDoc.data();
+                // 1. Get or create the exam header record in the `exams` collection
+                // This is required to ensure it maps correctly to the student progress dashboard grid
+                const examRef = db.collection('exams').doc(examState.activeExamId);
+                const examName = `${examType === 'monthly' ? 'Monthly' : examType === 'first_term' ? 'First Term' : '2nd Term'} - ${subjectName} (${term})`;
+                
+                await examRef.set({
+                    tenantId: examState.tenantId,
+                    department: dept,
+                    className: className,
+                    term: term,
+                    subject: subjectName,
+                    subject_ur: subjectNameUr,
+                    subjectId: subjectId,
+                    examType: examType,
+                    examName: examName,
+                    maxMarks: globalTotalVal,
+                    date: new Date().toLocaleDateString('sv-SE'),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
 
-                const rows = document.querySelectorAll('#gradingList tr');
-                const records = [];
+                // 2. Batch write student scores to `exam_marks`
+                const batch = db.batch();
 
-                rows.forEach(tr => {
-                    const obtainedInput = tr.querySelector('.obtained');
-                    const totalInput = tr.querySelector('.total');
+                examState.students.forEach(student => {
+                    const obInput = document.querySelector(`.mark-obtained[data-student-id="${student.id}"]`);
+                    const totInput = document.querySelector(`.mark-total[data-student-id="${student.id}"]`);
 
-                    if (obtainedInput) {
-                        records.push({
-                            uid: obtainedInput.dataset.uid,
-                            name: obtainedInput.dataset.name,
-                            rollNo: obtainedInput.dataset.roll,
-                            obtained: Number(obtainedInput.value),
-                            total: Number(totalInput.value)
-                        });
+                    const obtained = obInput && obInput.value !== '' ? parseFloat(obInput.value) : null;
+                    const total = totInput && totInput.value !== '' ? parseFloat(totInput.value) : globalTotalVal;
+
+                    if (obtained !== null) {
+                        const docId = `${examState.activeExamId}_${student.id}`;
+                        const ref = db.collection('exam_marks').doc(docId);
+                        
+                        batch.set(ref, {
+                            examId: examState.activeExamId,
+                            studentId: student.id,
+                            studentName: student.name_ur || `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.fullName || '',
+                            rollNumber: student.rollNumber || '',
+                            obtainedMarks: obtained,
+                            totalMarks: total,
+                            tenantId: examState.tenantId,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
                     }
                 });
 
-                await db.collection('grades').doc(examId).set({
-                    examId: examId,
-                    examName: examData.examName,
-                    subject: examData.subject,
-                    subject_ur: examData.subject_ur || examData.subject,
-                    date: examData.date,
-                    department: dept,
-                    className: className,
-                    weight: parseFloat(document.getElementById('examWeight').value) || 100,
-                    records: records,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                await batch.commit();
+
+                if (saveStateText) saveStateText.innerText = 'نمبرات کامیابی سے محفوظ ہو گئے!';
+                setTimeout(() => {
+                    if (saveStateText) saveStateText.innerText = '';
+                }, 3000);
+
+                // Re-load sheet to sync state
+                await loadExamGradingSheet();
+
+            } catch (err) {
+                console.error(err);
+                alert('نمبرات محفوظ کرنے میں مسئلہ پیش آیا: ' + err.message);
+            } finally {
+                examState.isSaving = false;
+                if (saveBtn) saveBtn.disabled = false;
+            }
+        }
+
+        // Generate Admit Cards on-demand
+        async function generateClassAdmitCards() {
+            const className = document.getElementById('examClass').value;
+            const term = document.getElementById('examTerm').value;
+            const dept = document.getElementById('examDept').value;
+            const examType = document.getElementById('examType').value;
+
+            if (examState.students.length === 0) {
+                alert('ایڈمٹ کارڈز بنانے کے لیے پہلے کلاس کے طلبہ کو لوڈ کریں۔');
+                return;
+            }
+
+            const termLabel = examType === 'monthly' ? 'ماہانہ ٹیسٹ' : examType === 'first_term' ? 'پہلی تعلیمی مدت' : 'دوسری تعلیمی مدت';
+
+            try {
+                let cardsHtml = '<div style="font-family: inherit; direction: rtl; padding: 20px;">';
+                
+                examState.students.forEach(student => {
+                    const studentName = student.name_ur || `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.fullName || '';
+                    
+                    cardsHtml += `
+                        <div style="border: 2px double #333; border-radius: 12px; padding: 20px; margin-bottom: 30px; background: #fff; page-break-inside: avoid; text-align: right;">
+                            <div style="text-align: center; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 15px;">
+                                <h2 style="margin: 0; font-size: 1.4rem; color: #111;">ادارہ مصباح القرآن</h2>
+                                <h3 style="margin: 5px 0 0; font-size: 1.1rem; color: #666;">داخلی کارڈ (Admit Card) - امتحانات ${term}</h3>
+                            </div>
+                            <table style="width: 100%; font-size: 0.95rem; border-collapse: collapse; text-align: right;">
+                                <tr>
+                                    <td style="padding: 6px; font-weight: bold; width: 30%;">طالب علم کا نام:</td>
+                                    <td style="padding: 6px; border-bottom: 1px dotted #ccc;">${studentName}</td>
+                                    <td style="padding: 6px; font-weight: bold; width: 25%;">رول نمبر:</td>
+                                    <td style="padding: 6px; border-bottom: 1px dotted #ccc;">${student.rollNumber || '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px; font-weight: bold;">شعبہ:</td>
+                                    <td style="padding: 6px; border-bottom: 1px dotted #ccc;">${dept}</td>
+                                    <td style="padding: 6px; font-weight: bold;">کلاس:</td>
+                                    <td style="padding: 6px; border-bottom: 1px dotted #ccc;">${className}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px; font-weight: bold;">امتحانی سلسلہ:</td>
+                                    <td style="padding: 6px; border-bottom: 1px dotted #ccc;" colspan="3">${termLabel}</td>
+                                </tr>
+                            </table>
+                            <div style="margin-top: 20px; display: flex; justify-content: space-between; font-size: 0.85rem; color: #555;">
+                                <span>تاریخ اجرا: ${new Date().toLocaleDateString('ur-PK')}</span>
+                                <span>دستخط ناظمِ تعلیمات: ____________________</span>
+                            </div>
+                        </div>
+                    `;
                 });
 
-                alert('Grades saved successfully!');
+                cardsHtml += '</div>';
 
-            } catch (error) {
-                console.error("Error saving grades:", error);
-                alert("Error: " + error.message);
-            } finally {
-                btn.innerText = 'Save Grades';
-                btn.disabled = false;
+                // Call pdf snapshot system
+                if (window.PDFSnapshot && typeof window.PDFSnapshot.generate === 'function') {
+                    window.PDFSnapshot.generate({
+                        title: `Admit Cards - ${className}`,
+                        content: cardsHtml
+                    });
+                } else {
+                    const printWindow = window.open('', '_blank');
+                    printWindow.document.write(`
+                        <html>
+                        <head><title>Admit Cards</title></head>
+                        <body onload="window.print(); window.close();">${cardsHtml}</body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                }
+            } catch (err) {
+                console.error(err);
+                alert('ایڈمٹ کارڈز بنانے میں کوئی مسئلہ پیش آیا۔');
             }
+        }
+
+        // Helper to escape HTML tags
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return String(unsafe)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
     </script>
 </body>
-
 </html>
