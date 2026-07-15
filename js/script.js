@@ -2053,6 +2053,17 @@ function renderSidebar(userOrRole) {
         });
     }
 
+    const canAccessTeachersDiaryHistory = (roles.length ? roles : [normalizedRole]).some(role => ['admin', 'owner', 'principal', 'nazim_e_taleemaat'].includes(role));
+    const teachersDiaryHistoryHref = basePath + 'pages/shared/teachers_diary_history.html';
+    const hasTeachersDiaryHistoryLink = resolvedRoleLinks.some(link => (link.href || '') === teachersDiaryHistoryHref);
+    if (canAccessTeachersDiaryHistory && !hasTeachersDiaryHistoryLink) {
+        resolvedRoleLinks.push({
+            name: getTrans('teachers_diary_history') !== 'teachers_diary_history' ? getTrans('teachers_diary_history') : 'Teachers Diary History',
+            icon: '📚',
+            href: teachersDiaryHistoryHref
+        });
+    }
+
     const modelLessonPlanHref = basePath + 'pages/shared/model_lesson_plan.html';
     const hasModelLessonPlanLink = resolvedRoleLinks.some(link => (link.href || '') === modelLessonPlanHref);
     if (canAccessTeachersDiary && !hasModelLessonPlanLink) {
