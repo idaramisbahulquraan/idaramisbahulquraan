@@ -156,11 +156,14 @@
                         <p style="color:#64748b; font-size:0.92rem; line-height:1.6;">
                             یہ ڈیش بورڈ پہلے سے موجود ڈیٹا کو نئے ایکسل ریکارڈز (`F:\\gitwebsite\\idaramisbahulquraan\\Updated Class names and Students Data`) کے ساتھ موازنہ کر کے فائر بیس میں اپ ڈیٹ کرنے کے لیے استعمال ہوتا ہے۔ خارج شدہ طلبہ کو ڈیلیٹ کرنے کے بجائے فلیگ کر دیا جائے گا تاکہ ان کی سابقہ تاریخ محفوظ رہے۔
                         </p>
-                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:1.5rem;">
+                        <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap; margin-top:1.5rem;">
                             <button type="button" class="btn-action-mig" id="startMigBtn" onclick="runMigrationProcess()">
                                 🚀 مائیگریشن شروع کریں
                             </button>
-                            <button type="button" class="btn-secondary" onclick="location.href='students.html'">
+                            <button type="button" class="btn-primary" id="remapBtn" onclick="runRemapProcess()" style="background:#0f766e; border:none; font-weight:700; padding: 0.75rem 1.5rem; border-radius:0.5rem; display:inline-flex; align-items:center; gap:0.5rem; color:#fff; cursor:pointer;">
+                                🔄 مضامین اور تعلیمی ریکارڈز ری-میپ کریں
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="location.href='students.html'" style="margin-right:auto;">
                                 🔙 واپس اسٹوڈنٹس لسٹ
                             </button>
                         </div>
@@ -283,11 +286,12 @@
         });
 
         async function fetchDatabaseBaseline() {
-            logText("فائر بیس سے طلبہ اور کلاسز کی تفصیلات حاصل کی جا رہی ہیں...");
+            logText("فائر بیس سے طلبہ، کلاسز اور مضامین (Subjects) کی تفصیلات حاصل کی جا رہی ہیں...");
             try {
-                const [studSnap, classSnap] = await Promise.all([
+                const [studSnap, classSnap, subSnap] = await Promise.all([
                     db.collection('students').get(),
-                    db.collection('classes').get()
+                    db.collection('classes').get(),
+                    db.collection('subjects').get()
                 ]);
 
                 migrationState.dbStudents = [];
@@ -300,7 +304,16 @@
                     migrationState.dbClasses.push({ id: doc.id, ...doc.data() });
                 });
 
-                logText(`کامیابی سے حاصل کر لیا گیا: ${migrationState.dbStudents.length} طلبہ، ${migrationState.dbClasses.length} کلاسز۔`);
+                migrationState.dbSubjects = [];
+                const uniqueSubjectClasses = new Set();
+                subSnap.forEach(doc => {
+                    const data = doc.data();
+                    migrationState.dbSubjects.push({ id: doc.id, ...data });
+                    if (data.className) uniqueSubjectClasses.add(data.className);
+                });
+
+                logText(`کامیابی سے حاصل کر لیا گیا: ${migrationState.dbStudents.length} طلبہ، ${migrationState.dbClasses.length} کلاسز، ${migrationState.dbSubjects.length} مضامین (Subjects)۔`);
+                logText(`مضامین کلیکشن میں موجود کلاسز: ${Array.from(uniqueSubjectClasses).join(', ')}`);
             } catch (err) {
                 logText(`ڈیٹا بیس لوڈ کرنے میں غلطی: ${err.message}`, true);
             }
@@ -729,6 +742,194 @@
             }
 
             logText(`چوتھی کارروائی مکمل: ${totalRegistered} نئے طلبہ کامیابی سے رجسٹر ہو گئے۔`);
+        }
+
+        async function runRemapProcess() {
+            const btn = document.getElementById('remapBtn');
+            btn.disabled = true;
+            btn.innerText = "پروسیس ہو رہا ہے...";
+
+            try {
+                logText("مضامین اور تعلیمی ریکارڈ کی ری-میپنگ شروع کی جا رہی ہے...");
+                
+                const classMapping = {
+                    "Tajweed Class 1st year": ["تجوید سال اول"],
+                    "Tajweed Class 2nd year": ["تجوید سال دوم"],
+                    "Class 1st year": ["تجوید سال اول"],
+                    "Class 2nd year": ["تجوید سال دوم"],
+                    "Khassa Year 1": ["خاصہ اول"],
+                    "Khassa Year 2": ["خاصہ دوم"],
+                    "Aliya Year 1": ["عالیہ سال اول"],
+                    "Aliya Year 2": ["عالیہ دوم"],
+                    "Alamiya Year 1": ["عالمیہ اول"],
+                    "Alamiya Year 2": ["عالمیہ سال دوم"],
+                    "Pre Arabic": ["پری عریبک (متوسطہ)"],
+                    "Aamma Year 1 (Arabic Language Foundation Course)": ["عامہ عریبک ایوبی", "عامہ عریبک غزنوی"],
+                    "Aamma Year 1": ["عامہ عریبک ایوبی", "عامہ عریبک غزنوی"],
+                    "Aamma Year 2 (English Language Foundation Course)": ["عامہ انگلش رومی", "عامہ انگلش غزالی"],
+                    "Aamma Year 2": ["عامہ انگلش رومی", "عامہ انگلش غزالی"]
+                };
+
+                // 1. Remap subjects
+                logText("1. مضامین کلیکشن (subjects) کو اپ ڈیٹ اور کاپی کیا جا رہا ہے...");
+                const subSnap = await db.collection('subjects').get();
+                let subBatch = db.batch();
+                let subCount = 0;
+                let subTotal = 0;
+
+                for (const doc of subSnap.docs) {
+                    const sub = doc.data();
+                    const oldClass = sub.className;
+                    if (classMapping[oldClass]) {
+                        const newClasses = classMapping[oldClass];
+                        
+                        // Update the original document with the first new class name
+                        subBatch.update(doc.ref, { className: newClasses[0] });
+                        subCount++;
+
+                        // Duplicate for any additional target classes (e.g. splits)
+                        for (let i = 1; i < newClasses.length; i++) {
+                            const newDocRef = db.collection('subjects').doc();
+                            const copyData = { 
+                                ...sub, 
+                                className: newClasses[i], 
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+                            };
+                            subBatch.set(newDocRef, copyData);
+                            subCount++;
+                        }
+
+                        if (subCount >= 200) {
+                            await subBatch.commit();
+                            subBatch = db.batch();
+                            subTotal += subCount;
+                            subCount = 0;
+                        }
+                    }
+                }
+                if (subCount > 0) {
+                    await subBatch.commit();
+                    subTotal += subCount;
+                }
+                logText(`مضامین کلیکشن مکمل: ${subTotal} مضامین ری-میپ اور تیار ہو گئے۔`);
+
+                // 2. Remap teacher diaries
+                logText("2. اساتذہ ڈائری کلیکشن (teacher_diaries) کو اپ ڈیٹ کیا جا رہا ہے...");
+                const diarySnap = await db.collection('teacher_diaries').get();
+                let diaryBatch = db.batch();
+                let diaryCount = 0;
+                let diaryTotal = 0;
+
+                for (const doc of diarySnap.docs) {
+                    const diary = doc.data();
+                    const oldClass = diary.className;
+                    if (classMapping[oldClass]) {
+                        diaryBatch.update(doc.ref, { className: classMapping[oldClass][0] });
+                        diaryCount++;
+                        if (diaryCount >= 200) {
+                            await diaryBatch.commit();
+                            diaryBatch = db.batch();
+                            diaryTotal += diaryCount;
+                            diaryCount = 0;
+                        }
+                    }
+                }
+                if (diaryCount > 0) {
+                    await diaryBatch.commit();
+                    diaryTotal += diaryCount;
+                }
+                logText(`ڈائری کلیکشن مکمل: ${diaryTotal} ڈائری ریکارڈز ری-میپ ہو گئے۔`);
+
+                // 3. Remap exams
+                logText("3. امتحانات کلیکشن (exams) کو اپ ڈیٹ کیا جا رہا ہے...");
+                const examsSnap = await db.collection('exams').get();
+                let examsBatch = db.batch();
+                let examsCount = 0;
+                let examsTotal = 0;
+
+                for (const doc of examsSnap.docs) {
+                    const exam = doc.data();
+                    const oldClass = exam.className;
+                    if (classMapping[oldClass]) {
+                        examsBatch.update(doc.ref, { className: classMapping[oldClass][0] });
+                        examsCount++;
+                        if (examsCount >= 200) {
+                            await examsBatch.commit();
+                            examsBatch = db.batch();
+                            examsTotal += examsCount;
+                            examsCount = 0;
+                        }
+                    }
+                }
+                if (examsCount > 0) {
+                    await examsBatch.commit();
+                    examsTotal += examsCount;
+                }
+                logText(`امتحانات کلیکشن مکمل: ${examsTotal} امتحانی ریکارڈز ری-میپ ہو گئے۔`);
+
+                // 4. Remap exam_marks
+                logText("4. امتحانی نمبرات کلیکشن (exam_marks) کو اپ ڈیٹ کیا جا رہا ہے...");
+                const marksSnap = await db.collection('exam_marks').get();
+                let marksBatch = db.batch();
+                let marksCount = 0;
+                let marksTotal = 0;
+
+                for (const doc of marksSnap.docs) {
+                    const mark = doc.data();
+                    const oldClass = mark.className;
+                    if (classMapping[oldClass]) {
+                        marksBatch.update(doc.ref, { className: classMapping[oldClass][0] });
+                        marksCount++;
+                        if (marksCount >= 200) {
+                            await marksBatch.commit();
+                            marksBatch = db.batch();
+                            marksTotal += marksCount;
+                            marksCount = 0;
+                        }
+                    }
+                }
+                if (marksCount > 0) {
+                    await marksBatch.commit();
+                    marksTotal += marksCount;
+                }
+                logText(`نمبرات کلیکشن مکمل: ${marksTotal} نمبرات کے ریکارڈز ری-میپ ہو گئے۔`);
+
+                // 5. Remap attendance
+                logText("5. حاضری کلیکشن (attendance) کو اپ ڈیٹ کیا جا رہا ہے...");
+                const attSnap = await db.collection('attendance').get();
+                let attBatch = db.batch();
+                let attCount = 0;
+                let attTotal = 0;
+
+                for (const doc of attSnap.docs) {
+                    const att = doc.data();
+                    const oldClass = att.className;
+                    if (classMapping[oldClass]) {
+                        attBatch.update(doc.ref, { className: classMapping[oldClass][0] });
+                        attCount++;
+                        if (attCount >= 200) {
+                            await attBatch.commit();
+                            attBatch = db.batch();
+                            attTotal += attCount;
+                            attCount = 0;
+                        }
+                    }
+                }
+                if (attCount > 0) {
+                    await attBatch.commit();
+                    attTotal += attCount;
+                }
+                logText(`حاضری کلیکشن مکمل: ${attTotal} حاضری ریکارڈز ری-میپ ہو گئے۔`);
+
+                logText("🎉 مبارک ہو! مضامین اور تمام تعلیمی ریکارڈز کی ری-میپنگ کامیابی سے مکمل ہو گئی۔", false);
+                alert("مضامین اور ریکارڈز کی ری-میپنگ کامیابی سے مکمل ہو گئی!");
+            } catch (err) {
+                logText(`ری-میپنگ فیل ہو گئی: ${err.message}`, true);
+                alert(`ایرر: ${err.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "🔄 مضامین اور ریکارڈز ری-میپ کریں";
+            }
         }
 
         // Helper to escape HTML
