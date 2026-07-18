@@ -650,10 +650,33 @@
                 const passwordToUse = `${firstName.toLowerCase().replace(/[^a-z]/g, "") || 'student'}786`;
 
                 try {
-                    // Create in Firebase Auth (Secondary)
-                    const credential = await secondaryAuth.createUserWithEmailAndPassword(email, passwordToUse);
-                    const uid = credential.user.uid;
-                    await credential.user.updateProfile({ displayName: item.name });
+                    let uid;
+                    try {
+                        // Create in Firebase Auth (Secondary)
+                        const credential = await secondaryAuth.createUserWithEmailAndPassword(email, passwordToUse);
+                        uid = credential.user.uid;
+                        await credential.user.updateProfile({ displayName: item.name });
+                    } catch (authErr) {
+                        if (authErr.code === 'auth/email-already-in-use') {
+                            // Find existing user in Firestore
+                            const existingUserQuery = await db.collection('users').where('email', '==', email).get();
+                            if (!existingUserQuery.empty) {
+                                uid = existingUserQuery.docs[0].id;
+                                logText(`طالب علم کا ای میل پہلے سے رجسٹرڈ ہے، سابقہ ریکارڈ اپ ڈیٹ کیا جائے گا: ${item.name} (${item.className})`);
+                            } else {
+                                // Fallback: try search in students collection
+                                const existingStudQuery = await db.collection('students').where('email', '==', email).get();
+                                if (!existingStudQuery.empty) {
+                                    uid = existingStudQuery.docs[0].id;
+                                    logText(`طالب علم کا ای میل پہلے سے رجسٹرڈ ہے، سابقہ ریکارڈ اپ ڈیٹ کیا جائے گا: ${item.name} (${item.className})`);
+                                } else {
+                                    throw authErr;
+                                }
+                            }
+                        } else {
+                            throw authErr;
+                        }
+                    }
 
                     // Users collection
                     await db.collection("users").doc(uid).set({
@@ -666,7 +689,7 @@
                         status: 'active',
                         tenantId,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    }, { merge: true });
 
                     // Determine department
                     let dept = 'Dars-e-Nizami Department';
@@ -696,10 +719,10 @@
                         currentStatus: 'active',
                         tenantId,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    }, { merge: true });
 
                     totalRegistered++;
-                    logText(`طالب علم رجسٹرڈ: ${item.name} (${item.className})`);
+                    logText(`طالب علم رجسٹرڈ/اپ ڈیٹ شدہ: ${item.name} (${item.className})`);
                 } catch (err) {
                     logText(`طالب علم ${item.name} رجسٹر کرنے میں غلطی: ${err.message}`, true);
                 }
