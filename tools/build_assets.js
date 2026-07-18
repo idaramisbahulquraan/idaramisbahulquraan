@@ -7,6 +7,7 @@ const destDir = path.resolve(srcDir, 'www');
 // Items to copy to production build
 const itemsToCopy = [
     'index.html',
+    'dashboard.html',
     'manifest.json',
     'manifest.parent.json',
     'manifest.student.json',
