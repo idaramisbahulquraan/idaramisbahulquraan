@@ -177,61 +177,27 @@ async function fetchDailyCompliance() {
     // Render Grid Headers
     document.getElementById('trackerGridHead').innerHTML = `
         <tr>
-            <th style="width: 8%;">شمار</th>
-            <th style="width: 25%;">استاد کا نام</th>
-            <th style="width: 22%;">طلبہ حاضری (Attendance)</th>
-            <th style="width: 22%;">ٹیچر ڈائری (Diary Log)</th>
-            <th style="width: 23%;">اسمبلی کارکردگی گریڈ</th>
+            <th style="width: 5%;">شمار</th>
+            <th style="width: 20%;">استاد کا نام</th>
+            <th style="width: 25%;">تفویض شدہ کورس / کلاس</th>
+            <th style="width: 18%;">طلبہ حاضری (Attendance)</th>
+            <th style="width: 18%;">ٹیچر ڈائری (Diary Log)</th>
+            <th style="width: 14%;">اسمبلی کارکردگی گریڈ</th>
         </tr>
     `;
 
-    let attDone = 0;
-    let diaryDone = 0;
-    let applicableAttTeachers = 0;
+    let totalCoursesCount = 0;
+    let attDoneCourses = 0;
+    let diaryDoneCourses = 0;
 
-    const html = trackerState.teachers.map((teacher, index) => {
-        // A. Attendance check
-        // Find subjects/classes taught by this teacher
+    let rowsHtml = '';
+    let globalIndex = 0;
+
+    trackerState.teachers.forEach((teacher) => {
+        // Find courses (subjects) assigned to this teacher
         const assignedSubjects = trackerState.subjects.filter(s => s.teacherId === teacher.id || s.teacherName === teacher.name);
         
-        let attBadge = '<span class="stat-badge badge-info">لاگو نہیں (N/A)</span>';
-        if (assignedSubjects.length > 0) {
-            applicableAttTeachers++;
-            // Check if attendance exists for each class/subject assigned to this teacher
-            let completedSubjects = 0;
-            assignedSubjects.forEach(sub => {
-                const hasAtt = activeAttendance.some(att => 
-                    att.className === sub.className && 
-                    (att.subjectName === sub.name || att.subjectId === sub.id)
-                );
-                if (hasAtt) completedSubjects++;
-            });
-
-            if (completedSubjects === assignedSubjects.length) {
-                attBadge = '<span class="stat-badge badge-success">✅ مکمل</span>';
-                attDone++;
-            } else if (completedSubjects > 0) {
-                attBadge = `<span class="stat-badge badge-warning">⚠️ جزوی (${completedSubjects}/${assignedSubjects.length})</span>`;
-            } else {
-                attBadge = '<span class="stat-badge badge-danger">❌ غیر مکمل</span>';
-            }
-        }
-
-        // B. Diary Check
-        // Check if diary exists for teacher email or ID or name
-        const hasDiary = activeDiaries.some(d => 
-            d.teacherId === teacher.id || 
-            d.teacherEmail === teacher.email || 
-            String(d.teacherName).toLowerCase() === String(teacher.name).toLowerCase()
-        );
-        let diaryBadge = '<span class="stat-badge badge-danger">❌ غیر مکمل</span>';
-        if (hasDiary) {
-            diaryBadge = '<span class="stat-badge badge-success">✅ جمع شدہ</span>';
-            diaryDone++;
-        }
-
-        // C. Assembly rating check
-        // Check if there is an assembly graded by this teacher
+        // C. Assembly rating check (global for teacher on that day)
         const gradedAssembly = activeAssembly.some(a => 
             a.coordinatorId === teacher.id || 
             String(a.coordinatorName).toLowerCase() === String(teacher.name).toLowerCase()
@@ -240,22 +206,85 @@ async function fetchDailyCompliance() {
             ? '<span class="stat-badge badge-success">✅ مکمل</span>' 
             : '<span class="stat-badge badge-info">معلق / لاگو نہیں</span>';
 
-        return `
-            <tr>
-                <td style="text-align:center; font-weight:700;">${index + 1}</td>
-                <td style="font-weight:600;">${escapeHtml(teacher.name)}</td>
-                <td>${attBadge}</td>
-                <td>${diaryBadge}</td>
-                <td>${assBadge}</td>
-            </tr>
-        `;
-    }).join('');
+        if (assignedSubjects.length === 0) {
+            // Teacher has no assigned subjects/courses
+            globalIndex++;
+            rowsHtml += `
+                <tr>
+                    <td style="text-align:center; font-weight:700; vertical-align:middle;">${globalIndex}</td>
+                    <td style="font-weight:600; vertical-align:middle;">${escapeHtml(teacher.name)}</td>
+                    <td style="color:#64748b; font-style:italic;">— کوئی تفویض شدہ کورس نہیں —</td>
+                    <td><span class="stat-badge badge-info">لاگو نہیں (N/A)</span></td>
+                    <td><span class="stat-badge badge-info">لاگو نہیں (N/A)</span></td>
+                    <td style="text-align:center; vertical-align:middle;">${assBadge}</td>
+                </tr>
+            `;
+        } else {
+            // Teacher has courses
+            const N = assignedSubjects.length;
+            globalIndex++;
 
-    document.getElementById('trackerGridBody').innerHTML = html;
+            assignedSubjects.forEach((sub, i) => {
+                totalCoursesCount++;
+
+                // A. Attendance for this specific class + subject
+                const hasAtt = activeAttendance.some(att => 
+                    att.className === sub.className && 
+                    (att.subjectId === sub.id || att.subjectName === sub.name)
+                );
+                
+                let attBadge = '<span class="stat-badge badge-danger">❌ غیر مکمل</span>';
+                if (hasAtt) {
+                    attBadge = '<span class="stat-badge badge-success">✅ مکمل</span>';
+                    attDoneCourses++;
+                }
+
+                // B. Diary for this specific class + subject
+                const hasDiary = activeDiaries.some(d => 
+                    d.className === sub.className && 
+                    (d.subjectId === sub.id || d.subjectName === sub.name) &&
+                    (d.teacherId === teacher.id || String(d.teacherName).toLowerCase() === String(teacher.name).toLowerCase())
+                );
+
+                let diaryBadge = '<span class="stat-badge badge-danger">❌ غیر مکمل</span>';
+                if (hasDiary) {
+                    diaryBadge = '<span class="stat-badge badge-success">✅ مکمل</span>';
+                    diaryDoneCourses++;
+                }
+
+                const courseDisplayName = `${escapeHtml(sub.name || '')} (${escapeHtml(sub.className || '')})`;
+
+                if (i === 0) {
+                    // First row for this teacher - render rowspan cells
+                    rowsHtml += `
+                        <tr>
+                            <td rowspan="${N}" style="text-align:center; font-weight:700; vertical-align:middle;">${globalIndex}</td>
+                            <td rowspan="${N}" style="font-weight:600; vertical-align:middle;">${escapeHtml(teacher.name)}</td>
+                            <td>${courseDisplayName}</td>
+                            <td>${attBadge}</td>
+                            <td>${diaryBadge}</td>
+                            <td rowspan="${N}" style="vertical-align:middle; text-align:center;">${assBadge}</td>
+                        </tr>
+                    `;
+                } else {
+                    // Subsequent rows for the same teacher
+                    rowsHtml += `
+                        <tr>
+                            <td>${courseDisplayName}</td>
+                            <td>${attBadge}</td>
+                            <td>${diaryBadge}</td>
+                        </tr>
+                    `;
+                }
+            });
+        }
+    });
+
+    document.getElementById('trackerGridBody').innerHTML = rowsHtml;
 
     // Set stats percentages
-    const attPct = applicableAttTeachers > 0 ? Math.round((attDone / applicableAttTeachers) * 100) : 100;
-    const diaryPct = trackerState.teachers.length > 0 ? Math.round((diaryDone / trackerState.teachers.length) * 100) : 0;
+    const attPct = totalCoursesCount > 0 ? Math.round((attDoneCourses / totalCoursesCount) * 100) : 100;
+    const diaryPct = totalCoursesCount > 0 ? Math.round((diaryDoneCourses / totalCoursesCount) * 100) : 100;
 
     document.getElementById('statMetric1').innerText = `${attPct}%`;
     document.getElementById('statMetric2').innerText = `${diaryPct}%`;
