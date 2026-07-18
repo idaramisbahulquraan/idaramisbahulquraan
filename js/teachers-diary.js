@@ -207,9 +207,23 @@ function renderDiaryGrid() {
                         oninput="updateEntryLocalField(${index}, 'whatStudentsRead', this.value)">${escapeHtml(entry.whatStudentsRead || '')}</textarea>
                 </td>
                 <td>
-                    <input type="text" class="diary-input-cell" placeholder="کون سی ایکٹو لرننگ حکمت عملی کا استعمال ہوا" 
-                        value="${escapeHtml(entry.activityUsed || '')}" 
-                        oninput="updateEntryLocalField(${index}, 'activityUsed', this.value)">
+                    <div style="display:flex; flex-direction:column; gap:0.25rem;">
+                        <input type="text" class="diary-input-cell" id="activity-input-${index}" 
+                            placeholder="کون سی ایکٹو لرننگ حکمت عملی کا استعمال ہوا" 
+                            value="${escapeHtml(entry.activityUsed || '')}" 
+                            oninput="updateEntryLocalField(${index}, 'activityUsed', this.value)">
+                        <select class="diary-select-cell" style="font-size:0.8rem; padding:0.25rem; min-height:30px;"
+                            onchange="appendActivitySelection(${index}, this.value); this.selectedIndex=0;">
+                            <option value="">حکمت عملی منتخب کریں (ملٹی سلیکٹ)</option>
+                            <option value="سوال و جواب">سوال و جواب (Sawal o jawab)</option>
+                            <option value="گروپ ڈسکشن">گروپ ڈسکشن (Group discussion)</option>
+                            <option value="کوئز">کوئز (Quiz)</option>
+                            <option value="اسائنمنٹس">اسائنمنٹس (Assignments)</option>
+                            <option value="گھر کا کام">گھر کا کام (Homework)</option>
+                            <option value="پریزنٹیشن / وائٹ بورڈ / ملٹی میڈیا کا استعمال">پریزنٹیشن / وائٹ بورڈ / ملٹی میڈیا کا استعمال (Presentation Whiteboard/Multimedia usage)</option>
+                            <option value="دیگر">دیگر (Others)</option>
+                        </select>
+                    </div>
                 </td>
                 <td>
                     <input type="text" style="text-align:center;" class="diary-input-cell" placeholder="تعداد متحرک طلباء" 
@@ -295,6 +309,28 @@ window.handleSubjectChange = function(index, subjectId) {
 window.updateEntryLocalField = function(index, field, value) {
     if (diaryState.entries[index]) {
         diaryState.entries[index][field] = value;
+    }
+};
+
+window.appendActivitySelection = function(index, value) {
+    if (!value) return;
+    const entry = diaryState.entries[index];
+    if (!entry) return;
+
+    let current = (entry.activityUsed || '').trim();
+    const parts = current ? current.split(',').map(p => p.trim()).filter(Boolean) : [];
+
+    if (!parts.includes(value)) {
+        parts.push(value);
+    }
+
+    const newValue = parts.join(', ');
+    entry.activityUsed = newValue;
+
+    // Update DOM input directly to preserve user cursors
+    const input = document.getElementById(`activity-input-${index}`);
+    if (input) {
+        input.value = newValue;
     }
 };
 
