@@ -1,0 +1,8 @@
+{
+  "appId": "com.idaramisbahulquraan.app",
+  "appName": "Idara Misbah ul Quran",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
