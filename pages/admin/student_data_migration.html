@@ -651,38 +651,38 @@
 
                 try {
                     let uid;
-                    try {
-                        // Create in Firebase Auth (Secondary)
-                        const credential = await secondaryAuth.createUserWithEmailAndPassword(email, passwordToUse);
-                        uid = credential.user.uid;
-                        await credential.user.updateProfile({ displayName: item.name });
-                    } catch (authErr) {
-                        if (authErr.code === 'auth/email-already-in-use') {
-                            // Find existing user in Firestore
-                            const existingUserQuery = await db.collection('users').where('email', '==', email).get();
-                            if (!existingUserQuery.empty) {
-                                uid = existingUserQuery.docs[0].id;
-                                logText(`طالب علم کا ای میل پہلے سے رجسٹرڈ ہے، سابقہ ریکارڈ اپ ڈیٹ کیا جائے گا: ${item.name} (${item.className})`);
+                    let credential = null;
+                    let currentEmail = email;
+                    let currentUsername = username;
+                    let attempts = 0;
+
+                    while (!credential && attempts < 10) {
+                        try {
+                            credential = await secondaryAuth.createUserWithEmailAndPassword(currentEmail, passwordToUse);
+                        } catch (authErr) {
+                            if (authErr.code === 'auth/email-already-in-use') {
+                                attempts++;
+                                currentUsername = `${username}${attempts}`;
+                                currentEmail = `${currentUsername}@school.com`;
+                                logText(`ای میل پہلے سے زیرِ استعمال ہے، متبادل ای میل آزمایا جا رہا ہے: ${currentEmail}`);
                             } else {
-                                // Fallback: try search in students collection
-                                const existingStudQuery = await db.collection('students').where('email', '==', email).get();
-                                if (!existingStudQuery.empty) {
-                                    uid = existingStudQuery.docs[0].id;
-                                    logText(`طالب علم کا ای میل پہلے سے رجسٹرڈ ہے، سابقہ ریکارڈ اپ ڈیٹ کیا جائے گا: ${item.name} (${item.className})`);
-                                } else {
-                                    throw authErr;
-                                }
+                                throw authErr;
                             }
-                        } else {
-                            throw authErr;
                         }
                     }
+
+                    if (!credential) {
+                        throw new Error(`رجسٹریشن کی حد ختم ہو گئی: ${currentEmail}`);
+                    }
+
+                    uid = credential.user.uid;
+                    await credential.user.updateProfile({ displayName: item.name });
 
                     // Users collection
                     await db.collection("users").doc(uid).set({
                         uid,
-                        email,
-                        username,
+                        email: currentEmail,
+                        username: currentUsername,
                         role: 'student',
                         name: item.name,
                         localPassword: passwordToUse,
@@ -705,8 +705,8 @@
                         lastName,
                         name: item.name,
                         name_ur: '',
-                        email,
-                        username,
+                        email: currentEmail,
+                        username: currentUsername,
                         department: dept,
                         className: item.className,
                         className_ur: item.className,
@@ -722,7 +722,7 @@
                     }, { merge: true });
 
                     totalRegistered++;
-                    logText(`طالب علم رجسٹرڈ/اپ ڈیٹ شدہ: ${item.name} (${item.className})`);
+                    logText(`طالب علم رجسٹرڈ/اپ ڈیٹ شدہ: ${item.name} (${item.className}) متبادل اکاؤنٹ: ${currentUsername}`);
                 } catch (err) {
                     logText(`طالب علم ${item.name} رجسٹر کرنے میں غلطی: ${err.message}`, true);
                 }
