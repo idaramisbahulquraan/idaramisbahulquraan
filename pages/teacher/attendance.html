@@ -33,6 +33,23 @@
             margin-bottom: 1rem;
             align-items: center;
         }
+
+        @media (max-width: 600px) {
+            .radio-group {
+                flex-direction: column;
+                gap: 0.4rem;
+                align-items: flex-start;
+            }
+            .table-container th div {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 5px !important;
+            }
+            .data-table th, .data-table td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
 
