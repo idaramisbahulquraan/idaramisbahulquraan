@@ -322,6 +322,7 @@ async function loadAssemblyStudents({ department, className, section }) {
   const list = [];
   snapshot.forEach((doc) => {
     const student = { id: doc.id, ...(doc.data() || {}) };
+    if (student.status === 'left' || student.currentStatus === 'left') return;
     if (!matchesAssemblyDepartment(student, department, departmentUr)) return;
     if (!matchesAssemblyClass(student, className, classUr, classId)) return;
     const studentSections = extractAssemblyStudentSections(student);

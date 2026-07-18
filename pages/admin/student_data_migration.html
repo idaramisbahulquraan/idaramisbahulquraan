@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ڈیٹا مائیگریشن اور روڈ میپ - ادارہ مصباح القرآن</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .mig-shell {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding-bottom: 6rem;
+        }
+
+        .mig-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 1.25rem;
+            padding: 1.75rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+        }
+
+        .mig-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card-custom {
+            border: 1px solid var(--border-color);
+            border-radius: 0.85rem;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: #f8fafc;
+        }
+
+        .stat-icon-custom {
+            font-size: 2rem;
+            padding: 0.5rem;
+            background: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+
+        .logger-box {
+            background: #0f172a;
+            color: #38bdf8;
+            font-family: monospace;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            height: 250px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            border: 1px solid #1e293b;
+        }
+
+        .btn-action-mig {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-action-mig:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(234, 88, 12, 0.2);
+        }
+
+        .btn-action-mig:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* Tabs preview */
+        .mig-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .mig-tab-btn {
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .mig-tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .preview-list {
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../../assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h2>Idara Misbah ul Quran</h2>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav"></nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="page-title">
+                    <h1>طالب علم اور کلاس ڈیٹا مائیگریشن ڈیش بورڈ</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p id="userName" style="font-weight:600;">User</p>
+                            <p id="userRole" style="font-size:0.75rem; color:var(--text-light);">Role</p>
+                        </div>
+                        <div class="avatar">U</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content mig-shell">
+                <div class="stat-card" id="migAccessDenied" style="display:none;">
+                    <div style="text-align:center; padding:2rem;">
+                        <h3>رسائی ممکن نہیں</h3>
+                        <p>یہ صفحہ صرف ایڈمنسٹریٹر اور ناظمین کے لیے دستیاب ہے۔</p>
+                    </div>
+                </div>
+
+                <div id="migContent" style="display:none;">
+                    <!-- Intro -->
+                    <div class="mig-card">
+                        <h3 style="margin-top:0; color:#1e293b;">کلاس نیم تبدیل کرنے اور طلبہ لسٹ ہم آہنگی کا روڈ میپ</h3>
+                        <p style="color:#64748b; font-size:0.92rem; line-height:1.6;">
+                            یہ ڈیش بورڈ پہلے سے موجود ڈیٹا کو نئے ایکسل ریکارڈز (`F:\\gitwebsite\\idaramisbahulquraan\\Updated Class names and Students Data`) کے ساتھ موازنہ کر کے فائر بیس میں اپ ڈیٹ کرنے کے لیے استعمال ہوتا ہے۔ خارج شدہ طلبہ کو ڈیلیٹ کرنے کے بجائے فلیگ کر دیا جائے گا تاکہ ان کی سابقہ تاریخ محفوظ رہے۔
+                        </p>
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:1.5rem;">
+                            <button type="button" class="btn-action-mig" id="startMigBtn" onclick="runMigrationProcess()">
+                                🚀 مائیگریشن شروع کریں
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="location.href='students.html'">
+                                🔙 واپس اسٹوڈنٹس لسٹ
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Summary -->
+                    <div class="mig-grid">
+                        <div class="stat-card-custom">
+                            <div class="stat-icon-custom">✅</div>
+                            <div>
+                                <h4 style="margin:0; font-size:0.85rem; color:#64748b;">ہم آہنگ طلبہ (Matched)</h4>
+                                <h3 style="margin:0.25rem 0 0;" id="countMatched">لوڈنگ...</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card-custom" style="border-right: 4px solid #ef4444;">
+                            <div class="stat-icon-custom">❌</div>
+                            <div>
+                                <h4 style="margin:0; font-size:0.85rem; color:#64748b;">خارج شدہ طلبہ (Left)</h4>
+                                <h3 style="margin:0.25rem 0 0; color:#ef4444;" id="countLeft">لوڈنگ...</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card-custom" style="border-right: 4px solid #10b981;">
+                            <div class="stat-icon-custom">🆕</div>
+                            <div>
+                                <h4 style="margin:0; font-size:0.85rem; color:#64748b;">نئے داخلے (New)</h4>
+                                <h3 style="margin:0.25rem 0 0; color:#10b981;" id="countNew">لوڈنگ...</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs & List Preview -->
+                    <div class="mig-card">
+                        <h3 style="margin-top:0; color:#1e293b;">مائیگریشن سے پہلے کی فہرستوں کا موازنہ</h3>
+                        <div class="mig-tabs">
+                            <button class="mig-tab-btn active" onclick="switchPreviewTab('previewMatched')">ہم آہنگ طلبہ</button>
+                            <button class="mig-tab-btn" onclick="switchPreviewTab('previewLeft')">خارج شدہ طلبہ</button>
+                            <button class="mig-tab-btn" onclick="switchPreviewTab('previewNew')">نئے داخلے</button>
+                        </div>
+
+                        <div class="preview-list">
+                            <table class="data-table" style="min-width: 100%;">
+                                <thead>
+                                    <tr id="previewTableHead">
+                                        <th>نام طالب علم</th>
+                                        <th>ولدیت</th>
+                                        <th>کلاس</th>
+                                        <th>تفصیل</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="previewTableBody">
+                                    <tr>
+                                        <td colspan="4" style="text-align:center; padding:2rem; color:#64748b;">ڈیٹا کا موازنہ کیا جا رہا ہے...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Progress log -->
+                    <div class="mig-card">
+                        <h3 style="margin-top:0; color:#1e293b;">مائیگریشن کارکردگی لاگ</h3>
+                        <div class="logger-box" id="migLogBox">کارروائی شروع ہونے کا انتظار ہے...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Scripts -->
+    <script src="../../js/firebase-config.js"></script>
+    <script src="../../js/translations.js"></script>
+    <script src="../../js/script.js"></script>
+    <script src="../../js/updated-student-data.js"></script>
+    <script>
+        // Secondary App configuration to register users safely
+        let secondaryApp;
+        let secondaryAuth;
+        try {
+            secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
+            secondaryAuth = secondaryApp.auth();
+        } catch (e) {
+            const apps = firebase.apps;
+            secondaryApp = apps.find(app => app.name === "Secondary");
+            secondaryAuth = secondaryApp.auth();
+        }
+
+        const migrationState = {
+            dbStudents: [],
+            dbClasses: [],
+            excelStudents: window.UPDATED_STUDENT_DATA || [],
+            matched: [],
+            left: [],
+            newAdmitted: [],
+            activeTab: 'previewMatched'
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check Access
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const roles = getUserRoles(currentUser);
+            const isAuthorized = roles.some(r => ['admin', 'owner', 'principal', 'nazim_e_taleemaat'].includes(r));
+
+            if (!isAuthorized) {
+                document.getElementById('migAccessDenied').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('migContent').style.display = 'block';
+            if (typeof initDashboard === 'function') initDashboard(currentUser);
+
+            // Fetch current database data
+            await fetchDatabaseBaseline();
+            analyzeData();
+            renderPreviewTable();
+        });
+
+        async function fetchDatabaseBaseline() {
+            logText("فائر بیس سے طلبہ اور کلاسز کی تفصیلات حاصل کی جا رہی ہیں...");
+            try {
+                const [studSnap, classSnap] = await Promise.all([
+                    db.collection('students').get(),
+                    db.collection('classes').get()
+                ]);
+
+                migrationState.dbStudents = [];
+                studSnap.forEach(doc => {
+                    migrationState.dbStudents.push({ id: doc.id, ...doc.data() });
+                });
+
+                migrationState.dbClasses = [];
+                classSnap.forEach(doc => {
+                    migrationState.dbClasses.push({ id: doc.id, ...doc.data() });
+                });
+
+                logText(`کامیابی سے حاصل کر لیا گیا: ${migrationState.dbStudents.length} طلبہ، ${migrationState.dbClasses.length} کلاسز۔`);
+            } catch (err) {
+                logText(`ڈیٹا بیس لوڈ کرنے میں غلطی: ${err.message}`, true);
+            }
+        }
+
+        // Normalize text for robust matching
+        function normalizeString(str) {
+            if (!str) return "";
+            return str.toLowerCase()
+                .replace(/\b(hafiz|qari|syed|muhammad|mohammad)\b/g, "")
+                .replace(/[^a-z0-9]/g, "")
+                .trim();
+        }
+
+        function analyzeData() {
+            logText("درج شدہ ریکارڈز کا نئے ایکسل فائلز کے ڈیٹا سے موازنہ کیا جا رہا ہے...");
+            
+            const excelMap = new Map();
+            migrationState.excelStudents.forEach(item => {
+                const key = `${normalizeString(item.name)}|${normalizeString(item.parentName)}`;
+                excelMap.set(key, item);
+            });
+
+            const dbMap = new Map();
+            migrationState.dbStudents.forEach(s => {
+                const name = `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name || '';
+                const key = `${normalizeString(name)}|${normalizeString(s.parentName)}`;
+                // Ignore Hifz Department students (since Hifz isn't in Excel and stays untouched)
+                if (s.department === 'Hifz Department') return;
+                dbMap.set(key, s);
+            });
+
+            migrationState.matched = [];
+            migrationState.left = [];
+            migrationState.newAdmitted = [];
+
+            // 1. Matched and Left
+            migrationState.dbStudents.forEach(s => {
+                const name = `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.name || '';
+                const key = `${normalizeString(name)}|${normalizeString(s.parentName)}`;
+                
+                if (s.department === 'Hifz Department') {
+                    // Keep Hifz students always active and matched implicitly
+                    return;
+                }
+
+                if (excelMap.has(key)) {
+                    migrationState.matched.push({
+                        dbStudent: s,
+                        excelStudent: excelMap.get(key)
+                    });
+                } else {
+                    // Exclude students who are already marked as left
+                    if (s.status !== 'left' && s.currentStatus !== 'left') {
+                        migrationState.left.push(s);
+                    }
+                }
+            });
+
+            // 2. New Admissions
+            migrationState.excelStudents.forEach(item => {
+                const key = `${normalizeString(item.name)}|${normalizeString(item.parentName)}`;
+                if (!dbMap.has(key)) {
+                    migrationState.newAdmitted.push(item);
+                }
+            });
+
+            // Update DOM counters
+            document.getElementById('countMatched').innerText = migrationState.matched.length;
+            document.getElementById('countLeft').innerText = migrationState.left.length;
+            document.getElementById('countNew').innerText = migrationState.newAdmitted.length;
+
+            logText("موازنہ مکمل کر لیا گیا۔ اب آپ مائیگریشن شروع کر سکتے ہیں۔");
+        }
+
+        function switchPreviewTab(tabId) {
+            document.querySelectorAll('.mig-tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            migrationState.activeTab = tabId;
+            renderPreviewTable();
+        }
+
+        function renderPreviewTable() {
+            const tbody = document.getElementById('previewTableBody');
+            tbody.innerHTML = '';
+
+            let html = '';
+            if (migrationState.activeTab === 'previewMatched') {
+                if (migrationState.matched.length === 0) {
+                    html = '<tr><td colspan="4" style="text-align:center;">کوئی مماثلت نہیں ملی۔</td></tr>';
+                } else {
+                    migrationState.matched.forEach(item => {
+                        const dbName = item.dbStudent.name_ur || `${item.dbStudent.firstName || ''} ${item.dbStudent.lastName || ''}`.trim();
+                        html += `
+                            <tr>
+                                <td style="font-weight:600;">${escapeHtml(dbName)}</td>
+                                <td>${escapeHtml(item.dbStudent.parentName)}</td>
+                                <td>${escapeHtml(item.dbStudent.className)} ➡️ <strong style="color:var(--primary-color);">${escapeHtml(item.excelStudent.className)}</strong></td>
+                                <td style="color:green;">کلاس نام تبدیل کر دیا جائے گا</td>
+                            </tr>
+                        `;
+                    });
+                }
+            } else if (migrationState.activeTab === 'previewLeft') {
+                if (migrationState.left.length === 0) {
+                    html = '<tr><td colspan="4" style="text-align:center;">کوئی خارج شدہ طالب علم نہیں ہے۔</td></tr>';
+                } else {
+                    migrationState.left.forEach(s => {
+                        const name = s.name_ur || `${s.firstName || ''} ${s.lastName || ''}`.trim();
+                        html += `
+                            <tr>
+                                <td style="font-weight:600; color:#ef4444;">${escapeHtml(name)}</td>
+                                <td>${escapeHtml(s.parentName)}</td>
+                                <td>${escapeHtml(s.className || '—')}</td>
+                                <td style="color:#ef4444; font-weight:600;">حیثیت تبدیل: 'خارج شدہ'</td>
+                            </tr>
+                        `;
+                    });
+                }
+            } else if (migrationState.activeTab === 'previewNew') {
+                if (migrationState.newAdmitted.length === 0) {
+                    html = '<tr><td colspan="4" style="text-align:center;">کوئی نیا داخلہ نہیں ہے۔</td></tr>';
+                } else {
+                    migrationState.newAdmitted.forEach(item => {
+                        html += `
+                            <tr>
+                                <td style="font-weight:600; color:#10b981;">${escapeHtml(item.name)}</td>
+                                <td>${escapeHtml(item.parentName)}</td>
+                                <td>${escapeHtml(item.className)}</td>
+                                <td style="color:#10b981; font-weight:600;">نیا رجسٹریشن کر دیا جائے گا</td>
+                            </tr>
+                        `;
+                    });
+                }
+            }
+
+            tbody.innerHTML = html;
+        }
+
+        function logText(text, isError = false) {
+            const box = document.getElementById('migLogBox');
+            if (!box) return;
+            const time = new Date().toLocaleTimeString('ur-PK');
+            const color = isError ? 'red' : '#38bdf8';
+            box.innerHTML += `<div style="color:${color};">[${time}] ${text}</div>`;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function runMigrationProcess() {
+            const btn = document.getElementById('startMigBtn');
+            if (!confirm("کیا آپ واقعی ڈیٹا بیس کی مائیگریشن شروع کرنا چاہتے ہیں؟ یہ ڈیٹا بیس میں تبدیلیاں کرے گا۔")) return;
+
+            btn.disabled = true;
+            btn.innerText = "پروسیس ہو رہا ہے...";
+
+            try {
+                // Step 1: Recreate new Urdu classes
+                await syncClassesCollection();
+
+                // Step 2: Update Matched Students
+                await updateMatchedStudentsList();
+
+                // Step 3: Archive Left Students
+                await archiveLeftStudentsList();
+
+                // Step 4: Register New Students
+                await registerNewStudentsList();
+
+                logText("🎉 مبارک ہو! کلاس نیم تبدیل کرنے اور ڈیٹا مائیگریشن کا عمل کامیابی سے مکمل ہو گیا۔", false);
+                alert("مائیگریشن کامیابی سے مکمل ہو گئی!");
+            } catch (err) {
+                logText(`مائیگریشن فیل ہو گئی: ${err.message}`, true);
+                alert(`ایرر: ${err.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "🚀 مائیگریشن شروع کریں";
+            }
+        }
+
+        async function syncClassesCollection() {
+            logText("پہلی کارروائی: کلاسز کی فہرست اپ ڈیٹ کی جا رہی ہے...");
+            
+            // Unique clean class names from Excel
+            const excelClasses = new Set();
+            migrationState.excelStudents.forEach(item => excelClasses.add(item.className));
+
+            // Create new classes
+            const tenantId = 'default';
+            const batch = db.batch();
+
+            excelClasses.forEach(className => {
+                // Determine Department
+                let dept = 'Dars-e-Nizami Department';
+                if (className.includes('تجوید')) {
+                    dept = 'Tajweed Department';
+                }
+
+                // Check if class already exists in dbClasses
+                const exists = migrationState.dbClasses.some(c => c.name === className);
+                if (!exists) {
+                    const newClassRef = db.collection('classes').doc();
+                    batch.set(newClassRef, {
+                        name: className,
+                        name_ur: className,
+                        department: dept,
+                        tenantId: tenantId,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    logText(`نئی کلاس شامل کی جا رہی ہے: ${className}`);
+                }
+            });
+
+            // Delete old classes that are not in the new Urdu list (excluding Hifz classes)
+            const hifzClasses = ["ابی بن کعب", "زید بن ثابت", "عبداللہ بن عباس", "عبداللہ بن Masood", "عثمان غنی", "مصعب بن عمیر", "ابوبکر صدیق", "عمر بن خطاب", "نصیرہ مرشد"];
+            
+            migrationState.dbClasses.forEach(c => {
+                if (hifzClasses.includes(c.name) || c.department === 'Hifz Department') return;
+                
+                if (!excelClasses.has(c.name)) {
+                    batch.delete(db.collection('classes').doc(c.id));
+                    logText(`پرانی کلاس حذف کی جا رہی ہے: ${c.name}`);
+                }
+            });
+
+            await batch.commit();
+            logText("پہلی کارروائی مکمل: کلاسز کامیابی سے ہم آہنگ ہو گئیں۔");
+        }
+
+        async function updateMatchedStudentsList() {
+            logText("دوسری کارروائی: ہم آہنگ طلبہ کا ریکارڈ اپ ڈیٹ کیا جا رہا ہے...");
+            let batch = db.batch();
+            let count = 0;
+            let total = 0;
+
+            for (const item of migrationState.matched) {
+                const studentDocRef = db.collection('students').doc(item.dbStudent.id);
+                
+                batch.update(studentDocRef, {
+                    className: item.excelStudent.className,
+                    className_ur: item.excelStudent.className,
+                    rollNumber: item.excelStudent.rollNumber || item.dbStudent.rollNumber || '',
+                    parentPhone: item.excelStudent.parentPhone || item.dbStudent.parentPhone || '',
+                    gender: item.excelStudent.gender || item.dbStudent.gender || 'Male',
+                    status: 'active',
+                    currentStatus: 'active'
+                });
+
+                count++;
+                if (count >= 200) {
+                    await batch.commit();
+                    batch = db.batch();
+                    total += count;
+                    logText(`اپ ڈیٹ شدہ طلبہ: ${total}...`);
+                    count = 0;
+                }
+            }
+
+            if (count > 0) {
+                await batch.commit();
+                total += count;
+            }
+
+            logText(`دوسری کارروائی مکمل: ${total} طلبہ کی کلاسیں اور ریکارڈ اپ ڈیٹ ہو گئے۔`);
+        }
+
+        async function archiveLeftStudentsList() {
+            logText("تیسری کارروائی: خارج شدہ طلبہ کی حیثت تبدیل کی جا رہی ہے...");
+            let batch = db.batch();
+            let count = 0;
+            let total = 0;
+
+            for (const s of migrationState.left) {
+                const docRef = db.collection('students').doc(s.id);
+                batch.update(docRef, {
+                    status: 'left',
+                    currentStatus: 'left',
+                    archivedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Also update users doc
+                const userRef = db.collection('users').doc(s.id);
+                batch.update(userRef, {
+                    status: 'left'
+                });
+
+                count++;
+                if (count >= 150) {
+                    await batch.commit();
+                    batch = db.batch();
+                    total += count;
+                    logText(`خارج شدہ فلیگڈ طلبہ: ${total}...`);
+                    count = 0;
+                }
+            }
+
+            if (count > 0) {
+                await batch.commit();
+                total += count;
+            }
+
+            logText(`تیسری کارروائی مکمل: ${total} خارج شدہ طلبہ فلیگ کر دیے گئے۔ وہ اب روزمرہ لسٹوں میں نہیں آئیں گے۔`);
+        }
+
+        // Helper to split full name
+        function splitStudentName(fullName) {
+            const parts = fullName.trim().split(/\s+/);
+            if (parts.length > 1) {
+                const lastName = parts.pop();
+                const firstName = parts.join(" ");
+                return { firstName, lastName };
+            }
+            return { firstName: fullName, lastName: "" };
+        }
+
+        // Helper to generate a clean username
+        function generateUniqueUsername(name, existingSet) {
+            let base = name.toLowerCase().replace(/[^a-z0-9]/g, "");
+            if (!base) base = "student";
+            let candidate = base;
+            let counter = 1;
+            while (existingSet.has(candidate)) {
+                candidate = base + counter;
+                counter++;
+            }
+            existingSet.add(candidate);
+            return candidate;
+        }
+
+        async function registerNewStudentsList() {
+            logText("چوتھی کارروائی: نئے داخل ہونے والے طلبہ رجسٹر کیے جا رہے ہیں...");
+            
+            // Gather existing emails & usernames to avoid duplicate auth creations
+            const usernames = new Set();
+            const usersSnap = await db.collection('users').get();
+            usersSnap.forEach(doc => {
+                const data = doc.data() || {};
+                if (data.username) usernames.add(String(data.username).toLowerCase());
+            });
+
+            let totalRegistered = 0;
+            const tenantId = 'default';
+
+            for (const item of migrationState.newAdmitted) {
+                const { firstName, lastName } = splitStudentName(item.name);
+                const username = generateUniqueUsername(`${firstName}${lastName}`, usernames);
+                const email = `${username}@school.com`;
+                const passwordToUse = `${firstName.toLowerCase().replace(/[^a-z]/g, "") || 'student'}786`;
+
+                try {
+                    // Create in Firebase Auth (Secondary)
+                    const credential = await secondaryAuth.createUserWithEmailAndPassword(email, passwordToUse);
+                    const uid = credential.user.uid;
+                    await credential.user.updateProfile({ displayName: item.name });
+
+                    // Users collection
+                    await db.collection("users").doc(uid).set({
+                        uid,
+                        email,
+                        username,
+                        role: 'student',
+                        name: item.name,
+                        localPassword: passwordToUse,
+                        status: 'active',
+                        tenantId,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Determine department
+                    let dept = 'Dars-e-Nizami Department';
+                    if (item.className.includes('تجوید')) {
+                        dept = 'Tajweed Department';
+                    }
+
+                    // Students collection
+                    await db.collection("students").doc(uid).set({
+                        uid,
+                        userId: uid,
+                        firstName,
+                        lastName,
+                        name: item.name,
+                        name_ur: '',
+                        email,
+                        username,
+                        department: dept,
+                        className: item.className,
+                        className_ur: item.className,
+                        rollNumber: item.rollNumber || '',
+                        parentName: item.parentName || '',
+                        parentPhone: item.parentPhone || '',
+                        gender: item.gender || 'Male',
+                        role: 'student',
+                        status: 'active',
+                        currentStatus: 'active',
+                        tenantId,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    totalRegistered++;
+                    logText(`طالب علم رجسٹرڈ: ${item.name} (${item.className})`);
+                } catch (err) {
+                    logText(`طالب علم ${item.name} رجسٹر کرنے میں غلطی: ${err.message}`, true);
+                }
+            }
+
+            logText(`چوتھی کارروائی مکمل: ${totalRegistered} نئے طلبہ کامیابی سے رجسٹر ہو گئے۔`);
+        }
+
+        // Helper to escape HTML
+        function escapeHtml(unsafe) {
+            if (!unsafe) return "";
+            return String(unsafe)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

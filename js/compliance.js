@@ -170,6 +170,7 @@ async function loadStudentsForConsent() {
         docs.forEach(d => {
             const s = d.data() || {};
             if (!isInTenant(s, complianceTenantId)) return;
+            if (s.status === 'left' || s.currentStatus === 'left') return;
             rows.push({ id: d.id, ...s });
         });
 

@@ -209,29 +209,23 @@ async function loadAdminStats() {
         let countTeachers = 0;
         let countClasses = 0;
 
-        const studentsQuery = db.collection('students').where('tenantId', '==', tenantId);
-        const teachersQuery = db.collection('teachers').where('tenantId', '==', tenantId);
-        const classesQuery = db.collection('classes').where('tenantId', '==', tenantId);
+        const [sSnap, tSnap, cSnap] = await Promise.all([
+            db.collection('students').where('tenantId', '==', tenantId).get(),
+            db.collection('teachers').where('tenantId', '==', tenantId).get(),
+            db.collection('classes').where('tenantId', '==', tenantId).get()
+        ]);
 
-        if (typeof studentsQuery.count === 'function') {
-            const [sSnap, tSnap, cSnap] = await Promise.all([
-                studentsQuery.count().get(),
-                teachersQuery.count().get(),
-                classesQuery.count().get()
-            ]);
-            countStudents = sSnap.data().count;
-            countTeachers = tSnap.data().count;
-            countClasses = cSnap.data().count;
-        } else {
-            const [sSnap, tSnap, cSnap] = await Promise.all([
-                studentsQuery.get(),
-                teachersQuery.get(),
-                classesQuery.get()
-            ]);
-            countStudents = sSnap.size;
-            countTeachers = tSnap.size;
-            countClasses = cSnap.size;
-        }
+        const activeStudents = [];
+        sSnap.forEach(doc => {
+            const data = doc.data();
+            if (data.status !== 'left' && data.currentStatus !== 'left') {
+                activeStudents.push(data);
+            }
+        });
+
+        countStudents = activeStudents.length;
+        countTeachers = tSnap.size;
+        countClasses = cSnap.size;
 
         document.getElementById('countStudents').innerText = countStudents;
         document.getElementById('countTeachers').innerText = countTeachers;
@@ -298,6 +292,7 @@ async function loadRecentActivity(tenantId) {
 
         students.forEach(doc => {
             const d = doc.data();
+            if (d.status === 'left' || d.currentStatus === 'left') return;
             activities.push({
                 type: 'student',
                 name: `${d.firstName} ${d.lastName}`,
@@ -482,6 +477,7 @@ async function initCharts() {
         
         studentsSnap.forEach(doc => {
             const d = doc.data();
+            if (d.status === 'left' || d.currentStatus === 'left') return;
             const cls = d.admissionClass || d.className || 'Unknown';
             classCounts[cls] = (classCounts[cls] || 0) + 1;
         });

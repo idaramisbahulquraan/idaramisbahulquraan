@@ -594,6 +594,7 @@
                     const data = doc.data();
                     if (!data.tenantId || data.tenantId === examState.tenantId || data.tenantId === 'default') {
                         if (data.className === className) {
+                            if (data.status === 'left' || data.currentStatus === 'left') return;
                             examState.students.push({ id: doc.id, ...data });
                         }
                     }

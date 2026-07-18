@@ -1,0 +1,121 @@
+Found 12 files.
+
+======================================
+File: تجوید سال اول.xlsx
+Shape: (27, 12)
+Columns: ['Sid', 'Family No.', 'Roll No.', 'Student Name', 'Student Name.1', 'Campus', 'Class', 'Section', 'Group', 'Session', 'Current Status', 'Leaving Date']
+First 3 rows:
+   Sid  Family No.  Roll No.       Student Name     Student Name.1       Campus              Class Section  Group    Session      Current Status Leaving Date
+0  164         NaN      18.0  HAFIZ WASIF SABIR  HAFIZ WASIF SABIR  Main Campus  Tajweed O Qirat-I       A    NaN  2026-2027  Currently Enrolled  01-Jan-2000
+1  312         NaN       2.0     MUHAMMAD FAHAD  MUHAMMAD SADEEQUE  Main Campus  Tajweed O Qirat-I       A    NaN  2026-2027  Currently Enrolled          NaN
+2  400         NaN     400.0   MUHAMMAD HUSSAIN     MUHAMMAD AFZAL  Main Campus  Tajweed O Qirat-I       A    NaN  2026-2027  Currently Enrolled          NaN
+
+======================================
+File: تجوید سال دوم.xlsx
+Shape: (10, 12)
+Columns: ['Sid', 'Family No.', 'Roll No.', 'Student Name', 'Father/Guard', 'Campus', 'Class', 'Section', 'Group', 'Session', 'Current Status', 'Leaving Date']
+First 3 rows:
+   Sid  Family No.  Roll No.      Student Name     Father/Guard       Campus               Class Section  Group    Session      Current Status Leaving Date
+0  148         NaN         2      AHMAD HAFEEZ  MUHAMMAD HAFEEZ  Main Campus  Tajweed O Qirat-II       A    NaN  2026-2027  Currently Enrolled  01-Jan-2000
+1  149         NaN         3  MUHAMMAD KHUBAIB        NASRULLAH  Main Campus  Tajweed O Qirat-II       A    NaN  2026-2027  Currently Enrolled  01-Jan-2000
+2  150         NaN         4   MUHAMMAD WASEEM  MUHAMMAD SALEEM  Main Campus  Tajweed O Qirat-II       A    NaN  2026-2027  Currently Enrolled  01-Jan-2000
+
+======================================
+File: خاصہ اول.xlsx
+Shape: (27, 13)
+Columns: ['Sid', 'Student Photo', 'Roll No', 'Student Name', 'Father/Guard', 'Campus', 'Class', 'Section', 'Group', 'Session', 'Parent App OTP', 'Father/Guard Mobile', 'Gender']
+First 3 rows:
+   Sid  Student Photo  Roll No            Student Name    Father/Guard       Campus   Class Section  Group    Session  Parent App OTP  Father/Guard Mobile Gender
+0   58            NaN      1.0  MUHAMMAD TAHIR JILLANI  GHULAM JILLANI  Main Campus  KHSA-I       A    NaN  2026-2027             NaN           3018789972   Male
+1   59            NaN      2.0   MUHAMMAD ABDUL REHMAN  GHULAM MUSTAFA  Main Campus  KHSA-I       A    NaN  2026-2027             NaN           3022841294   Male
+2   61            NaN      4.0             ATIF HAMEED    ABDUL HAMEED  Main Campus  KHSA-I       A    NaN  2026-2027             NaN           3004542941   Male
+
+======================================
+File: خاصہ دوم.xlsx
+Shape: (17, 13)
+Columns: ['Sid', 'Student Photo', 'Roll No', 'Student Name', 'Father/Guard', 'Campus', 'Class', 'Section', 'Group', 'Session', 'Parent App OTP', 'Father/Guard Mobile', 'Gender']
+First 3 rows:
+   Sid  Student Photo  Roll No          Student Name            Father/Guard       Campus     Class Section  Group    Session  Parent App OTP  Father/Guard Mobile Gender
+0  114            NaN        1           ZAHID BILAL  MUHAMMAD BILAL SHAHEEN  Main Campus  KHASA-II       A    NaN  2026-2027             NaN           3003739914   Male
+1  115            NaN        2        MUHAMMAD HAMZA          MUHAMMAD BOOTA  Main Campus  KHASA-II       A    NaN  2026-2027             NaN           3003017107   Male
+2  122            NaN        9  MUHAMMAD NADEEM RAZA           HAJI MUHAMMAD  Main Campus  KHASA-II       A    NaN  2026-2027             NaN           3076883725   Male
+
+======================================
+File: عالمیہ اول.xlsx
+Shape: (10, 13)
+Columns: ['Sid', 'Student Photo', 'Roll No', 'Student Name', 'Father/Guard', 'Campus', 'Class', 'Section', 'Group', 'Session', 'Parent App OTP', 'Father/Guard Mobile', 'Gender']
+First 3 rows:
+   Sid  Student Photo  Roll No        Student Name     Father/Guard       Campus     Class Section  Group    Session  Parent App OTP  Father/Guard Mobile Gender
+0   92            NaN        1     MUHAMMAD RAMZAN    GHULAM FAREED  Main Campus  ALMIYA-I       A    NaN  2026-2027             NaN           3017766584   Male
+1   94            NaN        3     MUHAMMAD SHOAIB   MUHAMMAD AJMAL  Main Campus  ALMIYA-I       A    NaN  2026-2027             NaN           3444361492   Male
+2   95            NaN        4  HAFIZ ABDUL REHMAN  MUHAMMAD RAMZAN  Main Campus  ALMIYA-I       A    NaN  2026-2027             NaN           3082800700   Male
+
+======================================
+File: عالیہ دوم.xlsx
+Shape: (13, 13)
+Columns: ['Sid', 'Student Photo', 'Roll No', 'Student Name', 'Father/Guard', 'Campus', 'Class', 'Section', 'Group', 'Session', 'Parent App OTP', 'Father/Guard Mobile', 'Gender']
+First 3 rows:
+   Sid  Student Photo  Roll No        Student Name           Father/Guard       Campus    Class Section  Group    Session  Parent App OTP  Father/Guard Mobile Gender
+0   76            NaN        1  MUHAMMAD SAIFULLAH  MUHAMMAD ABID MEHMOOD  Main Campus  ALIA-II       A    NaN  2026-2027             NaN           3006801930   Male
+1   77            NaN        2    MUHAMMAD HASNAIN  HAFIZ MUHAMMAD MAJEED  Main Campus  ALIA-II       A    NaN  2026-2027             NaN           3047064724   Male
+2   78            NaN        3        WAQAR YOUNIS          KHAN MUHAMMAD  Main Campus  ALIA-II       A    NaN  2026-2027             NaN           3088672872   Male
+
+======================================
+File: عامہ انگلش رومی (1).xlsx
+Shape: (17, 13)
+Columns: ['Sid', 'Student Photo', 'Roll No', 'Student Name', 'Father/Guard', 'Campus', 'Class', 'Section', 'Group', 'Session', 'Parent App OTP', 'Father/Guard Mobile', 'Gender']
+First 3 rows:
+   Sid  Student Photo  Roll No     Student Name      Father/Guard       Campus        Class Section  Group    Session  Parent App OTP  Father/Guard Mobile Gender
+0   18            NaN        1   MUHAMMAD FARAZ  MUHAMMAD MUSHTAQ  Main Campus  AMA ENGLISH       B    NaN  2026-2027             NaN           3027791447   Male
+1   25            NaN        8       AHMED RAZA    GHULAM MURTAZA  Main Campus  AMA ENGLISH       B    NaN  2026-2027             NaN           3017716033   Male
+2   26            NaN        9  MUHAMMAD RAMZAN    MUHAMMAD AJMAL  Main Campus  AMA ENGLISH       B    NaN  2026-2027             NaN           3064579513   Male
+
+======================================
+File: عامہ انگلش رومی.xlsx
+Shape: (17, 13)
+Columns: ['Sid', 'Student Photo', 'Roll No', 'Student Name', 'Father/Guard', 'Campus', 'Class', 'Section', 'Group', 'Session', 'Parent App OTP', 'Father/Guard Mobile', 'Gender']
+First 3 rows:
+   Sid  Student Photo  Roll No     Student Name      Father/Guard       Campus        Class Section  Group    Session  Parent App OTP  Father/Guard Mobile Gender
+0   18            NaN        1   MUHAMMAD FARAZ  MUHAMMAD MUSHTAQ  Main Campus  AMA ENGLISH       B    NaN  2026-2027             NaN           3027791447   Male
+1   25            NaN        8       AHMED RAZA    GHULAM MURTAZA  Main Campus  AMA ENGLISH       B    NaN  2026-2027             NaN           3017716033   Male
+2   26            NaN        9  MUHAMMAD RAMZAN    MUHAMMAD AJMAL  Main Campus  AMA ENGLISH       B    NaN  2026-2027             NaN           3064579513   Male
+
+======================================
+File: عامہ انگلش غزالی.xlsx
+Shape: (16, 13)
+Columns: ['Sid', 'Student Photo', 'Roll No', 'Student Name', 'Father/Guard', 'Campus', 'Class', 'Section', 'Group', 'Session', 'Parent App OTP', 'Father/Guard Mobile', 'Gender']
+First 3 rows:
+   Sid  Student Photo  Roll No                  Student Name     Father/Guard       Campus        Class Section  Group    Session  Parent App OTP  Father/Guard Mobile Gender
+0   19            NaN        2                 MUHAMMAD ASIM     ABID HUSSAIN  Main Campus  AMA ENGLISH       A    NaN  2026-2027             NaN           3047706075   Male
+1   21            NaN        4                MUHAMMAD RAYAN  MUHAMMAD WASEEM  Main Campus  AMA ENGLISH       A    NaN  2026-2027             NaN           3009685832   Male
+2   22            NaN        5  MUHAMMAD NAVEED HUSSAIN SHAH         MUHAMMAD  Main Campus  AMA ENGLISH       A    NaN  2026-2027             NaN           3077808500   Male
+
+======================================
+File: عامہ عریبک ایوبی.xlsx
+Shape: (20, 13)
+Columns: ['Sid', 'Student Photo', 'Roll No', 'Student Name', 'Father/Guard', 'Campus', 'Class', 'Section', 'Group', 'Session', 'Parent App OTP', 'Father/Guard Mobile', 'Gender']
+First 3 rows:
+   Sid  Student Photo  Roll No        Student Name     Father/Guard       Campus       Class Section  Group    Session  Parent App OTP  Father/Guard Mobile Gender
+0    3            NaN      3.0       MUHAMMAD AQIB  MUHAMMAD HASHIM  Main Campus  AMA ARABIC       A    NaN  2026-2027             NaN           3017722609   Male
+1    5            NaN      5.0    MUHAMMAD DILSHAD  MUHAMMAD SAJJAD  Main Campus  AMA ARABIC       A    NaN  2026-2027             NaN           3065430245   Male
+2   15            NaN     15.0  MUHAMMAD BAHAR ALI   MUHAMMAD HAMID  Main Campus  AMA ARABIC       A    NaN  2026-2027             NaN           3006808867   Male
+
+======================================
+File: عامہ عریبک غزنوی.xlsx
+Shape: (17, 13)
+Columns: ['Sid', 'Student Photo', 'Roll No', 'Student Name', 'Father/Guard', 'Campus', 'Class', 'Section', 'Group', 'Session', 'Parent App OTP', 'Father/Guard Mobile', 'Gender']
+First 3 rows:
+   Sid  Student Photo  Roll No     Student Name     Father/Guard       Campus       Class Section  Group    Session  Parent App OTP  Father/Guard Mobile Gender
+0    2            NaN      NaN  MUHAMMAD SOHAIB  MUHAMMAD ASGHAR  Main Campus  AMA ARABIC       B    NaN  2026-2027             NaN           3007802565   Male
+1    9            NaN      9.0         ASAD ALI     HAZOOR BAKSH  Main Campus  AMA ARABIC       B    NaN  2026-2027             NaN           3057367743   Male
+2   10            NaN     10.0   MUHAMMAD AHMAD    ABDUL RASHEED  Main Campus  AMA ARABIC       B    NaN  2026-2027             NaN           3042997614   Male
+
+======================================
+File: پری عریبک (متوسطہ).xlsx
+Shape: (16, 12)
+Columns: ['Sid', 'Family No.', 'Roll No.', 'Student Name', 'Father/Guard', 'Campus', 'Class', 'Section', 'Group', 'Session', 'Current Status', 'Leaving Date']
+First 3 rows:
+   Sid  Family No.  Roll No.            Student Name     Father/Guard       Campus       Class Section  Group    Session      Current Status  Leaving Date
+0  359         NaN     359.0  HAFIZ MUHAMMAD ZEESHAN     KHUDA BAKHSH  Main Campus  PRE ARABIC       A    NaN  2026-2027  Currently Enrolled           NaN
+1  360         NaN     360.0          MUHAMMAD AHSAN  MUHAMMAD NAVEED  Main Campus  PRE ARABIC       A    NaN  2026-2027  Currently Enrolled           NaN
+2  361         1.0       NaN     MUHAMMAD AQIB BILAL   MUHAMMAD BILAL  Main Campus  PRE ARABIC       A    NaN  2026-2027  Currently Enrolled           NaN

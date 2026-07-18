@@ -725,7 +725,11 @@
                     .where('department', '==', dept)
                     .where('className', '==', className)
                     .get();
-                studentsSnap.forEach(doc => students.push({ id: doc.id, ...doc.data() }));
+                studentsSnap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.status === 'left' || data.currentStatus === 'left') return;
+                    students.push({ id: doc.id, ...data });
+                });
 
                 if (students.length === 0) {
                     const snap = await db.collection('students').get();
@@ -733,6 +737,7 @@
                         const data = doc.data() || {};
                         if (!data.tenantId || data.tenantId === state.tenantId || data.tenantId === 'default') {
                             if (data.department === dept && data.className === className) {
+                                if (data.status === 'left' || data.currentStatus === 'left') return;
                                 students.push({ id: doc.id, ...data });
                             }
                         }

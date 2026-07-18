@@ -410,6 +410,7 @@
                 snapshot.forEach(doc => {
                     const data = doc.data() || {};
                     if (data.tenantId && data.tenantId !== tenantId) return;
+                    if (data.status === 'left' || data.currentStatus === 'left') return;
                     data.uid = doc.id; // Use doc.id as uid
                     students.push(data);
                 });

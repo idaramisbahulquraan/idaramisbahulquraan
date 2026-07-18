@@ -423,7 +423,9 @@
 
                 state.students = [];
                 snap.forEach(doc => {
-                    state.students.push({ id: doc.id, ...doc.data() });
+                    const data = doc.data();
+                    if (data.status === 'left' || data.currentStatus === 'left') return;
+                    state.students.push({ id: doc.id, ...data });
                 });
 
                 // Sort by roll number

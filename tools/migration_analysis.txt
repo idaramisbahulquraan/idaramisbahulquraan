@@ -1,0 +1,131 @@
+MIGRATION ANALYSIS REPORT
+=========================
+
+Total Old Seed Students (excluding Hifz): 158
+Total New Excel Students: 190
+
+1. Matched Students (Enrolled & Class Renamed): 116
+2. Left Students (To be marked as 'left'): 42
+3. Newly Admitted Students (To be registered): 74
+
+DETAILED LEFT STUDENTS LIST:
+----------------------------
+1. Name: Muhammad Habib | Parent: Ghulam Fareed | Old Class: Khassa Year 1
+2. Name: Muhammad Shehzad | Parent: Fida Hussain | Old Class: Khassa Year 1
+3. Name: Muhammad Kashif | Parent: Muhammad Ramzan | Old Class: Khassa Year 1
+4. Name: Ahmed Raza | Parent: Manzoor Ahmad | Old Class: Khassa Year 1
+5. Name: Muhammad Muzammil Aslam | Parent: Muhammad Aslam | Old Class: Khassa Year 1
+6. Name: Muhammad Kashan Saleem | Parent: Muhammad Saleem | Old Class: Khassa Year 1
+7. Name: Muhammad Zubair | Parent: Ghulam Murtaza | Old Class: Khassa Year 2
+8. Name: Muhammad Ali | Parent: Nazar Hussain | Old Class: Khassa Year 2
+9. Name: Muhammad Raza Afzal | Parent: Muhammad Afzal | Old Class: Khassa Year 2
+10. Name: Muhammad Zulqarnain | Parent: Muhammad Bakir Khan | Old Class: Aliya Year 2
+11. Name: Anees Ur Rehman | Parent: Bashir Ahmad | Old Class: Aliya Year 2
+12. Name: Hassan Zafar | Parent: Muhammad Zafar | Old Class: Aliya Year 2
+13. Name: Muhammad Ramzan | Parent: Muhammad Irshad | Old Class: Alamiya Year 1
+14. Name: Muhammad Irfan | Parent: Muhammad Rafique | Old Class: Alamiya Year 2
+15. Name: Hafiz Muhammad Rafique Ahmad | Parent: Hafiz Qari Rahim Baksh | Old Class: Alamiya Year 2
+16. Name: Muhammad Mubashir Husnain | Parent: Makhdoom Muhammad Husnain Hashmi | Old Class: Alamiya Year 2
+17. Name: Rana Shahbaz Ahmad | Parent: Mushtaq Ahmad | Old Class: Alamiya Year 2
+18. Name: Ghulam Muhammad | Parent: Ghulam Yasin | Old Class: Aamma Year 1 (Arabic Language Foundation Course)
+19. Name: Umer Hayat | Parent: Muhammad Qasim | Old Class: Aamma Year 1 (Arabic Language Foundation Course)
+20. Name: Allah Diwaya | Parent: Muhammad Aslam | Old Class: Aamma Year 1 (Arabic Language Foundation Course)
+21. Name: Shoaib Akhtar | Parent: Muhammad Akhtar | Old Class: Aamma Year 1 (Arabic Language Foundation Course)
+22. Name: Masood Ul Hassan | Parent: Muhammad Akbar | Old Class: Aamma Year 1 (Arabic Language Foundation Course)
+23. Name: Muhammad Asad | Parent: Hazoor Baksh | Old Class: Aamma Year 1 (Arabic Language Foundation Course)
+24. Name: Muhammad Areeb | Parent: Muhammad Azam | Old Class: Aamma Year 1 (Arabic Language Foundation Course)
+25. Name: Moazzam Ali | Parent: Muhammad Azam | Old Class: Aamma Year 1 (Arabic Language Foundation Course)
+26. Name: Muhammad Numan | Parent: Muhammad Rafique Ahmad | Old Class: Aamma Year 1 (Arabic Language Foundation Course)
+27. Name: Muhammad Mohsin Zafar | Parent: Muhammad Zafar | Old Class: Aamma Year 2 (English Language Foundation Course)
+28. Name: Muzammil Musheer | Parent: Hafiz Musheer Ahmad | Old Class: Aamma Year 2 (English Language Foundation Course)
+29. Name: Munis | Parent: Muhammad Tahir | Old Class: Aamma Year 2 (English Language Foundation Course)
+30. Name: Muhammad Shamshad | Parent: Muhammad Amin Saeedi | Old Class: Aamma Year 2 (English Language Foundation Course)
+31. Name: Abdullah Sheikh | Parent: Hakmoon | Old Class: Aamma Year 2 (English Language Foundation Course)
+32. Name: Muhammad Dawood | Parent: Sajjad Hussain | Old Class: Aamma Year 2 (English Language Foundation Course)
+33. Name: Muhammad Babar | Parent: Khuda Bakhsh | Old Class: Aamma Year 2 (English Language Foundation Course)
+34. Name: Muhammad Waqas | Parent: Safdar Hussain | Old Class: Tajweed Class 2nd year
+35. Name: Abdul Wahab | Parent: Muhammad Latif | Old Class: Tajweed Class 2nd year
+36. Name: Ali Haider | Parent: Muhammad Saleem Khan Kanjo | Old Class: Tajweed Class 2nd year
+37. Name: Abdul Qayyum | Parent: Muhammad Yahya | Old Class: Tajweed Class 2nd year
+38. Name: Muhammad Shahnawaz | Parent: Rub Nawaz | Old Class: Tajweed Class 2nd year
+39. Name: Muhammad Ali Shan | Parent: Muhammad Qasim | Old Class: Tajweed Class 2nd year
+40. Name: Muhammad Idrees | Parent: Muhammad Akbar | Old Class: Tajweed Class 2nd year
+41. Name: Hafiz Wasif Sabir | Parent: Muhammad Sabir | Old Class: Tajweed Class 2nd year
+42. Name: Ali | Parent: Muhammad | Old Class: Aamma Year 2 (English Language Foundation Course)
+
+DETAILED NEWLY ADMITTED STUDENTS LIST:
+--------------------------------------
+1. Name: HAFIZ WASIF SABIR | Parent: HAFIZ WASIF SABIR | New Class: تجوید سال اول
+2. Name: MUHAMMAD FAHAD | Parent: MUHAMMAD SADEEQUE | New Class: تجوید سال اول
+3. Name: MUHAMMAD HUSSAIN | Parent: MUHAMMAD AFZAL | New Class: تجوید سال اول
+4. Name: MUHAMMAD UMAR | Parent: MUHAMMAD SAEED | New Class: تجوید سال اول
+5. Name: MUHAMMAD ABDUL GANI | Parent: MUHAMMAD ABDUL GANI | New Class: تجوید سال اول
+6. Name: MUHAMMAD JAWAD | Parent: TAJ MUHAMAD | New Class: تجوید سال اول
+7. Name: MUHAMMAD JUNAID | Parent: MUHAMMAD JUNAID | New Class: تجوید سال اول
+8. Name: MUHAMMAD MURTZA | Parent: MUHAMMAD MURTZA | New Class: تجوید سال اول
+9. Name: MUHAMMAD OWAIS | Parent: MUHAMMAD OWAIS | New Class: تجوید سال اول
+10. Name: MUHAMMAD HASHIM | Parent: MUHAMMAD HASHIM | New Class: تجوید سال اول
+11. Name: MUHAMMAD ABDULLAH | Parent: MUHAMMAD ABDULLAH | New Class: تجوید سال اول
+12. Name: UBAID UIIAH | Parent: UBAID UIIAH | New Class: تجوید سال اول
+13. Name: MUHAMMAD ZISHAN | Parent: MUHAMMAD ZISHAN | New Class: تجوید سال اول
+14. Name: AHMAD ALI | Parent: AHMAD ALI | New Class: تجوید سال اول
+15. Name: MUHAMMAD ASAD SHAH | Parent: MUHAMMAD ASAD SHAH | New Class: تجوید سال اول
+16. Name: UMAR DRAAZ | Parent: UMAR DRAAZ | New Class: تجوید سال اول
+17. Name: MUHAMMAD HASNAIN | Parent: MUHAMMAD HASNAIN | New Class: تجوید سال اول
+18. Name: MUHAMMAD NAZIM | Parent: MUHAMMAD NAZIM | New Class: تجوید سال اول
+19. Name: MUHAMMAD USMAN | Parent: MUHAMMAD USMAN | New Class: تجوید سال اول
+20. Name: MUHAMMAD AYAN | Parent: MUHAMMAD AYAN | New Class: تجوید سال اول
+21. Name: ABDULRAHMAN | Parent: ABDULRAHMAN | New Class: تجوید سال اول
+22. Name: MUHAMMASD BILAWAL | Parent: MUHAMMASD BILAWAL | New Class: تجوید سال اول
+23. Name: MUHAMMAD MURSLEEN | Parent: MUHAMMAD MURSLEEN | New Class: تجوید سال اول
+24. Name: HASSAN MOHSIN | Parent: HASSAN MOHSIN | New Class: تجوید سال اول
+25. Name: MUHAMMAD MUBSHIR | Parent: MUHAMMAD MUBSHIR | New Class: تجوید سال اول
+26. Name: MUHAMMAD RIZWAN | Parent: MUHAMMAD RIZWAN | New Class: تجوید سال اول
+27. Name: MUHAMMAD KASHIF | Parent: MUHAMMAD KASHIF | New Class: تجوید سال اول
+28. Name: HAFIZ KHALID HUSSAIN | Parent: GHULAM FAREED | New Class: خاصہ اول
+29. Name: MUHAMMAD JAHANGIR | Parent: MUHAMMAD ZULFIQAR | New Class: خاصہ اول
+30. Name: ABBAS AHMAD | Parent: KALU KHAN | New Class: عامہ عریبک ایوبی
+31. Name: MUHAMMAD LUQMAN | Parent: MUHAMMAD FAYYAZ | New Class: عامہ عریبک ایوبی
+32. Name: MUHAMMAD HUSSAIN | Parent: MUHAMMAD MUNEER | New Class: عامہ عریبک ایوبی
+33. Name: MUHAMMAD ASJAD UR RAHMAN | Parent: MUHAMMAD SALEEM QAZI | New Class: عامہ عریبک ایوبی
+34. Name: MUHAMMAD ABDULLAH | Parent: HAFEEZ AHMAD | New Class: عامہ عریبک ایوبی
+35. Name: MUHAMMAD HASAN ZEESHAN | Parent: MUHAMMAD ZEESHAN ASLAM | New Class: عامہ عریبک ایوبی
+36. Name: MUHAMMAD ASFAND IRSHAD | Parent: HAFIZ AZHAR MAHMOOD | New Class: عامہ عریبک ایوبی
+37. Name: HAFIZ MUHAMMAD AHMAD | Parent: MUHAMMAD AZAM | New Class: عامہ عریبک ایوبی
+38. Name: MUHAMMAD HAMMAD | Parent: MUHAMMAD AZAM | New Class: عامہ عریبک ایوبی
+39. Name: MUHAMMAD HASNAAT AHMAD | Parent: ABDUL SALAM | New Class: عامہ عریبک ایوبی
+40. Name: FAIZAN ASGHAR | Parent: ASGHAR HUSSAIN | New Class: عامہ عریبک ایوبی
+41. Name: ASAD MUSTAFA | Parent: GHULAM MUSTAFA | New Class: عامہ عریبک ایوبی
+42. Name: MUHAMMAD ASIM | Parent: MUHAMMAD MUSHIR | New Class: عامہ عریبک ایوبی
+43. Name: MUHAMMAD ARSLAN ASIF | Parent: MUHAMMAD ASIF | New Class: عامہ عریبک ایوبی
+44. Name: MUHAMMAD MATEEN | Parent: MUHAMMAD MATEEN | New Class: عامہ عریبک ایوبی
+45. Name: MUHAMMAD ASAD | Parent: MUHAMMAD AKRAM | New Class: عامہ عریبک ایوبی
+46. Name: MUHAMMAD ILYAS | Parent: ILYAS | New Class: عامہ عریبک ایوبی
+47. Name: ASAD ALI | Parent: HAZOOR BAKSH | New Class: عامہ عریبک غزنوی
+48. Name: MUHAMMAD NUMAN RAFIQUE | Parent: MUHAMMAD RAFIQUE AHMAD | New Class: عامہ عریبک غزنوی
+49. Name: MUHAMMAD AMAN SAEED | Parent: SAEED AHMAD | New Class: عامہ عریبک غزنوی
+50. Name: MUHAMMAD SHOAIB | Parent: GHULAM HASHIM SAJID | New Class: عامہ عریبک غزنوی
+51. Name: SYED NAEEM UL HAQ SHAH | Parent: SYED TAHIR HUSSAIN SHAH | New Class: عامہ عریبک غزنوی
+52. Name: MUHAMMAD ALI SHER | Parent: ABDUL HAMEED | New Class: عامہ عریبک غزنوی
+53. Name: SYED MOIN UL HAQ SHAH | Parent: SYED TAHIR HUSSAIN SHAH | New Class: عامہ عریبک غزنوی
+54. Name: MUHAMMAD UMAR | Parent: ABDUL HAMEED | New Class: عامہ عریبک غزنوی
+55. Name: MUHAMMAD AHMAD RIAZ | Parent: MUHAMMAD RIAZ | New Class: عامہ عریبک غزنوی
+56. Name: MUHAMMAD AHMAD | Parent: MUHAMMAD IRFAN | New Class: عامہ عریبک غزنوی
+57. Name: FIZAN ALI | Parent: MUHAMMAD ALI | New Class: عامہ عریبک غزنوی
+58. Name: MUHAMMAD HASNAIN | Parent: MUHAMMAD HASAN | New Class: عامہ عریبک غزنوی
+59. Name: HAFIZ MUHAMMAD ZEESHAN | Parent: KHUDA BAKHSH | New Class: پری عریبک (متوسطہ)
+60. Name: MUHAMMAD AHSAN | Parent: MUHAMMAD NAVEED | New Class: پری عریبک (متوسطہ)
+61. Name: MUHAMMAD AQIB BILAL | Parent: MUHAMMAD BILAL | New Class: پری عریبک (متوسطہ)
+62. Name: MUHAMMAD REHAN | Parent: MUHAMMAD AKHTAR | New Class: پری عریبک (متوسطہ)
+63. Name: MUHAMMAD MUDASSIR | Parent: HAFIZ MUKHTIAR AHMAD | New Class: پری عریبک (متوسطہ)
+64. Name: MUHAMMAD JUNAID ASLAM | Parent: HAFIZ MUHAMMAD ASLAM | New Class: پری عریبک (متوسطہ)
+65. Name: MUHAMMAD HUSSAIN | Parent: AMEER BAKHSH | New Class: پری عریبک (متوسطہ)
+66. Name: MUHAMMAD TAHSEEN | Parent: MUHAMMAD AHMAD | New Class: پری عریبک (متوسطہ)
+67. Name: MUHAMMAD SALEEM | Parent: MALIK | New Class: پری عریبک (متوسطہ)
+68. Name: MUHAMMAD FIZAN | Parent: SARFAZ | New Class: پری عریبک (متوسطہ)
+69. Name: MUHAMMAD SOHAIL | Parent: MUHAMMAD | New Class: پری عریبک (متوسطہ)
+70. Name: AHMAD NAWZ | Parent: MUHAMMAD NAWAZ | New Class: پری عریبک (متوسطہ)
+71. Name: MUHAMMAD ZUBAIR | Parent: MUHAMMAD | New Class: پری عریبک (متوسطہ)
+72. Name: MUHAMMAD ASAD | Parent: MUHAMMAD SHAIR ALI | New Class: پری عریبک (متوسطہ)
+73. Name: MUHAMMAD HASAN TAHIR | Parent: MUHAMMAD TAHIR | New Class: پری عریبک (متوسطہ)
+74. Name: MUHAMMAD AAMAD FIAZ | Parent: HAFIZ MUHAMMAD FIAZ | New Class: پری عریبک (متوسطہ)
