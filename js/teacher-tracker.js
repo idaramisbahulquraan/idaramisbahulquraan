@@ -194,8 +194,8 @@ async function fetchDailyCompliance() {
     let globalIndex = 0;
 
     trackerState.teachers.forEach((teacher) => {
-        // Find courses (subjects) assigned to this teacher
-        const assignedSubjects = trackerState.subjects.filter(s => s.teacherId === teacher.id || s.teacherName === teacher.name);
+        // Find courses (subjects) assigned to this teacher (de-duplicated)
+        const assignedSubjects = getUniqueTeacherSubjects(teacher, trackerState.subjects);
         
         // C. Assembly rating check (global for teacher on that day)
         const gradedAssembly = activeAssembly.some(a => 
@@ -345,8 +345,8 @@ async function fetchMonthlyCompliance() {
     let auditDone = 0;
 
     const html = trackerState.teachers.map((teacher, index) => {
-        // A. Written Exam Marks Entered for assigned subjects
-        const assignedSubjects = trackerState.subjects.filter(s => s.teacherId === teacher.id || s.teacherName === teacher.name);
+        // A. Written Exam Marks Entered for assigned subjects (de-duplicated)
+        const assignedSubjects = getUniqueTeacherSubjects(teacher, trackerState.subjects);
         
         let examMarksBadge = '<span class="stat-badge badge-info">کوئی امتحان نہیں</span>';
         if (assignedSubjects.length > 0) {
@@ -467,8 +467,8 @@ async function fetchAnnualCompliance() {
     let certDone = 0;
 
     const html = trackerState.teachers.map((teacher, index) => {
-        // A. Annual written exam marks
-        const assignedSubjects = trackerState.subjects.filter(s => s.teacherId === teacher.id || s.teacherName === teacher.name);
+        // A. Annual written exam marks (de-duplicated)
+        const assignedSubjects = getUniqueTeacherSubjects(teacher, trackerState.subjects);
         
         let annualExamBadge = '<span class="stat-badge badge-info">کوئی امتحان نہیں</span>';
         if (assignedSubjects.length > 0) {
@@ -536,4 +536,19 @@ function escapeHtml(unsafe) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+}
+
+// Get unique subjects assigned to teacher (de-duplicates by className, name and book)
+function getUniqueTeacherSubjects(teacher, allSubjects) {
+    const rawAssigned = allSubjects.filter(s => s.teacherId === teacher.id || s.teacherName === teacher.name);
+    const unique = [];
+    const seen = new Set();
+    rawAssigned.forEach(sub => {
+        const key = `${(sub.className || '').trim().toLowerCase()}_${(sub.name || '').trim().toLowerCase()}_${(sub.book || '').trim().toLowerCase()}`;
+        if (!seen.has(key)) {
+            seen.add(key);
+            unique.push(sub);
+        }
+    });
+    return unique;
 }
