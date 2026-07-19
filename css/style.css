@@ -686,12 +686,61 @@ table {
     -webkit-overflow-scrolling: touch !important;
 }
 
-.card, .panel, .glass-panel {
+/* Force all containers to fit screen width on mobile */
+.card, .panel, .glass-panel, .stat-card, .diary-grid-card, .diary-toolbar-card, .assembly-card, .assembly-hero, .hifz-card, .dap-card, .ldc-card {
     max-width: 100% !important;
+    width: 100% !important;
     overflow: hidden;
+    box-sizing: border-box !important;
 }
 
 @media (max-width: 768px) {
+    /* Global viewport lock to prevent horizontal scrolling */
+    html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+    }
+    
+    .dashboard-layout,
+    .main-content,
+    .dashboard-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Force mobile sidebar to always slide from the left side.
+       Translating to negative coordinates (-100%) prevents browsers from 
+       creating positive X space scrollbars which cause page shifts in RTL. */
+    .sidebar,
+    .rtl-mode .sidebar,
+    [dir="rtl"] .sidebar {
+        left: 0 !important;
+        right: auto !important;
+        transform: translateX(-100%) !important;
+        visibility: hidden !important;
+        border-right: 1px solid var(--border-color) !important;
+        border-left: none !important;
+        z-index: 9999 !important;
+        transition: transform 0.3s ease, visibility 0.3s ease !important;
+    }
+
+    .sidebar.open,
+    .rtl-mode .sidebar.open,
+    [dir="rtl"] .sidebar.open {
+        transform: translateX(0) !important;
+        visibility: visible !important;
+    }
+
+    .main-content,
+    .rtl-mode .main-content,
+    [dir="rtl"] .main-content {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
     .dashboard-content {
         padding: 1rem !important;
     }
@@ -746,8 +795,10 @@ table {
     
     .modal-content {
         width: calc(100% - 20px) !important;
+        max-width: calc(100% - 20px) !important;
         margin: 10px !important;
         padding: 1.25rem 1rem !important;
+        overflow-x: hidden !important;
     }
     
     .chart-card {
@@ -755,5 +806,8 @@ table {
         padding: 1rem !important;
     }
 }
+
+
+
 
 
