@@ -39,6 +39,8 @@ jobs:
         run: |
           node tools/build_assets.js
           npx cap add android || true
+          pip install Pillow
+          python tools/generate_android_icons.py
           npx cap sync
 
       - name: Make Gradlew Executable
