@@ -669,3 +669,91 @@ table {
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05) !important;
 }
 
+/* Mobile Portrait Responsiveness & Overflow Fixes */
+.dashboard-layout {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.table-container,
+.diary-table-wrap,
+.hifz-table-wrap,
+.dap-board-wrap,
+.assembly-board-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+.card, .panel, .glass-panel {
+    max-width: 100% !important;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .dashboard-content {
+        padding: 1rem !important;
+    }
+    
+    .stats-grid {
+        gap: 1rem !important;
+    }
+    
+    /* Universal mobile grid stacking to prevent overflow */
+    .grid-container,
+    .grid-2,
+    .grid-3,
+    .form-grid,
+    .two-col-grid,
+    .charts-grid,
+    .reports-charts-grid,
+    .admissions-layout,
+    .timetable-layout,
+    .messages-layout,
+    .ai-features-layout,
+    .settings-layout,
+    .academic-planner-layout {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+    
+    input, select, textarea, button {
+        min-height: 40px; /* Better mobile touch targets */
+    }
+    
+    .data-table th, .data-table td {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .header {
+        padding: 0.75rem 1rem !important;
+    }
+    
+    .page-title h1, 
+    .rtl-mode .page-title h1, 
+    [dir="rtl"] .page-title h1 {
+        font-size: 1.15rem !important;
+    }
+    
+    /* Hide profile user info on small mobile viewports to prevent header wrap */
+    .header-actions .user-profile .user-info {
+        display: none !important;
+    }
+    
+    .modal-content {
+        width: calc(100% - 20px) !important;
+        margin: 10px !important;
+        padding: 1.25rem 1rem !important;
+    }
+    
+    .chart-card {
+        height: 280px !important;
+        padding: 1rem !important;
+    }
+}
+
+
