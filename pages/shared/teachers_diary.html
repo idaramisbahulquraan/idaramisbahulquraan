@@ -188,7 +188,7 @@
         .diary-sticky-footer {
             position: fixed;
             bottom: 0;
-            left: 0;
+            left: 250px;
             right: 0;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);
@@ -232,6 +232,7 @@
                 padding: 1rem;
             }
             .diary-sticky-footer {
+                left: 0;
                 padding: 0.75rem 1rem;
                 justify-content: space-between;
             }
@@ -330,16 +331,16 @@
                             </table>
                         </div>
 
-                        <div class="diary-action-row">
-                            <button type="button" class="btn btn-add-entry" id="addDiaryRowBtn">
-                                ➕ نیا ریکارڈ شامل کریں
-                            </button>
+                        <div class="diary-action-row" style="justify-content: flex-end;">
                             <span style="color:#64748b; font-size:0.85rem;" id="diaryRowCountLabel">0 ریکارڈز</span>
                         </div>
                     </div>
 
                     <div class="diary-sticky-footer">
                         <span id="diarySaveStateText" style="align-self:center; font-size:0.9rem; color:#10b981; font-weight:600; margin-left:auto;"></span>
+                        <button type="button" class="btn btn-add-entry" id="addDiaryRowBtn" style="margin-left: 0.5rem;">
+                            ➕ نیا ریکارڈ شامل کریں
+                        </button>
                         <button type="button" class="btn btn-save-diary" id="saveDiaryBtn">
                             💾 ڈائری محفوظ کریں
                         </button>
